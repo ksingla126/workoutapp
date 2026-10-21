@@ -407,10 +407,44 @@ nav.tabs .badge{position:absolute;top:2px;right:calc(50% - 22px);min-width:16px;
 .suopts{display:grid;gap:8px;margin:8px 0}.suopts.two{grid-template-columns:1fr 1fr}.suopts.three{grid-template-columns:1fr 1fr 1fr}
 .suopt{display:flex;flex-direction:column;gap:2px;text-align:left;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;cursor:pointer}
 .suopt span{font-size:12px;color:var(--muted)}.suopt.on{border-color:var(--ink);background:var(--surface);box-shadow:inset 0 0 0 1px var(--ink)}
-#suForm .card>.field{flex:none}
 .sudays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .suday{padding:10px 0;border-radius:9px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:600 13px var(--body);cursor:pointer}
 .suday.on.gymDays{background:var(--gym);border-color:var(--gym);color:#fff}.suday.on.runDays{background:var(--run);border-color:var(--run);color:#fff}
+
+#suForm .card>.field{flex:none}
+.sched{display:grid;grid-template-columns:1fr;gap:6px}.sched label{display:grid;grid-template-columns:48px 1fr;align-items:center;gap:8px;font-weight:600;font-size:14px}
+.sched select,.rex select{background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;color:var(--ink);font:inherit;width:100%}
+.routine .rname{font:800 22px var(--display);background:transparent;border:0;border-bottom:1px dashed var(--line);color:var(--ink);padding:2px 0;flex:1;min-width:0}
+.rex{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px}
+.rex-h{display:flex;justify-content:space-between;gap:8px}.rex-h>div:first-child{display:flex;flex-direction:column;min-width:0}
+.rex-act{display:flex;gap:4px;flex-shrink:0}.rex-act button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit}
+.rex-act button:disabled{opacity:.35}
+.rex-f{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;align-items:end}.rex-f label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
+.step{display:flex;align-items:center;gap:6px}.step button{width:30px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:600 16px var(--body)}
+.step b{min-width:18px;text-align:center;color:var(--ink);font-size:15px}
+.rng{display:flex;align-items:center;gap:4px;color:var(--ink)}.rng input{width:100%;min-width:0;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:8px 6px;text-align:center;color:var(--ink);font:inherit}
+body.xs-open{overflow:hidden}
+#xsheet{position:fixed;inset:0;z-index:900}#xsheet[hidden]{display:none}
+#xsheet .xs-back{position:absolute;inset:0;background:rgba(0,0,0,.5)}
+#xsheet .xs-panel{position:absolute;left:0;right:0;bottom:0;max-height:88vh;overflow:auto;background:var(--bg);border-radius:16px 16px 0 0;padding:16px 16px calc(24px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto;-webkit-overflow-scrolling:touch}
+#xsheet .xs-in{display:flex;flex-direction:column;gap:10px}
+#xsheet .xs-in .field{flex:none}
+.xs-head{display:flex;justify-content:space-between;align-items:center;gap:8px}.xs-head h2{margin:0}
+.xs-search{width:100%;box-sizing:border-box;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--ink);font:16px var(--body)}
+.xs-chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.xs-chips button{flex-shrink:0;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 13px var(--body)}
+.xs-chips button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.xs-list{display:flex;flex-direction:column}
+.xs-item{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;padding:11px 2px;border:0;border-bottom:1px solid var(--line);background:none;color:var(--ink);font:inherit}
+.xs-item>span:first-child{display:flex;flex-direction:column;gap:2px;min-width:0}
+.xs-plus{flex-shrink:0;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);font-weight:700}
+.xs-item.on .xs-plus{background:var(--gym);border-color:var(--gym);color:#fff}
+.macroline{margin:4px 0}
+.kcalrow{display:flex;align-items:center;justify-content:space-between;gap:6px;text-align:center}
+.kcalrow div{display:flex;flex-direction:column}.kcalrow div b{font-size:20px}.kcalrow div span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.kcalrow .op{color:var(--muted)}.kcalrow .over b{color:var(--bad)}
+.macros{display:flex;flex-direction:column;gap:8px}.bar.thin{height:6px}
+.slot{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px}
 </style>
 </head>
 <body>
@@ -432,6 +466,7 @@ nav.tabs .badge{position:absolute;top:2px;right:calc(50% - 22px);min-width:16px;
   <div class="tb-prog"><i id="tmRestFill"></i></div>
 </div>
 
+<script src="/custom.js"></script>
 <script>
 /* ---------- Program definition ---------- */
 let CUSTOM = null; // set when the user built their own plan in setup
@@ -523,14 +558,14 @@ const ROPE_STAGES=[["2026-11-02",6,30,30,"Short rounds while your calves adapt. 
 function ropeFor(d){ const k=ymd(d); const r=ROPE_STAGES.find(x=>k<x[0]); return {id:"rope",name:"Jump rope rounds",sets:r[1],lo:r[2],hi:r[2],inc:0,unit:"sec",bw:true,fixed:true,rest:r[3],
   alt:"Finisher, after your last exercise. "+r[4]+" Rope length: stand on the middle, handles reach your armpits. Calves still sore 2 days later? Repeat this format next week."} }
 function curPhase(){ return CUSTOM? CUSTOM.gym : GYM2[ymd(today)<=CORE_SWAP.to?"block":"post"] }
-function gymDay(s,d){ if(CUSTOM) return CUSTOM.gym[s]; const g=gymDay0(s,d); return ymd(d)>=V2_FROM? {...g, ex:[...g.ex, ropeFor(d)]} : g }
+function gymDay(s,d){ if(CUSTOM) return CUSTOM.gym[s]||{name:"Workout",ex:[]}; const g=gymDay0(s,d); return ymd(d)>=V2_FROM? {...g, ex:[...g.ex, ropeFor(d)]} : g }
 function gymDay0(s,d){ const k=ymd(d); if(k>=V2_FROM) return GYM2[k<=CORE_SWAP.to?"block":"post"][s];
   const g=GYM[s]; if(!inCoreSwap(d)) return g; const ex=g.ex.map(e=>SWAP_EX[e.id]||e); return {...g, ex, name: s==="B"?"Day B · Press & Core":g.name, swapped:true} }
 const ALLEX = (()=>{const m={}; [...Object.values(GYM).flatMap(d=>d.ex), ...Object.values(SWAP_EX), ...Object.values(X)].forEach(e=>{ if(!e.bw) m[e.id]=m[e.id]&&Object.values(X).includes(e)?m[e.id]:(Object.values(X).find(x=>x.id===e.id)||e) }); return Object.values(m)})();
 let KEYLIFTS = ["legpress45","bench","tbdl","ohp"];
 // rest between sets (seconds)
 const REST = {revfly:60,fly:60,backext:75,lateral:60,legext1:60,calfraise:60,hipthrust:120,legpress45:150,declinecrunch:60,cablecrunch:60,pallof:60,squat:150,bench:150,tbdl:150,rdl:120,ohp:120,legpress:120,plank:45,facepull:60,conc:60,ohtri:60,ezcurl:60,pushdown:60,hammer:60};
-const restFor = id => id==="rope"? ropeFor(sel).rest : (REST[id] || 90);
+const restFor = id => id==="rope"? ropeFor(sel).rest : ((CUSTOM&&CUSTOM.rest[id]) || REST[id] || 90);
 // dumbbell option: weight is logged per dumbbell; m = dumbbells counted toward total load
 const DBCFG = {revfly:{def:false,m:2},fly:{def:false,m:2},lateral:{def:true,m:2},calfraise:{def:false,m:2},bench:{def:false,m:2},rdl:{def:false,m:2},ohp:{def:false,m:2},split:{def:true,m:2},incline:{def:true,m:2},dbrow:{def:true,m:2},hammer:{def:true,m:2},conc:{def:true,m:1},ohtri:{def:false,m:1}};
 function logDb(id,l){ if(!DBCFG[id]) return false; return l&&l.db&&(id in l.db)? !!l.db[id] : DBCFG[id].def }
@@ -563,8 +598,8 @@ const MEALS = {
  bn:{n:"Long-run fuel · Banana", d:"30–45 minutes before you head out.", kcal:105, p:1}
 };
 function mealsFor(d){const p=planFor(d); const ids=["b","l","d","s"]; if(p&&p.type==="run"){ids.push("e"); if(p.key==="sat") ids.push("bn")} else if(!p){const i=dowOf(d); if(i===1||i===3||i===5) ids.push("e"); if(i===5) ids.push("bn")} return ids}
-const dayTarget=d=>mealsFor(d).reduce((t,id)=>t+MEALS[id].kcal,0);
-const dayProtein=d=>mealsFor(d).reduce((t,id)=>t+MEALS[id].p,0);
+const dayTarget=d=>CUSTOM? foodGoals().kcal : mealsFor(d).reduce((t,id)=>t+MEALS[id].kcal,0);
+const dayProtein=d=>CUSTOM? foodGoals().p : mealsFor(d).reduce((t,id)=>t+MEALS[id].p,0);
 const BATCH = [
  {name:"Big-batch walnut pesto", when:"Every 4–5 weeks · 15 min", yld:"~2½ cups ≈ 40 tablespoons", store:"Freeze in an ice-cube tray (1 tbsp per cube), then bag. Good for 3 months. Keep a week of cubes in the fridge.",
   ing:["2 packed cups basil + 2 cups baby spinach","1 cup walnuts, toasted in a dry pan 3 min","1 cup grated parmesan","4 garlic cloves, juice of 1 lemon","¾ cup olive oil, 1 tsp salt"],
@@ -707,6 +742,7 @@ function dayEaten(k){
   const m=S.meals[k]; if(!m) return {kcal:0,p:0,any:false};
   let kcal=0,p=0; Object.entries(m.eaten||{}).forEach(([id,v])=>{if(v&&MEALS[id]){kcal+=MEALS[id].kcal;p+=MEALS[id].p}});
   (m.extras||[]).forEach(x=>{kcal+=Number(x.kcal)||0;p+=Number(x.p)||0});
+  (m.items||[]).forEach(x=>{kcal+=Number(x.kcal)||0;p+=Number(x.p)||0});
   return {kcal,p,any:kcal>0};
 }
 function weekFood(w){
@@ -814,7 +850,7 @@ function trainingCard(p,k,log,openLogger){
         const dk=draftKey(`c-${ex.id}-${i}`), done = (dk in drafts)? !!drafts[dk] : !!(cur&&cur[i]);
         const chk=`<button type="button" class="chk ${done?"on":""}" data-chk="${ex.id}|${i}" aria-pressed="${done}" aria-label="Mark ${esc(ex.name)} set ${i+1} done">✓</button>`;
         h+=ex.bw? `<div class="set ${done?"done":""}" id="set-${ex.id}-${i}"><b>${i+1}</b><input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} seconds" value="${esc(sr)}" placeholder="${t.reps[i]}"><span>sec</span>${chk}</div>`
-          : `<div class="set ${done?"done":""}" id="set-${ex.id}-${i}"><b>${i+1}</b><input id="w-${ex.id}-${i}" inputmode="decimal" aria-label="${esc(ex.name)} set ${i+1} weight" value="${esc(sw)}" placeholder="${db?"lb/DB":"lb"}"><span>×</span><input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} reps" value="${esc(sr)}" placeholder="${t.reps[i]}">${chk}</div>`;
+          : `<div class="set ${done?"done":""}" id="set-${ex.id}-${i}"><b>${i+1}</b><input id="w-${ex.id}-${i}" inputmode="decimal" aria-label="${esc(ex.name)} set ${i+1} weight" value="${esc(sw)}" placeholder="${ex.optW?"+lb":db?"lb/DB":"lb"}"><span>×</span><input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} reps" value="${esc(sr)}" placeholder="${t.reps[i]}">${chk}</div>`;
       }
       h+=`</div></div>`;
     });
@@ -848,6 +884,7 @@ function mondayWeighIn(){
   return `<div class="row" style="align-items:flex-end;border-top:1px solid var(--line);padding-top:12px"><div class="field"><label for="bwIn">Monday weigh-in (lb)</label><input id="bwIn" inputmode="decimal" placeholder="e.g. 248.4"></div><button class="btn" id="bwSave">Log</button></div>`;
 }
 function mealsCard(d){
+  if(CUSTOM) return diaryCard(d);
   const k=ymd(d), m=S.meals[k]||{}, eaten=m.eaten||{}, extras=m.extras||[];
   const ids=mealsFor(d);
   let h=`<div class="card"><div class="row between"><div><div class="eyebrow">Meals · tap when eaten</div><h2>Today's food</h2></div><span class="chip food num">${fmtN(dayTarget(d))} kcal plan</span></div><div>`;
@@ -895,17 +932,19 @@ function viewPlan(){
    <p><span class="chip coach">From week 4</span> Tuesday ends with 4–6 strides: 15–20 seconds of fast, relaxed running at about 85% effort (not a sprint), with a 60–90 second walk between each. They sharpen form and leg turnover with little injury risk.</p>
    <div class="field"><label for="race">Half marathon date</label><input id="race" type="date" value="${esc(S.profile.raceDate||"")}"></div>
    <p class="small muted">Set your race date and ask your coach to line the long runs up with it.</p></div>`;
+  if(CUSTOM) h+=routinesEditor(); else {
   h+=`<div class="card"><h2>Gym workouts</h2>`;
   if(!CUSTOM) h+=`<p class="note"><b>Core block, ${fmtShort(parseYmd(CORE_SWAP.from))}–${fmtShort(parseYmd(CORE_SWAP.to))}:</b> deadlifts are paused for core work. They return Nov 9.</p>`;
   const ph=curPhase();
   h+=`<p class="small muted">Paired exercises are done back-to-back, then rest.</p>`;
   Object.values(ph).forEach(d=>{h+=`<div><h3>${esc(d.name)}</h3><div class="small num">${d.ex.map(e=>`${esc(e.name)} <span class="muted">${e.sets}×${e.lo}–${e.hi}${e.bw?"s":""}${e.inc?` · +${e.inc} lb`:""}</span>`).join("<br>")}</div></div>`});
   h+=`</div>`;
+  }
   for(let w=1;w<=WEEKS;w++){
     const mon=monOf(w), r=RUNS[w-1];
     h+=`<div class="card wk ${w===cw?"cur":""}"><div class="row between"><h3>Week ${w} <span class="muted small" style="font-family:var(--body);font-weight:500">${fmtShort(mon)} – ${fmtShort(addDays(mon,w===WEEKS?4:6))}</span></h3><div class="row" style="gap:6px">${r.tag?`<span class="chip">${esc(r.tag)}</span>`:""}${w===cw?'<span class="chip run">This week</span>':""}</div></div><div class="days">`;
     for(let i=0;i<7;i++){const d=addDays(mon,i),p=planFor(d); if(!p||p.type==="rest") continue; const k=ymd(d);
-      const txt=(p.type==="gym"?`Gym ${p.day}`:`${p.t}: ${p.d}`)+(p.src?` (moved from ${DOW[dowOf(parseYmd(p.src))]})`:"");
+      const txt=(p.type==="gym"?(CUSTOM?p.name:`Gym ${p.day}`):`${p.t}: ${p.d}`)+(p.src?` (moved from ${DOW[dowOf(parseYmd(p.src))]})`:"");
       h+=`<button class="dayline ${S.logs[k]?"done":""}" data-goto="${k}"><span class="dn">${DOW[i]} ${d.getDate()}</span><span class="plate ${p.type==="gym"?"p-gym":"p-run"}"></span><span class="txt">${esc(txt)}</span></button>`}
     h+=`</div></div>`;
   }
@@ -1004,6 +1043,7 @@ function viewProgress(){
 
 /* ----- Food ----- */
 function viewFood(){
+  if(CUSTOM) return customFoodView();
   const total=GROCERY.reduce((t,g)=>t+g.items.reduce((a,i)=>a+i[2],0),0);
   const g=S.profile.grocery||{};
   const dayRows=[["Gym & rest days (Mon/Wed/Fri/Sun)",["b","l","d","s"]],["Tue / Thu runs",["b","l","d","s","e"]],["Saturday long run",["b","l","d","s","e","bn"]]];
@@ -1318,7 +1358,7 @@ function bindLive(k,p){
   if($$("lvDone")) $$("lvDone").onclick=()=>{
     const steps=gymSteps(k,p), idx=steps.findIndex(x=>!x.done), cur=steps[idx]; if(!cur) return;
     const w=$$("lvW")?$$("lvW").value.trim():"", r=$$("lvR").value.trim();
-    if(!(Number(r)>0) || (!cur.ex.bw && !(Number(w)>0) && !(cur.ex.optW && w!==""))){ toast(cur.ex.bw?"Enter the seconds you held":"Enter the weight and reps you did"); return }
+    if(!(Number(r)>0) || (!cur.ex.bw && !(Number(w)>0) && !cur.ex.optW)){ toast(cur.ex.bw?"Enter the seconds you held":"Enter the weight and reps you did"); return }
     if(!cur.ex.bw) drafts[dkey(k,`w-${cur.ex.id}-${cur.i}`)]=w;
     drafts[dkey(k,`r-${cur.ex.id}-${cur.i}`)]=r; drafts[dkey(k,`c-${cur.ex.id}-${cur.i}`)]=true; drafts[dkey(k,"open-trainLog")]=true; persistDrafts();
     if(idx<steps.length-1) startRest(restFor(cur.ex.id));
@@ -2117,7 +2157,7 @@ function bind(){
   $("#saveGym")?.addEventListener("click",()=>{
     const ex={}, db={}; let anyChecked=false;
     p.ex.forEach(e=>{for(let i=0;i<e.sets;i++){ if($(`#set-${e.id}-${i}`)?.classList.contains("done")) anyChecked=true }});
-    p.ex.forEach(e=>{const sets=[];for(let i=0;i<e.sets;i++){ if(anyChecked && !$(`#set-${e.id}-${i}`)?.classList.contains("done")) continue; const r=Number($(`#r-${e.id}-${i}`).value); const w=e.bw?0:Number($(`#w-${e.id}-${i}`).value); if(r>0&&(e.bw||w>0||(e.optW&&$(`#w-${e.id}-${i}`).value.trim()!==""))) sets.push(e.bw?{r}:{w,r})} if(sets.length){ex[e.id]=sets; if(DBCFG[e.id]) db[e.id]=dbNow(e.id,log)}});
+    p.ex.forEach(e=>{const sets=[];for(let i=0;i<e.sets;i++){ if(anyChecked && !$(`#set-${e.id}-${i}`)?.classList.contains("done")) continue; const r=Number($(`#r-${e.id}-${i}`).value); const w=e.bw?0:Number($(`#w-${e.id}-${i}`).value); if(r>0&&(e.bw||w>0||e.optW)) sets.push(e.bw?{r}:{w,r})} if(sets.length){ex[e.id]=sets; if(DBCFG[e.id]) db[e.id]=dbNow(e.id,log)}});
     if(!Object.keys(ex).length){toast(anyChecked?"Ticked sets need a weight and reps":"Enter weight and reps for at least one set");return}
     const durMin = TM.start&&TM.date===k ? (Date.now()-TM.start)/60000 : (log&&log.durMin)||null;
     if(TM.start&&TM.date===k) stopWorkout();
@@ -2224,20 +2264,6 @@ const RACE_NAMES={"5k":"5K","10k":"10K",half:"Half marathon"};
 const BASE_MEALS=JSON.parse(JSON.stringify(MEALS));
 const BASE_BENCH=BENCH_NORM.map(x=>[...x]), BASE_VO2=VO2_NORM.map(x=>[...x]);
 const mondayOf=d=>addDays(midnight(d),-((d.getDay()+6)%7));
-const GYM_TEMPLATES={
-  2:()=>({
-    A:{name:"Day A · Full body",ex:[X.legpress45,X.bench,X.pulldown,X.legcurl,X.lateral,X.pushdown,{...X.declinecrunch}]},
-    B:{name:"Day B · Full body",ex:[X.rdl,X.incline,X.cablerow,X.legext1,X.facepull,X.ezcurl,X.calfraise]}}),
-  3:()=>({
-    A:{name:"Day A · Bench & Leg Press",ex:[X.bench,X.legpress45,X.pulldown,X.rdl,X.backext,X.fly,X.revfly,X.lateral]},
-    B:{name:"Day B · Press & Deadlift",ex:[X.ohp,X.tbdl,X.cablerow,X.legcurl,X.legext1,X.facepull,X.ohtri,X.calfraise]},
-    C:{name:"Day C · Incline & Glutes",ex:[X.incline,X.dbrow,X.hipthrust,X.legcurl,X.ezcurl,X.pushdown,X.hammer,{...X.calfraise,sets:2}]}}),
-  4:()=>({
-    A:{name:"Day A · Upper",ex:[X.bench,X.cablerow,X.ohp,X.pulldown,X.lateral,X.ezcurl,X.pushdown]},
-    B:{name:"Day B · Lower",ex:[X.legpress45,X.rdl,X.legcurl,X.legext1,X.calfraise,X.declinecrunch]},
-    C:{name:"Day C · Upper",ex:[X.incline,X.dbrow,X.fly,X.revfly,X.facepull,X.hammer,X.ohtri]},
-    D:{name:"Day D · Lower",ex:[X.tbdl,X.hipthrust,X.legpress45,X.legcurl,X.calfraise,X.backext]}})
-};
 function hrZone(age){ const mx=Math.round(208-0.7*age); return [Math.round(mx*0.65),Math.round(mx*0.78)] }
 function buildRuns(su,W){
   const lvl=su.runLevel||"new", race=su.race||"none";
@@ -2263,19 +2289,32 @@ function buildRuns(su,W){
   }
   return out;
 }
-function applySetup(su){
+// v1 setups (fixed templates by day count) become routines + a weekly schedule
+function normalizeSetup(su){
+  if(su.routines&&su.week) return su;
+  const gd=[...(su.gymDays||[0,2,4])].sort((a,b)=>a-b), key={2:"fb2",3:"abc3",4:"ul4"}[gd.length]||"abc3", x=splitToSetup(key);
+  const week=Array(7).fill("rest"); gd.forEach((d,i)=>{ if(x.routines[i]) week[d]=x.routines[i].id }); (su.runDays||[]).forEach(d=>week[d]="run");
+  return {...su,v:2,split:key,routines:x.routines,week,food:su.food||{kcal:su.kcal}};
+}
+function applySetup(raw){
+  const su={...normalizeSetup(raw)};
+  su.gymDays=su.week.map((w,i)=>w!=="rest"&&w!=="run"&&su.routines.some(r=>r.id===w)?i:-1).filter(i=>i>=0);
+  su.runDays=su.week.map((w,i)=>w==="run"?i:-1).filter(i=>i>=0);
+  su.kcal=(su.food&&su.food.kcal)||su.kcal;
   START=mondayOf(parseYmd(su.start)); GOAL=parseYmd(su.goalDate);
   WEEKS=Math.max(1,Math.ceil((dayNum(GOAL)+1)/7));
-  SCHED=Array(7).fill("rest"); RUNKEY={};
-  [...su.gymDays].sort((a,b)=>a-b).forEach((d,i)=>SCHED[d]="ABCD"[i]);
-  const rd=[...su.runDays].sort((a,b)=>a-b), kinds=rd.length===1?["sat"]:rd.length===2?["tue","sat"]:["tue","thu","sat"];
-  rd.forEach((d,i)=>{SCHED[d]="run"; RUNKEY[d]=kinds[i]});
+  const gym={}, rest={};
+  su.routines.forEach(r=>{ const ex=r.ex.map(toPlanEx); gym[r.id]={name:r.name,ex}; ex.forEach(e=>{ if(!(e.id in rest)) rest[e.id]=e.rest;
+    if(e.equip==="Dumbbell"&&!DBCFG[e.id]) DBCFG[e.id]={def:true,m:e.uni?1:2};
+    if(!ALLEX.some(a=>a.id===e.id)) ALLEX.push(e);
+    if(!EX_MUSCLES[e.id]&&LIB_MUSCLE_MAP[e.muscle]) EX_MUSCLES[e.id]=LIB_MUSCLE_MAP[e.muscle] }) });
+  SCHED=su.week.map(w=>w==="run"?"run":gym[w]?w:"rest"); RUNKEY={};
+  const kinds=su.runDays.length===1?["sat"]:su.runDays.length===2?["tue","sat"]:["tue","thu","sat"];
+  su.runDays.forEach((d,i)=>RUNKEY[d]=kinds[Math.min(i,2)]);
   RUNS=buildRuns(su,WEEKS);
-  const gym=GYM_TEMPLATES[su.gymDays.length](); CUSTOM={su,gym};
-  KEYLIFTS=["legpress45","bench","tbdl","ohp","rdl","incline"].filter(id=>Object.values(gym).some(d=>d.ex.some(e=>e.id===id))).slice(0,4);
-  const f=(Number(su.kcal)||1505)/1505;
-  Object.keys(BASE_MEALS).forEach(id=>{ const b=BASE_MEALS[id], fuel=id==="e"||id==="bn";
-    MEALS[id]={...b,kcal:fuel?b.kcal:Math.round(b.kcal*f/5)*5,p:fuel?b.p:Math.round(b.p*f),d:!fuel&&Math.abs(f-1)>0.05?`Portions ×${f.toFixed(2).replace(/0$/,"")}. ${b.d}`:b.d}});
+  CUSTOM={su,gym,rest};
+  const ids=[...new Set(su.routines.flatMap(r=>r.ex.map(e=>e.id)))];
+  KEYLIFTS=[...ids.filter(id=>STD[id]&&!STD[id].sec&&!STD[id].add),...ids].filter((x,i,a)=>a.indexOf(x)===i).slice(0,4);
   AGE=Number(su.age)||30; NORM_WHO=su.sex==="female"?"women":"men";
   const a=AGE, fem=su.sex==="female";
   const bA=a<30?1:a<40?0.88:a<50?0.79:a<60?0.71:0.63, vA=a<30?1:a<40?0.89:a<50?0.8:a<60?0.7:0.61;
@@ -2286,7 +2325,9 @@ function applySetup(su){
 }
 let appliedStamp="";
 function onProfile(){
-  const su=S.profile&&S.profile.setup; const st=su?JSON.stringify(su):"";
+  let su=S.profile&&S.profile.setup;
+  if(su&&!(su.routines&&su.week)){ su=S.profile.setup=normalizeSetup(su); saveProfile() }
+  const st=su?JSON.stringify(su)+JSON.stringify((S.profile.setup||{}).customEx||[]):"";
   if(st===appliedStamp) return; appliedStamp=st;
   if(su) applySetup(su);
 }
@@ -2298,24 +2339,28 @@ function personLine(){
 }
 function goalText(su){ return su.goal==="race"?`run a ${RACE_NAMES[su.race]}`: su.goal==="muscle"?"build strength and muscle":"lose fat and get fitter" }
 function customCoachIntro(w){
-  const su=CUSTOM.su, gd=su.gymDays.map(i=>DOW[i]).join("/"), rd=su.runDays.map(i=>DOW[i]).join("/")||"none";
+  const su=CUSTOM.su, g=foodGoals(), K=kitchen();
+  const sched=su.week.map((x,i)=>`${DOW[i]}: ${x==="run"?"run":x==="rest"?"rest":(CUSTOM.gym[x]||{}).name||"rest"}`).join(", ");
+  const routines=su.routines.map(r=>`${r.name}: ${r.ex.map(e=>{const L=libEx(e.id); return `${L?L.name:e.id} ${e.sets}×${e.lo}-${e.hi}`}).join("; ")||"(empty)"}`).join("\n");
+  const meals=K.recipes.map(r=>{const T=recipeTotals(r).per; return `${r.name} (${Math.round(T.kcal)} kcal, ${Math.round(T.p)} g P per serving)`}).join("; ")||"none saved yet";
   return `You are the personal trainer and nutrition coach inside "${progName()}", a ${WEEKS}-week training app (${fmtShort(START)} – ${fmtShort(GOAL)}).
 Be direct, encouraging and practical. Keep replies under ~150 words unless asked for a full plan. Plain text with short lines; **bold** is fine, no tables.
 ${personLine()} Lifting experience: ${{new:"new to lifting",some:"under a year",exp:"1+ years"}[su.exp]||"unknown"}. Running now: ${{new:"can't run a mile without walking",some:"can jog 20–30 minutes",regular:"runs regularly"}[su.runLevel]}.
-Gym days ${gd}, double progression (beat reps; at the top of the range on every set, add weight; 10% deload after two stalled sessions). Run days ${rd}: easy runs by heart rate, intervals, and a weekly long run with lighter recovery weeks.
-Food target ~${fmtN(su.kcal)} kcal/day from simple batch-cooked meals (Greek yogurt bowl, pesto chicken rice bowl, turkey bolognese pasta, cottage cheese snack), scaled to that target.
+Weekly schedule (they built it): ${sched}.
+Their routines (they chose these exercises; suggest changes only when useful):
+${routines}
+Progression: double progression (beat reps; at the top of the range on every set, add weight; 10% deload after two stalled sessions). Runs: easy runs by heart rate, intervals, and a weekly long run with lighter recovery weeks.
+Daily food goals: ${fmtN(g.kcal)} kcal, ${g.p} g protein, ${g.c} g carbs, ${g.f} g fat. Their saved meals: ${meals}.
 If they report sharp pain, swelling, chest pain, dizziness or fainting, tell them to stop and get it checked by a professional. You're not a doctor.
 Today: ${fmtDate(today)} (week ${w} of ${WEEKS}).${su.race?` ${RACE_NAMES[su.race]} on ${fmtDate(GOAL)}.`:""}
 `;
 }
 function customPlanIntro(){
-  const su=CUSTOM.su, gd=su.gymDays.map(i=>DOW[i]).join(" · "), rd=su.runDays.map(i=>DOW[i]).join(" · "), [zl,zh]=hrZone(su.age);
-  return `<div class="card"><div class="row between"><h2>How your plan works</h2><button class="btn ghost sm" type="button" data-su-edit="1">Change my plan</button></div>
-   <p><span class="chip gym">${gd}</span> Gym, about an hour. ${su.gymDays.length} fixed workouts. Beat last session by a rep; when every set reaches the top of the range, add weight.</p>
-   ${su.runDays.length?`<p><span class="chip run">${rd}</span> ${su.runDays.length===1?"One long run each week":su.runDays.length===2?"An easy run and a long run each week":"Easy run, intervals and a long run each week"}. Runs build gradually${WEEKS>=6?", with a lighter week every fourth week":""}.</p>
-   <p><span class="chip run">Easy runs</span> Go by heart rate, not pace: stay around ${zl}–${zh} bpm. ${su.runLevel==="new"?"Jog until you hit the top, walk until you drop to the bottom, and repeat.":"Slow down whenever you drift above it."}</p>`:""}
-   ${su.race?`<p><span class="chip coach">${RACE_NAMES[su.race]} · ${fmtShort(GOAL)}</span> Your plan peaks the week before and eases off into race day.</p>`:""}
-   <p><span class="chip food">~${fmtN(su.kcal)} kcal/day</span> Meal prep plan scaled to your target. See the Food view.</p></div>`;
+  const su=CUSTOM.su, rd=su.runDays.map(i=>DOW[i]).join(" · "), [zl,zh]=hrZone(su.age);
+  return `<div class="card"><div class="row between"><h2>Your plan</h2><button class="btn ghost sm" type="button" data-su-edit="1">Edit goals</button></div>
+   <p><span class="chip gym">Lifting</span> Beat last session by a rep; when every set reaches the top of the range, add weight. Edit your routines and schedule below.</p>
+   ${su.runDays.length?`<p><span class="chip run">${rd}</span> ${su.runDays.length===1?"One long run each week":su.runDays.length===2?"An easy run and a long run each week":"Easy run, intervals and a long run each week"}. Easy runs go by heart rate: stay around ${zl}–${zh} bpm.</p>`:""}
+   ${su.race?`<p><span class="chip coach">${RACE_NAMES[su.race]} · ${fmtShort(GOAL)}</span> Runs peak the week before and ease off into race day.</p>`:""}</div>`;
 }
 
 /* ---------- Setup screen ---------- */
@@ -2325,10 +2370,13 @@ function needsSetup(){ return !!window.__platform && loaded.profile && !(S.profi
 function suggestKcal(s){ const lb=Number(s.weight)||0; if(!lb) return ""; const fem=s.sex==="female";
   const k= s.goal==="muscle"? lb*15 : s.goal==="race"? lb*13 : lb*11;
   return Math.round(Math.min(fem?2800:3400,Math.max(fem?1300:1500,k))/50)*50 }
+function suggestProtein(s){ const lb=Number(s.weight)||0; if(!lb) return ""; return Math.round(Math.min(lb,s.goal==="muscle"?lb:lb*0.85)*(s.goal==="muscle"?1:0.9)/5)*5 }
+function weekFor(split,runN){ const x=splitToSetup(split); const wk=[...x.week]; defaultRunDays(wk,runN).forEach(d=>wk[d]="run"); return wk }
+function suRoutines(s){ return s.split==="keep"? (S.profile.setup.routines||[]) : splitToSetup(s.split).routines }
 function defaultSUW(){
   const su=S.profile&&S.profile.setup;
-  if(su) return {...su,gymDays:[...su.gymDays],runDays:[...su.runDays],kcalTouched:true};
-  return {name:"",sex:"",age:"",weight:"",goal:"lose",race:"half",goalDate:ymd(addDays(mondayOf(today),7*10+4)),gymDays:[0,2,4],runDays:[1,3,5],runLevel:"new",exp:"new",kcal:"",kcalTouched:false};
+  if(su){ const n=normalizeSetup(su); return {...n,split:"keep",week:[...n.week],kcal:(n.food&&n.food.kcal)||n.kcal,protein:(n.food&&n.food.protein)||"",kcalTouched:true,proteinTouched:!!(n.food&&n.food.protein)} }
+  return {name:"",sex:"",age:"",weight:"",goal:"lose",race:"half",goalDate:ymd(addDays(mondayOf(today),7*10+4)),split:"abc3",week:weekFor("abc3",2),runLevel:"new",exp:"new",kcal:"",protein:"",kcalTouched:false,proteinTouched:false};
 }
 function gateView(fromStore){
   if(!window.__platform) return false;
@@ -2337,14 +2385,14 @@ function gateView(fromStore){
   if(!(setupOpen||needsSetup())) return false;
   if(fromStore && document.getElementById("suForm")) return true;
   if(!SUW) SUW=defaultSUW();
-  top.innerHTML=`<div class="eyebrow">Set up</div><h1>Build your plan</h1>`; tabs.innerHTML=""; lastRenderKey="";
+  top.innerHTML=`<div class="eyebrow">Set up</div><h1>${S.profile.setup?"Edit your plan":"Build your plan"}</h1>`; tabs.innerHTML=""; lastRenderKey="";
   v.innerHTML=viewSetup(); bindSetup(); return true;
 }
 function viewSetup(){
   const s=SUW, wk=Math.round((parseYmd(s.goalDate)-mondayOf(today))/DAYMS/7);
   const opt=(name,val,label,sub)=>`<button type="button" class="suopt ${s[name]===val?"on":""}" data-su-opt="${name}|${val}" aria-pressed="${s[name]===val}"><b>${label}</b>${sub?`<span>${sub}</span>`:""}</button>`;
-  const days=kind=>`<div class="sudays">${DOW.map((d,i)=>`<button type="button" class="suday ${s[kind].includes(i)?"on":""} ${kind}" data-su-day="${kind}|${i}" aria-pressed="${s[kind].includes(i)}">${d}</button>`).join("")}</div>`;
-  const sug=suggestKcal(s);
+  const rs=suRoutines(s), sug=suggestKcal(s), sugP=suggestProtein(s);
+  const splitOpts=(S.profile.setup?[["keep","Keep my routines",rs.map(r=>r.name).join(" · ")]]:[]).concat(Object.entries(SPLITS).map(([k,sp])=>[k,sp.name,k==="own"?"Empty routines: you pick every exercise":sp.routines.map(r=>r.name).join(" · ")]));
   return `<form id="suForm" class="stack" autocomplete="off" onsubmit="return false">
   <div class="card"><h2>About you</h2>
     <div class="field"><label for="suName">First name</label><input id="suName" value="${esc(s.name)}" autocomplete="given-name"></div>
@@ -2356,54 +2404,65 @@ function viewSetup(){
     ${s.goal==="race"?`<div class="suopts three">${opt("race","5k","5K")}${opt("race","10k","10K")}${opt("race","half","Half marathon")}</div>`:""}
     <div class="field"><label for="suDate">${s.goal==="race"?"Race date":"Goal date"}</label><input id="suDate" type="date" value="${esc(s.goalDate)}" min="${ymd(addDays(today,28))}" max="${ymd(addDays(today,26*7))}"></div>
     <p class="small muted">${wk>0?`A ${wk}-week plan. `:""}Pick 4 to 26 weeks out.</p></div>
-  <div class="card"><h2>Your week</h2>
-    <p class="small"><b>Gym days</b> <span class="muted">pick 2–4</span></p>${days("gymDays")}
-    <p class="small" style="margin-top:12px"><b>Run days</b> <span class="muted">pick 0–3${s.goal==="race"?", at least 2 for a race":""}</span></p>${days("runDays")}</div>
+  <div class="card"><h2>Your split</h2>
+    <div class="suopts">${splitOpts.map(([k,n,sub])=>opt("split",k,n,sub)).join("")}</div>
+    <p class="small"><b>Weekly schedule</b> <span class="muted">· pick a workout, a run, or rest for each day</span></p>
+    <div class="sched">${DOW.map((d,i)=>`<label><span>${d}</span><select data-su-wk="${i}">${[["rest","Rest"],["run","Run"],...rs.map(r=>[r.id,r.name])].map(([id,n])=>`<option value="${esc(id)}" ${s.week[i]===id?"selected":""}>${esc(n)}</option>`).join("")}</select></label>`).join("")}</div>
+    <p class="small muted">After setup you can add, remove and reorder exercises and change sets, reps and rest in Plan.</p></div>
   <div class="card"><h2>Running right now</h2>
     <div class="suopts">${opt("runLevel","new","I can't run a mile without walking","Run/walk plan")}${opt("runLevel","some","I can jog 20–30 minutes")}${opt("runLevel","regular","I run regularly")}</div></div>
   <div class="card"><h2>Lifting experience</h2>
     <div class="suopts three">${opt("exp","new","New")}${opt("exp","some","Under a year")}${opt("exp","exp","1+ years")}</div></div>
-  <div class="card"><h2>Food</h2>
-    <div class="field"><label for="suKcal">Daily calories</label><input id="suKcal" inputmode="numeric" value="${esc(s.kcalTouched?s.kcal:sug)}"></div>
-    <p class="small muted" id="suKcalHint">${sug?`Suggested for your weight and goal: ${fmtN(sug)} kcal.`:"Enter your weight for a suggestion."} Meal prep portions scale to this.</p></div>
+  <div class="card"><h2>Food goals</h2>
+    <div class="row"><div class="field"><label for="suKcal">Daily calories</label><input id="suKcal" inputmode="numeric" value="${esc(s.kcalTouched?s.kcal:sug)}"></div>
+    <div class="field"><label for="suProt">Protein (g)</label><input id="suProt" inputmode="numeric" value="${esc(s.proteinTouched?s.protein:sugP)}"></div></div>
+    <p class="small muted" id="suKcalHint">${sug?`Suggested for your weight and goal: ${fmtN(sug)} kcal and ${sugP} g protein.`:"Enter your weight for a suggestion."} You'll build meals and log food in the app.</p></div>
   <p class="note" id="suErr" hidden></p>
   <div class="row"><button type="button" class="btn" id="suSave">${S.profile.setup?"Save my plan":"Build my plan"}</button>${S.profile.setup?`<button type="button" class="btn ghost" id="suCancel">Cancel</button>`:""}</div>
   <p class="small muted">Not medical advice. Check with a doctor before starting a new training or diet plan.</p>
   </form>`;
 }
 function bindSetup(){
-  const s=SUW, num=id=>$(id).value.trim();
-  const sync=()=>{ s.name=num("#suName"); s.age=num("#suAge"); s.weight=num("#suWt"); s.goalDate=$("#suDate").value||s.goalDate;
-    const k=$("#suKcal"); if(!s.kcalTouched){ const g=suggestKcal(s); k.value=g||""; const h=$("#suKcalHint"); if(h) h.textContent=(g?`Suggested for your weight and goal: ${fmtN(g)} kcal.`:"Enter your weight for a suggestion.")+" Meal prep portions scale to this." } };
+  const s=SUW, val=id=>$(id).value.trim();
+  const hint=()=>{ const h=$("#suKcalHint"), g=suggestKcal(s), gp=suggestProtein(s); if(h) h.textContent=(g?`Suggested for your weight and goal: ${fmtN(g)} kcal and ${gp} g protein.`:"Enter your weight for a suggestion.")+" You'll build meals and log food in the app.";
+    if(!s.kcalTouched) $("#suKcal").value=g||""; if(!s.proteinTouched) $("#suProt").value=gp||"" };
+  const sync=()=>{ s.name=val("#suName"); s.age=val("#suAge"); s.weight=val("#suWt"); s.goalDate=$("#suDate").value||s.goalDate; hint() };
   ["#suName","#suAge","#suWt","#suDate"].forEach(id=>$(id).addEventListener("input",sync));
   $("#suKcal").addEventListener("input",e=>{s.kcalTouched=true; s.kcal=e.target.value.trim()});
+  $("#suProt").addEventListener("input",e=>{s.proteinTouched=true; s.protein=e.target.value.trim()});
   const rerender=()=>{ sync(); const y=window.scrollY; $("#view").innerHTML=viewSetup(); bindSetup(); window.scrollTo(0,y) };
-  document.querySelectorAll("[data-su-opt]").forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.suOpt.split("|"); s[k]=v; rerender()});
-  document.querySelectorAll("[data-su-day]").forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.suDay.split("|"), i=Number(v), other=k==="gymDays"?"runDays":"gymDays";
-    if(s[k].includes(i)) s[k]=s[k].filter(x=>x!==i); else { s[k]=[...s[k],i].sort((a,b)=>a-b); s[other]=s[other].filter(x=>x!==i) } rerender()});
+  document.querySelectorAll("[data-su-opt]").forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.suOpt.split("|"); const was=s[k]; s[k]=v;
+    if(k==="split"&&v!==was){ const runN=s.week.filter(w=>w==="run").length; s.week= v==="keep"? [...normalizeSetup(S.profile.setup).week] : weekFor(v,runN) }
+    rerender()});
+  document.querySelectorAll("[data-su-wk]").forEach(sl=>sl.onchange=()=>{ s.week[Number(sl.dataset.suWk)]=sl.value });
   $("#suCancel")?.addEventListener("click",()=>{setupOpen=false; SUW=null; render()});
   $("#suSave").onclick=()=>{
     sync(); const err=t=>{const e=$("#suErr"); e.textContent=t; e.hidden=false; e.scrollIntoView({block:"center",behavior:"smooth"})};
-    const age=Number(s.age), wt=Number(s.weight), kcal=Number(s.kcalTouched?s.kcal:suggestKcal(s)), gd=parseYmd(s.goalDate), days=(gd-today)/DAYMS;
+    const age=Number(s.age), wt=Number(s.weight), kcal=Number(s.kcalTouched?s.kcal:suggestKcal(s)), prot=Number(s.proteinTouched?s.protein:suggestProtein(s)), gd=parseYmd(s.goalDate), days=(gd-today)/DAYMS;
+    const runN=s.week.filter(w=>w==="run").length, gymN=s.week.filter(w=>w!=="run"&&w!=="rest").length;
     if(!s.name) return err("Add your first name.");
     if(!s.sex) return err("Choose male or female. It sets your heart-rate zones and rankings.");
     if(!(age>=18&&age<=90)) return err("This app is for adults 18 and over. Enter your age.");
     if(!(wt>=80&&wt<=600)) return err("Enter your weight in pounds.");
     if(!(days>=27&&days<=26*7+1)) return err("Pick a goal date between 4 and 26 weeks from today.");
-    if(s.gymDays.length<2||s.gymDays.length>4) return err("Pick 2 to 4 gym days.");
-    if(s.runDays.length>3) return err("Pick at most 3 run days.");
-    if(s.goal==="race"&&s.runDays.length<2) return err("Pick at least 2 run days to train for a race.");
+    if(!gymN&&!runN) return err("Add at least one workout or run to your week.");
+    if(runN>3) return err("Pick at most 3 run days.");
+    if(s.goal==="race"&&runN<2) return err("Pick at least 2 run days to train for a race.");
     if(!(kcal>=1200&&kcal<=5000)) return err("Enter daily calories between 1,200 and 5,000.");
-    const prev=S.profile.setup;
-    const su={v:1,name:s.name.slice(0,40),sex:s.sex,age,weight:wt,goal:s.goal,race:s.goal==="race"?s.race:null,goalDate:s.goalDate,
-      start:prev&&prev.start&&parseYmd(prev.start)<=today?prev.start:ymd(mondayOf(today)),gymDays:[...s.gymDays],runDays:[...s.runDays],
-      runLevel:s.runLevel,exp:s.exp,kcal:Math.round(kcal),at:Date.now()};
+    if(!(prot>=30&&prot<=400)) return err("Enter a daily protein goal in grams.");
+    const prev=S.profile.setup&&normalizeSetup(S.profile.setup);
+    const routines= s.split==="keep"&&prev? prev.routines : splitToSetup(s.split).routines;
+    const su={v:2,name:s.name.slice(0,40),sex:s.sex,age,weight:wt,goal:s.goal,race:s.goal==="race"?s.race:null,goalDate:s.goalDate,
+      start:prev&&prev.start&&parseYmd(prev.start)<=today?prev.start:ymd(mondayOf(today)),split:s.split==="keep"?(prev&&prev.split)||"own":s.split,routines,week:[...s.week],
+      customEx:(prev&&prev.customEx)||[],runLevel:s.runLevel,exp:s.exp,kcal:Math.round(kcal),food:{...((prev&&prev.food)||{}),kcal:Math.round(kcal),protein:Math.round(prot)},at:Date.now()};
     S.profile.setup=su;
     S.profile.about=`${su.name}, ${su.age}${su.sex==="female"?"F":"M"}, ${su.weight} lb at setup. Goal: ${goalText(su)} by ${fmtDate(parseYmd(su.goalDate))}.`;
     S.profile.raceDate=su.race?su.goalDate:"";
     const ws=S.profile.weights||(S.profile.weights=[]); if(!ws.some(x=>x.d===ymd(today))) ws.push({d:ymd(today),lb:wt});
-    saveProfile(); onProfile(); setupOpen=false; SUW=null; sel=inProgram(today)?today:START; tab="home"; render(); window.scrollTo(0,0);
-    toast(prev?"Plan updated":"Your plan is ready");
+    saveProfile(); onProfile(); setupOpen=false; SUW=null; sel=inProgram(today)?today:START;
+    if(s.split==="own") su.routines.forEach(r=>R_OPEN.add(r.id));
+    tab= s.split==="own"? "plan" : "home"; if(tab==="plan") planView="training"; render(); window.scrollTo(0,0);
+    toast(prev?"Plan updated": s.split==="own"? "Now add exercises to your routines" : "Your plan is ready");
   };
 }
 document.addEventListener("click",e=>{ const b=e.target.closest&&e.target.closest("[data-su-edit]"); if(!b) return; setupOpen=true; SUW=null; render(); window.scrollTo(0,0) });
