@@ -1,4 +1,5 @@
 // Coach endpoint: signed-in users only. Calls the Claude API and streams the answer back as plain text.
+import { cleanUrl } from "./config.js";
 export const config = { runtime: "edge" };
 
 const MODEL = process.env.CLAUDE_MODEL || "claude-sonnet-5-5";
@@ -11,10 +12,10 @@ const json = (status, body) =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 
 async function supa(path, token, init = {}) {
-  return fetch(`${process.env.SUPABASE_URL}${path}`, {
+  return fetch(`${cleanUrl(process.env.SUPABASE_URL)}${path}`, {
     ...init,
     headers: {
-      apikey: process.env.SUPABASE_ANON_KEY,
+      apikey: (process.env.SUPABASE_ANON_KEY || "").trim(),
       authorization: `Bearer ${token}`,
       "content-type": "application/json",
       ...(init.headers || {}),
