@@ -90,6 +90,8 @@
     if (!data.session) authScreen();
   }
 
+  window.appAuthToken = async () => { if (!sb) return null; const { data } = await sb.auth.getSession(); return data.session ? data.session.access_token : null; };
+
   window.appSignOut = async () => {
     if (!sb) return;
     try {

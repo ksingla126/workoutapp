@@ -189,9 +189,32 @@ const FOOD_RAW=[
   ["fries","French fries",312,3.4,41,15,[["1 medium order",117]]]
 ];
 function foodDb(){ const k=(typeof S!=="undefined"&&S.profile&&S.profile.kitchen)||{};
-  return [...FOOD_RAW.map(([id,n,kc,p,c,f,sv])=>({id,n,k:kc,p,c,f,sv})), ...(k.foods||[]).map(x=>({...x,custom:true}))] }
-function foodById(id){ return foodDb().find(f=>f.id===id) }
-function unitsOf(f){ return f.custom? [[f.serving||"1 serving",100]] : [...f.sv,["g",1],["oz",28.35],["lb",453.6]] }
+  return [...FOOD_RAW.map(([id,n,kc,p,c,f,sv])=>({id,n,k:kc,p,c,f,sv})), ...(k.foods||[]).map(x=>({...x,custom:true})), ...(k.usda||[])] }
+function foodById(id){ return foodDb().find(f=>f.id===id) || USDA.cache.get(id) }
+
+/* ----- USDA FoodData Central search (via /api/foods) ----- */
+const USDA={cache:new Map(),results:{}};
+let usdaTimer=null;
+const usdaKey=q=>(q||"").trim().toLowerCase();
+function usdaWant(q){ q=usdaKey(q); if(q.length<3||USDA.results[q]) return; clearTimeout(usdaTimer);
+  usdaTimer=setTimeout(async()=>{ if(USDA.results[q]) return; USDA.results[q]={loading:true}; usdaPaint(q);
+    try{ const tok=window.appAuthToken? await window.appAuthToken() : null;
+      const r=await fetch("/api/foods?q="+encodeURIComponent(q),{headers:tok?{authorization:"Bearer "+tok}:{}});
+      const j=await r.json().catch(()=>({})); if(!r.ok) throw j.code||"error";
+      (j.foods||[]).forEach(f=>USDA.cache.set(f.id,f)); USDA.results[q]={list:j.foods||[]};
+    }catch(e){ USDA.results[q]={err:e==="rate_limited"?"USDA search is busy. Try again in a minute.":"USDA search isn't available right now."}; setTimeout(()=>{delete USDA.results[q]},30000) }
+    usdaPaint(q) },400) }
+function usdaPaint(q){ if(SH&&usdaKey(SH.q)===q) paintSheet() }
+function usdaSection(q,localCount){ q=usdaKey(q); if(q.length<3) return localCount?"":`<p class="small muted">No matches. Type at least 3 letters to search the USDA database.</p>`;
+  usdaWant(q); const r=USDA.results[q];
+  let h=`<div class="eyebrow" style="margin-top:12px">USDA database</div>`;
+  if(!r||r.loading) return h+`<p class="small muted"><span class="pulse"></span> Searching…</p>`;
+  if(r.err) return h+`<p class="small muted">${esc(r.err)}</p>`;
+  if(!r.list.length) return h+`<p class="small muted">No USDA matches. Try fewer words, or add it as a custom food.</p>`;
+  return h+`<div class="xs-list">${r.list.map(f=>{const u=f.sv[0]||["100 g",100], m=macrosOf(f,u[1]); return `<button type="button" class="xs-item" data-xs-pickf="${f.id}"><span><b>${esc(f.n)}</b><span class="small muted num">${esc(u[0])} · ${fmtN(m.kcal)} kcal · ${Math.round(m.p)} g P</span></span><span class="xs-plus">+</span></button>`}).join("")}</div>`;
+}
+function keepUsda(f){ if(!f||f.src!=="usda") return; const K=kitchen(); K.usda=K.usda||[]; if(!K.usda.some(x=>x.id===f.id)){ K.usda.push({id:f.id,n:f.n,k:f.k,p:f.p,c:f.c,f:f.f,sv:f.sv,src:"usda"}); if(K.usda.length>300) K.usda.shift(); saveProfile() } }
+function unitsOf(f){ return f.custom? [[f.serving||"1 serving",100]] : [...(f.sv||[]),["g",1],["oz",28.35],["lb",453.6]] }
 function gramsOf(f,amt,unit){ const u=unitsOf(f).find(x=>x[0]===unit)||unitsOf(f)[0]; return (Number(amt)||0)*u[1] }
 function macrosOf(f,grams){ const m=grams/100; return {kcal:f.k*m,p:f.p*m,c:f.c*m,f:f.f*m} }
 const addM=(a,b,x=1)=>({kcal:a.kcal+b.kcal*x,p:a.p+b.p*x,c:a.c+b.c*x,f:a.f+b.f*x});
@@ -210,6 +233,18 @@ function diaryTotals(k){ const m=S.meals[k]; let t={...ZERO}; (m&&m.items||[]).f
 function foodGoals(){ const su=CUSTOM&&CUSTOM.su; const g=(su&&su.food)||{}; const kcal=Number(g.kcal||su&&su.kcal)||2000;
   const p=Number(g.protein)||Math.round((Number(su&&su.weight)||170)*0.8), f=Number(g.fat)||Math.round(kcal*0.28/9), c=Number(g.carbs)||Math.max(0,Math.round((kcal-p*4-f*9)/4));
   return {kcal,p,c,f} }
+
+/* ======================= Logged days keep their plan ======================= */
+const SNAP_KEYS=["id","name","sets","lo","hi","inc","rest","bw","unit","optW","alt","muscle","equip","uni"];
+function planSnapshot(d){ const p=planFor(d); if(!p||p.type==="rest") return null;
+  if(p.type==="gym") return {type:"gym",day:p.day,name:p.name,ex:(p.ex||[]).map(e=>{const o={}; SNAP_KEYS.forEach(k=>{if(e[k]!==undefined) o[k]=e[k]}); return o})};
+  return {type:"run",key:p.key,t:p.t,d:p.d} }
+function loggedPlan(d){ const k=ymd(d), l=S.logs[k]; if(!l) return null; const w=weekOf(d), i=dowOf(d);
+  if(l.plan&&l.plan.type) return {...l.plan,w,i,logged:true};
+  if(l.type==="gym"&&l.ex){ const cur=CUSTOM.gym[l.day];
+    return {type:"gym",w,i,day:l.day,name:(cur&&cur.name)||"Workout",logged:true,ex:Object.keys(l.ex).map(id=>{const c=cur&&cur.ex.find(e=>e.id===id), b=c||toPlanEx({id}); return {...b,sets:Math.max(b.sets,l.ex[id].length)}})} }
+  if(l.type==="run"){ const b=basePlan(d); return b&&b.type==="run"? b : {type:"run",w,i,key:"tue",t:"Run",d:"Logged run",logged:true} }
+  return null }
 
 /* ======================= Shared bottom sheet ======================= */
 let SH=null; // {kind, ...state}
@@ -300,7 +335,7 @@ function foodSheetHtml(){
     h+= rs.length? `<div class="xs-list">${rs.map(r=>{const p=recipeTotals(r).per; return `<button type="button" class="xs-item" data-xs-pickr="${r.id}"><span><b>${esc(r.name)}</b><span class="small muted num">${fmtN(p.kcal)} kcal · ${Math.round(p.p)} g P per serving</span></span><span class="xs-plus">+</span></button>`}).join("")}</div>` : `<p class="small muted">No meals yet. Build one in Plan → Food → My meals.</p>`;
   } else if(tab==="foods"){ const q=(SH.q||"").toLowerCase().trim(); const list=foodDb().filter(f=>!q||f.n.toLowerCase().includes(q));
     h+=`<input class="xs-search" type="search" placeholder="Search foods" value="${esc(SH.q||"")}" data-xs-q="1" data-xs-focus="q" autocomplete="off">
-      <div class="xs-list">${list.map(f=>{const u=unitsOf(f)[0], m=macrosOf(f,u[1]); return `<button type="button" class="xs-item" data-xs-pickf="${f.id}"><span><b>${esc(f.n)}</b><span class="small muted num">${esc(u[0])} · ${fmtN(m.kcal)} kcal · ${Math.round(m.p)} g P${f.custom?" · custom":""}</span></span><span class="xs-plus">+</span></button>`}).join("")||`<p class="small muted">No matches. Add it as a custom food in Plan → Food.</p>`}</div>`;
+      <div class="xs-list">${list.map(f=>{const u=unitsOf(f)[0], m=macrosOf(f,u[1]); return `<button type="button" class="xs-item" data-xs-pickf="${f.id}"><span><b>${esc(f.n)}</b><span class="small muted num">${esc(u[0])} · ${fmtN(m.kcal)} kcal · ${Math.round(m.p)} g P${f.custom?" · custom":""}</span></span><span class="xs-plus">+</span></button>`}).join("")}</div>${usdaSection(SH.q,list.length)}`;
   } else {
     h+=`<div class="field"><label>Name</label><input data-xs-quick="n" placeholder="e.g. Latte" data-xs-focus="qn"></div>
       <div class="row"><div class="field"><label>Calories</label><input inputmode="numeric" data-xs-quick="kcal"></div><div class="field"><label>Protein g</label><input inputmode="numeric" data-xs-quick="p"></div></div>
@@ -317,7 +352,7 @@ function recipeHtml(){ const r=SH.r, T=recipeTotals(r);
         <p class="num macroline"><b>${fmtN(m.kcal)} kcal</b> · ${Math.round(m.p)} g P · ${Math.round(m.c)} g C · ${Math.round(m.f)} g F</p>
         <div class="row"><button type="button" class="btn" data-xs="ingadd">Add ingredient</button><button type="button" class="btn ghost" data-xs="fback">Back</button></div>` }
     return h+`<input class="xs-search" type="search" placeholder="Search ingredients" value="${esc(SH.q||"")}" data-xs-q="1" data-xs-focus="q" autocomplete="off">
-      <div class="xs-list">${list.map(f=>`<button type="button" class="xs-item" data-xs-pickf="${f.id}"><span><b>${esc(f.n)}</b><span class="small muted num">${fmtN(f.custom?f.k:f.k)} kcal ${f.custom?"per "+esc(f.serving||"serving"):"/ 100 g"}</span></span><span class="xs-plus">+</span></button>`).join("")||`<p class="small muted">No matches.</p>`}</div>
+      <div class="xs-list">${list.map(f=>`<button type="button" class="xs-item" data-xs-pickf="${f.id}"><span><b>${esc(f.n)}</b><span class="small muted num">${fmtN(f.custom?f.k:f.k)} kcal ${f.custom?"per "+esc(f.serving||"serving"):"/ 100 g"}</span></span><span class="xs-plus">+</span></button>`).join("")}</div>${usdaSection(SH.q,list.length)}
       <button type="button" class="btn ghost" data-xs="ingback" style="margin-top:12px">Back to meal</button>` }
   h+=`<div class="field"><label>Meal name</label><input data-xs-rf="name" value="${esc(r.name)}" placeholder="e.g. Pesto chicken rice bowls" data-xs-focus="rname"></div>
     <div class="field" style="max-width:160px"><label>Makes (servings)</label><input inputmode="numeric" data-xs-rf="servings" value="${esc(r.servings)}" data-xs-focus="rserv"></div>
@@ -416,7 +451,7 @@ document.addEventListener("click",e=>{
     const id=newId("cx"); suMut(su=>{su.customEx=su.customEx||[]; su.customEx.push({id,name:x.name.trim().slice(0,60),muscle:x.muscle,equip:x.equip,type:x.type}); su.routines.find(r=>r.id===SH.rid).ex.push({id,sets:3,lo:x.type==="t"?30:8,hi:x.type==="t"?60:12,rest:90})});
     SH.kind="exPick"; paintSheet(true); toast("Exercise added"); return }
   if(d.xsPickr){ SH.pick={t:"r",id:d.xsPickr,qty:1}; paintSheet(true); return }
-  if(d.xsPickf){ const f=foodById(d.xsPickf); SH.pick={t:"f",id:f.id,amt:1,unit:unitsOf(f)[0][0]}; paintSheet(true); return }
+  if(d.xsPickf){ const f=foodById(d.xsPickf); keepUsda(f); SH.pick={t:"f",id:f.id,amt:1,unit:unitsOf(f)[0][0]}; paintSheet(true); return }
   if(d.xs==="fback"){ SH.pick=null; paintSheet(true); return }
   if(d.xs==="fadd"){ const P=SH.pick, e=P.t==="r"?{t:"r",id:P.id,qty:numIn(P.qty)}:{t:"f",id:P.id,amt:numIn(P.amt),unit:P.unit}; if(!(e.qty>0||e.amt>0)) return;
     if(SH.mode==="plan"){ const K=kitchen(); (K.plan[SH.slot]=K.plan[SH.slot]||[]).push(e); xsClose(); commitPlan(); toast("Added to plan"); return }

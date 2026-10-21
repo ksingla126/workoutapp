@@ -11,6 +11,8 @@ progress charts, standings, outlook, and an AI coach (Claude).
 | `public/platform.js` | Sign-in, cloud storage (Supabase) and the coach connection |
 | `api/config.js` | Gives the page the public Supabase settings |
 | `api/coach.js` | Calls Claude for signed-in users, with a daily limit per user |
+| `api/foods.js` | Searches the USDA FoodData Central database for signed-in users |
+| `public/custom.js` | Exercise library, routine builder, food database, meal builder and food diary |
 | `supabase/schema.sql` | Database tables and the rules that keep each user's data private |
 
 ## Setup
@@ -37,6 +39,7 @@ progress charts, standings, outlook, and an AI coach (Claude).
 | `ANTHROPIC_API_KEY` | Your Anthropic API key |
 | `COACH_DAILY_LIMIT` | *(optional)* coach requests per user per day, default 60 |
 | `CLAUDE_MODEL` | *(optional)* default `claude-sonnet-5-5` |
+| `USDA_API_KEY` | Free key from [api.data.gov/signup](https://api.data.gov/signup/) for USDA food search (falls back to the shared `DEMO_KEY`, which allows very few searches) |
 
 3. **Deploy**. Every push to `main` redeploys automatically.
 

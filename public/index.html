@@ -637,6 +637,7 @@ const fmtN=n=>Math.round(n).toLocaleString("en-US");
 // Schedule changes live in profile.moves: {"YYYY-MM-DD": "rest" | "<date whose session happens on this day>"}
 function planFor(d){
   if(!inProgram(d)) return null;
+  if(CUSTOM){ const lp=loggedPlan(d); if(lp) return lp }
   const mv=(typeof S!=="undefined"&&S.profile&&S.profile.moves)||{}, k=ymd(d);
   if(mv[k]==="rest") return {type:"rest",w:weekOf(d),i:dowOf(d),moved:true};
   if(mv[k]&&/^\d{4}-\d{2}-\d{2}$/.test(mv[k])){ const src=parseYmd(mv[k]), b=basePlan(src); return b?{...b,moved:true,src:mv[k]}:null }
@@ -675,7 +676,7 @@ function loadLocal(){ setTimeout(onProfile,0); try{S.photos=JSON.parse(localStor
 function saveLocal(){try{const {photos,...rest}=S; localStorage.setItem("rd25-data",JSON.stringify(rest))}catch(e){} try{localStorage.setItem("rd25-photos",JSON.stringify(S.photos))}catch(e){}}
 const queues={};
 function enqueue(key,fn){const p=(queues[key]||Promise.resolve()).then(fn).catch(e=>{try{console.error("save failed",key,e)}catch(_){} toast(e&&e.code==="quota_exceeded"?"Storage is full":e&&e.code==="invalid_argument"?`Couldn't save that entry (${String(e.message||"invalid data").slice(0,60)})`:"Couldn't save. Check your connection and try again.");});queues[key]=p;return p}
-function saveLog(key,data){data=cleanJSON(data); S.logs[key]=data; if(mode==="db") return enqueue("log-"+key,()=>refs.logs.doc(key).set(data)); saveLocal(); return Promise.resolve()}
+function saveLog(key,data){ if(CUSTOM&&!data.plan){ const pl=planSnapshot(parseYmd(key)); if(pl) data={...data,plan:pl} } data=cleanJSON(data); S.logs[key]=data; if(mode==="db") return enqueue("log-"+key,()=>refs.logs.doc(key).set(data)); saveLocal(); return Promise.resolve()}
 function deleteLog(key){delete S.logs[key]; if(mode==="db") return enqueue("log-"+key,()=>refs.logs.doc(key).delete()); saveLocal(); return Promise.resolve()}
 const mealTimers={};
 function saveMeals(key){clearTimeout(mealTimers[key]); mealTimers[key]=setTimeout(()=>{const data={...S.meals[key],savedAt:Date.now()}; if(mode==="db") enqueue("meal-"+key,()=>refs.meals.doc(key).set(data)); else saveLocal()},400)}
