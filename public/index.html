@@ -403,6 +403,14 @@ nav.tabs button.on{color:var(--ink);background:var(--surface-2)}
 nav.tabs .badge{position:absolute;top:2px;right:calc(50% - 22px);min-width:16px;height:16px;border-radius:8px;background:var(--bad);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;padding:0 4px}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;font-weight:600;font-size:14px;z-index:6}
 @media (max-width:420px){.kpi .v{font-size:20px} .kpi{padding:9px 8px} h1{font-size:26px} .g .v{font-size:21px}}
+
+.suopts{display:grid;gap:8px;margin:8px 0}.suopts.two{grid-template-columns:1fr 1fr}.suopts.three{grid-template-columns:1fr 1fr 1fr}
+.suopt{display:flex;flex-direction:column;gap:2px;text-align:left;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;cursor:pointer}
+.suopt span{font-size:12px;color:var(--muted)}.suopt.on{border-color:var(--ink);background:var(--surface);box-shadow:inset 0 0 0 1px var(--ink)}
+#suForm .card>.field{flex:none}
+.sudays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.suday{padding:10px 0;border-radius:9px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:600 13px var(--body);cursor:pointer}
+.suday.on.gymDays{background:var(--gym);border-color:var(--gym);color:#fff}.suday.on.runDays{background:var(--run);border-color:var(--run);color:#fff}
 </style>
 </head>
 <body>
@@ -426,13 +434,14 @@ nav.tabs .badge{position:absolute;top:2px;right:calc(50% - 22px);min-width:16px;
 
 <script>
 /* ---------- Program definition ---------- */
-const START = new Date(2026, 9, 12);   // Mon Oct 12, 2026
-const GOAL  = new Date(2026, 11, 25);  // Fri Dec 25, 2026
-const WEEKS = 11;
+let CUSTOM = null; // set when the user built their own plan in setup
+let START = new Date(2026, 9, 12);   // Mon Oct 12, 2026
+let GOAL  = new Date(2026, 11, 25);  // Fri Dec 25, 2026
+let WEEKS = 11;
 const DAYMS = 86400000;
 const DOW = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-const SCHED = ["A","run","B","run","C","run","rest"];
-const RUNKEY = {1:"tue",3:"thu",5:"sat"};
+let SCHED = ["A","run","B","run","C","run","rest"];
+let RUNKEY = {1:"tue",3:"thu",5:"sat"};
 
 const GYM = {
   A:{name:"Day A · Leg Press & Bench", ex:[
@@ -513,11 +522,12 @@ const ROPE_STAGES=[["2026-11-02",6,30,30,"Short rounds while your calves adapt. 
   ["9999-12-31",2,180,60,"Race week: 2 easy rounds just to stay sharp."]];
 function ropeFor(d){ const k=ymd(d); const r=ROPE_STAGES.find(x=>k<x[0]); return {id:"rope",name:"Jump rope rounds",sets:r[1],lo:r[2],hi:r[2],inc:0,unit:"sec",bw:true,fixed:true,rest:r[3],
   alt:"Finisher, after your last exercise. "+r[4]+" Rope length: stand on the middle, handles reach your armpits. Calves still sore 2 days later? Repeat this format next week."} }
-function gymDay(s,d){ const g=gymDay0(s,d); return ymd(d)>=V2_FROM? {...g, ex:[...g.ex, ropeFor(d)]} : g }
+function curPhase(){ return CUSTOM? CUSTOM.gym : GYM2[ymd(today)<=CORE_SWAP.to?"block":"post"] }
+function gymDay(s,d){ if(CUSTOM) return CUSTOM.gym[s]; const g=gymDay0(s,d); return ymd(d)>=V2_FROM? {...g, ex:[...g.ex, ropeFor(d)]} : g }
 function gymDay0(s,d){ const k=ymd(d); if(k>=V2_FROM) return GYM2[k<=CORE_SWAP.to?"block":"post"][s];
   const g=GYM[s]; if(!inCoreSwap(d)) return g; const ex=g.ex.map(e=>SWAP_EX[e.id]||e); return {...g, ex, name: s==="B"?"Day B · Press & Core":g.name, swapped:true} }
 const ALLEX = (()=>{const m={}; [...Object.values(GYM).flatMap(d=>d.ex), ...Object.values(SWAP_EX), ...Object.values(X)].forEach(e=>{ if(!e.bw) m[e.id]=m[e.id]&&Object.values(X).includes(e)?m[e.id]:(Object.values(X).find(x=>x.id===e.id)||e) }); return Object.values(m)})();
-const KEYLIFTS = ["legpress45","bench","tbdl","ohp"];
+let KEYLIFTS = ["legpress45","bench","tbdl","ohp"];
 // rest between sets (seconds)
 const REST = {revfly:60,fly:60,backext:75,lateral:60,legext1:60,calfraise:60,hipthrust:120,legpress45:150,declinecrunch:60,cablecrunch:60,pallof:60,squat:150,bench:150,tbdl:150,rdl:120,ohp:120,legpress:120,plank:45,facepull:60,conc:60,ohtri:60,ezcurl:60,pushdown:60,hammer:60};
 const restFor = id => id==="rope"? ropeFor(sel).rest : (REST[id] || 90);
@@ -529,7 +539,7 @@ const dbOverride={};
 const loadW=(id,l,w)=>(Number(w)||0)*(logDb(id,l)?DBCFG[id].m:1);
 
 const R = (t,d)=>({t,d});
-const RUNS = [
+let RUNS = [
  {tag:"",       tue:R("Easy run/walk","30 min · run 2 / walk 2"), thu:R("Intervals","5-min walk, 6 × (run 3 min / walk 2), 5-min walk"), sat:R("Long run/walk","4 mi · run 2 / walk 2")},
  {tag:"",       tue:R("Easy run/walk · heart rate","30 min · jog until 150 bpm, walk until 130 bpm, repeat"), thu:R("Intervals","5-min walk, 6 × (run 3 min / walk 2), 5-min walk"), sat:R("Long run/walk","4.5 mi · run 3 / walk 2")},
  {tag:"",       tue:R("Easy run/walk · heart rate","35 min · jog until 150 bpm, walk until 130 bpm, repeat"), thu:R("Intervals","5-min walk, 5 × (run 4 min / walk 2), 5-min walk"), sat:R("Long run/walk","5.5 mi · run 3 / walk 2")},
@@ -599,6 +609,7 @@ function planFor(d){
 }
 function basePlan(d){
   if(!inProgram(d)) return null;
+  if(CUSTOM&&CUSTOM.su.race&&ymd(d)===CUSTOM.su.goalDate) return {type:"run",w:weekOf(d),i:dowOf(d),key:"sat",t:"Race day · "+RACE_NAMES[CUSTOM.su.race],d:"Start slower than you think, settle in after the first mile, and enjoy it. You earned this."};
   const w=weekOf(d), i=dowOf(d), s=SCHED[i];
   if(s==="rest") return {type:"rest",w,i};
   if(s==="run"){const r=RUNS[w-1][RUNKEY[i]]; return r?{type:"run",w,i,key:RUNKEY[i],...r}:null}
@@ -617,7 +628,7 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 
 /* ---------- State & storage ---------- */
 const S={photos:{},over:{},logs:{},meals:{},profile:{about:"",raceDate:"",weights:[],grocery:{}},chat:[],advice:{items:[],stamp:"",at:0,seenAt:0,history:[]}};
-let mode="local", refs=null, sampleFn=null, userReady=false, loaded={logs:false,advice:false};
+let mode="local", refs=null, sampleFn=null, userReady=false, loaded={logs:false,advice:false,profile:false};
 const today=midnight(new Date());
 let sel = inProgram(today)? today : (dayNum(today)<0? START : GOAL);
 let tab="home";
@@ -625,7 +636,7 @@ let progView="lifts"; try{const v=localStorage.getItem("rd25-pview"); if(v==="ru
 let planView="training"; try{const v=localStorage.getItem("rd25-planview"); if(v==="training"||v==="food") planView=v}catch(e){}
 try{const t=localStorage.getItem("rd25-tab"); if(t==="runs"){tab="progress"; progView="runs"} else if(t==="food"){tab="plan"; planView="food"} else if(t&&["home","plan","progress","standings","advice"].includes(t)) tab=t}catch(e){}
 
-function loadLocal(){try{S.photos=JSON.parse(localStorage.getItem("rd25-photos")||"{}")||{}}catch(e){} try{const j=JSON.parse(localStorage.getItem("rd25-data")||"null"); if(j){S.logs=j.logs||{};S.meals=j.meals||{};Object.assign(S.profile,j.profile||{});S.chat=j.chat||[];S.over=j.over||{};Object.assign(S.advice,j.advice||{})}}catch(e){}}
+function loadLocal(){ setTimeout(onProfile,0); try{S.photos=JSON.parse(localStorage.getItem("rd25-photos")||"{}")||{}}catch(e){} try{const j=JSON.parse(localStorage.getItem("rd25-data")||"null"); if(j){S.logs=j.logs||{};S.meals=j.meals||{};Object.assign(S.profile,j.profile||{});S.chat=j.chat||[];S.over=j.over||{};Object.assign(S.advice,j.advice||{})}}catch(e){}}
 function saveLocal(){try{const {photos,...rest}=S; localStorage.setItem("rd25-data",JSON.stringify(rest))}catch(e){} try{localStorage.setItem("rd25-photos",JSON.stringify(S.photos))}catch(e){}}
 const queues={};
 function enqueue(key,fn){const p=(queues[key]||Promise.resolve()).then(fn).catch(e=>{try{console.error("save failed",key,e)}catch(_){} toast(e&&e.code==="quota_exceeded"?"Storage is full":e&&e.code==="invalid_argument"?`Couldn't save that entry (${String(e.message||"invalid data").slice(0,60)})`:"Couldn't save. Check your connection and try again.");});queues[key]=p;return p}
@@ -656,11 +667,11 @@ async function boot(){
       mode="db"; S.logs={}; S.meals={}; S.chat=[];
       refs.logs.onSnapshot(snap=>{const L={}; snap.docs.forEach(d=>{if(d.exists) L[d.id]=d.data()}); S.logs=L; loaded.logs=true; render(true); maybeAutoAdvice()},()=>{});
       refs.meals.onSnapshot(snap=>{const M={}; snap.docs.forEach(d=>{if(d.exists) M[d.id]={...d.data()}}); for(const k in mealTimers){ if(S.meals[k]) M[k]=S.meals[k] } S.meals=M; render(true)},()=>{});
-      refs.profile.onSnapshot(d=>{ if(d.exists){const p=d.data(); S.profile={about:"",raceDate:"",weights:[],grocery:{},...p}} render(true)},()=>{});
+      refs.profile.onSnapshot(d=>{ if(d.exists){const p=d.data(); S.profile={about:"",raceDate:"",weights:[],grocery:{},...p}} loaded.profile=true; onProfile(); render(true)},()=>{loaded.profile=true; render(true)});
       refs.chat.onSnapshot(d=>{ if(d.exists && !sending){S.chat=(d.data().messages||[]).slice(); if(tab==="advice") renderChatList()} },()=>{});
       refs.advice.onSnapshot(d=>{ if(d.exists && !adviceBusy){S.advice={items:[],stamp:"",at:0,seenAt:0,history:[],...d.data()}} loaded.advice=true; render(true); maybeAutoAdvice()},()=>{loaded.advice=true});
-    } else {loaded.logs=loaded.advice=true}
-  }catch(e){loaded.logs=loaded.advice=true}
+    } else {loaded.logs=loaded.advice=loaded.profile=true}
+  }catch(e){loaded.logs=loaded.advice=loaded.profile=true}
   userReady=true; render(true); await sp;
 }
 
@@ -714,6 +725,7 @@ function render(fromStore){
   if(fromStore && key===lastRenderKey && (typing || (tab==="home" && document.querySelector("#trainLog[open]")))){ renderTop(); renderTabs(); return }
   if(fromStore && tab==="advice" && key===lastRenderKey && (sending||typing)){ renderTop(); renderTabs(); return }
   const openLogger=!!document.querySelector("#trainLog[open]") && key===lastRenderKey;
+  if(gateView(fromStore)) return;
   lastRenderKey=key;
   renderTop(); renderTabs();
   const v=$("#view");
@@ -727,7 +739,8 @@ function renderTop(){
   const left=Math.max(0,Math.round((GOAL-today)/DAYMS));
   const plannedSoFar=countPlanned(today), done=Object.keys(S.logs).filter(k=>parseYmd(k)<=today).length;
   const pct=Math.min(100,Math.max(0,dayNum(today)/(dayNum(GOAL)+1)*100));
-  $("#top").innerHTML=`<div class="eyebrow">Road to Dec 25</div>
+  if(document.title!==progName()) document.title=progName();
+  $("#top").innerHTML=`<div class="eyebrow">${esc(progName())}</div>
    <div class="row between" style="align-items:flex-end"><h1>Week ${w} <span class="muted">/ ${WEEKS}</span></h1>
    <div class="countdown"><div class="stat"><div class="v num">${left}</div><div class="l">days left</div></div>
    <div class="stat"><div class="v num">${done}<span class="muted" style="font-size:18px">/${plannedSoFar}</span></div><div class="l">sessions</div></div></div></div>
@@ -758,8 +771,8 @@ function viewHome(openLogger){
   const p=planFor(sel), k=ymd(sel), log=S.logs[k];
   const isToday=k===ymd(today);
   let h=weekStrip();
-  if(mode==="local" && userReady) h+=`<p class="note">Open this app inside Claude to save across devices. Right now entries stay in this browser only.</p>`;
-  if(!p){return h+`<div class="card"><h2>Finish line</h2><p>The 11-week block ended Friday, Dec 25. Check Progress for your numbers, then ask your coach to plan the next block.</p></div>`}
+  if(mode==="local" && userReady && !window.__platform) h+=`<p class="note">Entries stay in this browser only.</p>`;
+  if(!p){return h+`<div class="card"><h2>Finish line</h2><p>Your ${WEEKS}-week block ended ${fmtDate(GOAL)}. Check Progress for your numbers, then ${CUSTOM?`<button class="btn ghost sm" type="button" data-su-edit="1">build your next plan</button>`:"ask your coach to plan the next block."}</p></div>`}
   // glance
   const e=dayEaten(k), tgt=dayTarget(sel), ptg=dayProtein(sel), wf=weekFood(p.w);
   const pctW=Math.min(100,wf.target?wf.eaten/wf.target*100:0);
@@ -875,7 +888,7 @@ function planSwitch(){
 }
 function viewPlan(){
   const cw=weekOf(today);
-  let h=`<div class="card"><h2>How the block works</h2>
+  let h= CUSTOM? customPlanIntro() : `<div class="card"><h2>How the block works</h2>
    <p><span class="chip gym">Mon · Wed · Fri</span> Gym, about an hour. Three fixed workouts (A, B, C). Beat last session by a rep; when every set reaches the top of the range, add weight.</p>
    <p><span class="chip run">Tue · Thu · Sat</span> Run/walk. Tuesday easy, Thursday intervals, Saturday long. Run segments get longer and the long run builds to 11 miles, with lighter weeks 4 and 8.</p>
    <p><span class="chip run">Tuesdays from week 2</span> Easy runs go by heart rate, not the clock: jog slowly until you reach 150 bpm, walk until you drop to 130, and repeat for the set time. As you get fitter, the jogs get longer on their own.</p>
@@ -883,8 +896,8 @@ function viewPlan(){
    <div class="field"><label for="race">Half marathon date</label><input id="race" type="date" value="${esc(S.profile.raceDate||"")}"></div>
    <p class="small muted">Set your race date and ask your coach to line the long runs up with it.</p></div>`;
   h+=`<div class="card"><h2>Gym workouts</h2>`;
-  h+=`<p class="note"><b>Core block, ${fmtShort(parseYmd(CORE_SWAP.from))}–${fmtShort(parseYmd(CORE_SWAP.to))}:</b> deadlifts are paused for core work. They return Nov 9.</p>`;
-  const ph=GYM2[ymd(today)<=CORE_SWAP.to?"block":"post"];
+  if(!CUSTOM) h+=`<p class="note"><b>Core block, ${fmtShort(parseYmd(CORE_SWAP.from))}–${fmtShort(parseYmd(CORE_SWAP.to))}:</b> deadlifts are paused for core work. They return Nov 9.</p>`;
+  const ph=curPhase();
   h+=`<p class="small muted">Paired exercises are done back-to-back, then rest.</p>`;
   Object.values(ph).forEach(d=>{h+=`<div><h3>${esc(d.name)}</h3><div class="small num">${d.ex.map(e=>`${esc(e.name)} <span class="muted">${e.sets}×${e.lo}–${e.hi}${e.bw?"s":""}${e.inc?` · +${e.inc} lb`:""}</span>`).join("<br>")}</div></div>`});
   h+=`</div>`;
@@ -974,7 +987,7 @@ function viewProgress(){
   // weekly table
   shared+=`<div class="card"><div class="row between"><h2>Week by week</h2><span class="chip">Week ${cw}</span></div><div class="tablewrap"><table>
    <thead><tr><th>Wk</th><th>Gym</th><th>Runs</th><th>Miles</th><th>Long</th><th>Easy pace</th><th>Volume</th><th>Calories</th></tr></thead><tbody>
-   ${rows.map(r=>`<tr class="${r.w===cw?"cur":""}"><td>${r.w}</td><td>${r.gym}/3</td><td>${r.runs}/${r.w===WEEKS?2:3}</td><td>${r.mi?r.mi.toFixed(1):"–"}</td><td>${r.long?r.long+" mi":"–"}</td><td>${r.easy?fmtMin(r.easy):"–"}</td><td>${r.vol?Math.round(r.vol/1000)+"k lb":"–"}</td><td>${r.kcal?fmtN(r.kcal)+" / "+fmtN(r.ktarget):"–"}</td></tr>`).join("")}
+   ${rows.map(r=>`<tr class="${r.w===cw?"cur":""}"><td>${r.w}</td><td>${r.gym}/${perWeek("gym",r.w)}</td><td>${r.runs}/${perWeek("run",r.w)}</td><td>${r.mi?r.mi.toFixed(1):"–"}</td><td>${r.long?r.long+" mi":"–"}</td><td>${r.easy?fmtMin(r.easy):"–"}</td><td>${r.vol?Math.round(r.vol/1000)+"k lb":"–"}</td><td>${r.kcal?fmtN(r.kcal)+" / "+fmtN(r.ktarget):"–"}</td></tr>`).join("")}
    </tbody></table></div></div>`;
   let runsH=runsIndex();
   // running
@@ -1083,13 +1096,14 @@ function coachContext(){
   const wts=(S.profile.weights||[]).slice(-6).map(x=>`${x.d}: ${x.lb} lb`).join(", ")||"none";
   const food=[...Array(7)].map((_,n)=>{const d=addDays(today,-n); if(!inProgram(d)) return null; const e=dayEaten(ymd(d)); return e.any?`${ymd(d)}: ${fmtN(e.kcal)}/${fmtN(dayTarget(d))} kcal, ${Math.round(e.p)} g protein`:`${ymd(d)}: not logged`}).filter(Boolean).join("\n");
   const wf=weekFood(w);
-  return `You are the personal trainer and nutrition coach inside "Road to Dec 25", an 11-week training app (Oct 12 – Dec 25, 2026).
+  const intro = CUSTOM? customCoachIntro(w) : `You are the personal trainer and nutrition coach inside "Road to Dec 25", an 11-week training app (Oct 12 – Dec 25, 2026).
 Be direct, encouraging and practical. Keep replies under ~150 words unless asked for a full plan. Plain text with short lines; **bold** is fine, no tables.
 TEMPORARY CORE BLOCK Oct 19–Nov 8: he asked to drop deadlift patterns because his core is too weak to support his lower back; Romanian deadlift → weighted decline crunch (holding a plate; switched from cable crunch Oct 19), trap-bar deadlift → Pallof press. After Nov 8, deadlifts return at reduced weight. Program v2 from Oct 20 (he approved it; built from his logs: pressing weakest, pulling and legs stronger, grip limits pulls, he dislikes split squats): gym Mon/Wed/Fri ~1 hr. Through Nov 8: Day A bench 4×6–8 / angled leg press 4×8–12 / lat pulldown / 45° back extension / weighted decline crunch / chest fly 3×12–15 + reverse pec deck 2×12–15 for rear delts (paired) / lateral raise 3×12–15 on its own; Day B overhead press / cable row (straps) / leg curl / single-leg leg extension 2×10–15 / face pull 3 sets + overhead triceps ext (paired) / Pallof + standing calf raise (paired); Day C incline DB press 4×8–12 / chest-supported DB row / hip thrust 3×8–12 / leg curl / EZ curl + pushdown (paired) / hammer curl + standing calf raise 2 sets (paired). From Nov 9: RDL replaces decline crunch (Day A); trap-bar deadlift replaces Pallof (Day B), restarting ~135 lb with straps. Uses double progression (beat reps; at top of range on every set, add weight; 10% deload after two stalled sessions). Runs Tue easy run/walk, from week 2 heart-rate based (jog until 150 bpm, walk until 130 bpm, target zone 130–150) (plus 4–6 strides of 15–20 s at ~85% from week 4; no all-out sprinting, chosen over sprint intervals to limit injury risk), Thu intervals, Sat long run building to 11 mi in week 10, lighter weeks 4 and 8, taper week 11.
 Meal plan (~1,505 kcal / 139 g protein base; +2 eggs Tue/Thu = 1,645; +eggs and banana Sat = 1,750): yogurt-oat-berry bowl, pesto chicken breast rice bowl, turkey bolognese pasta, cottage cheese + berries. Batch pesto + bolognese. Groceries ≈$79/week, cap $100. He chose this low intake; it's an aggressive deficit for his size and training, so watch for under-fueling (stalled lifts, fast weight loss, hard easy runs) and recommend adding 200–300 kcal when you see it.
 If he reports sharp pain, swelling, chest pain, dizziness or fainting, tell him to stop and get it checked by a professional. You're not a doctor.
 Today: ${fmtDate(today)} (week ${w} of 11). Half marathon date: ${S.profile.raceDate||"not set"}.
-About him: ${S.profile.about||"(not filled in)"}
+`;
+  return `${intro}About ${CUSTOM?"them":"him"}: ${S.profile.about||"(not filled in)"}
 This week's plan:
 ${weekPlan}
 ${targets}
@@ -1396,13 +1410,13 @@ Weight is in the same unit he logs (per dumbbell where noted); use null for time
 function renderIfIdle(){ const a=document.activeElement; const typing=a&&a.closest&&a.closest("#view")&&/INPUT|TEXTAREA|SELECT/.test(a.tagName); if(!typing){ lastRenderKey=""; render() } }
 
 /* ---------- Standings (percentiles vs 21-year-old men) ---------- */
-const AGE=21;
+let AGE=21, NORM_WHO="men";
 // Bench press 1RM ÷ body weight, men 20–29 (Cooper Institute norms)
-const BENCH_NORM=[[5,0.72],[20,0.88],[40,0.99],[60,1.14],[80,1.32],[95,1.63]];
+let BENCH_NORM=[[5,0.72],[20,0.88],[40,0.99],[60,1.14],[80,1.32],[95,1.63]];
 // Leg press 1RM ÷ body weight among men who log leg presses (Strength Level levels: beginner≈5th, novice 20th, intermediate 50th, advanced 80th, elite 95th)
 const LP_NORM=[[5,1.0],[20,1.5],[50,2.5],[80,3.5],[95,4.75]];
 // Treadmill VO2max (ml/kg/min), men 20–29 (FRIEND registry)
-const VO2_NORM=[[5,29.0],[10,32.1],[25,40.1],[50,48.0],[75,55.2],[90,61.8],[95,66.3]];
+let VO2_NORM=[[5,29.0],[10,32.1],[25,40.1],[50,48.0],[75,55.2],[90,61.8],[95,66.3]];
 function ncdf(z){const t=1/(1+0.2316419*Math.abs(z)),d=0.3989423*Math.exp(-z*z/2),p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274)))); return z>0?1-p:p}
 function nInv(p){const a=[-39.69683028665376,220.9460984245205,-275.9285104469687,138.357751867269,-30.66479806614716,2.506628277459239],b=[-54.47609879822406,161.5858368580409,-155.6989798598866,66.80131188771972,-13.28068155288572],c=[-0.007784894002430293,-0.3223964580411365,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783],d=[0.007784695709041462,0.3224671290700398,2.445134137142996,3.754408661907416];
   const q=p<0.5?p:1-p; let x; if(q<0.02425){const r=Math.sqrt(-2*Math.log(q)); x=(((((c[0]*r+c[1])*r+c[2])*r+c[3])*r+c[4])*r+c[5])/((((d[0]*r+d[1])*r+d[2])*r+d[3])*r+1)} else {const r=q-0.5, r2=r*r; x=(((((a[0]*r2+a[1])*r2+a[2])*r2+a[3])*r2+a[4])*r2+a[5])*r/(((((b[0]*r2+b[1])*r2+b[2])*r2+b[3])*r2+b[4])*r2+1)} return p<0.5?x:-x}
@@ -1484,10 +1498,10 @@ function regionStanding(key,cut,bw){
   const tm=have.reduce((a,x)=>a+x.mass,0), z=have.reduce((a,x)=>a+x.mass*nInv(x.pct/100),0)/tm;
   return {muscles,pct:Math.max(1,Math.min(99,Math.round(ncdf(z)*100))),coverage:Math.round(tm)};
 }
-const REF_BW=175; // typical body weight of a 21-year-old man, used for raw-strength rankings
+let REF_BW=175; // typical body weight of a 21-year-old man, used for raw-strength rankings
 let standMode="rel"; try{const v=localStorage.getItem("rd25-stand"); if(v==="raw"||v==="rel") standMode=v}catch(e){}
 function standings(cut){
-  const bw0=standingsBW(cut), bw= bw0&&standMode==="raw"? {lb:REF_BW,src:`raw mode: your lifts divided by a typical ${REF_BW} lb 21-year-old`} : bw0, out={bw,bw0};
+  const bw0=standingsBW(cut), bw= bw0&&standMode==="raw"? {lb:REF_BW,src:`raw mode: your lifts divided by a typical ${REF_BW} lb ${AGE}-year-old`} : bw0, out={bw,bw0};
   if(bw){ const u=regionStanding("upper",cut,bw.lb), l=regionStanding("lower",cut,bw.lb); if(u.pct!=null) out.upper=u; if(l.pct!=null) out.lower=l; out.upperM=u; out.lowerM=l }
   const rn=bestRun(cut), hv=hrVO2(cut);
   if(hv){ out.speed={pct:pctFrom(VO2_NORM,hv.v),vo2:hv.v,hr:hv,run:rn,conf:"mid"} }
@@ -1519,7 +1533,7 @@ function exRate(id){
   return {r:Math.max(0.002, w*(obs??0)+(1-w)*typ), obs, typ, w, level, n} }
 let lifterPctOf=null;
 function grow(r,weeks,adh){ let g=1, w=0; for(;w+1<=weeks;w++) g*=1+r*adh*Math.pow(0.96,w); g*=1+r*adh*Math.pow(0.96,w)*(weeks-w); return g }
-function horizon(){ const end= outH==="4w"? addDays(today,28) : outH==="6m"? addDays(today,182) : GOAL; return {end,weeks:Math.max(0,(end-today)/DAYMS/7),label: outH==="4w"?"in 4 weeks":outH==="6m"?"in 6 months":"by Dec 25"} }
+function horizon(){ const end= outH==="4w"? addDays(today,28) : outH==="6m"? addDays(today,182) : GOAL; return {end,weeks:Math.max(0,(end-today)/DAYMS/7),label: outH==="4w"?"in 4 weeks":outH==="6m"?"in 6 months":"by "+fmtShort(GOAL)} }
 function bwTrend(){ const ws=(S.profile.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1); if(ws.length>=2){ const days=(parseYmd(ws[ws.length-1].d)-parseYmd(ws[0].d))/DAYMS; if(days>=7) return {rate:Math.max(-2.5,Math.min(0.5,(ws[ws.length-1].lb-ws[0].lb)/(days/7))),obs:true} } return {rate:-1,obs:false} }
 function aggRegion(key,exs){
   const R=REGIONS[key], inPlan=currentPlanIds();
@@ -1554,7 +1568,7 @@ function project(full){
     if(/5K\s*~?\s*\d+\s*min/i.test(S.profile.about||"")) longest=Math.max(longest,3.107); // he has finished a 5K before
     walk.sort((a,b)=>a-b); const walkPace=walk.length?walk[Math.floor(walk.length/2)]:18.5;
     const effW=hz.weeks*A.run, capP=Math.min(150,cap*Math.pow(2,effW/2.5));
-    const endWeek=Math.min(WEEKS,Math.max(1,weekOf(hz.end))); const sat=(RUNS[Math.min(endWeek,10)-1].sat||RUNS[9].sat).d; let planLong=Number((sat.match(/([\d.]+) mi/)||[])[1])||11; if(outH==="6m") planLong=13.1;
+    const endWeek=Math.min(WEEKS,Math.max(1,weekOf(hz.end))); let planLong=0; for(let i=0;i<Math.min(endWeek,RUNS.length);i++){ const sr=RUNS[i]&&RUNS[i].sat; const m=sr&&sr.d.match(/([\d.]+) mi/); if(m) planLong=Math.max(planLong,Number(m[1])) } if(!planLong) planLong=3; if(outH==="6m") planLong=Math.max(planLong,13.1);
     const longP=longest+(Math.max(longest,planLong)-longest)*A.run;
     const rwP=(rwPace||16)*v0/v1;
     const race=(vd,capMin,longMi,rw,mi)=>{ const run=solveRace(vd,mi); const walkT=walkPace*(1+0.02*Math.log2(Math.max(1,mi/3)))*mi;
@@ -1580,7 +1594,7 @@ function nowToProj(n,p){ return `<div class="ntp">${chip(n)}<span class="arrow">
 function viewOutlook(){
   const P=project(), hz=P.hz, a=P.adh;
   let h=`<div class="card"><div><div class="eyebrow">If you keep going like this</div><h2>Outlook</h2></div>
-    <div class="seg three" role="tablist" aria-label="Time frame">${[["4w","4 weeks"],["dec25","Dec 25"],["6m","6 months"]].map(([k,l])=>`<button role="tab" data-outh="${k}" class="${outH===k?"on":""}" aria-selected="${outH===k}">${l}</button>`).join("")}</div>
+    <div class="seg three" role="tablist" aria-label="Time frame">${[["4w","4 weeks"],["dec25",fmtShort(GOAL)],["6m","6 months"]].map(([k,l])=>`<button role="tab" data-outh="${k}" class="${outH===k?"on":""}" aria-selected="${outH===k}">${l}</button>`).join("")}</div>
     <p class="small muted">If you hit every session from here.</p></div>`;
   h+=`<div class="card"><div class="row between"><h2>Overall fitness</h2></div><div class="pct"><span class="n tier" style="color:${P.overallP!=null?tierColor(P.overallP):"var(--muted)"}">${P.overallP!=null?tier(P.overallP):"–"}</span><span class="u">${hz.label}</span></div>
     <div class="row" style="gap:8px"><span class="small muted">Now</span>${chip(P.overallN)}</div></div>`;
@@ -1624,7 +1638,7 @@ function zNorm(norm,v){ const pts=norm.map(([p,val])=>[val,nInv(p/100)]);
 function vNorm(norm,z){ const pts=norm.map(([p,val])=>[nInv(p/100),val]);
   const seg=z<=pts[0][0]?[pts[0],pts[1]]:z>=pts[pts.length-1][0]?[pts[pts.length-2],pts[pts.length-1]]:(()=>{for(let i=1;i<pts.length;i++) if(z<=pts[i][0]) return [pts[i-1],pts[i]]})();
   const [[z0,v0],[z1,v1]]=seg; return v0+(z-z0)*(v1-v0)/(z1-z0) }
-function planEx(id){ const ph=GYM2[ymd(today)<=CORE_SWAP.to?"block":"post"]; for(const d of Object.values(ph)){ const e=d.ex.find(x=>x.id===id); if(e) return e } return null }
+function planEx(id){ const ph=curPhase(); for(const d of Object.values(ph)){ const e=d.ex.find(x=>x.id===id); if(e) return e } return null }
 function exTarget(id,gp,bw){ const std=STD[id]; if(!std) return null; const ex=planEx(id)||{lo:8,name:exName(id)};
   const kind=std.sec?"sec":std.add?"add":(std.db&&(dbNow(id,null)||!std.bb))?"db":"bb";
   const norm=LVL.map((p,i)=>[p,std[kind][i]]), z=nInv(gp/100);
@@ -1653,7 +1667,7 @@ function tierSheet(st){
     const bw=st.bw&&st.bw.lb; if(!bw) return head+`<p class="small muted">Log a weigh-in to see targets.</p></div>`;
     const plan=currentPlanIds(), mus=new Set(REGIONS[area].muscles.map(m=>m[0]));
     const ids=[...plan].filter(id=>EX_MUSCLES[id]&&Object.keys(EX_MUSCLES[id]).some(m=>mus.has(m))&&STD[id]);
-    const order=Object.values(GYM2[ymd(today)<=CORE_SWAP.to?"block":"post"]).flatMap(d=>d.ex.map(e=>e.id));
+    const order=Object.values(curPhase()).flatMap(d=>d.ex.map(e=>e.id));
     ids.sort((a,b)=>order.indexOf(a)-order.indexOf(b));
     body=`<div class="exl">${ids.map(id=>{ const t=exTarget(id,nextLo,bw), cur=exStanding(id,null,bw); if(!t) return "";
       const tTxt= t.kind==="sec"?`${t.secs} s hold`: t.kind==="add"? (t.w>0?`+${t.w} lb × ${t.reps}`:`Bodyweight × ${t.reps}`) : `${t.w} lb${t.kind==="db"?" each":""} × ${t.reps}`;
@@ -1666,7 +1680,7 @@ function tierSheet(st){
   }
   return head+body+`</div>`;
 }
-function currentPlanIds(){ const ph=GYM2[ymd(today)<=CORE_SWAP.to?"block":"post"]; return new Set(Object.values(ph).flatMap(d=>d.ex.map(e=>e.id))) }
+function currentPlanIds(){ const ph=curPhase(); return new Set(Object.values(ph).flatMap(d=>d.ex.map(e=>e.id))) }
 function muscleSheet(st){
   const [rk,m]=openMuscle.split("|"), M=st[rk+"M"]; if(!M) return ""; const x=M.muscles.find(q=>q.m===m); if(!x) return "";
   const tot=x.used.reduce((a,e)=>a+e.wt,0)||1;
@@ -1697,7 +1711,7 @@ function regionCard(key,st){
   h+=`${weakest?`<p class="small">Focus: <b>${weakest.label.toLowerCase()}</b></p>`:""}</div>`;
   return h;
 }
-function pctBlock(p,area){ const i=tierIdx(p); return `<div class="pct"><span class="n tier" style="color:${tierColor(p)}">${tier(p)}</span><span class="u">vs. ${AGE}-year-old men</span></div>
+function pctBlock(p,area){ const i=tierIdx(p); return `<div class="pct"><span class="n tier" style="color:${tierColor(p)}">${tier(p)}</span><span class="u">vs. ${AGE}-year-old ${NORM_WHO}</span></div>
   <div class="tscale ${area?"click":""}">${TIERS.map((t,j)=>area?`<button data-tierv="${area}|${j}" class="${j===i?"on":""}" style="${j===i?`background:${t[2]};color:var(--bg)`:""}" aria-label="See what ${t[0]} takes">${t[0]}</button>`:`<span class="${j===i?"on":""}" style="${j===i?`background:${t[2]};color:var(--bg)`:""}">${t[0]}</span>`).join("")}</div>`}
 function pctBlockOld(p){ return `<div class="pct"><span class="n num">${p}</span></div>
   <div class="pbar" aria-hidden="true"><b style="left:25%"></b><b style="left:50%"></b><b style="left:75%"></b><i style="left:${p}%"></i></div><div class="pticks"><span>1st</span><span>25th</span><span>50th</span><span>75th</span><span>99th</span></div>` }
@@ -1773,7 +1787,7 @@ async function comparePhoto(id){
   const wts=(S.profile.weights||[]).map(w=>`${w.d}: ${w.lb} lb`).join(", ")||"none logged";
   const days=Math.round((parseYmd(cur.date)-parseYmd(list[0][1].date))/DAYMS);
   photoBusy[id]=true; render(true); renderIfIdle();
-  const prompt=`You are the coach in his training app, comparing his ${cur.pose}-view progress photos. He is 21, training for a December half marathon, lifting 3x/week and running 3x/week on a calorie deficit; his goal is getting into the best shape of his life by Dec 25.
+  const prompt=`You are the coach in his training app, comparing his ${cur.pose}-view progress photos. ${personLine()}
 The ${imgs.length} images, in order: ${labels.map((l,i)=>`Image ${i+1} = ${l}`).join("; ")}. ${days} days between baseline and the new photo.
 Weigh-ins: ${wts}.
 
@@ -1794,7 +1808,7 @@ Reply with ONLY a JSON object:
 
 /* ---------- Runs tab ---------- */
 let runSel=null;
-const HR_MAX_EST=199; // 220 − age 21
+let HR_MAX_EST=199; // 220 − age 21
 const HR_LO=130, HR_HI=150;
 const isHrRun=k=>{const p=planFor(parseYmd(k)); return !!(p&&p.type==="run"&&/bpm/.test(p.d))};
 function hrRange(S2){ if(!S2||!S2.hr) return null; let lo=0,inn=0,hi=0; S2.hr.forEach(v=>{ if(!v) return; if(v<HR_LO) lo+=S2.step; else if(v<=HR_HI) inn+=S2.step; else hi+=S2.step }); const t=lo+inn+hi; return t? {below:lo/60,inRange:inn/60,above:hi/60,pctIn:inn/t*100,pctAbove:hi/t*100} : null }
@@ -2205,6 +2219,195 @@ function bind(){
     $("#chatClear")?.addEventListener("click",function(){ if(this.dataset.armed){S.chat=[];saveChat();render()} else {this.dataset.armed="1";this.textContent="Tap again to clear"} });
   }
 }
+/* ---------- Custom programs: built from each new user's setup answers ---------- */
+const RACE_NAMES={"5k":"5K","10k":"10K",half:"Half marathon"};
+const BASE_MEALS=JSON.parse(JSON.stringify(MEALS));
+const BASE_BENCH=BENCH_NORM.map(x=>[...x]), BASE_VO2=VO2_NORM.map(x=>[...x]);
+const mondayOf=d=>addDays(midnight(d),-((d.getDay()+6)%7));
+const GYM_TEMPLATES={
+  2:()=>({
+    A:{name:"Day A · Full body",ex:[X.legpress45,X.bench,X.pulldown,X.legcurl,X.lateral,X.pushdown,{...X.declinecrunch}]},
+    B:{name:"Day B · Full body",ex:[X.rdl,X.incline,X.cablerow,X.legext1,X.facepull,X.ezcurl,X.calfraise]}}),
+  3:()=>({
+    A:{name:"Day A · Bench & Leg Press",ex:[X.bench,X.legpress45,X.pulldown,X.rdl,X.backext,X.fly,X.revfly,X.lateral]},
+    B:{name:"Day B · Press & Deadlift",ex:[X.ohp,X.tbdl,X.cablerow,X.legcurl,X.legext1,X.facepull,X.ohtri,X.calfraise]},
+    C:{name:"Day C · Incline & Glutes",ex:[X.incline,X.dbrow,X.hipthrust,X.legcurl,X.ezcurl,X.pushdown,X.hammer,{...X.calfraise,sets:2}]}}),
+  4:()=>({
+    A:{name:"Day A · Upper",ex:[X.bench,X.cablerow,X.ohp,X.pulldown,X.lateral,X.ezcurl,X.pushdown]},
+    B:{name:"Day B · Lower",ex:[X.legpress45,X.rdl,X.legcurl,X.legext1,X.calfraise,X.declinecrunch]},
+    C:{name:"Day C · Upper",ex:[X.incline,X.dbrow,X.fly,X.revfly,X.facepull,X.hammer,X.ohtri]},
+    D:{name:"Day D · Lower",ex:[X.tbdl,X.hipthrust,X.legpress45,X.legcurl,X.calfraise,X.backext]}})
+};
+function hrZone(age){ const mx=Math.round(208-0.7*age); return [Math.round(mx*0.65),Math.round(mx*0.78)] }
+function buildRuns(su,W){
+  const lvl=su.runLevel||"new", race=su.race||"none";
+  const PEAK={none:{new:4,some:6,regular:8},"5k":{new:3.5,some:4.5,regular:6},"10k":{new:6,some:7,regular:8},half:{new:10,some:11,regular:12}};
+  const peak=PEAK[race][lvl], startL=Math.min({new:2,some:3,regular:4}[lvl],peak);
+  const [zl,zh]=hrZone(su.age||30), out=[];
+  const buildW=Math.max(2,W-1);
+  for(let w=1;w<=W;w++){
+    const last=w===W, rec=W>=6&&w%4===0&&!last, prog=Math.min(1,(w-1)/Math.max(1,buildW-1));
+    let L=startL+(peak-startL)*prog; if(rec) L*=0.8; if(last) L=Math.max(startL,peak*0.5); L=Math.round(L*2)/2;
+    const runMin=Math.min(5,1+Math.round(prog*4)), walkMin=prog>0.6?1:2;
+    const easy=Math.max(20,Math.round((25+20*prog)/5)*5-(rec?5:0)-(last?10:0));
+    const strides=w>=4&&!last?`, then ${rec?4:6} strides`:"";
+    const n=last?3:rec?4:5+(w%2), m=lvl==="new"?Math.min(6,2+Math.round(prog*4)):Math.min(6,(lvl==="some"?2:3)+Math.round(prog*3));
+    out.push({
+      tag: rec?"Recovery week": last?(su.race?"Race week":"Final week"): (w===W-1&&W>=6?"Peak week":""),
+      tue: lvl==="new"? R("Easy run/walk · heart rate",`${easy} min · jog until ${zh} bpm, walk until ${zl} bpm, repeat${strides}`)
+                     : R("Easy run · heart rate",`${easy} min · relaxed jog, keep heart rate ${zl}–${zh} bpm${strides}`),
+      thu: lvl==="new"? R("Intervals",`5-min walk, ${n} × (run ${m} min / walk 2), 5-min walk`)
+                     : R("Intervals",`10-min easy jog, ${n} × (${m} min hard / 2 min easy), 10-min easy jog`),
+      sat: last&&su.race? null : R(lvl==="new"?"Long run/walk":"Long run",`${L} mi · ${lvl==="new"?`run ${runMin} / walk ${walkMin}`:"easy, conversational pace"}`)
+    });
+  }
+  return out;
+}
+function applySetup(su){
+  START=mondayOf(parseYmd(su.start)); GOAL=parseYmd(su.goalDate);
+  WEEKS=Math.max(1,Math.ceil((dayNum(GOAL)+1)/7));
+  SCHED=Array(7).fill("rest"); RUNKEY={};
+  [...su.gymDays].sort((a,b)=>a-b).forEach((d,i)=>SCHED[d]="ABCD"[i]);
+  const rd=[...su.runDays].sort((a,b)=>a-b), kinds=rd.length===1?["sat"]:rd.length===2?["tue","sat"]:["tue","thu","sat"];
+  rd.forEach((d,i)=>{SCHED[d]="run"; RUNKEY[d]=kinds[i]});
+  RUNS=buildRuns(su,WEEKS);
+  const gym=GYM_TEMPLATES[su.gymDays.length](); CUSTOM={su,gym};
+  KEYLIFTS=["legpress45","bench","tbdl","ohp","rdl","incline"].filter(id=>Object.values(gym).some(d=>d.ex.some(e=>e.id===id))).slice(0,4);
+  const f=(Number(su.kcal)||1505)/1505;
+  Object.keys(BASE_MEALS).forEach(id=>{ const b=BASE_MEALS[id], fuel=id==="e"||id==="bn";
+    MEALS[id]={...b,kcal:fuel?b.kcal:Math.round(b.kcal*f/5)*5,p:fuel?b.p:Math.round(b.p*f),d:!fuel&&Math.abs(f-1)>0.05?`Portions ×${f.toFixed(2).replace(/0$/,"")}. ${b.d}`:b.d}});
+  AGE=Number(su.age)||30; NORM_WHO=su.sex==="female"?"women":"men";
+  const a=AGE, fem=su.sex==="female";
+  const bA=a<30?1:a<40?0.88:a<50?0.79:a<60?0.71:0.63, vA=a<30?1:a<40?0.89:a<50?0.8:a<60?0.7:0.61;
+  BENCH_NORM=BASE_BENCH.map(([p,v])=>[p,+(v*(fem?0.56:1)*bA).toFixed(3)]);
+  VO2_NORM=BASE_VO2.map(([p,v])=>[p,+(v*(fem?0.79:1)*vA).toFixed(1)]);
+  REF_BW=fem?145:175; HR_MAX_EST=Math.round(208-0.7*AGE);
+  if(!inProgram(sel)) sel=inProgram(today)?today:(dayNum(today)<0?START:GOAL);
+}
+let appliedStamp="";
+function onProfile(){
+  const su=S.profile&&S.profile.setup; const st=su?JSON.stringify(su):"";
+  if(st===appliedStamp) return; appliedStamp=st;
+  if(su) applySetup(su);
+}
+function progName(){ return CUSTOM? `Road to ${fmtShort(GOAL)}` : "Road to Dec 25" }
+function perWeek(kind,w){ let n=0; const mon=monOf(w); for(let i=0;i<7;i++){ const p=basePlan(addDays(mon,i)); if(p&&p.type===kind) n++ } return n }
+function personLine(){
+  if(!CUSTOM) return "He is 21, training for a December half marathon, lifting 3x/week and running 3x/week on a calorie deficit; his goal is getting into the best shape of his life by Dec 25.";
+  const su=CUSTOM.su; return `The user is ${su.name}, a ${su.age}-year-old ${su.sex==="female"?"woman":"man"} (use matching pronouns), lifting ${su.gymDays.length}x/week and running ${su.runDays.length}x/week; goal: ${goalText(su)} by ${fmtDate(GOAL)}.`;
+}
+function goalText(su){ return su.goal==="race"?`run a ${RACE_NAMES[su.race]}`: su.goal==="muscle"?"build strength and muscle":"lose fat and get fitter" }
+function customCoachIntro(w){
+  const su=CUSTOM.su, gd=su.gymDays.map(i=>DOW[i]).join("/"), rd=su.runDays.map(i=>DOW[i]).join("/")||"none";
+  return `You are the personal trainer and nutrition coach inside "${progName()}", a ${WEEKS}-week training app (${fmtShort(START)} – ${fmtShort(GOAL)}).
+Be direct, encouraging and practical. Keep replies under ~150 words unless asked for a full plan. Plain text with short lines; **bold** is fine, no tables.
+${personLine()} Lifting experience: ${{new:"new to lifting",some:"under a year",exp:"1+ years"}[su.exp]||"unknown"}. Running now: ${{new:"can't run a mile without walking",some:"can jog 20–30 minutes",regular:"runs regularly"}[su.runLevel]}.
+Gym days ${gd}, double progression (beat reps; at the top of the range on every set, add weight; 10% deload after two stalled sessions). Run days ${rd}: easy runs by heart rate, intervals, and a weekly long run with lighter recovery weeks.
+Food target ~${fmtN(su.kcal)} kcal/day from simple batch-cooked meals (Greek yogurt bowl, pesto chicken rice bowl, turkey bolognese pasta, cottage cheese snack), scaled to that target.
+If they report sharp pain, swelling, chest pain, dizziness or fainting, tell them to stop and get it checked by a professional. You're not a doctor.
+Today: ${fmtDate(today)} (week ${w} of ${WEEKS}).${su.race?` ${RACE_NAMES[su.race]} on ${fmtDate(GOAL)}.`:""}
+`;
+}
+function customPlanIntro(){
+  const su=CUSTOM.su, gd=su.gymDays.map(i=>DOW[i]).join(" · "), rd=su.runDays.map(i=>DOW[i]).join(" · "), [zl,zh]=hrZone(su.age);
+  return `<div class="card"><div class="row between"><h2>How your plan works</h2><button class="btn ghost sm" type="button" data-su-edit="1">Change my plan</button></div>
+   <p><span class="chip gym">${gd}</span> Gym, about an hour. ${su.gymDays.length} fixed workouts. Beat last session by a rep; when every set reaches the top of the range, add weight.</p>
+   ${su.runDays.length?`<p><span class="chip run">${rd}</span> ${su.runDays.length===1?"One long run each week":su.runDays.length===2?"An easy run and a long run each week":"Easy run, intervals and a long run each week"}. Runs build gradually${WEEKS>=6?", with a lighter week every fourth week":""}.</p>
+   <p><span class="chip run">Easy runs</span> Go by heart rate, not pace: stay around ${zl}–${zh} bpm. ${su.runLevel==="new"?"Jog until you hit the top, walk until you drop to the bottom, and repeat.":"Slow down whenever you drift above it."}</p>`:""}
+   ${su.race?`<p><span class="chip coach">${RACE_NAMES[su.race]} · ${fmtShort(GOAL)}</span> Your plan peaks the week before and eases off into race day.</p>`:""}
+   <p><span class="chip food">~${fmtN(su.kcal)} kcal/day</span> Meal prep plan scaled to your target. See the Food view.</p></div>`;
+}
+
+/* ---------- Setup screen ---------- */
+let setupOpen=false, SUW=null;
+function isLegacy(){ const p=S.profile||{}; return !p.setup && !!(p.about || (p.moves&&Object.keys(p.moves).length) || Object.keys(S.logs).length) }
+function needsSetup(){ return !!window.__platform && loaded.profile && !(S.profile&&S.profile.setup) && !isLegacy() }
+function suggestKcal(s){ const lb=Number(s.weight)||0; if(!lb) return ""; const fem=s.sex==="female";
+  const k= s.goal==="muscle"? lb*15 : s.goal==="race"? lb*13 : lb*11;
+  return Math.round(Math.min(fem?2800:3400,Math.max(fem?1300:1500,k))/50)*50 }
+function defaultSUW(){
+  const su=S.profile&&S.profile.setup;
+  if(su) return {...su,gymDays:[...su.gymDays],runDays:[...su.runDays],kcalTouched:true};
+  return {name:"",sex:"",age:"",weight:"",goal:"lose",race:"half",goalDate:ymd(addDays(mondayOf(today),7*10+4)),gymDays:[0,2,4],runDays:[1,3,5],runLevel:"new",exp:"new",kcal:"",kcalTouched:false};
+}
+function gateView(fromStore){
+  if(!window.__platform) return false;
+  const top=$("#top"), tabs=$("#tabs"), v=$("#view");
+  if(!loaded.profile){ top.innerHTML=""; tabs.innerHTML=""; v.innerHTML=`<div class="card"><p class="muted">Loading your plan…</p></div>`; lastRenderKey=""; return true }
+  if(!(setupOpen||needsSetup())) return false;
+  if(fromStore && document.getElementById("suForm")) return true;
+  if(!SUW) SUW=defaultSUW();
+  top.innerHTML=`<div class="eyebrow">Set up</div><h1>Build your plan</h1>`; tabs.innerHTML=""; lastRenderKey="";
+  v.innerHTML=viewSetup(); bindSetup(); return true;
+}
+function viewSetup(){
+  const s=SUW, wk=Math.round((parseYmd(s.goalDate)-mondayOf(today))/DAYMS/7);
+  const opt=(name,val,label,sub)=>`<button type="button" class="suopt ${s[name]===val?"on":""}" data-su-opt="${name}|${val}" aria-pressed="${s[name]===val}"><b>${label}</b>${sub?`<span>${sub}</span>`:""}</button>`;
+  const days=kind=>`<div class="sudays">${DOW.map((d,i)=>`<button type="button" class="suday ${s[kind].includes(i)?"on":""} ${kind}" data-su-day="${kind}|${i}" aria-pressed="${s[kind].includes(i)}">${d}</button>`).join("")}</div>`;
+  const sug=suggestKcal(s);
+  return `<form id="suForm" class="stack" autocomplete="off" onsubmit="return false">
+  <div class="card"><h2>About you</h2>
+    <div class="field"><label for="suName">First name</label><input id="suName" value="${esc(s.name)}" autocomplete="given-name"></div>
+    <div class="suopts two">${opt("sex","male","Male")}${opt("sex","female","Female")}</div>
+    <div class="row"><div class="field" style="flex:1"><label for="suAge">Age</label><input id="suAge" inputmode="numeric" value="${esc(s.age)}"></div>
+    <div class="field" style="flex:1"><label for="suWt">Weight (lb)</label><input id="suWt" inputmode="decimal" value="${esc(s.weight)}"></div></div></div>
+  <div class="card"><h2>Your goal</h2>
+    <div class="suopts">${opt("goal","lose","Lose fat & get fitter")}${opt("goal","muscle","Build strength & muscle")}${opt("goal","race","Train for a race")}</div>
+    ${s.goal==="race"?`<div class="suopts three">${opt("race","5k","5K")}${opt("race","10k","10K")}${opt("race","half","Half marathon")}</div>`:""}
+    <div class="field"><label for="suDate">${s.goal==="race"?"Race date":"Goal date"}</label><input id="suDate" type="date" value="${esc(s.goalDate)}" min="${ymd(addDays(today,28))}" max="${ymd(addDays(today,26*7))}"></div>
+    <p class="small muted">${wk>0?`A ${wk}-week plan. `:""}Pick 4 to 26 weeks out.</p></div>
+  <div class="card"><h2>Your week</h2>
+    <p class="small"><b>Gym days</b> <span class="muted">pick 2–4</span></p>${days("gymDays")}
+    <p class="small" style="margin-top:12px"><b>Run days</b> <span class="muted">pick 0–3${s.goal==="race"?", at least 2 for a race":""}</span></p>${days("runDays")}</div>
+  <div class="card"><h2>Running right now</h2>
+    <div class="suopts">${opt("runLevel","new","I can't run a mile without walking","Run/walk plan")}${opt("runLevel","some","I can jog 20–30 minutes")}${opt("runLevel","regular","I run regularly")}</div></div>
+  <div class="card"><h2>Lifting experience</h2>
+    <div class="suopts three">${opt("exp","new","New")}${opt("exp","some","Under a year")}${opt("exp","exp","1+ years")}</div></div>
+  <div class="card"><h2>Food</h2>
+    <div class="field"><label for="suKcal">Daily calories</label><input id="suKcal" inputmode="numeric" value="${esc(s.kcalTouched?s.kcal:sug)}"></div>
+    <p class="small muted" id="suKcalHint">${sug?`Suggested for your weight and goal: ${fmtN(sug)} kcal.`:"Enter your weight for a suggestion."} Meal prep portions scale to this.</p></div>
+  <p class="note" id="suErr" hidden></p>
+  <div class="row"><button type="button" class="btn" id="suSave">${S.profile.setup?"Save my plan":"Build my plan"}</button>${S.profile.setup?`<button type="button" class="btn ghost" id="suCancel">Cancel</button>`:""}</div>
+  <p class="small muted">Not medical advice. Check with a doctor before starting a new training or diet plan.</p>
+  </form>`;
+}
+function bindSetup(){
+  const s=SUW, num=id=>$(id).value.trim();
+  const sync=()=>{ s.name=num("#suName"); s.age=num("#suAge"); s.weight=num("#suWt"); s.goalDate=$("#suDate").value||s.goalDate;
+    const k=$("#suKcal"); if(!s.kcalTouched){ const g=suggestKcal(s); k.value=g||""; const h=$("#suKcalHint"); if(h) h.textContent=(g?`Suggested for your weight and goal: ${fmtN(g)} kcal.`:"Enter your weight for a suggestion.")+" Meal prep portions scale to this." } };
+  ["#suName","#suAge","#suWt","#suDate"].forEach(id=>$(id).addEventListener("input",sync));
+  $("#suKcal").addEventListener("input",e=>{s.kcalTouched=true; s.kcal=e.target.value.trim()});
+  const rerender=()=>{ sync(); const y=window.scrollY; $("#view").innerHTML=viewSetup(); bindSetup(); window.scrollTo(0,y) };
+  document.querySelectorAll("[data-su-opt]").forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.suOpt.split("|"); s[k]=v; rerender()});
+  document.querySelectorAll("[data-su-day]").forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.suDay.split("|"), i=Number(v), other=k==="gymDays"?"runDays":"gymDays";
+    if(s[k].includes(i)) s[k]=s[k].filter(x=>x!==i); else { s[k]=[...s[k],i].sort((a,b)=>a-b); s[other]=s[other].filter(x=>x!==i) } rerender()});
+  $("#suCancel")?.addEventListener("click",()=>{setupOpen=false; SUW=null; render()});
+  $("#suSave").onclick=()=>{
+    sync(); const err=t=>{const e=$("#suErr"); e.textContent=t; e.hidden=false; e.scrollIntoView({block:"center",behavior:"smooth"})};
+    const age=Number(s.age), wt=Number(s.weight), kcal=Number(s.kcalTouched?s.kcal:suggestKcal(s)), gd=parseYmd(s.goalDate), days=(gd-today)/DAYMS;
+    if(!s.name) return err("Add your first name.");
+    if(!s.sex) return err("Choose male or female. It sets your heart-rate zones and rankings.");
+    if(!(age>=18&&age<=90)) return err("This app is for adults 18 and over. Enter your age.");
+    if(!(wt>=80&&wt<=600)) return err("Enter your weight in pounds.");
+    if(!(days>=27&&days<=26*7+1)) return err("Pick a goal date between 4 and 26 weeks from today.");
+    if(s.gymDays.length<2||s.gymDays.length>4) return err("Pick 2 to 4 gym days.");
+    if(s.runDays.length>3) return err("Pick at most 3 run days.");
+    if(s.goal==="race"&&s.runDays.length<2) return err("Pick at least 2 run days to train for a race.");
+    if(!(kcal>=1200&&kcal<=5000)) return err("Enter daily calories between 1,200 and 5,000.");
+    const prev=S.profile.setup;
+    const su={v:1,name:s.name.slice(0,40),sex:s.sex,age,weight:wt,goal:s.goal,race:s.goal==="race"?s.race:null,goalDate:s.goalDate,
+      start:prev&&prev.start&&parseYmd(prev.start)<=today?prev.start:ymd(mondayOf(today)),gymDays:[...s.gymDays],runDays:[...s.runDays],
+      runLevel:s.runLevel,exp:s.exp,kcal:Math.round(kcal),at:Date.now()};
+    S.profile.setup=su;
+    S.profile.about=`${su.name}, ${su.age}${su.sex==="female"?"F":"M"}, ${su.weight} lb at setup. Goal: ${goalText(su)} by ${fmtDate(parseYmd(su.goalDate))}.`;
+    S.profile.raceDate=su.race?su.goalDate:"";
+    const ws=S.profile.weights||(S.profile.weights=[]); if(!ws.some(x=>x.d===ymd(today))) ws.push({d:ymd(today),lb:wt});
+    saveProfile(); onProfile(); setupOpen=false; SUW=null; sel=inProgram(today)?today:START; tab="home"; render(); window.scrollTo(0,0);
+    toast(prev?"Plan updated":"Your plan is ready");
+  };
+}
+document.addEventListener("click",e=>{ const b=e.target.closest&&e.target.closest("[data-su-edit]"); if(!b) return; setupOpen=true; SUW=null; render(); window.scrollTo(0,0) });
+
 boot(); tick(); if(TM.start) keepAwake(true);
 </script>
 

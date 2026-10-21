@@ -263,6 +263,7 @@
     },
   };
 
+  window.__platform = true;
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initAuth);
   else initAuth();
 })();
