@@ -33,7 +33,8 @@
       const go = async (act) => {
         const email = f.email.value.trim(), password = f.password.value;
         if (!email) return say("Enter your email.");
-        busy(true); say("");
+        busy(true); say(act === "in" ? "Signing in…" : "");
+        const timer = setTimeout(() => { say("This is taking too long. The app can't reach your Supabase project: check SUPABASE_URL and SUPABASE_ANON_KEY in Vercel, then redeploy."); busy(false); }, 15000);
         try {
           if (act === "reset") {
             const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin });
@@ -49,6 +50,7 @@
             if (error) throw error;
           }
         } catch (e) { say(e.message || "Something went wrong. Try again."); }
+        clearTimeout(timer);
         busy(false);
       };
       f.addEventListener("submit", (e) => { e.preventDefault(); go("in"); });
@@ -66,8 +68,13 @@
       authScreen("The app isn't configured yet (missing Supabase settings).");
       return;
     }
-    sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, { auth: { persistSession: true, autoRefreshToken: true } });
-    sb.auth.onAuthStateChange((event, s) => {
+    if (cfg.problem) { authScreen(cfg.problem); return; }
+    // No cross-tab lock: avoids sign-in hanging in some iPhone/home-screen contexts.
+    const lock = async (_name, _timeout, fn) => fn();
+    sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, { auth: { persistSession: true, autoRefreshToken: true, lock } });
+    // Work in this callback is deferred: calling Supabase inside it can deadlock sign-in.
+    sb.auth.onAuthStateChange((event, s) => setTimeout(() => onAuth(event, s), 0));
+    function onAuth(event, s) {
       if (event === "PASSWORD_RECOVERY") {
         const pw = prompt("Choose a new password (at least 6 characters):");
         if (pw) sb.auth.updateUser({ password: pw }).then(({ error }) => alert(error ? error.message : "Password updated."));
@@ -78,7 +85,7 @@
         resolveReady(s);
       } else if (s) session = s;
       else if (session) location.reload(); // signed out
-    });
+    }
     const { data } = await sb.auth.getSession();
     if (!data.session) authScreen();
   }
