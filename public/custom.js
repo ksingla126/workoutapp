@@ -257,7 +257,7 @@ function paintSheet(scrollTop){ if(!SH) return; const el=sheetEl(), inn=el.query
   if(focusSel){ const f=inn.querySelector(`[data-xs-focus="${focusSel}"]`); if(f){ f.focus(); try{const v=f.value; f.setSelectionRange(v.length,v.length)}catch(e){} } } }
 const commitPlan=()=>{ saveProfile(); onProfile(); render() };
 // Repaint only part of the sheet, so the input being typed in (and the iPhone keyboard) stays put.
-function sheetHtml(){ return SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
+function sheetHtml(){ return SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
 function paintPart(sel){ if(!SH) return; const el=document.querySelector("#xsheet .xs-in"); const dst=el&&el.querySelector(sel); if(!dst){ paintSheet(); return }
   const tmp=document.createElement("div"); tmp.innerHTML=sheetHtml(); const src=tmp.querySelector(sel); if(src) dst.innerHTML=src.innerHTML; else paintSheet() }
 function estMin(ex){ const sec=(ex||[]).reduce((t,e)=>t+(e.sets||3)*((e.rest||90)+(e.bw?(e.hi||45):40)),0); return Math.max(10,Math.round(sec/60/5)*5) }
@@ -419,10 +419,43 @@ function groceryList(){ const K=kitchen(), g={};
     return {id,n:f.n,qty} }).sort((a,b)=>a.n.localeCompare(b.n));
 }
 
+/* ======================= Account & settings ======================= */
+function userPrefs(){ const local=(window.LOOK&&LOOK.read())||{}; const p=(S.profile&&S.profile.prefs)||{}; return {mode:"system",palette:"classic",sound:true,awake:true,...local,...p} }
+function setPref(patch){ const cur={...userPrefs(),...patch}; if(window.LOOK) LOOK.save({mode:cur.mode,palette:cur.palette,sound:cur.sound,awake:cur.awake}); S.profile.prefs=cur; saveProfile(); }
+function syncPrefs(){ const p=S.profile&&S.profile.prefs; if(p&&window.LOOK) LOOK.save(p) }
+function accountName(){ const su=S.profile&&S.profile.setup; return (su&&su.name)||(window.appUserEmail&&appUserEmail().split("@")[0])||"You" }
+function accountBtn(){ if(!window.__platform) return ""; const n=accountName(); return `<button type="button" class="acct" data-acct="1" aria-label="Account and settings">${esc((n[0]||"?").toUpperCase())}</button>` }
+function accountHtml(){
+  const pr=userPrefs(), P=window.LOOK?LOOK.presets:{}, email=window.appUserEmail?appUserEmail():"";
+  const tog=(k,label,sub)=>`<label class="setrow"><span><b>${label}</b>${sub?`<span class="small muted">${sub}</span>`:""}</span><input type="checkbox" class="switch" data-acct-tog="${k}" ${pr[k]?"checked":""}></label>`;
+  return `<div class="xs-head"><div class="acct-id"><span class="acct big">${esc((accountName()[0]||"?").toUpperCase())}</span><span><b>${esc(accountName())}</b>${email?`<span class="small muted">${esc(email)}</span>`:""}</span></div><button type="button" class="btn ghost sm" data-xs="close">Close</button></div>
+   <h3>Appearance</h3>
+   <div class="seg three">${[["system","System"],["light","Light"],["dark","Dark"]].map(([k,l])=>`<button type="button" class="${pr.mode===k?"on":""}" data-acct-mode="${k}" aria-pressed="${pr.mode===k}">${l}</button>`).join("")}</div>
+   <div class="palettes">${Object.entries(P).map(([k,v])=>`<button type="button" class="pal ${pr.palette===k?"on":""}" data-acct-pal="${k}" aria-pressed="${pr.palette===k}"><span class="dots">${v.dots.map(c=>`<i style="background:${c}"></i>`).join("")}</span>${esc(v.name)}</button>`).join("")}</div>
+   <h3>Workouts</h3>
+   ${tog("sound","Rest timer sound","Beep when rest is over")}
+   ${tog("awake","Keep screen on","While a workout timer is running")}
+   <label class="setrow"><span><b>Resting heart rate</b><span class="small muted">Used for fitness estimates</span></span><input class="setnum" inputmode="numeric" data-acct-rhr="1" value="${esc(S.profile.restHr||"")}" placeholder="70"></label>
+   <h3>Account</h3>
+   ${CUSTOM?`<button type="button" class="setlink" data-acct-edit="1">Edit plan & goals<span>›</span></button>`:""}
+   <button type="button" class="setlink" data-acct-export="1">Download my data<span>›</span></button>
+   <button type="button" class="btn ghost" data-acct-out="1" style="margin-top:8px">Sign out</button>`;
+}
+function exportData(){ const data={exportedAt:new Date().toISOString(),profile:S.profile,logs:S.logs,meals:S.meals,photos:S.photos,chat:S.chat,advice:S.advice};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}), url=URL.createObjectURL(blob), a=document.createElement("a");
+  a.href=url; a.download=`training-data-${ymd(today)}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000) }
+
 /* ======================= Event handling (delegated) ======================= */
 function numIn(v){ const n=Number(String(v).replace(/,/g,"")); return isFinite(n)?n:0 }
 document.addEventListener("click",e=>{
   const t=e.target.closest&&e.target.closest("button,[data-xs]"); if(!t) return; const d=t.dataset;
+  // --- account
+  if(d.acct){ openSheet({kind:"account"}); return }
+  if(d.acctMode){ setPref({mode:d.acctMode}); paintSheet(); return }
+  if(d.acctPal){ setPref({palette:d.acctPal}); paintSheet(); return }
+  if(d.acctEdit){ xsClose(); setupOpen=true; SUW=null; render(); window.scrollTo(0,0); return }
+  if(d.acctExport){ exportData(); return }
+  if(d.acctOut){ xsClose(); if(window.appSignOut) appSignOut(); return }
   // --- routine editor
   if(d.cGotoplan){ tab="plan"; planView="training"; try{localStorage.setItem("rd25-tab","plan")}catch(_){} render(); window.scrollTo(0,0); return }
   if(d.cRopen){ R_OPEN.has(d.cRopen)?R_OPEN.delete(d.cRopen):R_OPEN.add(d.cRopen); render(); return }
@@ -500,6 +533,8 @@ document.addEventListener("change",e=>{ const t=e.target, d=t.dataset||{};
   if(d.cRname){ suMut(su=>{const r=su.routines.find(x=>x.id===d.cRname); r.name=t.value.trim().slice(0,40)||r.name}); return }
   if(d.cLo||d.cHi){ const [rid,i]=(d.cLo||d.cHi).split("|"); suMut(su=>{const x=su.routines.find(r=>r.id===rid).ex[+i]; const v=Math.max(1,Math.round(numIn(t.value))||1); if(d.cLo){x.lo=v; if(x.hi<v) x.hi=v} else {x.hi=v; if(x.lo>v) x.lo=v}}); return }
   if(d.cRest){ const [rid,i]=d.cRest.split("|"); suMut(su=>{su.routines.find(r=>r.id===rid).ex[+i].rest=Number(t.value)}); return }
+  if(d.acctTog){ setPref({[d.acctTog]:t.checked}); return }
+  if(d.acctRhr){ const v=Math.round(numIn(t.value)); S.profile.restHr= v>=30&&v<=120? v : ""; saveProfile(); render(); return }
   if(d.cGoal){ suMut(su=>{su.food=su.food||{}; const v=Math.round(numIn(t.value)); su.food[d.cGoal]=v>0?v:undefined; if(d.cGoal==="kcal"&&v>0) su.kcal=v}); return }
   if(d.cGro){ S.profile.grocery={...(S.profile.grocery||{}),[d.cGro]:t.checked}; saveProfile(); t.closest(".mealrow")?.classList.toggle("eaten",t.checked); return }
 });
