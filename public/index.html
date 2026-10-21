@@ -74,7 +74,7 @@ p{margin:0}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .plate{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none}
 .p-gym{background:var(--gym)} .p-run{background:var(--run)} .p-food{background:var(--food)} .p-coach{background:var(--coach)} .p-rest{background:var(--line)} .p-ink{background:var(--ink)}
-.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line);white-space:nowrap}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .chip.gym{background:var(--gym-soft);color:var(--gym);border-color:transparent}
 .chip.run{background:var(--run-soft);color:var(--run);border-color:transparent}
 .chip.food{background:var(--food-soft);color:var(--food);border-color:transparent}
@@ -352,7 +352,7 @@ details.logger[open]>summary::after{content:"▴"}
 @media (prefers-reduced-motion:no-preference){.pulse{animation:pl 1.2s ease-in-out infinite}@keyframes pl{50%{opacity:.25}}}
 
 /* tables & charts */
-.tablewrap{overflow-x:auto}
+.tablewrap{overflow-x:auto;max-width:100%;min-width:0}
 table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
 th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;font-weight:700;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
 td{padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -413,13 +413,13 @@ nav.tabs .badge{position:absolute;top:2px;right:calc(50% - 22px);min-width:16px;
 
 #suForm .card>.field{flex:none}
 .sched{display:grid;grid-template-columns:1fr;gap:6px}.sched label{display:grid;grid-template-columns:48px 1fr;align-items:center;gap:8px;font-weight:600;font-size:14px}
-.sched select,.rex select{background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:8px 10px;color:var(--ink);font:inherit;width:100%}
+.sched select,.rex select{background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:8px 6px;color:var(--ink);font:inherit;width:100%}
 .routine .rname{font:800 22px var(--display);background:transparent;border:0;border-bottom:1px dashed var(--line);color:var(--ink);padding:2px 0;flex:1;min-width:0}
 .rex{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px}
 .rex-h{display:flex;justify-content:space-between;gap:8px}.rex-h>div:first-child{display:flex;flex-direction:column;min-width:0}
 .rex-act{display:flex;gap:4px;flex-shrink:0}.rex-act button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit}
 .rex-act button:disabled{opacity:.35}
-.rex-f{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;align-items:end}.rex-f label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
+.rex-f{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(80px,1fr);gap:8px;align-items:end}.rex-f label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
 .step{display:flex;align-items:center;gap:6px}.step button{width:30px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:600 16px var(--body)}
 .step b{min-width:18px;text-align:center;color:var(--ink);font-size:15px}
 .rng{display:flex;align-items:center;gap:4px;color:var(--ink)}.rng input{width:100%;min-width:0;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:8px 6px;text-align:center;color:var(--ink);font:inherit}
@@ -672,7 +672,7 @@ let progView="lifts"; try{const v=localStorage.getItem("rd25-pview"); if(v==="ru
 let planView="training"; try{const v=localStorage.getItem("rd25-planview"); if(v==="training"||v==="food") planView=v}catch(e){}
 try{const t=localStorage.getItem("rd25-tab"); if(t==="runs"){tab="progress"; progView="runs"} else if(t==="food"){tab="plan"; planView="food"} else if(t&&["home","plan","progress","standings","advice"].includes(t)) tab=t}catch(e){}
 
-function loadLocal(){ setTimeout(onProfile,0); try{S.photos=JSON.parse(localStorage.getItem("rd25-photos")||"{}")||{}}catch(e){} try{const j=JSON.parse(localStorage.getItem("rd25-data")||"null"); if(j){S.logs=j.logs||{};S.meals=j.meals||{};Object.assign(S.profile,j.profile||{});S.chat=j.chat||[];S.over=j.over||{};Object.assign(S.advice,j.advice||{})}}catch(e){}}
+function loadLocal(){ setTimeout(onProfile,0); if(window.__platform) return; try{S.photos=JSON.parse(localStorage.getItem("rd25-photos")||"{}")||{}}catch(e){} try{const j=JSON.parse(localStorage.getItem("rd25-data")||"null"); if(j){S.logs=j.logs||{};S.meals=j.meals||{};Object.assign(S.profile,j.profile||{});S.chat=j.chat||[];S.over=j.over||{};Object.assign(S.advice,j.advice||{})}}catch(e){}}
 function saveLocal(){try{const {photos,...rest}=S; localStorage.setItem("rd25-data",JSON.stringify(rest))}catch(e){} try{localStorage.setItem("rd25-photos",JSON.stringify(S.photos))}catch(e){}}
 const queues={};
 function enqueue(key,fn){const p=(queues[key]||Promise.resolve()).then(fn).catch(e=>{try{console.error("save failed",key,e)}catch(_){} toast(e&&e.code==="quota_exceeded"?"Storage is full":e&&e.code==="invalid_argument"?`Couldn't save that entry (${String(e.message||"invalid data").slice(0,60)})`:"Couldn't save. Check your connection and try again.");});queues[key]=p;return p}
@@ -703,7 +703,7 @@ async function boot(){
       mode="db"; S.logs={}; S.meals={}; S.chat=[];
       refs.logs.onSnapshot(snap=>{const L={}; snap.docs.forEach(d=>{if(d.exists) L[d.id]=d.data()}); S.logs=L; loaded.logs=true; render(true); maybeAutoAdvice()},()=>{});
       refs.meals.onSnapshot(snap=>{const M={}; snap.docs.forEach(d=>{if(d.exists) M[d.id]={...d.data()}}); for(const k in mealTimers){ if(S.meals[k]) M[k]=S.meals[k] } S.meals=M; render(true)},()=>{});
-      refs.profile.onSnapshot(d=>{ if(d.exists){const p=d.data(); S.profile={about:"",raceDate:"",weights:[],grocery:{},...p}} loaded.profile=true; onProfile(); render(true)},()=>{loaded.profile=true; render(true)});
+      refs.profile.onSnapshot(d=>{ if(d.exists){const p=d.data(); S.profile={about:"",raceDate:"",weights:[],grocery:{},...p}} else if(!loaded.profile){ S.profile={about:"",raceDate:"",weights:[],grocery:{}} } loaded.profile=true; onProfile(); render(true)},()=>{loaded.profile=true; render(true)});
       refs.chat.onSnapshot(d=>{ if(d.exists && !sending){S.chat=(d.data().messages||[]).slice(); if(tab==="advice") renderChatList()} },()=>{});
       refs.advice.onSnapshot(d=>{ if(d.exists && !adviceBusy){S.advice={items:[],stamp:"",at:0,seenAt:0,history:[],...d.data()}} loaded.advice=true; render(true); maybeAutoAdvice()},()=>{loaded.advice=true});
     } else {loaded.logs=loaded.advice=loaded.profile=true}
@@ -774,7 +774,7 @@ function render(fromStore){
 function renderTop(){
   const w=Math.min(WEEKS,Math.max(1,weekOf(today)));
   const left=Math.max(0,Math.round((GOAL-today)/DAYMS));
-  const plannedSoFar=countPlanned(today), done=Object.keys(S.logs).filter(k=>parseYmd(k)<=today).length;
+  const plannedSoFar=countPlanned(today), done=Object.keys(S.logs).filter(k=>parseYmd(k)<=today&&parseYmd(k)>=countStart()).length;
   const pct=Math.min(100,Math.max(0,dayNum(today)/(dayNum(GOAL)+1)*100));
   if(document.title!==progName()) document.title=progName();
   $("#top").innerHTML=`<div class="eyebrow">${esc(progName())}</div>
@@ -783,7 +783,8 @@ function renderTop(){
    <div class="stat"><div class="v num">${done}<span class="muted" style="font-size:18px">/${plannedSoFar}</span></div><div class="l">sessions</div></div></div></div>
    <div class="bar" aria-hidden="true"><i style="width:${pct}%"></i></div>`;
 }
-function countPlanned(upTo){let n=0;for(let d=new Date(START);d<=upTo&&d<=GOAL;d=addDays(d,1)){const p=planFor(d); if(p&&p.type!=="rest") n++}return n}
+function countStart(){ if(!CUSTOM||!CUSTOM.su.firstDay) return START; let k=CUSTOM.su.firstDay; Object.keys(S.logs).forEach(x=>{if(x<k) k=x}); const d=parseYmd(k); return d>START?d:START }
+function countPlanned(upTo){let n=0;for(let d=new Date(countStart());d<=upTo&&d<=GOAL;d=addDays(d,1)){const p=planFor(d); if(p&&p.type!=="rest") n++}return n}
 function unseenAdvice(){return S.advice.at>(S.advice.seenAt||0)?(S.advice.items||[]).length:0}
 function renderTabs(){
   const T=[["home","Home","p-ink"],["plan","Plan","p-run"],["progress","Progress","p-gym"],["standings","Standings","p-food"],["advice","Advice","p-coach"]];
@@ -809,6 +810,7 @@ function viewHome(openLogger){
   const isToday=k===ymd(today);
   let h=weekStrip();
   if(mode==="local" && userReady && !window.__platform) h+=`<p class="note">Entries stay in this browser only.</p>`;
+  if(p && midnight(today)>GOAL && k===ymd(GOAL)) h+=`<div class="card"><h2>Finish line</h2><p>Your ${WEEKS}-week block ended ${fmtDate(GOAL)}. ${CUSTOM?`<button class="btn ghost sm" type="button" data-su-edit="1">Build your next plan</button>`:"Ask your coach to plan the next block."}</p></div>`;
   if(!p){return h+`<div class="card"><h2>Finish line</h2><p>Your ${WEEKS}-week block ended ${fmtDate(GOAL)}. Check Progress for your numbers, then ${CUSTOM?`<button class="btn ghost sm" type="button" data-su-edit="1">build your next plan</button>`:"ask your coach to plan the next block."}</p></div>`}
   // glance
   const e=dayEaten(k), tgt=dayTarget(sel), ptg=dayProtein(sel), wf=weekFood(p.w);
@@ -827,8 +829,9 @@ function viewHome(openLogger){
 }
 function trainingCard(p,k,log,openLogger){
   if(p.type==="rest") return `<div class="card"><div class="row between"><h2>Rest day</h2><span class="chip">Recovery</span></div><p>Walk 20–30 minutes if you feel like it, stretch hips and calves, and do Sunday meal prep (Plan → Food).</p>${mondayWeighIn()}</div>`;
+  if(p.type==="gym"&&!(p.ex&&p.ex.length)) return `<div class="card"><div class="eyebrow">Gym</div><h2>${esc(p.name)}</h2><p>This routine has no exercises yet.</p><button type="button" class="btn sm" data-c-gotoplan="1">Add exercises</button></div>`;
   if(p.type==="gym"){
-    let h=`<div class="card"><div class="row between"><div><div class="eyebrow">Gym · ~55–60 min</div><h2>${esc(p.name)}</h2></div>${log?`<span class="chip gym">Logged ✓${log.durMin?` · ${Math.round(log.durMin)} min`:""}</span>`:""}</div>`;
+    let h=`<div class="card"><div class="row between"><div><div class="eyebrow">Gym · ~${CUSTOM?estMin(p.ex):"55–60"} min</div><h2>${esc(p.name)}</h2></div>${log?`<span class="chip gym">Logged ✓${log.durMin?` · ${Math.round(log.durMin)} min`:""}</span>`:""}</div>`;
     h+=timerBox(k);
     h+=`<div class="exlist">${p.ex.map(ex=>{const t=finalTarget(ex,k), db=dbNow(ex.id,log); return `<div><span>${esc(ex.name)}</span><span>${ex.fixed?`${ex.sets} × ${ex.lo}s`:t.first?`${ex.sets}×${ex.lo}${ex.bw?"s":""} · find start`:t.w?`${t.w}${db?"/DB":""} × ${t.reps.join(",")}`:t.reps.map(r=>r+"s").join(",")}</span></div>`}).join("")}</div>`;
     h+=`<details class="logger" id="trainLog" ${openLogger?"open":""}><summary>${hasDraft(k,TRAIN_RE)?"Unsaved entries · tap to finish":log?"View / edit logged sets":"Log this workout"}</summary><div style="margin-top:12px">`;
@@ -1103,19 +1106,19 @@ function signals(){
   if(wins.length) out.push({kind:"win",title:"Strength is climbing",detail:wins.slice(0,3).join(", ")+" (estimated 1-rep max).",action:"Keep the same rest times so the progress stays honest."});
   const wts=(S.profile.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1);
   if(wts.length>=2){const days=Math.round((parseYmd(wts[wts.length-1].d)-parseYmd(wts[0].d))/DAYMS); if(days>=10){const rate=(wts[wts.length-1].lb-wts[0].lb)/(days/7);
-    if(rate<-2.5) out.push({kind:"problem",title:"Weight dropping fast",detail:`${rate.toFixed(1)} lb/week. Faster than ~2.5 lb/week risks losing muscle and stalling your runs.`,action:"Add 200–300 kcal a day: extra ½ cup rice at lunch and a banana."});
-    else if(rate>-0.3&&days>=14) out.push({kind:"opportunity",title:"Weight holding steady",detail:`${rate>0?"+":""}${rate.toFixed(1)} lb/week over ${days} days.`,action:"Tick off every meal for a week so you can see where extra calories come from."});
+    if(rate<-2.5) out.push({kind:"problem",title:"Weight dropping fast",detail:`${rate.toFixed(1)} lb/week. Faster than ~2.5 lb/week risks losing muscle and stalling your runs.`,action:CUSTOM?"Add 200–300 kcal a day, mostly from carbs around your workouts.":"Add 200–300 kcal a day: extra ½ cup rice at lunch and a banana."});
+    else if(rate>-0.3&&days>=14) out.push({kind:"opportunity",title:"Weight holding steady",detail:`${rate>0?"+":""}${rate.toFixed(1)} lb/week over ${days} days.`,action:CUSTOM?"Log everything you eat for a week so you can see where extra calories come from.":"Tick off every meal for a week so you can see where extra calories come from."});
     else if(rate<=-0.5) out.push({kind:"win",title:"Weight trending down",detail:`${rate.toFixed(1)} lb/week. Right in the useful range.`,action:"Keep weighing in every Monday morning."})}}
   let kd=0,ksum=0,psum=0,tsum=0; for(let n=1;n<=7;n++){const d=addDays(today,-n); if(!inProgram(d)) continue; const e=dayEaten(ymd(d)); if(e.any){kd++;ksum+=e.kcal;psum+=e.p;tsum+=dayTarget(d)}}
   if(kd>=3){const avg=ksum/kd, tavg=tsum/kd, pavg=psum/kd;
     if(avg<tavg-300) out.push({kind:"problem",title:"Eating under the plan",detail:`About ${fmtN(avg)} kcal/day logged vs ${fmtN(tavg)} planned.`,action:"Eat every planned meal, especially before long runs."});
-    if(pavg<120) out.push({kind:"opportunity",title:"Protein running low",detail:`About ${Math.round(pavg)} g/day logged.`,action:"Don't skip the cottage cheese snack or the run-day eggs."});}
+    const pGoal=CUSTOM?foodGoals().p:140; if(pavg<pGoal*0.85) out.push({kind:"opportunity",title:"Protein running low",detail:`About ${Math.round(pavg)} g/day logged${CUSTOM?` vs your ${pGoal} g goal`:""}.`,action:CUSTOM?"Add a protein source to every meal: chicken, eggs, Greek yogurt, cottage cheese or a shake.":"Don't skip the cottage cheese snack or the run-day eggs."});}
   const hardEasy=Object.entries(S.logs).filter(([k,l])=>k>=ymd(addDays(today,-14))&&l.type==="run"&&l.key==="tue"&&Number(l.rpe)>=8);
-  if(hardEasy.length) out.push({kind:"opportunity",title:"Easy runs feel hard",detail:`Effort ${hardEasy.map(([k,l])=>l.rpe).join(", ")}/10 on Tuesday runs.`,action:"Slow the run segments down until you could talk in full sentences."});
+  if(hardEasy.length) out.push({kind:"opportunity",title:"Easy runs feel hard",detail:`Effort ${hardEasy.map(([k,l])=>l.rpe).join(", ")}/10 on easy runs.`,action:"Slow the run segments down until you could talk in full sentences."});
   const hot=Object.entries(S.logs).filter(([k,l])=>k>=ymd(addDays(today,-14))&&l.type==="run"&&isHrRun(k)&&l.st&&l.st.series).map(([k,l])=>[k,hrRange(l.st.series)]).filter(([k,r])=>r&&r.pctAbove>30);
   if(hot.length){const [hk,hr]=hot[hot.length-1]; out.push({kind:"opportunity",title:`Easy run drifted above ${HR_HI}`,detail:`${fmtShort(parseYmd(hk))}: ${Math.round(hr.pctAbove)}% of the run above ${HR_HI} bpm, ${Math.round(hr.pctIn)}% in range.`,action:`Start walking as soon as you hit ${HR_HI}, and jog slower.`})}
   const easy=Object.entries(S.logs).filter(([k,l])=>l.type==="run"&&l.key==="tue"&&l.mi&&l.min).sort((a,b)=>a[0]<b[0]?-1:1).map(([k,l])=>l.min/l.mi);
-  if(easy.length>=2&&easy[easy.length-1]<easy[0]-0.15) out.push({kind:"win",title:"Easy pace improving",detail:`${fmtMin(easy[0])}/mi → ${fmtMin(easy[easy.length-1])}/mi on Tuesday runs.`,action:"Keep easy runs easy; the speed comes from consistency."});
+  if(easy.length>=2&&easy[easy.length-1]<easy[0]-0.15) out.push({kind:"win",title:"Easy pace improving",detail:`${fmtMin(easy[0])}/mi → ${fmtMin(easy[easy.length-1])}/mi on easy runs.`,action:"Keep easy runs easy; the speed comes from consistency."});
   const order={problem:0,opportunity:1,win:2};
   return out.sort((a,b)=>order[a.kind]-order[b.kind]);
 }
@@ -1123,7 +1126,7 @@ function signals(){
 /* ---------- Coach context ---------- */
 function logLine(k,l){
   const d=parseYmd(k), tag=`${k} ${DOW[dowOf(d)]}`;
-  if(l.type==="gym") return `${tag} Gym ${l.day}${l.durMin?` (${Math.round(l.durMin)} min)`:""}: `+Object.entries(l.ex||{}).map(([id,sets])=>{const e=ALLEX.find(x=>x.id===id)||{name:id}; return `${e.name}${logDb(id,l)?" (lb per dumbbell)":""} ${sets.map(s=>s.w?`${s.w}×${s.r}`:`${s.r}s`).join(", ")}`}).join("; ")+(l.notes?` | notes: ${l.notes}`:"");
+  if(l.type==="gym") return `${tag} ${l.plan&&l.plan.name?l.plan.name:"Gym "+l.day}${l.durMin?` (${Math.round(l.durMin)} min)`:""}: `+Object.entries(l.ex||{}).map(([id,sets])=>{const e=ALLEX.find(x=>x.id===id)||{name:id}; return `${e.name}${logDb(id,l)?" (lb per dumbbell)":""} ${sets.map(s=>s.w?`${s.w}×${s.r}`:`${s.r}s`).join(", ")}`}).join("; ")+(l.notes?` | notes: ${l.notes}`:"");
   const st=l.st, stTxt=st?` | Strava: ${st.elevFt!=null?`+${st.elevFt} ft, `:""}${st.avgHr?`avg HR ${st.avgHr}${st.maxHr?`/max ${st.maxHr}`:""}, `:""}${st.cad?`cadence ${st.cad} spm, `:""}${st.runMin!=null?`~${Math.round(st.runMin)} min running / ${Math.round(st.walkMin)} min walking, `:""}splits ${(st.splits||[]).map(x=>fmtMin(x.pace)+(x.hr?`@${x.hr}`:"")).join(" ")||"n/a"}`:"";
   return `${tag} ${l.key} run: ${l.mi} mi in ${fmtMin(l.min)} (${l.mi?fmtMin(l.min/l.mi):"–"}/mi)${l.rpe?`, effort ${l.rpe}/10`:""}${stTxt}${l.notes?` | notes: ${l.notes}`:""}`;
 }
@@ -1850,7 +1853,7 @@ Reply with ONLY a JSON object:
 /* ---------- Runs tab ---------- */
 let runSel=null;
 let HR_MAX_EST=199; // 220 − age 21
-const HR_LO=130, HR_HI=150;
+let HR_LO=130, HR_HI=150;
 const isHrRun=k=>{const p=planFor(parseYmd(k)); return !!(p&&p.type==="run"&&/bpm/.test(p.d))};
 function hrRange(S2){ if(!S2||!S2.hr) return null; let lo=0,inn=0,hi=0; S2.hr.forEach(v=>{ if(!v) return; if(v<HR_LO) lo+=S2.step; else if(v<=HR_HI) inn+=S2.step; else hi+=S2.step }); const t=lo+inn+hi; return t? {below:lo/60,inRange:inn/60,above:hi/60,pctIn:inn/t*100,pctAbove:hi/t*100} : null }
 const ZCOL=["var(--muted)","var(--gym)","var(--food)","var(--coach)","var(--run)"];
@@ -1966,7 +1969,7 @@ function runTrends(){
   const shareP=L.filter(([k,l])=>l.st&&l.st.runMin>0&&l.st.walkMin!=null).map(([k,l])=>({x:lab(k),y:l.st.runMin/(l.st.runMin+l.st.walkMin)*100}));
   if(shareP.length>=2) h+=`<div><b>Time spent running</b><span class="small muted">vs walking, % of moving time</span>${lineChart(shareP,"var(--coach)",v=>Math.round(v)+"%",false)}</div>`;
   const inR=L.filter(([k,l])=>isHrRun(k)&&l.st&&l.st.series).map(([k,l])=>({x:lab(k),y:(hrRange(l.st.series)||{}).pctIn})).filter(p=>p.y!=null);
-  if(inR.length>=2) h+=`<div><b>Tuesday time in ${HR_LO}–${HR_HI} bpm</b><span class="small muted">higher = better heart-rate control</span>${lineChart(inR,"var(--food)",v=>Math.round(v)+"%",false)}</div>`;
+  if(inR.length>=2) h+=`<div><b>Easy-run time in ${HR_LO}–${HR_HI} bpm</b><span class="small muted">higher = better heart-rate control</span>${lineChart(inR,"var(--food)",v=>Math.round(v)+"%",false)}</div>`;
   const bpm=L.filter(([k,l])=>l.st&&l.st.avgHr&&l.mi&&l.min).map(([k,l])=>({x:lab(k),y:l.st.avgHr*(l.min/l.mi)}));
   if(bpm.length>=2) h+=`<div><b>Heartbeats per mile</b><span class="small muted">lower = fitter (less effort per mile)</span>${lineChart(bpm,"var(--gym)",v=>fmtN(v),false)}</div>`;
   h+=`</div>`;
@@ -2321,7 +2324,7 @@ function applySetup(raw){
   const bA=a<30?1:a<40?0.88:a<50?0.79:a<60?0.71:0.63, vA=a<30?1:a<40?0.89:a<50?0.8:a<60?0.7:0.61;
   BENCH_NORM=BASE_BENCH.map(([p,v])=>[p,+(v*(fem?0.56:1)*bA).toFixed(3)]);
   VO2_NORM=BASE_VO2.map(([p,v])=>[p,+(v*(fem?0.79:1)*vA).toFixed(1)]);
-  REF_BW=fem?145:175; HR_MAX_EST=Math.round(208-0.7*AGE);
+  REF_BW=fem?145:175; HR_MAX_EST=Math.round(208-0.7*AGE); [HR_LO,HR_HI]=hrZone(AGE);
   if(!inProgram(sel)) sel=inProgram(today)?today:(dayNum(today)<0?START:GOAL);
 }
 let appliedStamp="";
@@ -2454,7 +2457,7 @@ function bindSetup(){
     const prev=S.profile.setup&&normalizeSetup(S.profile.setup);
     const routines= s.split==="keep"&&prev? prev.routines : splitToSetup(s.split).routines;
     const su={v:2,name:s.name.slice(0,40),sex:s.sex,age,weight:wt,goal:s.goal,race:s.goal==="race"?s.race:null,goalDate:s.goalDate,
-      start:prev&&prev.start&&parseYmd(prev.start)<=today?prev.start:ymd(mondayOf(today)),split:s.split==="keep"?(prev&&prev.split)||"own":s.split,routines,week:[...s.week],
+      start:prev&&prev.start&&parseYmd(prev.start)<=today?prev.start:ymd(mondayOf(today)),firstDay:(prev&&prev.firstDay)||ymd(today),split:s.split==="keep"?(prev&&prev.split)||"own":s.split,routines,week:[...s.week],
       customEx:(prev&&prev.customEx)||[],runLevel:s.runLevel,exp:s.exp,kcal:Math.round(kcal),food:{...((prev&&prev.food)||{}),kcal:Math.round(kcal),protein:Math.round(prot)},at:Date.now()};
     S.profile.setup=su;
     S.profile.about=`${su.name}, ${su.age}${su.sex==="female"?"F":"M"}, ${su.weight} lb at setup. Goal: ${goalText(su)} by ${fmtDate(parseYmd(su.goalDate))}.`;
@@ -2468,6 +2471,8 @@ function bindSetup(){
 }
 document.addEventListener("click",e=>{ const b=e.target.closest&&e.target.closest("[data-su-edit]"); if(!b) return; setupOpen=true; SUW=null; render(); window.scrollTo(0,0) });
 
+// A home-screen app can stay open overnight: start fresh when the date changes.
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible" && ymd(new Date())!==ymd(today)) location.reload() });
 boot(); tick(); if(TM.start) keepAwake(true);
 </script>
 
