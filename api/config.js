@@ -25,7 +25,7 @@ export default function handler() {
   const supabaseAnonKey = (process.env.SUPABASE_ANON_KEY || "").trim();
   const problem = problemWith(supabaseUrl, supabaseAnonKey);
   return new Response(
-    JSON.stringify(problem ? { problem } : { supabaseUrl, supabaseAnonKey }),
+    JSON.stringify(problem ? { problem } : { supabaseUrl, supabaseAnonKey, vapidPublicKey: (process.env.VAPID_PUBLIC_KEY || "").trim(), strava: !!process.env.STRAVA_CLIENT_ID }),
     { headers: { "content-type": "application/json", "cache-control": "no-store" } }
   );
 }

@@ -460,6 +460,7 @@ body.xs-open{overflow:hidden}
 .pal .dots{display:flex;gap:3px}.pal .dots i{width:14px;height:14px;border-radius:50%;display:block}
 .setrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
 .setrow>span{display:flex;flex-direction:column}
+.settime{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:6px 8px;color:var(--ink);font:15px var(--body)}.settime:disabled{opacity:.45}
 .setnum{width:72px;text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px;color:var(--ink);font:16px var(--body)}
 .switch{appearance:none;-webkit-appearance:none;width:46px;height:28px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;flex-shrink:0;transition:background .15s}
 .switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.3)}
@@ -2119,6 +2120,11 @@ function parseTrack(raw){
   else { for(const p of byL(doc,"trkpt")){ pts.push({t:Date.parse(txt1(p,"time")),lat:numOr(p.getAttribute("lat")),lon:numOr(p.getAttribute("lon")),ele:numOr(txt1(p,"ele")),d:null,hr:numOr(txt1(p,"hr")),cad:numOr(txt1(p,"cad"))}) } }
   }catch(e){ pts=[] }
   if(pts.filter(p=>isFinite(p.t)).length<10){ const r=rxPoints(text); if(r.pts.length>pts.length){pts=r.pts; name=name||r.name} }
+  return trackFromPoints(pts,name);
+}
+// Shared by GPX/TCX files and Strava sync: timed points {t,lat,lon,ele,d,hr,cad} → run breakdown
+function trackFromPoints(pts,name){
+  name=name||"";
   pts=pts.filter(p=>isFinite(p.t)).sort((a,b)=>a.t-b.t);
   if(pts.length<10) throw new Error("No timed GPS points in that file. Try screenshots instead.");
   const useD=pts.every(p=>p.d!=null); let cum=0;
@@ -2440,7 +2446,7 @@ function applySetup(raw){
 }
 let appliedStamp="";
 function onProfile(){
-  syncPrefs(); initStdAliases(); maybeMigrateLegacy();
+  syncPrefs(); initStdAliases(); maybeMigrateLegacy(); syncPushSchedule(); if(!window.__stravaInit&&loaded.profile){ window.__stravaInit=true; stravaOnLoad() }
   let su=S.profile&&S.profile.setup;
   if(su&&!(su.routines&&su.week)){ su=S.profile.setup=normalizeSetup(su); saveProfile() }
   const st=su?JSON.stringify(su)+JSON.stringify((S.profile.setup||{}).customEx||[]):"";

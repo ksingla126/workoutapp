@@ -636,11 +636,73 @@ function accountHtml(){
    ${tog("sound","Rest timer sound","Beep when rest is over")}
    ${tog("awake","Keep screen on","While a workout timer is running")}
    <label class="setrow"><span><b>Resting heart rate</b><span class="small muted">Used for fitness estimates</span></span><input class="setnum" inputmode="numeric" data-acct-rhr="1" value="${esc(S.profile.restHr||"")}" placeholder="70"></label>
+   <h3>Reminders</h3>
+   ${remRows()}
+   ${(window.appConfig&&appConfig().strava)?`<h3>Strava</h3>${stravaState().connected?`<div class="setrow"><span><b>Connected</b><span class="small muted">${stravaState().lastSync?"Last synced "+new Date(stravaState().lastSync).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"Runs import automatically"}</span></span><span class="row" style="gap:6px"><button type="button" class="btn sm" data-acct-ssync="1">Sync now</button><button type="button" class="btn ghost sm" data-acct-sdisc="1">Disconnect</button></span></div>`:`<button type="button" class="setlink" data-acct-sconn="1">Connect Strava<span>›</span></button><p class="small muted">Runs you record on Strava import automatically, with the full breakdown.</p>`}`:""}
    <h3>Account</h3>
    ${CUSTOM?`<button type="button" class="setlink" data-acct-edit="1">Edit plan & goals<span>›</span></button>`:""}
    <button type="button" class="setlink" data-acct-export="1">Download my data<span>›</span></button>
    <button type="button" class="btn ghost" data-acct-out="1" style="margin-top:8px">Sign out</button>`;
 }
+/* ----- Reminders (web push) ----- */
+const REM_DEF={workout:{on:false,time:"17:00"},weighin:{on:false,time:"08:00"},food:{on:false,time:"20:00"}};
+function remPrefs(){ const r=(userPrefs().reminders)||{}; return {workout:{...REM_DEF.workout,...(r.workout||{})},weighin:{...REM_DEF.weighin,...(r.weighin||{})},food:{...REM_DEF.food,...(r.food||{})}} }
+const pushOK=()=>"serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;
+const isInstalled=()=>window.matchMedia&&matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+function b64u(s){ const p="=".repeat((4-s.length%4)%4), b=atob((s+p).replace(/-/g,"+").replace(/_/g,"/")); return Uint8Array.from([...b].map(c=>c.charCodeAt(0))) }
+function next14(){ const out={}; for(let i=0;i<14;i++){ const d=addDays(today,i), p=planFor(d); out[ymd(d)]=!p||p.type==="rest"?{type:"rest"}:{type:p.type,name:p.type==="gym"?p.name:p.t} } return out }
+async function pushSub(){ if(!pushOK()) return null; const reg=await navigator.serviceWorker.ready; return reg.pushManager.getSubscription() }
+async function pushSave(sub){ const sb=window.appSupabase&&appSupabase(); if(!sb||!sub) return;
+  await sb.from("push_subs").upsert({endpoint:sub.endpoint,sub:sub.toJSON(),settings:remPrefs(),schedule:next14(),tz:Intl.DateTimeFormat().resolvedOptions().timeZone,updated_at:new Date().toISOString()}) }
+async function setReminder(type,patch){
+  const r=remPrefs(); r[type]={...r[type],...patch}; setPref({reminders:r});
+  const anyOn=Object.values(r).some(x=>x.on);
+  try{
+    if(anyOn){
+      if(!pushOK()){ toast(isInstalled()?"This browser can't show reminders.":"Add the app to your Home Screen first, then turn reminders on there."); r[type].on=false; setPref({reminders:r}); paintSheet(); return }
+      const key=(window.appConfig&&appConfig().vapidPublicKey)||""; if(!key){ toast("Reminders aren't set up on the server yet."); r[type].on=false; setPref({reminders:r}); paintSheet(); return }
+      if(Notification.permission!=="granted"){ const perm=await Notification.requestPermission(); if(perm!=="granted"){ toast("Allow notifications in Settings to get reminders."); r[type].on=false; setPref({reminders:r}); paintSheet(); return } }
+      const reg=await navigator.serviceWorker.ready; let sub=await reg.pushManager.getSubscription(); if(!sub) sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(key)});
+      await pushSave(sub);
+    } else { const sub=await pushSub(); const sb=window.appSupabase&&appSupabase(); if(sub){ if(sb) await sb.from("push_subs").delete().eq("endpoint",sub.endpoint); await sub.unsubscribe().catch(()=>{}) } }
+  }catch(e){ toast("Couldn't set up reminders. Try again.") }
+  paintSheet();
+}
+let pushSyncT=null;
+function syncPushSchedule(){ clearTimeout(pushSyncT); pushSyncT=setTimeout(async()=>{ if(!Object.values(remPrefs()).some(x=>x.on)) return; try{ const sub=await pushSub(); if(sub) await pushSave(sub) }catch(e){} },3000) }
+
+/* ----- Strava auto-import ----- */
+let stravaBusy=false;
+function stravaState(){ return (userPrefs().strava)||{} }
+async function api(path,opt){ const tok=window.appAuthToken? await appAuthToken() : null; const r=await fetch(path,{...(opt||{}),headers:{...(tok?{authorization:"Bearer "+tok}:{})}}); const j=await r.json().catch(()=>({})); if(!r.ok) throw Object.assign(new Error(j.code||"error"),{status:r.status,code:j.code}); return j }
+async function stravaConnect(){ try{ const j=await api("/api/strava-start"); location.href=j.url }catch(e){ toast(e.code==="not_configured"?"Strava isn't set up on the server yet.":"Couldn't reach Strava. Try again.") } }
+async function stravaDisconnect(){ try{ await api("/api/strava-disconnect",{method:"POST"}) }catch(e){} setPref({strava:{connected:false}}); paintSheet(); toast("Strava disconnected") }
+function stravaToSt(run){ const S2=run.streams||{}, t0=Date.parse(run.start); if(!S2.time||S2.time.length<10) return null;
+  const pts=S2.time.map((sec,i)=>({t:t0+sec*1000,lat:S2.latlng&&S2.latlng[i]?S2.latlng[i][0]:null,lon:S2.latlng&&S2.latlng[i]?S2.latlng[i][1]:null,ele:S2.altitude?S2.altitude[i]:null,d:S2.distance?S2.distance[i]:null,hr:S2.heartrate?S2.heartrate[i]:null,cad:S2.cadence?S2.cadence[i]:null}));
+  try{ const st=trackFromPoints(pts,run.name); st.src="strava"; st.stravaId=run.id; return st }catch(e){ return null } }
+async function stravaSync(manual){
+  const ss=stravaState(); if(!ss.connected||stravaBusy||!loaded.logs) return; stravaBusy=true;
+  try{ const after=ss.lastSync? Math.floor(ss.lastSync/1000)-2*86400 : Math.floor(START.getTime()/1000);
+    const j=await api("/api/strava-sync?after="+after); let n=0;
+    for(const run of j.runs||[]){ const k=String(run.startLocal||run.start||"").slice(0,10); if(!/^\d{4}-\d{2}-\d{2}$/.test(k)) continue;
+      const log=S.logs[k]; if(log&&log.st&&log.st.stravaId===run.id) continue; if(log&&log.st) continue; if(log&&log.type==="gym") continue;
+      const st=stravaToSt(run); if(!st) continue;
+      const p=planFor(parseYmd(k)), base=log||{type:"run",key:p&&p.type==="run"?p.key:"tue",rpe:"",notes:"Imported from Strava"};
+      await saveLog(k,{...base,type:"run",mi:base.mi||st.mi,min:base.min||st.movingMin||st.elapsedMin,st,savedAt:Date.now()}); n++;
+      if(typeof analyzeRun==="function"&&sampleFn) setTimeout(()=>analyzeRun(k),1500*n) }
+    setPref({strava:{...ss,connected:true,lastSync:Date.now()}});
+    if(n) toast(`Imported ${n} run${n>1?"s":""} from Strava`); else if(manual) toast("No new runs on Strava");
+    lastRenderKey=""; render(); if(SH&&SH.kind==="account") paintSheet();
+  }catch(e){ if(e.code==="not_connected"){ setPref({strava:{connected:false}}); if(manual) toast("Strava isn't connected anymore. Connect it again.") } else if(manual) toast("Couldn't sync with Strava right now.") }
+  finally{ stravaBusy=false } }
+function stravaOnLoad(){
+  const q=new URLSearchParams(location.search), r=q.get("strava");
+  if(r){ history.replaceState(null,"",location.pathname); if(r==="connected"){ setPref({strava:{connected:true}}); toast("Strava connected. Importing your runs…"); setTimeout(()=>stravaSync(true),800) }
+    else toast(r==="denied"?"Strava connection cancelled.":r==="scope"?"Allow access to your activities to import runs.":"Couldn't connect Strava. Try again."); return }
+  const ss=stravaState(); if(ss.connected&&(!ss.lastSync||Date.now()-ss.lastSync>30*60000)) setTimeout(()=>stravaSync(false),2000) }
+
+function remRows(){ const r=remPrefs(), row=(k,l,sub)=>`<div class="setrow"><span><b>${l}</b><span class="small muted">${sub}</span></span><span class="row" style="gap:8px;flex-wrap:nowrap"><input type="time" class="settime" data-acct-remt="${k}" value="${r[k].time}" ${r[k].on?"":"disabled"}><input type="checkbox" class="switch" data-acct-rem="${k}" ${r[k].on?"checked":""}></span></div>`;
+  return row("workout","Training days","When a workout or run is planned and not logged")+row("weighin","Monday weigh-in","Before breakfast")+row("food","Food diary","If you've logged under 2 items")+(!isInstalled()&&pushOK()===false?`<p class="small muted">On iPhone, reminders work after you add the app to your Home Screen.</p>`:"") }
 function exportData(){ const data={exportedAt:new Date().toISOString(),profile:S.profile,logs:S.logs,meals:S.meals,photos:S.photos,chat:S.chat,advice:S.advice};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}), url=URL.createObjectURL(blob), a=document.createElement("a");
   a.href=url; a.download=`training-data-${ymd(today)}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000) }
@@ -670,6 +732,9 @@ document.addEventListener("click",e=>{
   if(d.acctPal){ setPref({palette:d.acctPal}); paintSheet(); return }
   if(d.acctEdit){ xsClose(); setupOpen=true; SUW=null; render(); window.scrollTo(0,0); return }
   if(d.acctExport){ exportData(); return }
+  if(d.acctSconn){ stravaConnect(); return }
+  if(d.acctSsync){ stravaSync(true); return }
+  if(d.acctSdisc){ stravaDisconnect(); return }
   if(d.acctOut){ xsClose(); if(window.appSignOut) appSignOut(); return }
   // --- routine editor
   if(d.cGotoplan){ tab="plan"; planView="training"; try{localStorage.setItem("rd25-tab","plan")}catch(_){} render(); window.scrollTo(0,0); return }
@@ -773,6 +838,8 @@ document.addEventListener("change",e=>{ const t=e.target, d=t.dataset||{};
   if(d.cLo||d.cHi){ const [rid,i]=(d.cLo||d.cHi).split("|"); suMut(su=>{const x=su.routines.find(r=>r.id===rid).ex[+i]; const v=Math.max(1,Math.round(numIn(t.value))||1); if(d.cLo){x.lo=v; if(x.hi<v) x.hi=v} else {x.hi=v; if(x.lo>v) x.lo=v}}); return }
   if(d.cRest){ const [rid,i]=d.cRest.split("|"); suMut(su=>{su.routines.find(r=>r.id===rid).ex[+i].rest=Number(t.value)}); return }
   if(d.acctTog){ setPref({[d.acctTog]:t.checked}); return }
+  if(d.acctRem){ setReminder(d.acctRem,{on:t.checked}); return }
+  if(d.acctRemt){ setReminder(d.acctRemt,{time:t.value||REM_DEF[d.acctRemt].time}); return }
   if(d.acctRhr){ const v=Math.round(numIn(t.value)); S.profile.restHr= v>=30&&v<=120? v : ""; saveProfile(); render(); return }
   if(d.cGoal){ suMut(su=>{su.food=su.food||{}; const v=Math.round(numIn(t.value)); su.food[d.cGoal]=v>0?v:undefined; if(d.cGoal==="kcal"&&v>0) su.kcal=v}); return }
   if(d.cGro){ S.profile.grocery={...(S.profile.grocery||{}),[d.cGro]:t.checked}; saveProfile(); t.closest(".mealrow")?.classList.toggle("eaten",t.checked); return }
