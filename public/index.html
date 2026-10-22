@@ -488,6 +488,12 @@ details.tip summary{font-size:12px;color:var(--muted);cursor:pointer}
 .rex-act button.on{background:var(--gym);color:#fff;border-color:var(--gym)}
 .ssgroup{border-left:3px solid var(--gym);padding-left:10px;display:flex;flex-direction:column;gap:12px;margin:2px 0}
 .sslabel{font-size:12px;font-weight:700;color:var(--gym);text-transform:uppercase;letter-spacing:.04em}
+
+.daymenu{gap:16px;margin-top:-4px}
+.statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}.statrow div{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 4px}
+.statrow b{font-size:17px}.statrow span{font-size:11px;color:var(--muted)}
+.histrow{padding:10px 0;border-bottom:1px solid var(--line)}
+.prbadge{font-size:11px;font-weight:800;color:#fff;background:var(--coach);border-radius:999px;padding:2px 8px}
 </style>
 <script src="/look.js"></script>
 </head>
@@ -879,10 +885,10 @@ function viewHome(openLogger){
   return h;
 }
 function trainingCard(p,k,log,openLogger){
-  if(p.type==="rest") return `<div class="card"><div class="row between"><h2>Rest day</h2><span class="chip">Recovery</span></div><p>Walk 20–30 minutes if you feel like it, stretch hips and calves, and do Sunday meal prep (Plan → Food).</p>${mondayWeighIn()}</div>`;
+  if(p.type==="rest") return `<div class="card"><div class="row between"><h2>Rest day</h2><span class="chip">Recovery</span></div><p>Walk 20–30 minutes if you feel like it, stretch hips and calves, and do Sunday meal prep (Plan → Food).</p>${weekResetBtn(k)}${mondayWeighIn()}</div>`;
   if(p.type==="gym"&&!(p.ex&&p.ex.length)) return `<div class="card"><div class="eyebrow">Gym</div><h2>${esc(p.name)}</h2><p>This routine has no exercises yet.</p><button type="button" class="btn sm" data-c-gotoplan="1">Add exercises</button></div>`;
   if(p.type==="gym"){
-    let h=`<div class="card gymcard"><div class="row between"><div><div class="eyebrow">Gym · ~${CUSTOM?estMin(p.ex):"55–60"} min</div><h2>${esc(p.name)}</h2></div>${log?`<span class="chip gym">Logged ✓${log.durMin?` · ${Math.round(log.durMin)} min`:""}</span>`:""}</div>`;
+    let h=`<div class="card gymcard"><div class="row between"><div><div class="eyebrow">Gym · ~${CUSTOM?estMin(p.ex):"55–60"} min</div><h2>${esc(p.name)}</h2></div>${log?`<span class="chip gym">Logged ✓${log.durMin?` · ${Math.round(log.durMin)} min`:""}${log.prs&&log.prs.length?` · ${log.prs.length} PR${log.prs.length>1?"s":""}`:""}</span>`:""}</div>`;
     h+=timerBox(k)+dayMenu(p,k,log);
     h+=lastSessionNote(p,k);
     if(overBusy[k]) h+=`<p class="small"><span class="pulse"></span> Your coach is reviewing last session to set today's targets…</p>`;
@@ -906,7 +912,7 @@ function trainingCard(p,k,log,openLogger){
   const goal = p.key==="tue"? (/bpm/.test(p.d)? `Keep your heart rate between ${HR_LO} and ${HR_HI}: jog slowly until it reaches ${HR_HI}, walk until it drops to ${HR_LO}, repeat. Pace doesn't matter.${/strides/.test(p.d)?" Finish with the strides: 15–20 s fast and relaxed (about 85%), walking 60–90 s between each.":""}` : /strides/.test(p.d)? "Keep the run/walk easy and conversational, then do the strides: 15–20 s smooth and fast (about 85%, not all-out), walk 60–90 s back between each." : "Cover a little more ground than last week in the same time.") : p.key==="thu"? "Hold each run segment a touch quicker than last week; keep the walks easy." : "Finish the distance. Pace doesn't matter; time on feet does.";
   return `<div class="card"><div class="row between"><div><div class="eyebrow">Run</div><h2>${esc(p.t)}</h2></div>${log?'<span class="chip run">Logged ✓</span>':""}</div>
     <div class="plan-box"><div style="font-weight:700">${esc(p.d)}</div><div class="small muted">${goal}</div></div>
-    ${timerBox(k)}
+    ${timerBox(k)}${dayMenu(p,k,log)}
     ${prevTxt?`<div class="small num" style="color:var(--run);font-weight:600">${esc(prevTxt)}</div>`:""}
     <details class="logger" id="trainLog" ${openLogger?"open":""}><summary>${hasDraft(k,TRAIN_RE)?"Unsaved entries · tap to finish":log?`Logged: ${log.mi} mi · ${fmtMin(log.min)} · ${fmtMin(log.min/log.mi)}/mi`:"Log this run"}</summary><div class="stack" style="gap:10px;margin-top:12px">
     ${importerHtml(k)}
@@ -2236,7 +2242,8 @@ function bind(){
     if(!Object.keys(ex).length){toast(anyChecked?"Ticked sets need a weight and reps":"Enter weight and reps for at least one set");return}
     const durMin = TM.start&&TM.date===k ? (Date.now()-TM.start)/60000 : (log&&log.durMin)||null;
     if(TM.start&&TM.date===k) stopWorkout();
-    clearDrafts(k,TRAIN_RE); saveLog(k,{type:"gym",day:p.day,ex,db,durMin,notes:$("#gnotes").value.trim(),savedAt:Date.now()}).then(()=>{toast("Session saved"); lastRenderKey=""; render(); setTimeout(maybeAutoAdvice,1500)});
+    const newLog={type:"gym",day:p.day,ex,db,durMin,notes:$("#gnotes").value.trim(),savedAt:Date.now()}; const prs=findPRs(k,newLog); if(prs.length) newLog.prs=prs;
+    clearDrafts(k,TRAIN_RE); saveLog(k,newLog).then(()=>{toast(prs.length?`New PR: ${prs.map(id=>(p.ex.find(e=>e.id===id)||{name:id}).name).join(", ")} 🎉`:"Session saved"); lastRenderKey=""; render(); setTimeout(maybeAutoAdvice,1500)});
   });
   const upd=()=>{const mi=Number($("#rmi").value), m=parseTime($("#rtime").value); $("#pace").textContent = mi>0&&m>0? fmtMin(m/mi)+" /mi":"–"};
   if($("#rmi")){["#rmi","#rtime"].forEach(s=>$(s).addEventListener("input",upd)); upd()}

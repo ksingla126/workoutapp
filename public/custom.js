@@ -268,7 +268,7 @@ function paintSheet(scrollTop){ if(!SH) return; const el=sheetEl(), inn=el.query
   if(focusSel){ const f=inn.querySelector(`[data-xs-focus="${focusSel}"]`); if(f){ f.focus(); try{const v=f.value; f.setSelectionRange(v.length,v.length)}catch(e){} } } }
 const commitPlan=()=>{ saveProfile(); onProfile(); render() };
 // Repaint only part of the sheet, so the input being typed in (and the iPhone keyboard) stays put.
-function sheetHtml(){ return SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
+function sheetHtml(){ return SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
 function paintPart(sel){ if(!SH) return; const el=document.querySelector("#xsheet .xs-in"); const dst=el&&el.querySelector(sel); if(!dst){ paintSheet(); return }
   const tmp=document.createElement("div"); tmp.innerHTML=sheetHtml(); const src=tmp.querySelector(sel); if(src) dst.innerHTML=src.innerHTML; else paintSheet() }
 function estMin(ex){ const sec=(ex||[]).reduce((t,e)=>t+(e.sets||3)*((e.rest||90)+(e.bw?(e.hi||45):40)),0); return Math.max(10,Math.round(sec/60/5)*5) }
@@ -550,7 +550,44 @@ function swapsText(){ const sw=swapsOf(), L=id=>(libEx(id)||(typeof X!=="undefin
   Object.entries(sw.once).filter(([k])=>k>=ymd(addDays(today,-14))).forEach(([k,m])=>Object.entries(m).forEach(([a,b])=>out.push(`${k} only: ${L(a)} → ${L(b)}`)));
   return out.length? `Exercise swaps they made in the app: ${out.join("; ")}.\n` : "" }
 
-function dayMenu(p,k,log){ return "" }
+/* ======================= Move / skip a session ======================= */
+function dayMenu(p,k,log){ if(log||!p||p.type==="rest") return "";
+  return `<div class="row daymenu"><button type="button" class="link small" data-daymove="${k}">Move</button><button type="button" class="link small" data-dayskip="${k}">Skip</button></div>` }
+function weekResetBtn(k){ return Object.keys(S.profile.moves||{}).some(d=>weekDays(k).includes(d)&&!S.logs[d])? `<button type="button" class="link small" data-resetweek="${k}" style="align-self:flex-start">Undo this week's schedule changes</button>` : "" }
+function srcOf(dk){ const mv=S.profile.moves||{}, v=mv[dk]; if(v==="rest") return null; if(v&&/^\d{4}-/.test(v)) return v; const b=basePlan(parseYmd(dk)); return b&&b.type!=="rest"? dk : null }
+function setSrc(dk,src){ const mv=S.profile.moves=S.profile.moves||{}; const b=basePlan(parseYmd(dk)), own=b&&b.type!=="rest";
+  if(src===dk||(src===null&&!own)) delete mv[dk]; else mv[dk]= src===null? "rest" : src }
+function sessLabel(src){ if(!src) return "Rest"; const b=basePlan(parseYmd(src)); return !b?"Rest": b.type==="gym"? b.name : b.t }
+function weekDays(k){ const mon=mondayOf(parseYmd(k)); return [...Array(7)].map((_,i)=>ymd(addDays(mon,i))) }
+function moveHtml(){ const k=SH.k, days=weekDays(k).filter(d=>d!==k), src=srcOf(k);
+  const after=weekDays(k).filter(d=>d>=k&&!S.logs[d]), last=after[after.length-1], drops=after.length>1&&srcOf(last)&&last!==k;
+  return `<div class="xs-head"><h2>Move ${esc(sessLabel(src))}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>
+   <p class="small muted">Pick a day this week. The two days trade places.</p>
+   <div class="xs-list">${days.map(d=>{const dt=parseYmd(d), lg=!!S.logs[d], past=d<ymd(today); return `<button type="button" class="xs-item" data-xs-moveto="${d}" ${lg||past?"disabled":""}><span><b>${DOW[(dt.getDay()+6)%7]} ${dt.getDate()}</b><span class="small muted">${lg?"Logged":past?"Past":esc(sessLabel(srcOf(d)))}</span></span><span class="xs-plus">⇄</span></button>`}).join("")}</div>
+   <button type="button" class="swapopt" data-xs-pushweek="1"><b>Push the rest of the week back a day</b><span>${fmtShort(parseYmd(k))} becomes a rest day and each session moves one day later.${drops?` ${esc(sessLabel(srcOf(last)))} on ${DOW[(parseYmd(last).getDay()+6)%7]} drops off.`:""}</span></button>
+   ${Object.keys(S.profile.moves||{}).some(d=>weekDays(k).includes(d)&&!S.logs[d])?`<button type="button" class="btn ghost" data-xs-resetweek="1">Reset this week to the plan</button>`:""}`;
+}
+
+/* ======================= Exercise history & PRs ======================= */
+function sessBest(id,l){ const sets=WS(l&&l.ex&&l.ex[id]); if(!sets.length) return 0; const L=libEx(id)||{}, timed=L.type==="t"||(sets[0].w==null&&sets[0].r);
+  return timed&&!sets.some(x=>x.w)? Math.max(...sets.map(x=>Number(x.r)||0)) : Math.max(...sets.map(x=>e1rm(loadW(id,l,x.w),Number(x.r)||0))) }
+function priorBest(id,k){ let b=0; Object.entries(S.logs).forEach(([kk,l])=>{ if(kk<k&&l.type==="gym") b=Math.max(b,sessBest(id,l)) }); return b }
+function findPRs(k,log){ return Object.keys(log.ex||{}).filter(id=>{ const now=sessBest(id,log), before=priorBest(id,k); return before>0&&now>before+0.01 }) }
+function historyHtml(){ const id=SH.id, L=libEx(id)||(typeof X!=="undefined"&&X[id])||{name:SH.name||id};
+  const rows=Object.entries(S.logs).filter(([k,l])=>l.type==="gym"&&l.ex&&l.ex[id]&&l.ex[id].length).sort((a,b)=>a[0]<b[0]?1:-1);
+  const timed=L.type==="t"||(typeof X!=="undefined"&&X[id]&&X[id].bw);
+  let best=null, heavy=null; rows.forEach(([k,l])=>{ const b=sessBest(id,l); if(!best||b>best.v) best={v:b,k}; WS(l.ex[id]).forEach(x=>{ const w=loadW(id,l,x.w); if(!timed&&(!heavy||w>heavy.w||(w===heavy.w&&x.r>heavy.r))) heavy={w,r:x.r,k,db:logDb(id,l),raw:x.w} }) });
+  const series=liftSeries(id);
+  let h=`<div class="xs-head"><h2>${esc(L.name)}</h2><button type="button" class="btn ghost sm" data-xs="close">Close</button></div>`;
+  if(!rows.length) return h+`<p class="small muted">No sessions logged yet. Your history, best sets and PRs show up here.</p>`;
+  h+=`<div class="statrow"><div><b class="num">${timed?Math.round(best.v)+" s":fmtN(best.v)+" lb"}</b><span>${timed?"Longest hold":"Best est. 1-rep max"}</span></div>${heavy?`<div><b class="num">${heavy.db?heavy.raw+"/DB":heavy.w} × ${heavy.r}</b><span>Heaviest set</span></div>`:""}<div><b class="num">${rows.length}</b><span>Sessions</span></div></div>`;
+  if(series.length>1&&!timed) h+=`<div class="eyebrow">Estimated 1-rep max</div>${lineChart(series,"var(--gym)",v=>Math.round(v),false)}`;
+  h+=`<div class="eyebrow" style="margin-top:6px">History</div><div class="xs-list">${rows.map(([k,l])=>{ const pr=(l.prs||[]).includes(id), db=logDb(id,l);
+    return `<div class="histrow"><div class="row between"><b>${fmtDate(parseYmd(k))}</b>${pr?`<span class="prbadge">PR</span>`:""}</div><div class="small num muted">${l.ex[id].map(x=>`${x.t==="w"?"W ":x.t==="d"?"D ":""}${x.w!=null&&!timed?`${x.w}${db?"/DB":""}×${x.r}`:`${x.r}s`}`).join(" · ")}</div></div>` }).join("")}</div>`;
+  return h;
+}
+
+/* ======================= Account & settings ======================= */
 
 /* ======================= Account & settings ======================= */
 function userPrefs(){ const local=(window.LOOK&&LOOK.read())||{}; const p=(S.profile&&S.profile.prefs)||{}; return {mode:"system",palette:"classic",sound:true,awake:true,...local,...p} }
@@ -593,6 +630,10 @@ document.addEventListener("click",e=>{
   if(d.addex){ openSheet({kind:"swap",adding:true,k:d.addex,q:"",mu:""}); return }
   if(d.addrm){ const k=ymd(sel), sw=S.profile.swaps, a=sw&&sw.add&&sw.add[k]; if(a){ sw.add[k]=a.filter(x=>x.id!==d.addrm); if(!sw.add[k].length) delete sw.add[k]; saveProfile(); lastRenderKey=""; render() } return }
   if(d.openlive){ openLive(); return }
+  if(d.resetweek){ const mv=S.profile.moves||{}; weekDays(d.resetweek).forEach(x=>{ if(!S.logs[x]) delete mv[x] }); saveProfile(); lastRenderKey=""; render(); toast("Week reset to the plan"); return }
+  if(d.daymove){ openSheet({kind:"move",k:d.daymove}); return }
+  if(d.dayskip){ if(t.dataset.armed){ setSrc(d.dayskip,null); saveProfile(); lastRenderKey=""; render(); toast("Session skipped") } else { t.dataset.armed="1"; t.textContent="Tap again to skip"; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.armed; t.textContent="Skip" } },3000) } return }
+  if(d.exhist){ const p=planFor(sel), ex=p&&p.ex&&p.ex.find(e=>e.id===d.exhist); openSheet({kind:"hist",id:d.exhist,name:ex&&ex.name}); return }
   // --- account
   if(d.acct){ openSheet({kind:"account"}); return }
   if(d.acctMode){ setPref({mode:d.acctMode}); paintSheet(); return }
@@ -630,6 +671,9 @@ document.addEventListener("click",e=>{
   if(d.xsMu!=null){ SH.mu=d.xsMu; paintSheet(); return }
   if(d.xsAddday){ const k=SH.k, L=libEx(d.xsAddday), tm=L&&L.type==="t"; S.profile.swaps=S.profile.swaps||{}; const sw=S.profile.swaps; sw.add=sw.add||{}; sw.add[k]=[...(sw.add[k]||[]),{id:d.xsAddday,sets:3,lo:tm?30:8,hi:tm?60:12,rest:L&&L.type==="w"&&["Barbell","Smith machine"].includes(L.equip)?150:90}];
     saveProfile(); lastRenderKey=""; render(); paintSheet(); toast("Added to today"); return }
+  if(d.xsMoveto){ const a=srcOf(SH.k), b=srcOf(d.xsMoveto); setSrc(d.xsMoveto,a); setSrc(SH.k,b); saveProfile(); const msg=`${sessLabel(a)} moved to ${DOW[(parseYmd(d.xsMoveto).getDay()+6)%7]}`; xsClose(); lastRenderKey=""; render(); toast(msg); return }
+  if(d.xsPushweek){ const days=weekDays(SH.k).filter(x=>x>=SH.k&&!S.logs[x]), srcs=days.map(srcOf); days.forEach((x,i)=>setSrc(x,i===0?null:srcs[i-1])); saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Week pushed back a day"); return }
+  if(d.xsResetweek){ const mv=S.profile.moves||{}; weekDays(SH.k).forEach(x=>{ if(!S.logs[x]) delete mv[x] }); saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Week reset to the plan"); return }
   if(d.xsSwapto){ SH.to=d.xsSwapto; paintSheet(true); return }
   if(d.xs==="swapback"){ SH.to=null; paintSheet(true); return }
   if(d.xsSwapmode){ doSwap(d.xsSwapmode); return }
