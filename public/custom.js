@@ -56,7 +56,7 @@ const EXLIB_RAW = [
   ["abductor","Hip Abduction (Machine)","Glutes","Machine","w"],["adductor","Hip Adduction (Machine)","Glutes","Machine","w"],
   ["kbswing","Kettlebell Swing","Glutes","Kettlebell","w",1],
   // Calves
-  ["calfraise","Standing Calf Raise","Calves","Machine","w"],["seatedcalf","Seated Calf Raise (Machine)","Calves","Machine","w"],
+  ["calfraise","Standing Calf Raise","Calves","Machine","w"],["seatedcalf","Seated Calf Raise (Machine)","Calves","Machine","w"],["tiltcalf","Tilt-Seat Calf Raise (Machine)","Calves","Machine","w"],
   ["legpresscalf","Calf Press (Leg Press)","Calves","Machine","w"],
   // Core
   ["plank","Plank","Core","Bodyweight","t"],["sideplank","Side Plank","Core","Bodyweight","t"],
