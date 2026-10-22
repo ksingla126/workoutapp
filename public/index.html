@@ -495,6 +495,13 @@ details.tip summary{font-size:12px;color:var(--muted);cursor:pointer}
 .statrow b{font-size:17px}.statrow span{font-size:11px;color:var(--muted)}
 .histrow{padding:10px 0;border-bottom:1px solid var(--line)}
 .prbadge{font-size:11px;font-weight:800;color:#fff;background:var(--coach);border-radius:999px;padding:2px 8px}
+
+.conf{font-size:12px;margin:0;padding:6px 10px;border-radius:8px;background:var(--surface-2);color:var(--muted)}
+.conf.low{background:var(--coach-soft);color:var(--coach)}
+.onelift{font-size:10px;font-weight:700;color:var(--coach);border:1px solid var(--coach);border-radius:999px;padding:0 6px;margin-left:6px}
+
+#syncPill{position:fixed;top:calc(6px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:950;background:var(--ink);color:var(--bg);font:600 12px var(--body);padding:5px 12px;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.25);pointer-events:none}
+#syncPill[hidden]{display:none}
 </style>
 <script src="/look.js"></script>
 </head>
@@ -737,7 +744,15 @@ function deleteLog(key){delete S.logs[key]; if(mode==="db") return enqueue("log-
 const mealTimers={};
 function saveMeals(key){clearTimeout(mealTimers[key]); mealTimers[key]=setTimeout(()=>{const data={...S.meals[key],savedAt:Date.now()}; if(mode==="db") enqueue("meal-"+key,()=>refs.meals.doc(key).set(data)); else saveLocal()},400)}
 let profTimer=null;
-function saveProfile(){clearTimeout(profTimer); profTimer=setTimeout(()=>{ if(mode==="db") enqueue("profile",()=>refs.profile.set(JSON.parse(JSON.stringify(S.profile)))); else saveLocal(); },500)}
+// The profile is stored as four documents so edits from two devices to different areas don't overwrite each other.
+const PARTS={plan:["setup","swaps","customEx"],kitchen:["kitchen"],prefs:["prefs"]}, PART_KEYS=Object.values(PARTS).flat();
+const partStamp={};
+function saveProfile(){clearTimeout(profTimer); profTimer=setTimeout(()=>{ if(mode!=="db"){ saveLocal(); return }
+  const full=JSON.parse(JSON.stringify(S.profile)), core={...full}; PART_KEYS.forEach(k=>delete core[k]);
+  const put=(name,ref,data)=>{ const st=JSON.stringify(data); if(partStamp[name]===st) return; partStamp[name]=st; enqueue(name,()=>ref.set(data)) };
+  put("profile",refs.profile,core);
+  Object.entries(PARTS).forEach(([name,keys])=>{ if(!refs[name]) return; const d={}; keys.forEach(k=>{ if(full[k]!==undefined) d[k]=full[k] }); put(name,refs[name],d) });
+},500)}
 function saveChat(){ if(mode==="db") enqueue("chat",()=>refs.chat.set({messages:S.chat.slice(-60)})); else saveLocal(); }
 function saveAdvice(){ if(mode==="db") enqueue("advice",()=>refs.advice.set(JSON.parse(JSON.stringify(S.advice)))); else saveLocal(); }
 
@@ -751,7 +766,7 @@ async function boot(){
     const uid = user? await user.id() : null;
     if(db && uid){
       const base="data/users/"+uid;
-      refs={profile:db.doc(base+"/profile"),chat:db.doc(base+"/chat"),advice:db.doc(base+"/advice")};
+      refs={profile:db.doc(base+"/profile"),chat:db.doc(base+"/chat"),advice:db.doc(base+"/advice"),plan:db.doc(base+"/plan"),kitchen:db.doc(base+"/kitchen"),prefs:db.doc(base+"/prefs")};
       refs.logs=refs.profile.collection("logs"); refs.meals=refs.profile.collection("meals"); refs.over=refs.profile.collection("overload");
       refs.photos=refs.profile.collection("photos");
       refs.photos.onSnapshot(snap=>{const P={}; snap.docs.forEach(d=>{if(d.exists) P[d.id]=d.data()}); S.photos=P; if(tab==="progress"&&progView==="body") render(true)},()=>{});
@@ -759,7 +774,14 @@ async function boot(){
       mode="db"; S.logs={}; S.meals={}; S.chat=[];
       refs.logs.onSnapshot(snap=>{const L={}; snap.docs.forEach(d=>{if(d.exists) L[d.id]=d.data()}); S.logs=L; loaded.logs=true; migrateTiltCalf(); render(true); maybeAutoAdvice()},()=>{});
       refs.meals.onSnapshot(snap=>{const M={}; snap.docs.forEach(d=>{if(d.exists) M[d.id]={...d.data()}}); for(const k in mealTimers){ if(S.meals[k]) M[k]=S.meals[k] } S.meals=M; render(true)},()=>{});
-      refs.profile.onSnapshot(d=>{ if(d.exists){const p=d.data(); S.profile={about:"",raceDate:"",weights:[],grocery:{},...p}} else if(!loaded.profile){ S.profile={about:"",raceDate:"",weights:[],grocery:{}} } loaded.profile=true; onProfile(); render(true)},()=>{loaded.profile=true; render(true)});
+      // profile + its parts: the app waits for all four before deciding what to show
+      const got=new Set(), partVals={}, need=["profile",...Object.keys(PARTS)];
+      const settle=()=>{ if(!loaded.profile&&need.every(n=>got.has(n))){ loaded.profile=true } if(loaded.profile){ onProfile(); render(true) } };
+      refs.profile.onSnapshot(d=>{ const keep={}; PART_KEYS.forEach(k=>{ if(S.profile[k]!==undefined) keep[k]=S.profile[k] });
+        if(d.exists){ const p=d.data(); S.profile={about:"",raceDate:"",weights:[],grocery:{},...keep,...p}; Object.values(partVals).forEach(v=>Object.assign(S.profile,v)) }
+        else if(!got.has("profile")){ S.profile={about:"",raceDate:"",weights:[],grocery:{},...keep} }
+        got.add("profile"); settle() },()=>{got.add("profile"); settle()});
+      Object.keys(PARTS).forEach(name=>refs[name].onSnapshot(d=>{ if(d.exists){ partVals[name]=d.data(); Object.assign(S.profile,partVals[name]) } got.add(name); settle() },()=>{got.add(name); settle()}));
       refs.chat.onSnapshot(d=>{ if(d.exists && !sending){S.chat=(d.data().messages||[]).slice(); if(tab==="advice") renderChatList()} },()=>{});
       refs.advice.onSnapshot(d=>{ if(d.exists && !adviceBusy){S.advice={items:[],stamp:"",at:0,seenAt:0,history:[],...d.data()}} loaded.advice=true; render(true); maybeAutoAdvice()},()=>{loaded.advice=true});
     } else {loaded.logs=loaded.advice=loaded.profile=true}
@@ -1820,13 +1842,22 @@ function muscleSheet(st){
     ${!x.planned?`<p class="small muted">Not trained in your current plan.</p>`:""}
   </div>`;
 }
+// How much data a ranking rests on: lifts logged and how much of the region's muscle mass they cover
+function confidenceOf(M){ const ids=new Set(), have=M.muscles.filter(x=>x.pct!=null); have.forEach(x=>x.used.forEach(u=>ids.add(u.id||u.k+u.kind)));
+  const tot=M.muscles.reduce((a,x)=>a+x.mass,0), cov=have.reduce((a,x)=>a+x.mass,0)/tot, n=M.muscles.reduce((a,x)=>a+(x.used?x.used.length:0),0)?ids.size:0;
+  const lifts=new Set(); M.muscles.forEach(x=>(x.used||[]).forEach(u=>lifts.add(u.name||u.id||JSON.stringify(u))));
+  const L=lifts.size, g=`${have.length} of ${M.muscles.length} muscle groups`;
+  if(L<3||cov<0.6) return {level:"low",text:`Early estimate · based on ${L} lift${L===1?"":"s"} covering ${g}. Log more of your routine to firm it up.`};
+  if(L<5||cov<0.85) return {level:"mid",text:`Fair estimate · ${L} lifts covering ${g}.`};
+  return {level:"high",text:`Solid estimate · ${L} lifts covering ${g}.`} }
 function regionCard(key,st){
   const R=REGIONS[key], reg=st[key], M=st[key+"M"];
   let h=`<div class="card"><div class="row between"><h2>${R.name} strength</h2></div>`;
   if(!st.bw) return h+`<p class="small muted">Log a weigh-in to get this ranking.</p></div>`;
   if(!reg) return h+`<p class="small muted">Log a gym session to get this ranking.</p></div>`;
   h+=pctBlock(reg.pct,key);
-  h+=`<div class="mus">${M.muscles.map(x=>`<button class="mrow" data-mus="${key}|${x.m}" aria-haspopup="dialog"><div class="mtop"><b>${x.label}</b><span class="mp" style="${x.pct!=null?`color:${tierColor(x.pct)}`:""}">${x.pct!=null?tier(x.pct):(x.planned?"Not logged":"–")}</span><span class="chev">›</span></div>
+  const cf=confidenceOf(M); h+=`<p class="conf ${cf.level}">${cf.text}</p>`;
+  h+=`<div class="mus">${M.muscles.map(x=>`<button class="mrow" data-mus="${key}|${x.m}" aria-haspopup="dialog"><div class="mtop"><b>${x.label}${x.used&&x.used.length===1?`<span class="onelift">1 lift</span>`:""}</b><span class="mp" style="${x.pct!=null?`color:${tierColor(x.pct)}`:""}">${x.pct!=null?tier(x.pct):(x.planned?"Not logged":"–")}</span><span class="chev">›</span></div>
      <div class="mbar"><i style="width:${x.pct||0}%;background:${x.pct!=null?tierColor(x.pct):"var(--line)"}"></i></div></button>`).join("")}</div>`;
   const weakest=M.muscles.filter(x=>x.pct!=null).sort((a,b)=>a.pct-b.pct)[0];
   h+=`${weakest?`<p class="small">Focus: <b>${weakest.label.toLowerCase()}</b></p>`:""}</div>`;
