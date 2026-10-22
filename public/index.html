@@ -507,6 +507,14 @@ details.tip summary{font-size:12px;color:var(--muted);cursor:pointer}
 .schoose .opt{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
 .schoose .opt span{display:flex;flex-direction:column}
 .xruns{display:flex;flex-direction:column;gap:4px}.xruns .xr{display:flex;justify-content:space-between;gap:8px;font-size:14px;padding:6px 0;border-top:1px solid var(--line)}
+
+.plates:empty{display:none}
+.plates-btn{border:0;background:var(--surface-2);border-radius:8px;padding:6px 10px;color:var(--ink);font:600 13px var(--body);text-align:left;cursor:pointer;width:100%}
+.lv-plates{font-size:14px;font-weight:600;opacity:.85;margin-top:-4px}
+.plate-out{min-height:80px}
+.pviz{display:flex;align-items:center;gap:3px;height:56px;margin:4px 0 8px}
+.pviz .bar{width:44px;height:8px;border-radius:4px;background:var(--muted)}
+.pviz .pl{display:grid;place-items:center;width:22px;border-radius:4px;background:var(--gym);color:#fff;font:700 9px var(--body);font-style:normal;writing-mode:vertical-rl}
 </style>
 <script src="/look.js"></script>
 </head>
@@ -811,7 +819,7 @@ function targetFor(ex, key){
     return {w:null,reps,last:lastTxt,msg: maxed? "Maxed at 60s: add a plate on your back or go to a harder variation" : "+5 s per set"};
   }
   const allTop = last.length>=ex.sets && last.slice(0,ex.sets).every(s=>Number(s.r)>=ex.hi);
-  if(allTop) return {w:w+ex.inc,reps:Array(ex.sets).fill(ex.lo),last:lastTxt,msg:`Add ${ex.inc} lb — you hit ${ex.hi} on every set`};
+  if(allTop) return {w:w+ex.inc,reps:Array(ex.sets).fill(ex.lo),last:lastTxt,msg:`Add ${incTxt(ex.inc)} — you hit ${ex.hi} on every set`};
   if(h[1]){
     const prev=h[1].sets, pw=Number(prev[0].w)||0, sum=a=>a.reduce((t,s)=>t+(Number(s.r)||0),0);
     if(pw===w && sum(last)<=sum(prev)) return {w:round5(w*0.9),reps:Array(ex.sets).fill(ex.lo),last:lastTxt,stall:true,msg:"Stalled twice: drop ~10% and build back up"};
@@ -962,27 +970,29 @@ function exerciseBlock(ex,k,log){
   if(db) h+=`<div class="dbnote" id="dbn-${ex.id}"></div>`;
   h+=prevLine(ex,k);
   if(!ex.fixed) h+= t.first? `<div class="target first">${esc(t.msg)}</div>`
-    : `<div class="cnote ${t.coach?"":"rule"}"><div class="ch"><span class="who">${t.coach?"Coach":"Target"}</span>${t.mode?`<span class="mode ${t.mode}">${MODE_LABEL[t.mode]||""}</span>`:""}<span class="tgt num">${t.w?`${t.w} lb${db?"/DB":""} × ${t.reps.join(", ")}`:t.reps.map(r=>r+"s").join(", ")}</span></div><span>${esc(t.msg)}</span></div>`;
+    : `<div class="cnote ${t.coach?"":"rule"}"><div class="ch"><span class="who">${t.coach?"Coach":"Target"}</span>${t.mode?`<span class="mode ${t.mode}">${MODE_LABEL[t.mode]||""}</span>`:""}<span class="tgt num">${t.w?`${toU(t.w)} ${uL()}${db?"/DB":""} × ${t.reps.join(", ")}`:t.reps.map(r=>r+"s").join(", ")}</span></div><span>${esc(t.msg)}</span></div>`;
   if(ex.alt) h+=`<details class="tip"><summary>Form tip</summary><div class="small muted">${esc(ex.alt)}</div></details>`;
   h+=`<div class="sets">`;
   for(let i=0;i<n;i++){
-    const sw=cur&&cur[i]?cur[i].w:(t.w??""), sr=cur&&cur[i]?cur[i].r:(t.first?"":(t.reps[i]??""));
+    const sw=cur&&cur[i]?toU(cur[i].w):(t.w!=null?toU(t.w):""), sr=cur&&cur[i]?cur[i].r:(t.first?"":(t.reps[i]??""));
     const dk=draftKey(`c-${ex.id}-${i}`), done=(dk in drafts)? !!drafts[dk] : !!(cur&&cur[i]), ty=setTypeK(k,ex.id,i);
     const lab=ty==="w"?"W":ty==="d"?"D":String(i+1);
     const num=`<button type="button" class="setno ${ty}" data-settype="${ex.id}|${i}" aria-label="Set ${i+1} type: ${ty==="w"?"warm-up":ty==="d"?"drop set":"normal"}. Tap to change">${lab}</button>`;
     const chk=`<button type="button" class="chk ${done?"on":""}" data-chk="${ex.id}|${i}" aria-pressed="${done}" aria-label="Mark ${esc(ex.name)} set ${i+1} done">✓</button>`;
     h+=ex.bw? `<div class="set ${done?"done":""}" id="set-${ex.id}-${i}">${num}<input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} seconds" value="${esc(sr)}" placeholder="${t.reps[i]??ex.lo}"><span>sec</span>${chk}</div>`
-      : `<div class="set ${done?"done":""}" id="set-${ex.id}-${i}">${num}<input id="w-${ex.id}-${i}" inputmode="decimal" aria-label="${esc(ex.name)} set ${i+1} weight" value="${esc(sw)}" placeholder="${ex.optW?"+lb":db?"lb/DB":"lb"}"><span>×</span><input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} reps" value="${esc(sr)}" placeholder="${t.reps[i]??ex.lo}">${chk}</div>`;
+      : `<div class="set ${done?"done":""}" id="set-${ex.id}-${i}">${num}<input id="w-${ex.id}-${i}" inputmode="decimal" aria-label="${esc(ex.name)} set ${i+1} weight" value="${esc(sw)}" placeholder="${ex.optW?"+"+uL():db?uL()+"/DB":uL()}"><span>×</span><input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} reps" value="${esc(sr)}" placeholder="${t.reps[i]??ex.lo}">${chk}</div>`;
   }
   h+=`</div>`;
-  if(!ex.fixed) h+=`<div class="row setbtns"><button type="button" class="link small" data-addset="${ex.id}">+ Add set</button>${extra>0?`<button type="button" class="link small" data-rmset="${ex.id}">− Remove set</button>`:""}</div>`;
+  const pl=plateable(ex,db);
+  if(pl) h+=`<div class="plates" id="pl-${ex.id}"></div>`;
+  if(!ex.fixed) h+=`<div class="row setbtns"><button type="button" class="link small" data-addset="${ex.id}">+ Add set</button>${extra>0?`<button type="button" class="link small" data-rmset="${ex.id}">− Remove set</button>`:""}${pl?`<button type="button" class="link small" data-plates="${ex.id}|${t.w!=null?toU(t.w):""}">Plates</button>`:""}</div>`;
   return h+`</div>`;
 }
 function mondayWeighIn(){
   const k=ymd(sel); if(dowOf(sel)!==0 || k!==ymd(today)) return "";
   const done=(S.profile.weights||[]).some(w=>w.d===k);
   if(done) return `<p class="small muted">Weigh-in logged for today ✓</p>`;
-  return `<div class="row" style="align-items:flex-end;border-top:1px solid var(--line);padding-top:12px"><div class="field"><label for="bwIn">Monday weigh-in (lb)</label><input id="bwIn" inputmode="decimal" placeholder="e.g. 248.4"></div><button class="btn" id="bwSave">Log</button></div>`;
+  return `<div class="row" style="align-items:flex-end;border-top:1px solid var(--line);padding-top:12px"><div class="field"><label for="bwIn">Monday weigh-in (${uL()})</label><input id="bwIn" inputmode="decimal" placeholder="e.g. 248.4"></div><button class="btn" id="bwSave">Log</button></div>`;
 }
 function mealsCard(d){
   if(CUSTOM) return diaryCard(d);
@@ -1106,29 +1116,29 @@ function viewProgress(){
   if(progView==="runs" && runSel && S.logs[runSel] && S.logs[runSel].type==="run") return h+runDetail(runSel);
   if(progView==="lifts") h+=`<div class="kpis"><div class="kpi"><div class="v num">${tot.gym}</div><div class="l">gym sessions</div></div>
    <div class="kpi"><div class="v num">${tot.mi.toFixed(1)}</div><div class="l">miles run</div></div>
-   <div class="kpi"><div class="v num">${wchg==null?"–":(wchg>0?"+":"")+wchg.toFixed(1)}</div><div class="l">lb since first weigh-in</div></div></div>`;
+   <div class="kpi"><div class="v num">${wchg==null?"–":(wchg>0?"+":"")+toUd(wchg).toFixed(1)}</div><div class="l">${uL()} since first weigh-in</div></div></div>`;
   let shared="";
   // body weight
-  shared+=`<div class="card"><div class="row between"><h2>Body weight</h2>${wts.length?`<span class="chip food num">Now ${wts[wts.length-1].lb} lb</span>`:""}</div>`;
+  shared+=`<div class="card"><div class="row between"><h2>Body weight</h2>${wts.length?`<span class="chip food num">Now ${toU(wts[wts.length-1].lb)} ${uL()}</span>`:""}</div>`;
   if(wts.length>1){const days=Math.max(1,Math.round((parseYmd(wts[wts.length-1].d)-parseYmd(wts[0].d))/DAYMS)); const rate=wchg/(days/7);
-    shared+=`<p class="small">Average change: <b class="num">${rate>0?"+":""}${rate.toFixed(1)} lb/week</b> <span class="muted">· a steady 1–2 lb/week keeps strength while you lean out</span></p>`}
-  shared+= wts.length? lineChart(wts.map(w=>({x:fmtShort(parseYmd(w.d)),y:w.lb})),"var(--food)",v=>v.toFixed(0),false) : `<p class="small muted">Weigh in every Monday morning, before eating. The Home tab prompts you.</p>`;
-  shared+=`<div class="row" style="align-items:flex-end"><div class="field"><label for="bwIn2">Log today's weight (lb)</label><input id="bwIn2" inputmode="decimal" placeholder="e.g. 248.4"></div><button class="btn" id="bwSave2">Log</button></div></div>`;
+    shared+=`<p class="small">Average change: <b class="num">${rate>0?"+":""}${toUd(rate).toFixed(1)} ${uL()}/week</b> <span class="muted">· a steady ${UNIT()==="kg"?"0.5–1 kg":"1–2 lb"}/week keeps strength while you lean out</span></p>`}
+  shared+= wts.length? lineChart(wts.map(w=>({x:fmtShort(parseYmd(w.d)),y:toUd(w.lb)})),"var(--food)",v=>v.toFixed(0),false) : `<p class="small muted">Weigh in every Monday morning, before eating. The Home tab prompts you.</p>`;
+  shared+=`<div class="row" style="align-items:flex-end"><div class="field"><label for="bwIn2">Log today's weight (${uL()})</label><input id="bwIn2" inputmode="decimal" placeholder="e.g. 248.4"></div><button class="btn" id="bwSave2">Log</button></div></div>`;
   let lifts="";
   // strength
   lifts+=`<div class="card"><h2>Strength</h2><div class="eyebrow">Estimated 1-rep max</div><div class="multiples">`;
   KEYLIFTS.forEach(id=>{const ex=ALLEX.find(e=>e.id===id), s=liftSeries(id);
-    lifts+=`<div><div class="row between"><b>${esc(ex.name)}</b>${s.length?`<span class="small num" style="color:var(--gym);font-weight:700">${Math.round(s[s.length-1].y)} lb${s.length>1?` (${s[s.length-1].y-s[0].y>=0?"+":""}${Math.round(s[s.length-1].y-s[0].y)})`:""}</span>`:""}</div>${s.length?lineChart(s,"var(--gym)",v=>Math.round(v),false):`<p class="small muted">Not logged yet.</p>`}</div>`});
+    lifts+=`<div><div class="row between"><b>${esc(ex.name)}</b>${s.length?`<span class="small num" style="color:var(--gym);font-weight:700">${Math.round(toUd(s[s.length-1].y))} ${uL()}${s.length>1?` (${s[s.length-1].y-s[0].y>=0?"+":""}${Math.round(toUd(s[s.length-1].y-s[0].y))})`:""}</span>`:""}</div>${s.length?lineChart(s.map(x=>({...x,y:toUd(x.y)})),"var(--gym)",v=>Math.round(v),false):`<p class="small muted">Not logged yet.</p>`}</div>`});
   lifts+=`</div><div class="field" style="max-width:280px"><label for="progEx">Other lifts</label><select id="progEx">${ALLEX.filter(e=>!KEYLIFTS.includes(e.id)).map(e=>`<option value="${e.id}" ${e.id===progEx?"selected":""}>${esc(e.name)}</option>`).join("")}</select></div>`;
   const os=liftSeries(progEx);
-  lifts+= os.length? `${lineChart(os,"var(--gym)",v=>Math.round(v),false)}<p class="small num">Top set ${os[os.length-1].top} lb · est. 1RM ${Math.round(os[os.length-1].y)} lb</p>` : `<p class="small muted">No sessions logged for this lift yet.</p>`;
+  lifts+= os.length? `${lineChart(os.map(x=>({...x,y:toUd(x.y)})),"var(--gym)",v=>Math.round(v),false)}<p class="small num">Top set ${toU(os[os.length-1].top)} ${uL()} · est. 1RM ${Math.round(toUd(os[os.length-1].y))} ${uL()}</p>` : `<p class="small muted">No sessions logged for this lift yet.</p>`;
   lifts+=`</div>`;
-  lifts+=`<div class="card"><h2>Lifting volume</h2><div class="eyebrow">Total weight × reps per week</div>${barChart(rows.map(r=>r.vol),rows.map(r=>"W"+r.w),"var(--gym)",v=>v>=1000?(v/1000).toFixed(0)+"k":String(Math.round(v)))}</div>`;
+  lifts+=`<div class="card"><h2>Lifting volume</h2><div class="eyebrow">Total weight × reps per week</div>${barChart(rows.map(r=>toUd(r.vol)),rows.map(r=>"W"+r.w),"var(--gym)",v=>v>=1000?(v/1000).toFixed(0)+"k":String(Math.round(v)))}</div>`;
   shared+=photosCard();
   // weekly table
   shared+=`<div class="card"><div class="row between"><h2>Week by week</h2><span class="chip">Week ${cw}</span></div><div class="tablewrap"><table>
    <thead><tr><th>Wk</th><th>Gym</th><th>Runs</th><th>Miles</th><th>Long</th><th>Easy pace</th><th>Volume</th><th>Calories</th></tr></thead><tbody>
-   ${rows.map(r=>`<tr class="${r.w===cw?"cur":""}"><td>${r.w}</td><td>${r.gym}/${perWeek("gym",r.w)}</td><td>${r.runs}/${perWeek("run",r.w)}</td><td>${r.mi?r.mi.toFixed(1):"–"}</td><td>${r.long?r.long+" mi":"–"}</td><td>${r.easy?fmtMin(r.easy):"–"}</td><td>${r.vol?Math.round(r.vol/1000)+"k lb":"–"}</td><td>${r.kcal?fmtN(r.kcal)+" / "+fmtN(r.ktarget):"–"}</td></tr>`).join("")}
+   ${rows.map(r=>`<tr class="${r.w===cw?"cur":""}"><td>${r.w}</td><td>${r.gym}/${perWeek("gym",r.w)}</td><td>${r.runs}/${perWeek("run",r.w)}</td><td>${r.mi?r.mi.toFixed(1):"–"}</td><td>${r.long?r.long+" mi":"–"}</td><td>${r.easy?fmtMin(r.easy):"–"}</td><td>${r.vol?Math.round(toUd(r.vol)/1000)+"k "+uL():"–"}</td><td>${r.kcal?fmtN(r.kcal)+" / "+fmtN(r.ktarget):"–"}</td></tr>`).join("")}
    </tbody></table></div></div>`;
   let runsH=runsIndex();
   // running
@@ -1204,9 +1214,9 @@ function signals(){
   if(wins.length) out.push({kind:"win",title:"Strength is climbing",detail:wins.slice(0,3).join(", ")+" (estimated 1-rep max).",action:"Keep the same rest times so the progress stays honest."});
   const wts=(S.profile.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1);
   if(wts.length>=2){const days=Math.round((parseYmd(wts[wts.length-1].d)-parseYmd(wts[0].d))/DAYMS); if(days>=10){const rate=(wts[wts.length-1].lb-wts[0].lb)/(days/7);
-    if(rate<-2.5) out.push({kind:"problem",title:"Weight dropping fast",detail:`${rate.toFixed(1)} lb/week. Faster than ~2.5 lb/week risks losing muscle and stalling your runs.`,action:CUSTOM?"Add 200–300 kcal a day, mostly from carbs around your workouts.":"Add 200–300 kcal a day: extra ½ cup rice at lunch and a banana."});
-    else if(rate>-0.3&&days>=14) out.push({kind:"opportunity",title:"Weight holding steady",detail:`${rate>0?"+":""}${rate.toFixed(1)} lb/week over ${days} days.`,action:CUSTOM?"Log everything you eat for a week so you can see where extra calories come from.":"Tick off every meal for a week so you can see where extra calories come from."});
-    else if(rate<=-0.5) out.push({kind:"win",title:"Weight trending down",detail:`${rate.toFixed(1)} lb/week. Right in the useful range.`,action:"Keep weighing in every Monday morning."})}}
+    if(rate<-2.5) out.push({kind:"problem",title:"Weight dropping fast",detail:`${toUd(rate).toFixed(1)} ${uL()}/week. Faster than ~${UNIT()==="kg"?"1.1 kg":"2.5 lb"}/week risks losing muscle and stalling your runs.`,action:CUSTOM?"Add 200–300 kcal a day, mostly from carbs around your workouts.":"Add 200–300 kcal a day: extra ½ cup rice at lunch and a banana."});
+    else if(rate>-0.3&&days>=14) out.push({kind:"opportunity",title:"Weight holding steady",detail:`${rate>0?"+":""}${toUd(rate).toFixed(1)} ${uL()}/week over ${days} days.`,action:CUSTOM?"Log everything you eat for a week so you can see where extra calories come from.":"Tick off every meal for a week so you can see where extra calories come from."});
+    else if(rate<=-0.5) out.push({kind:"win",title:"Weight trending down",detail:`${toUd(rate).toFixed(1)} ${uL()}/week. Right in the useful range.`,action:"Keep weighing in every Monday morning."})}}
   let kd=0,ksum=0,psum=0,tsum=0; for(let n=1;n<=7;n++){const d=addDays(today,-n); if(!inProgram(d)) continue; const e=dayEaten(ymd(d)); if(e.any){kd++;ksum+=e.kcal;psum+=e.p;tsum+=dayTarget(d)}}
   if(kd>=3){const avg=ksum/kd, tavg=tsum/kd, pavg=psum/kd;
     if(avg<tavg-300) out.push({kind:"problem",title:"Eating under the plan",detail:`About ${fmtN(avg)} kcal/day logged vs ${fmtN(tavg)} planned.`,action:"Eat every planned meal, especially before long runs."});
@@ -1245,7 +1255,7 @@ Meal plan (~1,505 kcal / 139 g protein base; +2 eggs Tue/Thu = 1,645; +eggs and 
 If he reports sharp pain, swelling, chest pain, dizziness or fainting, tell him to stop and get it checked by a professional. You're not a doctor.
 Today: ${fmtDate(today)} (week ${w} of 11). Half marathon date: ${S.profile.raceDate||"not set"}.
 `;
-  return `${intro}${swapsText()}About ${CUSTOM?"them":"him"}: ${S.profile.about||"(not filled in)"}
+  return `${intro}${UNIT()==="kg"?"Units: the user views weights in kg. Logged numbers below are in lb (1 kg = 2.2046 lb); answer in kg.\n":""}${swapsText()}About ${CUSTOM?"them":"him"}: ${S.profile.about||"(not filled in)"}
 This week's plan:
 ${weekPlan}
 ${targets}
@@ -1403,7 +1413,7 @@ function gymSteps(k,p){ const out=[], ex=p.ex; let gi=0;
     gi+=g.length }
   return out }
 function setValsK(k,st){ const l=S.logs[k], cur=l&&l.ex&&l.ex[st.ex.id]&&l.ex[st.ex.id][st.i];
-  const w=drafts[dkey(k,`w-${st.ex.id}-${st.i}`)] ?? (cur?cur.w:(st.t.w??"")); const r=drafts[dkey(k,`r-${st.ex.id}-${st.i}`)] ?? (cur?cur.r:(st.t.first?"":st.t.reps[st.i]));
+  const w=drafts[dkey(k,`w-${st.ex.id}-${st.i}`)] ?? (cur?toU(cur.w):(st.t.w!=null?toU(st.t.w):"")); const r=drafts[dkey(k,`r-${st.ex.id}-${st.i}`)] ?? (cur?cur.r:(st.t.first?"":st.t.reps[st.i]));
   let ww=w??""; if(ww===""&&st.i>0){ for(let j=st.i-1;j>=0;j--){ const pw=drafts[dkey(k,`w-${st.ex.id}-${j}`)]; if(pw){ww=pw;break} } }
   return {w:ww,r:r??""} }
 function openLive(){ if(!liveCtx()) return; liveOpen=true; unlockAudio(); renderLive(); tick() }
@@ -1423,14 +1433,15 @@ function renderLive(){
       next=`<div class="lv-next"><span class="lv-label">Next</span><span>Check your numbers and tap Save. Your workout time is recorded.</span></div>`;
     } else {
       const db=dbNow(cur.ex.id,S.logs[k]), v=setValsK(k,cur), unit=cur.ex.bw?"sec":"reps";
-      const tgt=`${cur.ex.bw?"":(v.w!==""?`${v.w} lb${db?" per DB":""} × `:"")}${v.r||cur.ex.lo} ${unit}`;
+      const tgt=`${cur.ex.bw?"":(v.w!==""?`${v.w} ${uL()}${db?" per DB":""} × `:"")}${v.r||cur.ex.lo} ${unit}`;
       if(resting||justDone){
         main=`<div class="lv-main ${resting?"rest":"go"}"><div class="lv-label">${resting?"Rest":"Rest over"}</div><div class="lv-clock" id="lvRest">${resting?fmtClock(TM.restEnd-now):"Go"}</div><div class="lv-ring"><i id="lvRestFill"></i></div>
           <div class="row lv-btns">${resting?`<button class="btn ghost" id="lvPlus">+30 s</button><button class="btn ghost" id="lvSkip">Skip rest</button>`:`<button class="btn lv-cta" id="lvStart" style="background:#fff;color:var(--food);border-color:#fff">Start set</button>`}</div></div>`;
         next=`<div class="lv-next"><span class="lv-label">Up next</span><span class="nm">${esc(cur.ex.name)}</span><span class="num">Set ${cur.i+1} of ${cur.n} · ${esc(tgt)}</span></div>`;
       } else {
         main=`<div class="lv-main"><div class="lv-label">${cur.inSS?"Superset · ":""}Set ${cur.i+1} of ${cur.n}</div><div class="lv-ex">${esc(cur.ex.name)}</div>
-          <div class="lv-inputs">${cur.ex.bw?"":`<label><input id="lvW" inputmode="decimal" value="${esc(v.w)}" placeholder="lb" aria-label="Weight"><span>${db?"lb per dumbbell":"lb"}</span></label><b>×</b>`}<label><input id="lvR" inputmode="numeric" value="${esc(v.r)}" placeholder="${cur.ex.lo}" aria-label="${unit}"><span>${unit}</span></label></div>
+          <div class="lv-inputs">${cur.ex.bw?"":`<label><input id="lvW" inputmode="decimal" value="${esc(v.w)}" placeholder="${uL()}" aria-label="Weight"><span>${db?uL()+" per dumbbell":uL()}</span></label><b>×</b>`}<label><input id="lvR" inputmode="numeric" value="${esc(v.r)}" placeholder="${cur.ex.lo}" aria-label="${unit}"><span>${unit}</span></label></div>
+          ${plateable(cur.ex,db)?`<div class="lv-plates" id="lvPlates">${esc(platesText(v.w,cur.ex))}</div>`:""}
           <p class="small lv-note">${esc(cur.t.first?cur.t.msg:(cur.t.coach?"Coach: ":"")+cur.t.msg)}</p>
           <button class="btn lv-cta" id="lvDone">Set done ✓</button></div>`;
         const nx=steps[idx+1];
@@ -1462,6 +1473,7 @@ function bindLive(k,p){
   if($$("lvPlus")) $$("lvPlus").onclick=()=>{TM.restEnd+=30000; TM.restDur+=30; saveTM(); liveTick()};
   if($$("lvSkip")) $$("lvSkip").onclick=()=>{TM.restEnd=0; saveTM(); renderLive()};
   if($$("lvStart")) $$("lvStart").onclick=()=>{TM.restEnd=0; saveTM(); renderLive()};
+  if($$("lvW")&&$$("lvPlates")){ const st=gymSteps(k,p).find(x=>!x.done); $$("lvW").addEventListener("input",e=>{ $$("lvPlates").textContent=st?platesText(e.target.value,st.ex):"" }) }
   ["lvW","lvR"].forEach(id=>{ const inp=$$(id); if(!inp) return; inp.addEventListener("focus",()=>{const s=()=>{try{inp.setSelectionRange(0,inp.value.length)}catch(e){}}; s(); setTimeout(s,0); setTimeout(s,60)}) });
   if($$("lvDone")) $$("lvDone").onclick=()=>{
     const steps=gymSteps(k,p), idx=steps.findIndex(x=>!x.done), cur=steps[idx]; if(!cur) return;
@@ -1491,7 +1503,7 @@ viewEl.addEventListener("mouseup",e=>{if(isNumBox(e.target)&&e.target===document
 /* ---------- Dumbbell total helper ---------- */
 function updDbNotes(){
   document.querySelectorAll(".dbnote[id^='dbn-']").forEach(n=>{const id=n.id.slice(4), w=Number(($(`#w-${id}-0`)||{}).value)||0, m=DBCFG[id].m;
-    n.textContent = m===1? `Weight is the one dumbbell you're holding${w?` · ${w} lb`:""}` : (w? `${w} lb per dumbbell = ${w*m} lb total` : "Enter the weight of one dumbbell");});
+    n.textContent = m===1? `Weight is the one dumbbell you're holding${w?` · ${w} ${uL()}`:""}` : (w? `${w} ${uL()} per dumbbell = ${+(w*m).toFixed(1)} ${uL()} total` : "Enter the weight of one dumbbell");});
 }
 
 function bindTimerEnd(){ const e=$("#tmEnd"); if(e) e.onclick=function(){ if(this.dataset.armed){stopWorkout(); render()} else {this.dataset.armed="1"; this.textContent="Tap again to end"} } }
@@ -1502,7 +1514,7 @@ const overBusy={}, overTried={};
 function prevLine(ex,k){
   const h=exHistory(ex.id,k); if(!h.length) return `<div class="prev"><span class="pl">Last time</span><span class="muted">Not done yet</span></div>`;
   const last=h[0], l=S.logs[last.k], db=logDb(ex.id,l);
-  const pills=last.sets.map(s=>`<span class="pill">${ex.bw?`${s.r}s`:`${s.w}${db?"/DB":""} × ${s.r}`}</span>`).join("");
+  const pills=last.sets.map(s=>`<span class="pill">${ex.bw?`${s.r}s`:`${toU(s.w)}${db?"/DB":""} × ${s.r}`}</span>`).join("");
   return `<div class="prev"><span class="pl">Last · ${DOW[dowOf(parseYmd(last.k))]} ${fmtShort(parseYmd(last.k))}</span>${pills}${last.sets.length<ex.sets?`<span class="small muted">${last.sets.length} of ${ex.sets} sets</span>`:""}</div>`;
 }
 function lastSessionNote(p,k){
@@ -1540,7 +1552,7 @@ He is a beginner on a calorie deficit, so prefer adding reps until the top of th
 Exercises:
 ${lines}
 
-Reply with ONLY a JSON object: {"exercises":[{"id":"<id>","mode":"add_weight"|"add_reps"|"hold"|"deload"|"form","weight":number|null,"reps":[one number per set],"note":"one or two sentences, max 35 words, that explain why using his actual numbers and say exactly what to do"}]}
+${UNIT()==="kg"?"He views weights in kg: keep \"weight\" in lb as above, but write any weight inside \"note\" in kg rounded to 0.5 kg.\n":""}Reply with ONLY a JSON object: {"exercises":[{"id":"<id>","mode":"add_weight"|"add_reps"|"hold"|"deload"|"form","weight":number|null,"reps":[one number per set],"note":"one or two sentences, max 35 words, that explain why using his actual numbers and say exactly what to do"}]}
 Weight is in the same unit he logs (per dumbbell where noted); use null for timed holds. Reps must stay within the prescribed range.`;
   try{
     const r=await sampleFn.json(prompt,{modelTier:"default",cache:false});
@@ -1650,7 +1662,7 @@ function regionStanding(key,cut,bw){
 let REF_BW=175; // typical body weight of a 21-year-old man, used for raw-strength rankings
 let standMode="rel"; try{const v=localStorage.getItem("rd25-stand"); if(v==="raw"||v==="rel") standMode=v}catch(e){}
 function standings(cut){
-  const bw0=standingsBW(cut), bw= bw0&&standMode==="raw"? {lb:REF_BW,src:`raw mode: your lifts divided by a typical ${REF_BW} lb ${AGE}-year-old`} : bw0, out={bw,bw0};
+  const bw0=standingsBW(cut), bw= bw0&&standMode==="raw"? {lb:REF_BW,src:`raw mode: your lifts divided by a typical ${toU(REF_BW)} ${uL()} ${AGE}-year-old`} : bw0, out={bw,bw0};
   if(bw){ const u=regionStanding("upper",cut,bw.lb), l=regionStanding("lower",cut,bw.lb); if(u.pct!=null) out.upper=u; if(l.pct!=null) out.lower=l; out.upperM=u; out.lowerM=l }
   const rn=bestRun(cut), hv=hrVO2(cut);
   if(hv){ out.speed={pct:pctFrom(VO2_NORM,hv.v),vo2:hv.v,hr:hv,run:rn,conf:"mid"} }
@@ -1770,7 +1782,7 @@ function outSheet(P){
   const [rk,m]=openOut.split("|"), Pp=P[rk+"P"], N=P[rk+"N"]; if(!Pp) return ""; const x=Pp.muscles.find(q=>q.m===m), xn=N.muscles.find(q=>q.m===m); if(!x) return "";
   const tot=x.used.reduce((a,e)=>a+e.wt,0)||1;
   const rows=x.used.slice().sort((a,b)=>b.wt-a.wt||b.pct-a.pct).map(e=>{ const share=Math.round(e.wt/tot*100), n=e.now;
-    const nowTxt= e.kind==="sec"?`${n.r} s`:`${n.w} lb${n.db?" each":""} × ${n.r}`, pTxt= e.kind==="sec"?`${e.r2} s`:`${e.w2} lb${n.db?" each":""} × ${e.r2}`;
+    const nowTxt= e.kind==="sec"?`${n.r} s`:`${toU(n.w)} ${uL()}${n.db?" each":""} × ${n.r}`, pTxt= e.kind==="sec"?`${e.r2} s`:`${toU(e.w2)} ${uL()}${n.db?" each":""} × ${e.r2}`;
     return `<div class="exr"><div class="exh"><b>${esc(exName(e.id))}</b>${nowToProj(n.pct,e.pct)}</div>
       <div class="exm"><span class="muted">Best set</span> <b class="num">${nowTxt}</b> <span class="muted">→</span> <b class="num">~${pTxt}</b></div>
       <div class="imp"><div class="impbar"><i style="width:${share}%"></i></div><span class="num"><b>${share}%</b> of ${x.label.toLowerCase()} score</span></div></div>` }).join("");
@@ -1819,8 +1831,8 @@ function tierSheet(st){
     const order=Object.values(curPhase()).flatMap(d=>d.ex.map(e=>e.id));
     ids.sort((a,b)=>order.indexOf(a)-order.indexOf(b));
     body=`<div class="exl">${ids.map(id=>{ const t=exTarget(id,nextLo,bw), cur=exStanding(id,null,bw); if(!t) return "";
-      const tTxt= t.kind==="sec"?`${t.secs} s hold`: t.kind==="add"? (t.w>0?`+${t.w} lb × ${t.reps}`:`Bodyweight × ${t.reps}`) : `${t.w} lb${t.kind==="db"?" each":""} × ${t.reps}`;
-      const cTxt= cur? (cur.kind==="sec"?`${cur.r} s`:`${cur.w} lb${cur.db?" each":""} × ${cur.r}`) : null;
+      const tTxt= t.kind==="sec"?`${t.secs} s hold`: t.kind==="add"? (t.w>0?`+${toU(t.w)} ${uL()} × ${t.reps}`:`Bodyweight × ${t.reps}`) : `${toU(t.w)} ${uL()}${t.kind==="db"?" each":""} × ${t.reps}`;
+      const cTxt= cur? (cur.kind==="sec"?`${cur.r} s`:`${toU(cur.w)} ${uL()}${cur.db?" each":""} × ${cur.r}`) : null;
       const met= cur && cur.pct>=nextLo;
       return `<div class="exr"><div class="exh"><b>${esc(exName(id))}</b>${cur?`<span class="tchip" style="background:${tierColor(cur.pct)}">${tier(cur.pct)}</span>`:""}</div>
         <div class="tgt num">${i===0?"Under ":""}${tTxt}</div>
@@ -1835,7 +1847,7 @@ function muscleSheet(st){
   const tot=x.used.reduce((a,e)=>a+e.wt,0)||1;
   const rows=x.used.slice().sort((a,b)=>b.wt-a.wt||b.pct-a.pct).map(e=>{ const share=Math.round(e.wt/tot*100), mm=EX_MUSCLES[e.id][m];
     return `<div class="exr"><div class="exh"><b>${esc(exName(e.id))}</b><span class="tchip" style="background:${tierColor(e.pct)}">${tier(e.pct)}</span></div>
-      <div class="exm"><span class="muted">Best set</span> <b class="num">${e.kind==="sec"?`${e.r} s`:`${e.w} lb${e.db?" each":""} × ${e.r}`}</b><span class="muted"> · ${fmtShort(parseYmd(e.k))}</span></div>
+      <div class="exm"><span class="muted">Best set</span> <b class="num">${e.kind==="sec"?`${e.r} s`:`${toU(e.w)} ${uL()}${e.db?" each":""} × ${e.r}`}</b><span class="muted"> · ${fmtShort(parseYmd(e.k))}</span></div>
       <div class="imp"><div class="impbar"><i style="width:${share}%"></i></div><span class="num"><b>${share}%</b> of ${x.label.toLowerCase()} score</span></div>
       <div class="small muted">${mm>=.75?`Main target: it works ${x.label.toLowerCase()} directly.`:mm>=.4?`Works ${x.label.toLowerCase()} heavily alongside other muscles.`:`Helps ${x.label.toLowerCase()} as a secondary muscle.`}</div></div>` }).join("");
   const plan=currentPlanIds(), missing=Object.entries(EX_MUSCLES).filter(([id,w])=>w[m]&&plan.has(id)&&!x.used.some(e=>e.id===id)).map(([id])=>exName(id));
@@ -2254,7 +2266,7 @@ Use only numbers from the data. If something is missing, say so in a few words i
 
 /* ---------- Events ---------- */
 function logWeight(v){
-  if(!(v>50&&v<700)){toast("Enter your weight in lb");return}
+  v=fromU(v); if(!(v>50&&v<700)){toast(`Enter your weight in ${uL()}`);return}
   const d=ymd(today); const ws=(S.profile.weights||[]).filter(x=>x.d!==d); ws.push({d,lb:v}); ws.sort((a,b)=>a.d<b.d?-1:1); S.profile.weights=ws; clearDrafts(ymd(sel),/^bwIn2?$/); saveProfile(); toast("Weight logged"); render(); setTimeout(maybeAutoAdvice,1500);
 }
 function bind(){
@@ -2281,7 +2293,7 @@ function bind(){
   $("#saveGym")?.addEventListener("click",()=>{
     const ex={}, db={}; let anyChecked=false;
     p.ex.forEach(e=>{for(let i=0;i<setCount(e,k);i++){ if($(`#set-${e.id}-${i}`)?.classList.contains("done")) anyChecked=true }});
-    p.ex.forEach(e=>{const sets=[];for(let i=0;i<setCount(e,k);i++){ if(anyChecked && !$(`#set-${e.id}-${i}`)?.classList.contains("done")) continue; const r=Number($(`#r-${e.id}-${i}`).value); const w=e.bw?0:Number($(`#w-${e.id}-${i}`).value); const ty=setTypeK(k,e.id,i); if(r>0&&(e.bw||w>0||e.optW)) sets.push(e.bw?{r,...(ty?{t:ty}:{})}:{w,r,...(ty?{t:ty}:{})})} if(sets.length){ex[e.id]=sets; if(DBCFG[e.id]) db[e.id]=dbNow(e.id,log)}});
+    p.ex.forEach(e=>{const sets=[];for(let i=0;i<setCount(e,k);i++){ if(anyChecked && !$(`#set-${e.id}-${i}`)?.classList.contains("done")) continue; const r=Number($(`#r-${e.id}-${i}`).value); const w=e.bw?0:fromU(Number($(`#w-${e.id}-${i}`).value)); const ty=setTypeK(k,e.id,i); if(r>0&&(e.bw||w>0||e.optW)) sets.push(e.bw?{r,...(ty?{t:ty}:{})}:{w,r,...(ty?{t:ty}:{})})} if(sets.length){ex[e.id]=sets; if(DBCFG[e.id]) db[e.id]=dbNow(e.id,log)}});
     if(!Object.keys(ex).length){toast(anyChecked?"Ticked sets need a weight and reps":"Enter weight and reps for at least one set");return}
     const durMin = TM.start&&TM.date===k ? (Date.now()-TM.start)/60000 : (log&&log.durMin)||null;
     if(TM.start&&TM.date===k) stopWorkout();
@@ -2496,15 +2508,15 @@ function customPlanIntro(){
 let setupOpen=false, SUW=null;
 function isLegacy(){ const p=S.profile||{}; return !p.setup && !!(p.about || (p.moves&&Object.keys(p.moves).length) || Object.keys(S.logs).length) }
 function needsSetup(){ return !!window.__platform && loaded.profile && !(S.profile&&S.profile.setup) && !isLegacy() }
-function suggestKcal(s){ const lb=Number(s.weight)||0; if(!lb) return ""; const fem=s.sex==="female";
+function suggestKcal(s){ const lb=fromU(Number(s.weight))||0; if(!lb) return ""; const fem=s.sex==="female";
   const k= s.goal==="muscle"? lb*15 : s.goal==="race"? lb*13 : lb*11;
   return Math.round(Math.min(fem?2800:3400,Math.max(fem?1300:1500,k))/50)*50 }
-function suggestProtein(s){ const lb=Number(s.weight)||0; if(!lb) return ""; return Math.round(Math.min(lb,s.goal==="muscle"?lb:lb*0.85)*(s.goal==="muscle"?1:0.9)/5)*5 }
+function suggestProtein(s){ const lb=fromU(Number(s.weight))||0; if(!lb) return ""; return Math.round(Math.min(lb,s.goal==="muscle"?lb:lb*0.85)*(s.goal==="muscle"?1:0.9)/5)*5 }
 function weekFor(split,runN){ const x=splitToSetup(split); const wk=[...x.week]; defaultRunDays(wk,runN).forEach(d=>wk[d]="run"); return wk }
 function suRoutines(s){ return s.split==="keep"? (S.profile.setup.routines||[]) : splitToSetup(s.split).routines }
 function defaultSUW(){
   const su=S.profile&&S.profile.setup;
-  if(su){ const n=normalizeSetup(su); return {...n,split:"keep",week:[...n.week],kcal:(n.food&&n.food.kcal)||n.kcal,protein:(n.food&&n.food.protein)||"",kcalTouched:true,proteinTouched:!!(n.food&&n.food.protein)} }
+  if(su){ const n=normalizeSetup(su); return {...n,weight:n.weight?toU(n.weight):"",split:"keep",week:[...n.week],kcal:(n.food&&n.food.kcal)||n.kcal,protein:(n.food&&n.food.protein)||"",kcalTouched:true,proteinTouched:!!(n.food&&n.food.protein)} }
   return {name:"",sex:"",age:"",weight:"",goal:"lose",race:"half",goalDate:ymd(addDays(mondayOf(today),7*10+4)),split:"abc3",week:weekFor("abc3",2),runLevel:"new",exp:"new",kcal:"",protein:"",kcalTouched:false,proteinTouched:false};
 }
 function gateView(fromStore){
@@ -2527,7 +2539,7 @@ function viewSetup(){
     <div class="field"><label for="suName">First name</label><input id="suName" value="${esc(s.name)}" autocomplete="given-name"></div>
     <div class="suopts two">${opt("sex","male","Male")}${opt("sex","female","Female")}</div>
     <div class="row"><div class="field" style="flex:1"><label for="suAge">Age</label><input id="suAge" inputmode="numeric" value="${esc(s.age)}"></div>
-    <div class="field" style="flex:1"><label for="suWt">Weight (lb)</label><input id="suWt" inputmode="decimal" value="${esc(s.weight)}"></div></div></div>
+    <div class="field" style="flex:1"><label for="suWt">Weight (${uL()}) <button type="button" class="link small" data-unitflip="1">use ${UNIT()==="kg"?"lb":"kg"}</button></label><input id="suWt" inputmode="decimal" value="${esc(s.weight)}"></div></div></div>
   <div class="card"><h2>Your goal</h2>
     <div class="suopts">${opt("goal","lose","Lose fat & get fitter")}${opt("goal","muscle","Build strength & muscle")}${opt("goal","race","Train for a race")}</div>
     ${s.goal==="race"?`<div class="suopts three">${opt("race","5k","5K")}${opt("race","10k","10K")}${opt("race","half","Half marathon")}</div>`:""}
@@ -2567,12 +2579,12 @@ function bindSetup(){
   $("#suCancel")?.addEventListener("click",()=>{setupOpen=false; SUW=null; render()});
   $("#suSave").onclick=()=>{
     sync(); const err=t=>{const e=$("#suErr"); e.textContent=t; e.hidden=false; e.scrollIntoView({block:"center",behavior:"smooth"})};
-    const age=Number(s.age), wt=Number(s.weight), kcal=Number(s.kcalTouched?s.kcal:suggestKcal(s)), prot=Number(s.proteinTouched?s.protein:suggestProtein(s)), gd=parseYmd(s.goalDate), days=(gd-today)/DAYMS;
+    const age=Number(s.age), wt=fromU(Number(s.weight)), kcal=Number(s.kcalTouched?s.kcal:suggestKcal(s)), prot=Number(s.proteinTouched?s.protein:suggestProtein(s)), gd=parseYmd(s.goalDate), days=(gd-today)/DAYMS;
     const runN=s.week.filter(w=>w==="run").length, gymN=s.week.filter(w=>w!=="run"&&w!=="rest").length;
     if(!s.name) return err("Add your first name.");
     if(!s.sex) return err("Choose male or female. It sets your heart-rate zones and rankings.");
     if(!(age>=18&&age<=90)) return err("This app is for adults 18 and over. Enter your age.");
-    if(!(wt>=80&&wt<=600)) return err("Enter your weight in pounds.");
+    if(!(wt>=80&&wt<=600)) return err(`Enter your weight in ${UNIT()==="kg"?"kilograms":"pounds"}.`);
     if(!(days>=27&&days<=26*7+1)) return err("Pick a goal date between 4 and 26 weeks from today.");
     if(!gymN&&!runN) return err("Add at least one workout or run to your week.");
     if(runN>3) return err("Pick at most 3 run days.");
@@ -2582,7 +2594,7 @@ function bindSetup(){
     const prev=S.profile.setup&&normalizeSetup(S.profile.setup);
     const routines= s.split==="keep"&&prev? prev.routines : splitToSetup(s.split).routines;
     const keepLegacy=prev&&prev.legacyRuns&&s.goalDate===prev.goalDate&&s.goal==="race"&&s.race===prev.race&&JSON.stringify(s.week.map(w=>w==="run"))===JSON.stringify(prev.week.map(w=>w==="run"));
-    const su={...(prev||{}),legacyRuns:!!keepLegacy,v:2,name:s.name.slice(0,40),sex:s.sex,age,weight:wt,goal:s.goal,race:s.goal==="race"?s.race:null,goalDate:s.goalDate,
+    const su={...(prev||{}),legacyRuns:!!keepLegacy,v:2,name:s.name.slice(0,40),sex:s.sex,age,weight:Math.round(wt*10)/10,goal:s.goal,race:s.goal==="race"?s.race:null,goalDate:s.goalDate,
       start:prev&&prev.start&&parseYmd(prev.start)<=today?prev.start:ymd(mondayOf(today)),firstDay:(prev&&prev.firstDay)||ymd(today),split:s.split==="keep"?(prev&&prev.split)||"own":s.split,routines,week:[...s.week],
       customEx:(prev&&prev.customEx)||[],runLevel:s.runLevel,exp:s.exp,kcal:Math.round(kcal),food:{...((prev&&prev.food)||{}),kcal:Math.round(kcal),protein:Math.round(prot)},at:Date.now()};
     S.profile.setup=su;

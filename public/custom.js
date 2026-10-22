@@ -268,7 +268,7 @@ function paintSheet(scrollTop){ if(!SH) return; const el=sheetEl(), inn=el.query
   if(focusSel){ const f=inn.querySelector(`[data-xs-focus="${focusSel}"]`); if(f){ f.focus(); try{const v=f.value; f.setSelectionRange(v.length,v.length)}catch(e){} } } }
 const commitPlan=()=>{ saveProfile(); onProfile(); render() };
 // Repaint only part of the sheet, so the input being typed in (and the iPhone keyboard) stays put.
-function sheetHtml(){ return SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
+function sheetHtml(){ return SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
 function paintPart(sel){ if(!SH) return; const el=document.querySelector("#xsheet .xs-in"); const dst=el&&el.querySelector(sel); if(!dst){ paintSheet(); return }
   const tmp=document.createElement("div"); tmp.innerHTML=sheetHtml(); const src=tmp.querySelector(sel); if(src) dst.innerHTML=src.innerHTML; else paintSheet() }
 function estMin(ex){ const sec=(ex||[]).reduce((t,e)=>t+(e.sets||3)*((e.rest||90)+(e.bw?(e.hi||45):40)),0); return Math.max(10,Math.round(sec/60/5)*5) }
@@ -610,14 +610,49 @@ function historyHtml(){ const id=SH.id, L=libEx(id)||(typeof X!=="undefined"&&X[
   const series=liftSeries(id);
   let h=`<div class="xs-head"><h2>${esc(L.name)}</h2><button type="button" class="btn ghost sm" data-xs="close">Close</button></div>`;
   if(!rows.length) return h+`<p class="small muted">No sessions logged yet. Your history, best sets and PRs show up here.</p>`;
-  h+=`<div class="statrow"><div><b class="num">${timed?Math.round(best.v)+" s":fmtN(best.v)+" lb"}</b><span>${timed?"Longest hold":"Best est. 1-rep max"}</span></div>${heavy?`<div><b class="num">${heavy.db?heavy.raw+"/DB":heavy.w} × ${heavy.r}</b><span>Heaviest set</span></div>`:""}<div><b class="num">${rows.length}</b><span>Sessions</span></div></div>`;
-  if(series.length>1&&!timed) h+=`<div class="eyebrow">Estimated 1-rep max</div>${lineChart(series,"var(--gym)",v=>Math.round(v),false)}`;
+  h+=`<div class="statrow"><div><b class="num">${timed?Math.round(best.v)+" s":fmtN(toUd(best.v))+" "+uL()}</b><span>${timed?"Longest hold":"Best est. 1-rep max"}</span></div>${heavy?`<div><b class="num">${heavy.db?toU(heavy.raw)+"/DB":toU(heavy.w)} × ${heavy.r}</b><span>Heaviest set</span></div>`:""}<div><b class="num">${rows.length}</b><span>Sessions</span></div></div>`;
+  if(series.length>1&&!timed) h+=`<div class="eyebrow">Estimated 1-rep max</div>${lineChart(series.map(x=>({...x,y:toUd(x.y)})),"var(--gym)",v=>Math.round(v),false)}`;
   h+=`<div class="eyebrow" style="margin-top:6px">History</div><div class="xs-list">${rows.map(([k,l])=>{ const pr=(l.prs||[]).includes(id), db=logDb(id,l);
-    return `<div class="histrow"><div class="row between"><b>${fmtDate(parseYmd(k))}</b>${pr?`<span class="prbadge">PR</span>`:""}</div><div class="small num muted">${l.ex[id].map(x=>`${x.t==="w"?"W ":x.t==="d"?"D ":""}${x.w!=null&&!timed?`${x.w}${db?"/DB":""}×${x.r}`:`${x.r}s`}`).join(" · ")}</div></div>` }).join("")}</div>`;
+    return `<div class="histrow"><div class="row between"><b>${fmtDate(parseYmd(k))}</b>${pr?`<span class="prbadge">PR</span>`:""}</div><div class="small num muted">${l.ex[id].map(x=>`${x.t==="w"?"W ":x.t==="d"?"D ":""}${x.w!=null&&!timed?`${toU(x.w)}${db?"/DB":""}×${x.r}`:`${x.r}s`}`).join(" · ")}</div></div>` }).join("")}</div>`;
   return h;
 }
 
-/* ======================= Account & settings ======================= */
+/* ======================= Units (data is always stored in lb) ======================= */
+const KG=2.20462;
+function UNIT(){ try{ return (userPrefs().unit==="kg")?"kg":"lb" }catch(e){ return "lb" } }
+const uL=()=>UNIT();
+// lift weights shown to the user: kg rounded to 0.5, lb to 0.1
+function toU(lb){ const n=Number(lb); if(lb===""||lb==null||!isFinite(n)) return lb; return UNIT()==="kg"? Math.round(n/KG*2)/2 : Math.round(n*10)/10 }
+const toUd=lb=>UNIT()==="kg"? Number(lb)/KG : Number(lb);     // unrounded, for charts, totals and rates
+function fromU(v){ const n=Number(v); if(!isFinite(n)) return n; return UNIT()==="kg"? +(n*KG).toFixed(3) : n }
+const incTxt=inc=>UNIT()==="kg"? `${Math.max(1,toU(inc))} kg` : `${inc} lb`;
+function setUnit(u){ if(u===UNIT()) return; const from=UNIT();
+  // typed-but-unsaved weights switch with you
+  Object.keys(drafts).forEach(k=>{ if(/\|(w-|bwIn2?$|lvW)/.test(k)&&drafts[k]!==""&&isFinite(Number(drafts[k]))){ const lb= from==="kg"? Number(drafts[k])*KG : Number(drafts[k]); drafts[k]=String(u==="kg"? Math.round(lb/KG*2)/2 : Math.round(lb*10)/10) } }); persistDrafts();
+  if(SUW&&SUW.weight){ const lb= from==="kg"? Number(SUW.weight)*KG : Number(SUW.weight); SUW.weight=String(u==="kg"? Math.round(lb/KG*10)/10 : Math.round(lb)) }
+  setPref({unit:u}); lastRenderKey=""; render() }
+
+/* ======================= Plate calculator ======================= */
+const PLATES={lb:[45,35,25,10,5,2.5],kg:[25,20,15,10,5,2.5,1.25]};
+const BARS={lb:[["Olympic bar",45],["EZ bar",25],["Smith machine",20],["Trap bar",55]],kg:[["Olympic bar",20],["EZ bar",10],["Smith machine",10],["Trap bar",25]]};
+const BAR_EX={"Olympic bar":"bench","EZ bar":"ezcurl","Smith machine":"smithbench","Trap bar":"tbdl"};
+function barKind(ex){ const L=libEx(ex&&ex.id)||{}; return ex&&ex.id==="tbdl"?"Trap bar":L.equip==="EZ bar"?"EZ bar":L.equip==="Smith machine"?"Smith machine":"Olympic bar" }
+function barFor(ex){ const u=UNIT(), kind=barKind(ex), pr=((userPrefs().bars||{})[u]||{})[kind]; return {kind,w:pr!=null?pr:BARS[u].find(b=>b[0]===kind)[1]} }
+function plateable(ex,db){ if(!ex||db||ex.bw||ex.optW) return false; const L=libEx(ex.id); return ex.id==="tbdl"||!!(L&&["Barbell","EZ bar","Smith machine"].includes(L.equip)) }
+function platesFor(total,bar){ const u=UNIT(), have=(userPrefs().plates||{})[u]||PLATES[u]; let side=(Number(total)-bar)/2; if(!(side>0)) return {side:0,list:[],left:0};
+  const list=[]; for(const p of [...have].sort((a,b)=>b-a)){ while(side>=p-1e-9){ list.push(p); side-=p } } return {side:(Number(total)-bar)/2,list,left:Math.round(side*100)/100} }
+function platesText(total,ex){ const b=barFor(ex), u=uL(), n=Number(total); if(!(n>0)) return "";
+  if(n<b.w) return `Less than the ${b.kind.toLowerCase()} (${b.w} ${u})`; if(n===b.w) return `Just the ${b.kind.toLowerCase()} (${b.w} ${u})`;
+  const r=platesFor(n,b.w), grp={}; r.list.forEach(p=>grp[p]=(grp[p]||0)+1);
+  return `Per side: ${Object.entries(grp).sort((a,b)=>b[0]-a[0]).map(([p,c])=>c>1?`${c}×${p}`:p).join(" + ")||"nothing"}${r.left>0?` (+${r.left} ${u} won't load)`:""} · ${b.kind} ${b.w}` }
+function plateViz(list){ const H={45:46,25:42,35:44,20:44,15:40,10:32,5:26,2.5:20,1.25:16}; return `<div class="pviz"><i class="bar"></i>${list.map(p=>`<i class="pl" style="height:${H[p]||20}px">${p}</i>`).join("")}</div>` }
+function platesHtml(){ const u=UNIT(), ex=SH.ex, b=barFor(ex), w=SH.w, r=platesFor(w,b.w), have=(userPrefs().plates||{})[u]||PLATES[u];
+  return `<div class="xs-head"><h2>Plate calculator</h2><button type="button" class="btn ghost sm" data-xs="close">Done</button></div>
+   <div class="row" style="gap:8px;flex-wrap:nowrap;align-items:center"><input class="xs-search" inputmode="decimal" data-xs-pw="1" value="${esc(w)}" data-xs-focus="pw" style="max-width:140px"><b>${u} total</b></div>
+   <div class="plate-out">${!(Number(w)>0)?`<p class="small muted">Enter a weight.</p>`:Number(w)<=b.w?`<p>${esc(platesText(w,ex))}</p>`:`${plateViz(r.list)}<p><b>Each side:</b> ${r.list.join(" + ")||"nothing"}${r.left>0?` <span class="muted">(+${r.left} ${u} can't be loaded with your plates)</span>`:""}</p>`}</div>
+   <div class="eyebrow">Bar</div><div class="xs-chips">${BARS[u].map(([n])=>`<button type="button" class="${b.kind===n?"on":""}" data-xs-bar="${n}">${n}</button>`).join("")}</div>
+   <p class="small muted">${esc(b.kind)} weighs <input class="setnum" inputmode="decimal" data-xs-barw="${esc(b.kind)}" value="${b.w}"> ${u}</p>
+   <div class="eyebrow">Plates you have</div><div class="xs-chips">${PLATES[u].map(p=>`<button type="button" class="${have.includes(p)?"on":""}" data-xs-plate="${p}">${p}</button>`).join("")}</div>` }
 
 /* ======================= Account & settings ======================= */
 function userPrefs(){ const local=(window.LOOK&&LOOK.read())||{}; const p=(S.profile&&S.profile.prefs)||{}; return {mode:"system",palette:"classic",sound:true,awake:true,...local,...p} }
@@ -632,6 +667,8 @@ function accountHtml(){
    <h3>Appearance</h3>
    <div class="seg three">${[["system","System"],["light","Light"],["dark","Dark"]].map(([k,l])=>`<button type="button" class="${pr.mode===k?"on":""}" data-acct-mode="${k}" aria-pressed="${pr.mode===k}">${l}</button>`).join("")}</div>
    <div class="palettes">${Object.entries(P).map(([k,v])=>`<button type="button" class="pal ${pr.palette===k?"on":""}" data-acct-pal="${k}" aria-pressed="${pr.palette===k}"><span class="dots">${v.dots.map(c=>`<i style="background:${c}"></i>`).join("")}</span>${esc(v.name)}</button>`).join("")}</div>
+   <h3>Units</h3>
+   <div class="seg" style="grid-template-columns:1fr 1fr">${[["lb","Pounds (lb)"],["kg","Kilograms (kg)"]].map(([k,l])=>`<button type="button" class="${UNIT()===k?"on":""}" data-acct-unit="${k}" aria-pressed="${UNIT()===k}">${l}</button>`).join("")}</div>
    <h3>Workouts</h3>
    ${tog("sound","Rest timer sound","Beep when rest is over")}
    ${tog("awake","Keep screen on","While a workout timer is running")}
@@ -778,6 +815,8 @@ document.addEventListener("click",e=>{
     openSheet({kind:"swap",from:ex.id,fromName:ex.name,day:p.day,dayName:(p.name||("Day "+p.day)).split(" · ")[0],k:ymd(sel),q:"",mu:muscleOfEx(ex.id)}); return }
   if(d.swapundo){ const sw=swapsOf(), k=ymd(sel), m=S.profile.swaps&&S.profile.swaps.once&&S.profile.swaps.once[k]; if(m){ Object.keys(m).forEach(f=>{ if(m[f]===d.swapundo) delete m[f] }); if(!Object.keys(m).length) delete S.profile.swaps.once[k]; saveProfile(); lastRenderKey=""; render(); toast("Swap undone") } return }
   // --- workout screen
+  if(d.unitflip){ setUnit(UNIT()==="kg"?"lb":"kg"); return }
+  if(d.plates){ const [id,w]=d.plates.split("|"), p=planFor(sel), ex=(p&&p.ex&&p.ex.find(e=>e.id===id))||{id}; openSheet({kind:"plates",ex,w:w||""}); return }
   if(d.settype){ const [id,i]=d.settype.split("|"), k=ymd(sel), key=dkey(k,`st-${id}-${i}`), cur=setTypeK(k,id,i); drafts[key]=cur===""?"w":cur==="w"?"d":""; persistDrafts(); lastRenderKey=""; render(); return }
   if(d.addset){ const k=ymd(sel), key=dkey(k,`xs-${d.addset}`); drafts[key]=(Number(drafts[key])||0)+1; persistDrafts(); lastRenderKey=""; render(); return }
   if(d.rmset){ const k=ymd(sel), key=dkey(k,`xs-${d.rmset}`), n=Number(drafts[key])||0; if(n>0){ const ex=(planFor(sel).ex||[]).find(e=>e.id===d.rmset), last=ex?setCount(ex,k)-1:-1; ["w","r","c","st"].forEach(f=>delete drafts[dkey(k,`${f}-${d.rmset}-${last}`)]); drafts[key]=n-1; if(!drafts[key]) delete drafts[key]; persistDrafts(); lastRenderKey=""; render() } return }
@@ -790,6 +829,7 @@ document.addEventListener("click",e=>{
   if(d.exhist){ const p=planFor(sel), ex=p&&p.ex&&p.ex.find(e=>e.id===d.exhist); openSheet({kind:"hist",id:d.exhist,name:ex&&ex.name}); return }
   // --- account
   if(d.acct){ openSheet({kind:"account"}); if(window.appConfig&&appConfig().strava) stravaCheck(false); return }
+  if(d.acctUnit){ setUnit(d.acctUnit); paintSheet(); return }
   if(d.acctMode){ setPref({mode:d.acctMode}); paintSheet(); return }
   if(d.acctPal){ setPref({palette:d.acctPal}); paintSheet(); return }
   if(d.acctEdit){ xsClose(); setupOpen=true; SUW=null; render(); window.scrollTo(0,0); return }
@@ -831,6 +871,8 @@ document.addEventListener("click",e=>{
   if(d.xsMu!=null){ SH.mu=d.xsMu; paintSheet(); return }
   if(d.xsAddday){ const k=SH.k, L=libEx(d.xsAddday), tm=L&&L.type==="t"; S.profile.swaps=S.profile.swaps||{}; const sw=S.profile.swaps; sw.add=sw.add||{}; sw.add[k]=[...(sw.add[k]||[]),{id:d.xsAddday,sets:3,lo:tm?30:8,hi:tm?60:12,rest:L&&L.type==="w"&&["Barbell","Smith machine"].includes(L.equip)?150:90}];
     saveProfile(); lastRenderKey=""; render(); paintSheet(); toast("Added to today"); return }
+  if(d.xsBar){ SH.ex={id:BAR_EX[d.xsBar]}; paintSheet(); return }
+  if(d.xsPlate){ const u=UNIT(), p=Number(d.xsPlate), plates={...(userPrefs().plates||{})}; const have=new Set(plates[u]||PLATES[u]); have.has(p)?have.delete(p):have.add(p); plates[u]=[...have]; setPref({plates}); paintSheet(); return }
   if(d.xsMoveto){ const a=srcOf(SH.k), b=srcOf(d.xsMoveto); setSrc(d.xsMoveto,a); setSrc(SH.k,b); saveProfile(); const msg=`${sessLabel(a)} moved to ${DOW[(parseYmd(d.xsMoveto).getDay()+6)%7]}`; xsClose(); lastRenderKey=""; render(); toast(msg); return }
   if(d.xsPushweek){ const days=weekDays(SH.k).filter(x=>x>=SH.k&&!S.logs[x]), srcs=days.map(srcOf); days.forEach((x,i)=>setSrc(x,i===0?null:srcs[i-1])); saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Week pushed back a day"); return }
   if(d.xsResetweek){ const mv=S.profile.moves||{}; weekDays(SH.k).forEach(x=>{ if(!S.logs[x]) delete mv[x] }); saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Week reset to the plan"); return }
@@ -886,6 +928,7 @@ document.addEventListener("input",e=>{ const t=e.target, d=t.dataset||{};
   if(!SH) return;
   if(d.xsQ){ SH.q=t.value; paintPart(".xs-results"); return }
   if(d.xsCode){ SH.code=t.value; return }
+  if(d.xsPw){ SH.w=t.value; paintPart(".plate-out"); return }
   if(d.xsQty){ SH.pick.qty=t.value; paintPart(".macroline"); return }
   if(d.xsAmt){ SH.pick.amt=t.value; paintPart(".macroline"); return }
   if(d.xsNf){ SH.d[d.xsNf]=t.value; return }
@@ -900,9 +943,15 @@ document.addEventListener("change",e=>{ const t=e.target, d=t.dataset||{};
   if(d.cRname){ suMut(su=>{const r=su.routines.find(x=>x.id===d.cRname); r.name=t.value.trim().slice(0,40)||r.name}); return }
   if(d.cLo||d.cHi){ const [rid,i]=(d.cLo||d.cHi).split("|"); suMut(su=>{const x=su.routines.find(r=>r.id===rid).ex[+i]; const v=Math.max(1,Math.round(numIn(t.value))||1); if(d.cLo){x.lo=v; if(x.hi<v) x.hi=v} else {x.hi=v; if(x.lo>v) x.lo=v}}); return }
   if(d.cRest){ const [rid,i]=d.cRest.split("|"); suMut(su=>{su.routines.find(r=>r.id===rid).ex[+i].rest=Number(t.value)}); return }
+  if(d.xsBarw&&SH){ const u=UNIT(), v=Number(t.value); if(v>=0&&v<200){ const bars={...(userPrefs().bars||{})}; bars[u]={...(bars[u]||{}),[d.xsBarw]:v}; setPref({bars}); paintSheet() } return }
   if(d.acctTog){ setPref({[d.acctTog]:t.checked}); return }
   if(d.acctRhr){ const v=Math.round(numIn(t.value)); S.profile.restHr= v>=30&&v<=120? v : ""; saveProfile(); render(); return }
   if(d.cGoal){ suMut(su=>{su.food=su.food||{}; const v=Math.round(numIn(t.value)); su.food[d.cGoal]=v>0?v:undefined; if(d.cGoal==="kcal"&&v>0) su.kcal=v}); return }
   if(d.cGro){ S.profile.grocery={...(S.profile.grocery||{}),[d.cGro]:t.checked}; saveProfile(); t.closest(".mealrow")?.classList.toggle("eaten",t.checked); return }
 });
 document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&SH) xsClose() });
+// while typing a barbell weight, show the plates per side under that exercise (tap it for the full calculator)
+function plateHint(input){ const m=/^w-(.+)-(\d+)$/.exec(input.id||""); if(!m) return; const p=planFor(sel), ex=p&&p.ex&&p.ex.find(e=>e.id===m[1]); const box=document.getElementById("pl-"+m[1]);
+  if(!box||!ex) return; const txt=platesText(input.value,ex); box.innerHTML=txt?`<button type="button" class="plates-btn" data-plates="${esc(ex.id)}|${esc(input.value)}">${esc(txt)}</button>`:"" }
+document.addEventListener("focusin",e=>{ if(e.target&&/^w-/.test(e.target.id||"")) plateHint(e.target) });
+document.addEventListener("input",e=>{ if(e.target&&/^w-/.test(e.target.id||"")) plateHint(e.target) });
