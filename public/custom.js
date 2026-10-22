@@ -213,7 +213,7 @@ function usdaSection(q,localCount){ q=usdaKey(q); if(q.length<3) return localCou
   if(!r.list.length) return h+`<p class="small muted">No USDA matches. Try fewer words, or add it as a custom food.</p>`;
   return h+`<div class="xs-list">${r.list.map(f=>{const u=f.sv[0]||["100 g",100], m=macrosOf(f,u[1]); return `<button type="button" class="xs-item" data-xs-pickf="${f.id}"><span><b>${esc(f.n)}</b><span class="small muted num">${esc(u[0])} · ${fmtN(m.kcal)} kcal · ${Math.round(m.p)} g P</span></span><span class="xs-plus">+</span></button>`}).join("")}</div>`;
 }
-function keepUsda(f){ if(!f||f.src!=="usda") return; const K=kitchen(); K.usda=K.usda||[]; if(!K.usda.some(x=>x.id===f.id)){ K.usda.push({id:f.id,n:f.n,k:f.k,p:f.p,c:f.c,f:f.f,sv:f.sv,src:"usda"}); if(K.usda.length>300) K.usda.shift(); saveProfile() } }
+function keepUsda(f){ if(!f||(f.src!=="usda"&&f.src!=="off")) return; const K=kitchen(); K.usda=K.usda||[]; if(!K.usda.some(x=>x.id===f.id)){ K.usda.push({id:f.id,n:f.n,k:f.k,p:f.p,c:f.c,f:f.f,sv:f.sv,src:f.src}); if(K.usda.length>300) K.usda.shift(); saveProfile() } }
 function unitsOf(f){ return f.custom? [[f.serving||"1 serving",100]] : [...(f.sv||[]),["g",1],["oz",28.35],["lb",453.6]] }
 function gramsOf(f,amt,unit){ if(!f) return 0; const u=unitsOf(f).find(x=>x[0]===unit)||unitsOf(f)[0]; return (Number(amt)||0)*u[1] }
 function macrosOf(f,grams){ const m=grams/100; return {kcal:f.k*m,p:f.p*m,c:f.c*m,f:f.f*m} }
@@ -261,7 +261,7 @@ function loggedPlan(d){ const k=ymd(d), l=S.logs[k]; if(!l) return null; const w
 let SH=null; // {kind, ...state}
 function sheetEl(){ let el=document.getElementById("xsheet"); if(!el){ el=document.createElement("div"); el.id="xsheet"; el.hidden=true; el.innerHTML=`<div class="xs-back" data-xs="close"></div><div class="xs-panel" role="dialog" aria-modal="true"><div class="xs-in"></div></div>`; document.body.appendChild(el) } return el }
 function openSheet(state){ SH=state; const el=sheetEl(); el.hidden=false; document.body.classList.add("xs-open"); paintSheet(true) }
-function xsClose(){ SH=null; const el=document.getElementById("xsheet"); if(el) el.hidden=true; document.body.classList.remove("xs-open") }
+function xsClose(){ stopScan(); SH=null; const el=document.getElementById("xsheet"); if(el) el.hidden=true; document.body.classList.remove("xs-open") }
 function paintSheet(scrollTop){ if(!SH) return; const el=sheetEl(), inn=el.querySelector(".xs-in"); const focusSel=document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.xsFocus;
   inn.innerHTML=sheetHtml();
   if(scrollTop) el.querySelector(".xs-panel").scrollTop=0;
@@ -332,11 +332,12 @@ function diaryCard(d){
     h+=`<div class="slot"><div class="row between"><b>${sn}</b><span class="small muted num">${fmtN(st)} kcal</span></div>`;
     legacyItems(k).filter(x=>x.slot===sk).forEach(x=>{h+=`<div class="extra"><span>${esc(x.n)} <span class="muted small num">· ${fmtN(x.kcal)} kcal · ${Math.round(x.p||0)} g P</span></span></div>`});
     its.forEach(([x,i])=>{h+=`<div class="extra"><span>${esc(x.n)} <span class="muted small num">· ${esc(x.amt||"")} · ${fmtN(x.kcal)} kcal · ${Math.round(x.p||0)} g P</span></span><button type="button" data-c-fdel="${k}|${i}" aria-label="Remove ${esc(x.n)}">×</button></div>`});
-    h+=`<div class="row" style="gap:8px">${planned.length&&!its.some(([x])=>x.planned)?`<button type="button" class="link small" data-c-fplan="${k}|${sk}">+ Log planned ${sn.toLowerCase()}</button>`:""}<button type="button" class="link small" data-c-food="${k}|${sk}">+ Add</button></div></div>`});
+    const yk=ymd(addDays(parseYmd(k),-1)), yIts=((S.meals[yk]||{}).items||[]).filter(x=>x.slot===sk);
+    h+=`<div class="row" style="gap:8px;flex-wrap:wrap">${yIts.length&&!its.length?`<button type="button" class="link small" data-c-fcopy="${k}|${sk}">Copy yesterday (${fmtN(yIts.reduce((a,x)=>a+(+x.kcal||0),0))} kcal)</button>`:""}${planned.length&&!its.some(([x])=>x.planned)?`<button type="button" class="link small" data-c-fplan="${k}|${sk}">+ Log planned ${sn.toLowerCase()}</button>`:""}<button type="button" class="link small" data-c-food="${k}|${sk}">+ Add</button></div></div>`});
   return h+`</div>`;
 }
-function foodSheetHtml(){
-  const tabs=[["meals","My meals"],["foods","Foods"],["quick","Quick add"]], tab=SH.tab||"foods", slotName=(SLOTS.find(s=>s[0]===SH.slot)||[])[1];
+function foodSheetHtml(){ if(SH.view==="scan") return scanHtml();
+  const rec=recentFoods(), tabs=[["recent","Recent"],["meals","My meals"],["foods","Search"],["quick","Quick"]], tab=SH.tab||(rec.length?"recent":"foods"), slotName=(SLOTS.find(s=>s[0]===SH.slot)||[])[1];
   let h=`<div class="xs-head"><h2>${SH.mode==="plan"?"Add to plan":"Add food"}${slotName?` · ${slotName}`:""}</h2><button type="button" class="btn ghost sm" data-xs="close">Close</button></div>`;
   if(!SH.slot){ h+=`<div class="xs-chips">${SLOTS.map(([k,n])=>`<button type="button" data-xs-slot="${k}">${n}</button>`).join("")}</div><p class="small muted">Pick a meal first.</p>`; return h }
   if(SH.pick){ // amount step
@@ -348,11 +349,13 @@ function foodSheetHtml(){
     h+=`<p class="num macroline"><b>${fmtN(m.kcal)} kcal</b> · ${Math.round(m.p)} g protein · ${Math.round(m.c)} g carbs · ${Math.round(m.f)} g fat</p>
       <div class="row"><button type="button" class="btn" data-xs="fadd">${SH.mode==="plan"?"Add to plan":"Add to diary"}</button><button type="button" class="btn ghost" data-xs="fback">Back</button></div>`;
     return h }
-  h+=`<div class="seg three" style="margin-bottom:10px">${tabs.map(([k,n])=>`<button type="button" class="${tab===k?"on":""}" data-xs-tab="${k}">${n}</button>`).join("")}</div>`;
-  if(tab==="meals"){ const rs=kitchen().recipes;
+  h+=`<div class="seg four" style="margin-bottom:10px">${tabs.map(([k,n])=>`<button type="button" class="${tab===k?"on":""}" data-xs-tab="${k}">${n}</button>`).join("")}</div>`;
+  if(tab==="recent"){
+    h+= rec.length? `<div class="xs-list">${rec.map((r,i)=>`<button type="button" class="xs-item" data-xs-recent="${i}"><span><b>${esc(r.n)}</b><span class="small muted num">${esc(r.amt||"")} · ${fmtN(r.kcal)} kcal · ${Math.round(r.p||0)} g P${r.count>1?` · logged ${r.count}×`:""}</span></span><span class="xs-plus">+</span></button>`).join("")}</div>` : `<p class="small muted">Foods you log show up here for one-tap adding.</p>`;
+  } else if(tab==="meals"){ const rs=kitchen().recipes;
     h+= rs.length? `<div class="xs-list">${rs.map(r=>{const p=recipeTotals(r).per; return `<button type="button" class="xs-item" data-xs-pickr="${r.id}"><span><b>${esc(r.name)}</b><span class="small muted num">${fmtN(p.kcal)} kcal · ${Math.round(p.p)} g P per serving</span></span><span class="xs-plus">+</span></button>`}).join("")}</div>` : `<p class="small muted">No meals yet. Build one in Plan → Food → My meals.</p>`;
   } else if(tab==="foods"){ const q=(SH.q||"").toLowerCase().trim(); const list=foodDb().filter(f=>!q||f.n.toLowerCase().includes(q));
-    h+=`<input class="xs-search" type="search" placeholder="Search foods" value="${esc(SH.q||"")}" data-xs-q="1" data-xs-focus="q" autocomplete="off">
+    h+=`<div class="row" style="gap:8px;flex-wrap:nowrap"><input class="xs-search" type="search" placeholder="Search foods" value="${esc(SH.q||"")}" data-xs-q="1" data-xs-focus="q" autocomplete="off"><button type="button" class="btn ghost sm" data-xs="scan" style="flex-shrink:0">Scan</button></div>
       <div class="xs-results"><div class="xs-list">${list.map(f=>{const u=unitsOf(f)[0], m=macrosOf(f,u[1]); return `<button type="button" class="xs-item" data-xs-pickf="${f.id}"><span><b>${esc(f.n)}</b><span class="small muted num">${esc(u[0])} · ${fmtN(m.kcal)} kcal · ${Math.round(m.p)} g P${f.custom?" · custom":""}</span></span><span class="xs-plus">+</span></button>`}).join("")}</div>${usdaSection(SH.q,list.length)}</div>`;
   } else {
     h+=`<div class="field"><label>Name</label><input data-xs-quick="n" placeholder="e.g. Latte" data-xs-focus="qn"></div>
@@ -362,6 +365,33 @@ function foodSheetHtml(){
   }
   return h;
 }
+// Recent: distinct foods from the last 45 days of diary entries, newest first, with how often they were logged
+function recentFoods(){ const seen=new Map(), cut=ymd(addDays(today,-45));
+  Object.keys(S.meals||{}).filter(k=>k>=cut).sort().reverse().forEach(k=>(S.meals[k].items||[]).forEach(x=>{ const key=x.src?JSON.stringify(x.src):"q:"+x.n+":"+x.kcal;
+    if(seen.has(key)) seen.get(key).count++; else seen.set(key,{...x,count:1}) }));
+  return [...seen.values()].slice(0,40) }
+function scanHtml(){
+  return `<div class="xs-head"><h2>Scan a barcode</h2><button type="button" class="btn ghost sm" data-xs="scanback">Back</button></div>
+   <div id="scanbox" class="scanbox"><p class="small muted">${SH.scanErr?esc(SH.scanErr):"Starting camera…"}</p></div>
+   <div class="row" style="gap:8px;flex-wrap:nowrap"><input class="xs-search" inputmode="numeric" placeholder="Or type the barcode number" data-xs-code="1" value="${esc(SH.code||"")}" data-xs-focus="code"><button type="button" class="btn sm" data-xs="lookup" style="flex-shrink:0">Look up</button></div>
+   <p class="note" data-xs-err ${SH.lookErr?"":"hidden"}>${esc(SH.lookErr||"")}</p>
+   <p class="small muted">Nutrition from Open Food Facts. Check it against the label.</p>`;
+}
+let scanner=null, scanLoading=null;
+function loadScanLib(){ if(window.Html5Qrcode) return Promise.resolve(); if(scanLoading) return scanLoading;
+  scanLoading=new Promise((ok,no)=>{ const sc=document.createElement("script"); sc.src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"; sc.onload=ok; sc.onerror=()=>{scanLoading=null; no(new Error("load"))}; document.head.appendChild(sc) }); return scanLoading }
+async function startScan(){ try{ await loadScanLib(); if(!SH||SH.view!=="scan") return; const box=document.getElementById("scanbox"); if(!box) return; box.innerHTML="";
+    const F=window.Html5QrcodeSupportedFormats; scanner=new Html5Qrcode("scanbox",{verbose:false,formatsToSupport:F?[F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E]:undefined});
+    await scanner.start({facingMode:"environment"},{fps:10,qrbox:{width:260,height:140}},code=>{ stopScan(); SH.code=code; lookupCode(code) },()=>{});
+  }catch(e){ if(SH&&SH.view==="scan"){ SH.scanErr="Camera isn't available. Type the barcode number instead."; paintSheet() } } }
+function stopScan(){ const sc=scanner; scanner=null; if(sc){ try{ sc.stop().catch(()=>{}) }catch(e){} } }
+async function lookupCode(code){ code=String(code||"").replace(/\D/g,""); if(code.length<6){ SH.lookErr="Enter the full barcode number."; paintSheet(); return }
+  SH.lookErr="Looking up…"; paintSheet();
+  try{ const tok=window.appAuthToken? await window.appAuthToken() : null; const r=await fetch("/api/barcode?code="+code,{headers:tok?{authorization:"Bearer "+tok}:{}}); const j=await r.json().catch(()=>({}));
+    if(r.status===404){ SH.lookErr="Not found in Open Food Facts. Add it as a custom food from its label."; paintSheet(); return }
+    if(!r.ok||!j.food) throw 0; USDA.cache.set(j.food.id,j.food); keepUsda(j.food);
+    SH.view=null; SH.lookErr=""; SH.tab="foods"; SH.pick={t:"f",id:j.food.id,amt:1,unit:unitsOf(j.food)[0][0]}; paintSheet(true) }
+  catch(e){ SH.lookErr="Lookup isn't available right now."; paintSheet() } }
 function recipeHtml(){ const r=SH.r, T=recipeTotals(r);
   let h=`<div class="xs-head"><h2>${SH.isNew?"New meal":"Edit meal"}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>`;
   if(SH.adding){ const q=(SH.q||"").toLowerCase().trim(); const list=foodDb().filter(f=>!q||f.n.toLowerCase().includes(q));
@@ -655,11 +685,13 @@ document.addEventListener("click",e=>{
   if(d.cRnew){ suMut(su=>{const n=su.routines.length; const id=newId("r"); R_OPEN.add(id); su.routines.push({id,name:"Workout "+"ABCDEFGHIJ"[n%10],ex:[]})}); return }
   if(d.cTpl){ if(SH_CONFIRM!==d.cTpl){ SH_CONFIRM=d.cTpl; render(); return } SH_CONFIRM=""; suMut(su=>{const x=splitToSetup(d.cTpl); su.routines=x.routines; const runs=su.week.map((w,i)=>w==="run"?i:-1).filter(i=>i>=0); su.week=x.week.map((w,i)=>w==="rest"&&runs.includes(i)?"run":w)}); toast("Routines replaced"); return }
   // --- food (home diary + plan)
-  if(d.cFood!=null){ const [k,slot]=d.cFood.split("|"); openSheet({kind:"food",mode:"diary",k,slot,tab:"foods",q:""}); return }
+  if(d.cFood!=null){ const [k,slot]=d.cFood.split("|"); openSheet({kind:"food",mode:"diary",k,slot,q:""}); return }
   if(d.cFdel){ const [k,i]=d.cFdel.split("|"); const m=S.meals[k]; if(!m) return; m.items=(m.items||[]).filter((_,j)=>j!==+i); saveMeals(k); lastRenderKey=""; render(); return }
   if(d.cFplan){ const [k,sk]=d.cFplan.split("|"); const m=S.meals[k]||(S.meals[k]={eaten:{},extras:[]}); m.items=m.items||[];
     (kitchen().plan[sk]||[]).forEach(e=>{const M=entryMacros(e); if(M) m.items.push({slot:sk,n:M.name,amt:M.amount,kcal:Math.round(M.m.kcal),p:+M.m.p.toFixed(1),c:+M.m.c.toFixed(1),f:+M.m.f.toFixed(1),src:e,planned:true})});
     saveMeals(k); lastRenderKey=""; render(); toast("Logged"); return }
+  if(d.cFcopy){ const [k,sk]=d.cFcopy.split("|"), yk=ymd(addDays(parseYmd(k),-1)), m=S.meals[k]||(S.meals[k]={eaten:{},extras:[]}); m.items=m.items||[];
+    ((S.meals[yk]||{}).items||[]).filter(x=>x.slot===sk).forEach(x=>{ const {planned,...rest}=x; m.items.push({...rest}) }); saveMeals(k); lastRenderKey=""; render(); toast("Copied from yesterday"); return }
   if(d.cPadd){ openSheet({kind:"food",mode:"plan",slot:d.cPadd,tab:"meals",q:""}); return }
   if(d.cPrm){ const [sk,i]=d.cPrm.split("|"); kitchen().plan[sk].splice(+i,1); commitPlan(); return }
   if(d.cRec!=null){ const r=d.cRec? kitchen().recipes.find(x=>x.id===d.cRec) : null; openSheet({kind:"recipe",isNew:!r,r:r?JSON.parse(JSON.stringify(r)):{id:newId("rc"),name:"",servings:4,items:[]}}); return }
@@ -688,6 +720,13 @@ document.addEventListener("click",e=>{
     if(SH.back==="swap"){ S.profile.customEx=S.profile.customEx||[]; S.profile.customEx.push({id,name:x.name.trim().slice(0,60),muscle:x.muscle,equip:x.equip,type:x.type}); saveProfile(); SH.kind="swap"; SH.to=id; paintSheet(true); return }
     suMut(su=>{su.customEx=su.customEx||[]; su.customEx.push({id,name:x.name.trim().slice(0,60),muscle:x.muscle,equip:x.equip,type:x.type}); su.routines.find(r=>r.id===SH.rid).ex.push({id,sets:3,lo:x.type==="t"?30:8,hi:x.type==="t"?60:12,rest:90})});
     SH.kind="exPick"; paintSheet(true); toast("Exercise added"); return }
+  if(d.xsRecent!=null){ const r=recentFoods()[+d.xsRecent]; if(!r) return;
+    if(r.src&&(r.src.t==="r"||r.src.t==="f")&&(r.src.t==="r"?kitchen().recipes.some(x=>x.id===r.src.id):foodById(r.src.id))){ SH.pick=r.src.t==="r"?{t:"r",id:r.src.id,qty:r.src.qty}:{t:"f",id:r.src.id,amt:r.src.amt,unit:r.src.unit}; paintSheet(true); return }
+    if(SH.mode==="plan"){ toast("Quick-add entries can't go in the plan"); return }
+    const m=S.meals[SH.k]||(S.meals[SH.k]={eaten:{},extras:[]}); m.items=m.items||[]; const {count,planned,...x}=r; m.items.push({...x,slot:SH.slot}); saveMeals(SH.k); xsClose(); lastRenderKey=""; render(); toast("Added"); return }
+  if(d.xs==="scan"){ SH.view="scan"; SH.scanErr=""; SH.lookErr=""; paintSheet(true); startScan(); return }
+  if(d.xs==="scanback"){ stopScan(); SH.view=null; paintSheet(true); return }
+  if(d.xs==="lookup"){ stopScan(); const inp=document.querySelector("[data-xs-code]"); lookupCode(inp?inp.value:SH.code); return }
   if(d.xsPickr){ SH.pick={t:"r",id:d.xsPickr,qty:1}; paintSheet(true); return }
   if(d.xsPickf){ const f=foodById(d.xsPickf); keepUsda(f); SH.pick={t:"f",id:f.id,amt:1,unit:unitsOf(f)[0][0]}; paintSheet(true); return }
   if(d.xs==="fback"){ SH.pick=null; paintSheet(true); return }
@@ -718,6 +757,7 @@ document.addEventListener("click",e=>{
 document.addEventListener("input",e=>{ const t=e.target, d=t.dataset||{};
   if(!SH) return;
   if(d.xsQ){ SH.q=t.value; paintPart(".xs-results"); return }
+  if(d.xsCode){ SH.code=t.value; return }
   if(d.xsQty){ SH.pick.qty=t.value; paintPart(".macroline"); return }
   if(d.xsAmt){ SH.pick.amt=t.value; paintPart(".macroline"); return }
   if(d.xsNf){ SH.d[d.xsNf]=t.value; return }
