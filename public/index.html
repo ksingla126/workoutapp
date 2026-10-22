@@ -475,6 +475,19 @@ body.xs-open{overflow:hidden}
 .swapfrom{display:flex;align-items:center;gap:8px;font-weight:600}
 .swapopt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
 .swapopt span{font-size:13px;color:var(--muted)}
+
+.gymcard .exhead{display:flex;align-items:center;flex-wrap:wrap;gap:2px}
+.exname{border:0;background:none;padding:0;font:700 16px var(--body);color:var(--ink);text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.exmeta{margin:2px 0 4px;flex-wrap:wrap;gap:6px}
+.cnote .tgt{margin-left:auto;font:700 13px var(--body);color:var(--gym);letter-spacing:0;text-transform:none}
+details.tip summary{font-size:12px;color:var(--muted);cursor:pointer}
+.setno{width:28px;height:28px;border-radius:7px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:700 13px var(--body);padding:0;cursor:pointer;flex-shrink:0}
+.setno.w{background:var(--coach-soft);color:var(--coach);border-color:var(--coach)}.setno.d{background:var(--run-soft);color:var(--run);border-color:var(--run)}
+.setbtns{gap:14px;margin-top:4px}
+.rex.inss{border-left:3px solid var(--gym);padding-left:8px}
+.rex-act button.on{background:var(--gym);color:#fff;border-color:var(--gym)}
+.ssgroup{border-left:3px solid var(--gym);padding-left:10px;display:flex;flex-direction:column;gap:12px;margin:2px 0}
+.sslabel{font-size:12px;font-weight:700;color:var(--gym);text-transform:uppercase;letter-spacing:.04em}
 </style>
 <script src="/look.js"></script>
 </head>
@@ -749,8 +762,8 @@ async function boot(){
 
 /* ---------- Progressive overload ---------- */
 function exHistory(exId, beforeKey){
-  return Object.entries(S.logs).filter(([k,l])=>l.type==="gym" && k<beforeKey && l.ex && l.ex[exId] && l.ex[exId].length)
-    .sort((a,b)=>a[0]<b[0]?1:-1).map(([k,l])=>({k,sets:l.ex[exId]}));
+  return Object.entries(S.logs).filter(([k,l])=>l.type==="gym" && k<beforeKey && l.ex && WS(l.ex[exId]).length)
+    .sort((a,b)=>a[0]<b[0]?1:-1).map(([k,l])=>({k,sets:WS(l.ex[exId])}));
 }
 function targetFor(ex, key){
   if(ex.fixed) return {w:null,reps:Array(ex.sets).fill(ex.lo),msg:`${ex.sets} rounds × ${ex.lo>=60?ex.lo/60+" min":ex.lo+" s"}, ${ex.rest} s rest. Format steps up every 2 weeks.`};
@@ -773,6 +786,7 @@ function targetFor(ex, key){
   return {w,reps,last:lastTxt,msg:"Same weight, beat last time by a rep"};
 }
 const e1rm=(w,r)=>w*(1+r/30);
+const WS=a=>(a||[]).filter(x=>x&&x.t!=="w"); // working sets: warm-ups never count toward progress, PRs or standings
 
 /* ---------- Food math ---------- */
 function dayEaten(k){
@@ -795,7 +809,7 @@ let lastRenderKey="";
 function render(fromStore){
   const key=tab+"|"+ymd(sel);
   const typing=document.activeElement && document.activeElement.closest && document.activeElement.closest("#view") && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
-  if(fromStore && key===lastRenderKey && (typing || (tab==="home" && document.querySelector("#trainLog[open]")))){ renderTop(); renderTabs(); return }
+  if(fromStore && key===lastRenderKey && (typing || (tab==="home" && document.querySelector("#trainLog[open]")) || (tab==="home" && hasDraft(ymd(sel),TRAIN_RE)))){ renderTop(); renderTabs(); return }
   if(fromStore && tab==="advice" && key===lastRenderKey && (sending||typing)){ renderTop(); renderTabs(); return }
   const openLogger=!!document.querySelector("#trainLog[open]") && key===lastRenderKey;
   if(TM.start&&S.logs[TM.date]) stopWorkout(); // a logged workout can only be edited, not run live
@@ -868,36 +882,23 @@ function trainingCard(p,k,log,openLogger){
   if(p.type==="rest") return `<div class="card"><div class="row between"><h2>Rest day</h2><span class="chip">Recovery</span></div><p>Walk 20–30 minutes if you feel like it, stretch hips and calves, and do Sunday meal prep (Plan → Food).</p>${mondayWeighIn()}</div>`;
   if(p.type==="gym"&&!(p.ex&&p.ex.length)) return `<div class="card"><div class="eyebrow">Gym</div><h2>${esc(p.name)}</h2><p>This routine has no exercises yet.</p><button type="button" class="btn sm" data-c-gotoplan="1">Add exercises</button></div>`;
   if(p.type==="gym"){
-    let h=`<div class="card"><div class="row between"><div><div class="eyebrow">Gym · ~${CUSTOM?estMin(p.ex):"55–60"} min</div><h2>${esc(p.name)}</h2></div>${log?`<span class="chip gym">Logged ✓${log.durMin?` · ${Math.round(log.durMin)} min`:""}</span>`:""}</div>`;
-    h+=timerBox(k);
-    h+=`<div class="exlist">${p.ex.map(ex=>{const t=finalTarget(ex,k), db=dbNow(ex.id,log); return `<div><span>${esc(ex.name)}${swapBtn(ex,log)}</span><span>${ex.fixed?`${ex.sets} × ${ex.lo}s`:t.first?`${ex.sets}×${ex.lo}${ex.bw?"s":""} · find start`:t.w?`${t.w}${db?"/DB":""} × ${t.reps.join(",")}`:t.reps.map(r=>r+"s").join(",")}</span></div>`}).join("")}</div>`;
-    h+=`<details class="logger" id="trainLog" ${openLogger?"open":""}><summary>${hasDraft(k,TRAIN_RE)?"Unsaved entries · tap to finish":log?"View / edit logged sets":"Log this workout"}</summary><div style="margin-top:12px">`;
-    h+=`<p class="small muted" style="margin-bottom:10px">Warm up 8 min plus 2 light ramp-up sets on the first lift. Rest 2–3 min on big lifts, 60–90 s on the rest, 60 s on arms.</p>`;
+    let h=`<div class="card gymcard"><div class="row between"><div><div class="eyebrow">Gym · ~${CUSTOM?estMin(p.ex):"55–60"} min</div><h2>${esc(p.name)}</h2></div>${log?`<span class="chip gym">Logged ✓${log.durMin?` · ${Math.round(log.durMin)} min`:""}</span>`:""}</div>`;
+    h+=timerBox(k)+dayMenu(p,k,log);
     h+=lastSessionNote(p,k);
-    if(overBusy[k]) h+=`<p class="small" style="margin-bottom:10px"><span class="pulse"></span> Your coach is reviewing last session to set today's targets…</p>`;
-    p.ex.forEach(ex=>{
-      const t=finalTarget(ex,k), cur=log&&log.ex&&log.ex[ex.id];
-      const db=dbNow(ex.id,log);
-      h+=`<div class="ex"><div class="row between"><span class="name">${esc(ex.name)}${swapBtn(ex,log)}</span><span class="row" style="gap:8px">${DBCFG[ex.id]?`<label class="dbt ${db?"on":""}"><input type="checkbox" data-db="${ex.id}" ${db?"checked":""}>Dumbbells</label>`:""}<span class="small muted num">${ex.sets} × ${ex.lo===ex.hi?ex.lo:ex.lo+"–"+ex.hi}${ex.bw?" s":""} · rest ${fmtClock(restFor(ex.id)*1000)}</span></span></div>`;
-      if(db) h+=`<div class="dbnote" id="dbn-${ex.id}"></div>`;
-      h+=prevLine(ex,k);
-      h+= t.first? `<div class="target first">${esc(t.msg)}</div>`
-        : `<div class="target ${t.stall?"stall":""}">Today: ${t.w?`${t.w} lb${db?" per dumbbell":""} × ${t.reps.join(", ")}`:t.reps.map(r=>r+"s").join(", ")}</div>
-           <div class="cnote ${t.coach?"":"rule"}"><div class="ch"><span class="who">${t.coach?"Coach":"Target"}</span>${t.mode?`<span class="mode ${t.mode}">${MODE_LABEL[t.mode]||""}</span>`:""}</div><span>${esc(t.msg)}</span></div>`;
-      if(ex.alt) h+=`<div class="small muted">${esc(ex.alt)}</div>`;
-      h+=`<div class="sets">`;
-      for(let i=0;i<ex.sets;i++){
-        const sw=cur&&cur[i]?cur[i].w:(t.w??""), sr=cur&&cur[i]?cur[i].r:(t.first?"":t.reps[i]);
-        const dk=draftKey(`c-${ex.id}-${i}`), done = (dk in drafts)? !!drafts[dk] : !!(cur&&cur[i]);
-        const chk=`<button type="button" class="chk ${done?"on":""}" data-chk="${ex.id}|${i}" aria-pressed="${done}" aria-label="Mark ${esc(ex.name)} set ${i+1} done">✓</button>`;
-        h+=ex.bw? `<div class="set ${done?"done":""}" id="set-${ex.id}-${i}"><b>${i+1}</b><input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} seconds" value="${esc(sr)}" placeholder="${t.reps[i]}"><span>sec</span>${chk}</div>`
-          : `<div class="set ${done?"done":""}" id="set-${ex.id}-${i}"><b>${i+1}</b><input id="w-${ex.id}-${i}" inputmode="decimal" aria-label="${esc(ex.name)} set ${i+1} weight" value="${esc(sw)}" placeholder="${ex.optW?"+lb":db?"lb/DB":"lb"}"><span>×</span><input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} reps" value="${esc(sr)}" placeholder="${t.reps[i]}">${chk}</div>`;
-      }
-      h+=`</div></div>`;
-    });
+    if(overBusy[k]) h+=`<p class="small"><span class="pulse"></span> Your coach is reviewing last session to set today's targets…</p>`;
+    // exercises, grouped into supersets
+    let gi=0, ssN=0;
+    while(gi<p.ex.length){
+      const grp=[p.ex[gi]]; if(p.ex[gi].ss){ while(gi+grp.length<p.ex.length&&p.ex[gi+grp.length].ss===p.ex[gi].ss) grp.push(p.ex[gi+grp.length]) }
+      if(grp.length>1){ ssN++; h+=`<div class="ssgroup"><div class="sslabel">Superset ${String.fromCharCode(64+ssN)} · alternate sets, rest after the last one</div>` }
+      grp.forEach(ex=>{ h+=exerciseBlock(ex,k,log) });
+      if(grp.length>1) h+=`</div>`;
+      gi+=grp.length;
+    }
+    if(!log) h+=`<button type="button" class="btn ghost sm" data-addex="${k}" style="align-self:flex-start">+ Add exercise</button>`;
     h+=`<div class="stack" style="gap:10px;margin-top:6px"><div class="field"><label for="gnotes">Notes</label><textarea id="gnotes" placeholder="How it felt, pain, swaps…">${esc(log?.notes||"")}</textarea></div>
       <div class="row"><button class="btn" id="saveGym">${log?"Update session":"Save session"}</button>${log?'<button class="btn ghost" id="delLog">Clear log</button>':""}</div>
-      </div></div></details>${mondayWeighIn()}</div>`;
+      ${log?`<button type="button" class="btn ghost sm" data-share="${k}" style="align-self:flex-start">Share workout</button>`:""}</div>${mondayWeighIn()}</div>`;
     return h;
   }
   const prevKey=(()=>{const want=p.key; return Object.keys(S.logs).filter(kk=>kk<k&&S.logs[kk].type==="run"&&S.logs[kk].key===want).sort().pop()})(), prev=prevKey?S.logs[prevKey]:null;
@@ -917,6 +918,31 @@ function trainingCard(p,k,log,openLogger){
     <div class="row between"><div><div class="eyebrow">Pace</div><div class="pace num" id="pace">–</div></div>${TM.start&&TM.date===k?'<button class="btn ghost sm" id="fillTime">Use timer time</button>':""}</div>
     <div class="field"><label for="rnotes">Notes</label><textarea id="rnotes" placeholder="Weather, legs, anything hurt…">${esc(log?.notes||"")}</textarea></div>
     <div class="row"><button class="btn" id="saveRun">${log?"Update run":"Save run"}</button>${log?'<button class="btn ghost" id="delLog">Clear log</button>':""}</div></div></details>${log&&log.st?ranBlock(k,log):""}${log?`<button class="btn ghost sm" data-openrun="${k}" style="align-self:flex-start">Full breakdown ›</button>`:""}</div>`;
+}
+function setCount(ex,k){ const l=S.logs[k], cur=l&&l.ex&&l.ex[ex.id]; return Math.max(ex.sets, cur?cur.length:0)+(Number(drafts[dkey(k,`xs-${ex.id}`)])||0) }
+function setTypeK(k,id,i){ const v=drafts[dkey(k,`st-${id}-${i}`)]; if(v!==undefined) return v||""; const l=S.logs[k], c=l&&l.ex&&l.ex[id]&&l.ex[id][i]; return (c&&c.t)||"" }
+function exerciseBlock(ex,k,log){
+  const t=finalTarget(ex,k), cur=log&&log.ex&&log.ex[ex.id], db=dbNow(ex.id,log), n=setCount(ex,k), extra=Number(drafts[dkey(k,`xs-${ex.id}`)])||0;
+  let h=`<div class="ex"><div class="exhead"><button type="button" class="exname" data-exhist="${esc(ex.id)}">${esc(ex.name)}</button>${swapBtn(ex,log)}${ex.added&&!log?`<span class="swapped">added<button type="button" data-addrm="${esc(ex.id)}">remove</button></span>`:""}</div>
+    <div class="row between exmeta"><span class="small muted num">${ex.sets} × ${ex.lo===ex.hi?ex.lo:ex.lo+"–"+ex.hi}${ex.bw?" s":""} · rest ${fmtClock(restFor(ex.id)*1000)}</span>${DBCFG[ex.id]?`<label class="dbt ${db?"on":""}"><input type="checkbox" data-db="${ex.id}" ${db?"checked":""}>Dumbbells</label>`:""}</div>`;
+  if(db) h+=`<div class="dbnote" id="dbn-${ex.id}"></div>`;
+  h+=prevLine(ex,k);
+  if(!ex.fixed) h+= t.first? `<div class="target first">${esc(t.msg)}</div>`
+    : `<div class="cnote ${t.coach?"":"rule"}"><div class="ch"><span class="who">${t.coach?"Coach":"Target"}</span>${t.mode?`<span class="mode ${t.mode}">${MODE_LABEL[t.mode]||""}</span>`:""}<span class="tgt num">${t.w?`${t.w} lb${db?"/DB":""} × ${t.reps.join(", ")}`:t.reps.map(r=>r+"s").join(", ")}</span></div><span>${esc(t.msg)}</span></div>`;
+  if(ex.alt) h+=`<details class="tip"><summary>Form tip</summary><div class="small muted">${esc(ex.alt)}</div></details>`;
+  h+=`<div class="sets">`;
+  for(let i=0;i<n;i++){
+    const sw=cur&&cur[i]?cur[i].w:(t.w??""), sr=cur&&cur[i]?cur[i].r:(t.first?"":(t.reps[i]??""));
+    const dk=draftKey(`c-${ex.id}-${i}`), done=(dk in drafts)? !!drafts[dk] : !!(cur&&cur[i]), ty=setTypeK(k,ex.id,i);
+    const lab=ty==="w"?"W":ty==="d"?"D":String(i+1);
+    const num=`<button type="button" class="setno ${ty}" data-settype="${ex.id}|${i}" aria-label="Set ${i+1} type: ${ty==="w"?"warm-up":ty==="d"?"drop set":"normal"}. Tap to change">${lab}</button>`;
+    const chk=`<button type="button" class="chk ${done?"on":""}" data-chk="${ex.id}|${i}" aria-pressed="${done}" aria-label="Mark ${esc(ex.name)} set ${i+1} done">✓</button>`;
+    h+=ex.bw? `<div class="set ${done?"done":""}" id="set-${ex.id}-${i}">${num}<input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} seconds" value="${esc(sr)}" placeholder="${t.reps[i]??ex.lo}"><span>sec</span>${chk}</div>`
+      : `<div class="set ${done?"done":""}" id="set-${ex.id}-${i}">${num}<input id="w-${ex.id}-${i}" inputmode="decimal" aria-label="${esc(ex.name)} set ${i+1} weight" value="${esc(sw)}" placeholder="${ex.optW?"+lb":db?"lb/DB":"lb"}"><span>×</span><input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} reps" value="${esc(sr)}" placeholder="${t.reps[i]??ex.lo}">${chk}</div>`;
+  }
+  h+=`</div>`;
+  if(!ex.fixed) h+=`<div class="row setbtns"><button type="button" class="link small" data-addset="${ex.id}">+ Add set</button>${extra>0?`<button type="button" class="link small" data-rmset="${ex.id}">− Remove set</button>`:""}</div>`;
+  return h+`</div>`;
 }
 function mondayWeighIn(){
   const k=ymd(sel); if(dowOf(sel)!==0 || k!==ymd(today)) return "";
@@ -1020,8 +1046,8 @@ function lineChart(pts,color,fmt,invert){
   return s+`</svg>`;
 }
 function liftSeries(id){
-  return Object.entries(S.logs).filter(([k,l])=>l.type==="gym"&&l.ex&&l.ex[id]&&l.ex[id].length).sort((a,b)=>a[0]<b[0]?-1:1)
-    .map(([k,l])=>{const best=Math.max(...l.ex[id].map(s=>e1rm(loadW(id,l,s.w),Number(s.r)||0)));const top=l.ex[id].reduce((m,s)=>loadW(id,l,s.w)>m?loadW(id,l,s.w):m,0);return {x:fmtShort(parseYmd(k)),y:best,top,k}}).filter(p=>p.y>0);
+  return Object.entries(S.logs).filter(([k,l])=>l.type==="gym"&&l.ex&&WS(l.ex[id]).length).sort((a,b)=>a[0]<b[0]?-1:1)
+    .map(([k,l])=>{const best=Math.max(...WS(l.ex[id]).map(s=>e1rm(loadW(id,l,s.w),Number(s.r)||0)));const top=WS(l.ex[id]).reduce((m,s)=>loadW(id,l,s.w)>m?loadW(id,l,s.w):m,0);return {x:fmtShort(parseYmd(k)),y:best,top,k}}).filter(p=>p.y>0);
 }
 
 /* ----- Progress ----- */
@@ -1033,7 +1059,7 @@ function viewProgress(){
   for(let w=1;w<=cw;w++){
     const mon=monOf(w); let gym=0,runs=0,mi=0,long=null,easy=null,vol=0;
     for(let i=0;i<7;i++){const k=ymd(addDays(mon,i)),l=S.logs[k]; if(!l) continue;
-      if(l.type==="gym"){gym++; Object.entries(l.ex||{}).forEach(([id,sets])=>sets.forEach(s=>vol+=loadW(id,l,s.w)*(Number(s.r)||0)))}
+      if(l.type==="gym"){gym++; Object.entries(l.ex||{}).forEach(([id,sets])=>WS(sets).forEach(s=>vol+=loadW(id,l,s.w)*(Number(s.r)||0)))}
       if(l.type==="run"){runs++; mi+=Number(l.mi)||0; if(l.key==="sat") long=Number(l.mi)||null; if(l.key==="tue"&&l.mi&&l.min) easy=l.min/l.mi}}
     const f=weekFood(w);
     rows.push({w,gym,runs,mi,long,easy,vol,kcal:f.eaten,ktarget:f.target,klog:f.daysLogged});
@@ -1293,7 +1319,7 @@ function clearDrafts(dateKey,re){Object.keys(drafts).forEach(k=>{const i=k.index
 const viewEl=document.getElementById("view");
 viewEl.addEventListener("input",e=>{const el=e.target; if(!el.id||el.type==="checkbox"||el.type==="file"||NO_DRAFT.has(el.id)) return; drafts[draftKey(el.id)]=el.value; persistDrafts()});
 viewEl.addEventListener("toggle",e=>{const d=e.target; if(d.tagName==="DETAILS"&&d.id){drafts[draftKey("open-"+d.id)]=d.open; persistDrafts()}},true);
-const TRAIN_RE=/^(w-|r-|c-|gnotes$|rmi$|rtime$|rrpe$|rnotes$|open-trainLog$|strava$)/;
+const TRAIN_RE=/^(w-|r-|c-|xs-|st-|gnotes$|rmi$|rtime$|rrpe$|rnotes$|open-trainLog$|strava$)/;
 
 /* ---------- Workout + rest timers (survive tab switches and reloads) ---------- */
 let TM={start:0,date:"",restEnd:0,restDur:0};
@@ -1312,9 +1338,9 @@ function startRest(sec){if(!TM.start) return; unlockAudio(); TM.restDur=sec; TM.
 function timerBox(k){
   if(S.logs[k]) return `<div class="timerbox"><div><div class="eyebrow">Logged ✓</div><div class="small muted">Edit below and tap Update session. To do it live again, clear the log first.</div></div></div>`;
   const running=TM.start&&TM.date===k, other=TM.start&&TM.date!==k;
-  if(running) return `<div class="timerbox"><div><div class="eyebrow">Workout running</div><div class="big num" id="tmWork2">${fmtClock(Date.now()-TM.start)}</div></div><button class="btn ghost sm" id="tmEnd">End without saving</button></div>`;
+  if(running) return `<div class="timerbox"><div><div class="eyebrow">Workout running</div><div class="big num" id="tmWork2">${fmtClock(Date.now()-TM.start)}</div></div><div class="row" style="gap:8px"><button class="btn sm" type="button" data-openlive="1">Live view</button><button class="btn ghost sm" id="tmEnd">End</button></div></div>`;
   if(k!==ymd(today)) return "";
-  return `<div class="timerbox"><div><div class="eyebrow">Timer</div><div class="small muted">${other?"A workout from another day is still running.":"Starts the clock. Ticking a set starts your rest."}</div></div><button class="btn sm" id="tmStart">${other?"Restart for today":"Start workout"}</button></div>`;
+  return `<div class="timerbox"><div><div class="eyebrow">Timer</div><div class="small muted">${other?"A workout from another day is still running.":"Opens the live view: one set at a time with rest timers. You can also tick sets below."}</div></div><button class="btn sm" id="tmStart">${other?"Restart for today":"Start workout"}</button></div>`;
 }
 function tick(){
   const bar=$("#timerBar"); if(!bar) return;
@@ -1335,7 +1361,12 @@ let liveOpen=false, liveState="";
 const dkey=(k,id)=>k+"|"+id;
 function liveCtx(){ if(!TM.start||S.logs[TM.date]) return null; const k=TM.date, p=planFor(parseYmd(k)); return p&&p.type!=="rest"?{k,p}:null }
 function setDoneK(k,exId,i){ const v=drafts[dkey(k,`c-${exId}-${i}`)]; if(v!==undefined) return !!v; const l=S.logs[k]; return !!(l&&l.ex&&l.ex[exId]&&l.ex[exId][i]) }
-function gymSteps(k,p){ const out=[]; p.ex.forEach(ex=>{ const t=finalTarget(ex,k); for(let i=0;i<ex.sets;i++) out.push({ex,i,t,done:setDoneK(k,ex.id,i)}) }); return out }
+function gymSteps(k,p){ const out=[], ex=p.ex; let gi=0;
+  while(gi<ex.length){ const g=[ex[gi]]; if(ex[gi].ss){ while(gi+g.length<ex.length&&ex[gi+g.length].ss===ex[gi].ss) g.push(ex[gi+g.length]) }
+    const T=g.map(e=>finalTarget(e,k)), N=g.map(e=>setCount(e,k)), n=Math.max(...N);
+    for(let s2=0;s2<n;s2++) g.forEach((e,j)=>{ if(s2<N[j]) out.push({ex:e,i:s2,t:T[j],n:N[j],done:setDoneK(k,e.id,s2),inSS:g.length>1,ssLast:g.slice(j+1).every((e2,jj)=>s2>=N[j+1+jj])}) });
+    gi+=g.length }
+  return out }
 function setValsK(k,st){ const l=S.logs[k], cur=l&&l.ex&&l.ex[st.ex.id]&&l.ex[st.ex.id][st.i];
   const w=drafts[dkey(k,`w-${st.ex.id}-${st.i}`)] ?? (cur?cur.w:(st.t.w??"")); const r=drafts[dkey(k,`r-${st.ex.id}-${st.i}`)] ?? (cur?cur.r:(st.t.first?"":st.t.reps[st.i]));
   let ww=w??""; if(ww===""&&st.i>0){ for(let j=st.i-1;j>=0;j--){ const pw=drafts[dkey(k,`w-${st.ex.id}-${j}`)]; if(pw){ww=pw;break} } }
@@ -1361,18 +1392,18 @@ function renderLive(){
       if(resting||justDone){
         main=`<div class="lv-main ${resting?"rest":"go"}"><div class="lv-label">${resting?"Rest":"Rest over"}</div><div class="lv-clock" id="lvRest">${resting?fmtClock(TM.restEnd-now):"Go"}</div><div class="lv-ring"><i id="lvRestFill"></i></div>
           <div class="row lv-btns">${resting?`<button class="btn ghost" id="lvPlus">+30 s</button><button class="btn ghost" id="lvSkip">Skip rest</button>`:`<button class="btn lv-cta" id="lvStart" style="background:#fff;color:var(--food);border-color:#fff">Start set</button>`}</div></div>`;
-        next=`<div class="lv-next"><span class="lv-label">Up next</span><span class="nm">${esc(cur.ex.name)}</span><span class="num">Set ${cur.i+1} of ${cur.ex.sets} · ${esc(tgt)}</span></div>`;
+        next=`<div class="lv-next"><span class="lv-label">Up next</span><span class="nm">${esc(cur.ex.name)}</span><span class="num">Set ${cur.i+1} of ${cur.n} · ${esc(tgt)}</span></div>`;
       } else {
-        main=`<div class="lv-main"><div class="lv-label">Set ${cur.i+1} of ${cur.ex.sets}</div><div class="lv-ex">${esc(cur.ex.name)}</div>
+        main=`<div class="lv-main"><div class="lv-label">${cur.inSS?"Superset · ":""}Set ${cur.i+1} of ${cur.n}</div><div class="lv-ex">${esc(cur.ex.name)}</div>
           <div class="lv-inputs">${cur.ex.bw?"":`<label><input id="lvW" inputmode="decimal" value="${esc(v.w)}" placeholder="lb" aria-label="Weight"><span>${db?"lb per dumbbell":"lb"}</span></label><b>×</b>`}<label><input id="lvR" inputmode="numeric" value="${esc(v.r)}" placeholder="${cur.ex.lo}" aria-label="${unit}"><span>${unit}</span></label></div>
           <p class="small lv-note">${esc(cur.t.first?cur.t.msg:(cur.t.coach?"Coach: ":"")+cur.t.msg)}</p>
           <button class="btn lv-cta" id="lvDone">Set done ✓</button></div>`;
         const nx=steps[idx+1];
-        next= nx? `<div class="lv-next"><span class="lv-label">Then</span><span class="nm">Rest ${fmtClock(restFor(cur.ex.id)*1000)}</span><span>→ ${nx.ex.id===cur.ex.id?`${esc(cur.ex.name)}, set ${nx.i+1}`:`${esc(nx.ex.name)}, set 1`}</span></div>`
+        next= nx? `<div class="lv-next"><span class="lv-label">Then</span><span class="nm">${cur.inSS&&!cur.ssLast?"No rest, straight to":"Rest "+fmtClock(restFor(cur.ex.id)*1000)}</span><span>→ ${nx.ex.id===cur.ex.id?`${esc(cur.ex.name)}, set ${nx.i+1}`:`${esc(nx.ex.name)}, set 1`}</span></div>`
                 : `<div class="lv-next"><span class="lv-label">Then</span><span class="nm">Last set</span><span>Then review and save your workout.</span></div>`;
       }
     }
-    list=`<div class="lv-list">${p.ex.map(ex=>{const n=steps.filter(x=>x.ex.id===ex.id&&x.done).length; return `<div class="${n===ex.sets?"done":""} ${cur&&cur.ex.id===ex.id?"cur":""}"><span>${esc(ex.name)}</span><span class="num">${n}/${ex.sets}</span></div>`}).join("")}</div>`;
+    list=`<div class="lv-list">${p.ex.map(ex=>{const n=steps.filter(x=>x.ex.id===ex.id&&x.done).length, tot=steps.filter(x=>x.ex.id===ex.id).length; return `<div class="${n===tot?"done":""} ${cur&&cur.ex.id===ex.id?"cur":""}"><span>${esc(ex.name)}</span><span class="num">${n}/${tot}</span></div>`}).join("")}</div>`;
     top=top.replace('<div class="small muted" id="lvProg"></div>',`<div class="small muted" id="lvProg">${doneN}/${steps.length} sets</div>`);
   } else {
     liveState="run";
@@ -1403,7 +1434,7 @@ function bindLive(k,p){
     if(!(Number(r)>0) || (!cur.ex.bw && !(Number(w)>0) && !cur.ex.optW)){ toast(cur.ex.bw?"Enter the seconds you held":"Enter the weight and reps you did"); return }
     if(!cur.ex.bw) drafts[dkey(k,`w-${cur.ex.id}-${cur.i}`)]=w;
     drafts[dkey(k,`r-${cur.ex.id}-${cur.i}`)]=r; drafts[dkey(k,`c-${cur.ex.id}-${cur.i}`)]=true; drafts[dkey(k,"open-trainLog")]=true; persistDrafts();
-    if(idx<steps.length-1) startRest(restFor(cur.ex.id));
+    if(idx<steps.length-1&&!(cur.inSS&&!cur.ssLast)) startRest(restFor(cur.ex.id));
     renderLive(); if(tab==="home"&&ymd(sel)===k){ lastRenderKey=""; render() }
   };
   const finish=()=>{ liveOpen=false; renderLive(); tab="home"; sel=parseYmd(k); drafts[dkey(k,"open-trainLog")]=true; persistDrafts(); lastRenderKey=""; render();
@@ -1521,7 +1552,7 @@ function standingsBW(cut){
   return null;
 }
 function bestLift(ids,cut){ let best=null;
-  Object.entries(S.logs).forEach(([k,l])=>{ if(l.type!=="gym"||(cut&&k>cut)) return; ids.forEach(id=>{ (l.ex&&l.ex[id]||[]).forEach(s=>{ const r=Number(s.r)||0; if(r<1||r>15) return; const db=logDb(id,l), load=loadW(id,l,s.w), e=e1rm(load,r);
+  Object.entries(S.logs).forEach(([k,l])=>{ if(l.type!=="gym"||(cut&&k>cut)) return; ids.forEach(id=>{ WS(l.ex&&l.ex[id]).forEach(s=>{ const r=Number(s.r)||0; if(r<1||r>15) return; const db=logDb(id,l), load=loadW(id,l,s.w), e=e1rm(load,r);
     if(!best||e>best.e) best={e,id,k,w:Number(s.w),r,db,load} }) }) }); return best }
 function vdot(meters,min){ const v=meters/min, vo2=-4.6+0.182258*v+0.000104*v*v, pc=0.8+0.1894393*Math.exp(-0.012778*min)+0.2989558*Math.exp(-0.1932605*min); return vo2/pc }
 // Heart-rate method: ACSM running equation for the oxygen cost of each running segment, scaled by % heart-rate reserve
@@ -1562,7 +1593,7 @@ const exName=id=>{const e=[...ALLEX,...Object.values(GYM).flatMap(d=>d.ex)].find
 function exStanding(id,cut,bw){
   const std=STD[id]; if(!std) return null; let best=null;
   Object.entries(S.logs).forEach(([k,l])=>{ if(l.type!=="gym"||(cut&&k>cut)||!l.ex||!l.ex[id]) return; const db=logDb(id,l);
-    l.ex[id].forEach(s=>{ const r=Number(s.r)||0, w=Number(s.w)||0; let kind,val;
+    WS(l.ex[id]).forEach(s=>{ const r=Number(s.r)||0, w=Number(s.w)||0; let kind,val;
       if(std.sec){ if(!r) return; kind="sec"; val=r }
       else { if(r<1||r>20||!w) return; const one=w*(1+r/30); if(std.add){kind="add"; val=one/bw} else if(db&&std.db){kind="db"; val=one/bw} else if(std.bb){kind="bb"; val=(db?loadW(id,l,w)*(1+r/30):one)/bw} else {kind="db"; val=one/bw} }
       if(!kind||!std[kind]) return; if(!best||val/std[kind][2]>best.val/std[best.kind][2]) best={val,kind,k,w,r,db} }) });
@@ -1604,8 +1635,8 @@ function adherence(){ let gp=0,gd=0,rp=0,rd=0; const t=ymd(today);
   return {gp,gd,rp,rd,gym:gp?gd/gp:1,run:rp?rd/rp:1} }
 const COMPOUND=new Set(["bench","incline","ohp","pulldown","cablerow","dbrow","legpress45","legpress","hipthrust","rdl","tbdl"]);
 function exRate(id){
-  const pts=Object.entries(S.logs).filter(([k,l])=>l.type==="gym"&&l.ex&&l.ex[id]&&l.ex[id].length).sort((a,b)=>a[0]<b[0]?-1:1)
-    .map(([k,l])=>[k,Math.max(...l.ex[id].map(s=>(Number(s.w)||0)*(1+(Number(s.r)||0)/30)||Number(s.r)||0))]).filter(p=>p[1]>0);
+  const pts=Object.entries(S.logs).filter(([k,l])=>l.type==="gym"&&l.ex&&WS(l.ex[id]).length).sort((a,b)=>a[0]<b[0]?-1:1)
+    .map(([k,l])=>[k,Math.max(...WS(l.ex[id]).map(s=>(Number(s.w)||0)*(1+(Number(s.r)||0)/30)||Number(s.r)||0))]).filter(p=>p[1]>0);
   // Typical weekly gain by training level: novice ≈ 2% (compound) / 1.2% (isolation); intermediate ≈ 0.75% / 0.5%
   const cmp=COMPOUND.has(id), nov=cmp?0.02:0.012, mid=cmp?0.0075:0.005;
   const firstLog=Object.keys(S.logs).filter(k=>S.logs[k].type==="gym").sort()[0], ageWk=firstLog?(today-parseYmd(firstLog))/DAYMS/7:0;
@@ -2183,7 +2214,8 @@ function bind(){
   document.querySelectorAll("[data-goto]").forEach(b=>b.onclick=()=>{sel=parseYmd(b.dataset.goto);tab="home";render();window.scrollTo(0,0)});
   document.querySelectorAll("[data-goto-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.gotoTab; if(tab==="advice"&&S.advice.at>(S.advice.seenAt||0)){S.advice.seenAt=S.advice.at;saveAdvice()} render();window.scrollTo(0,0)});
   const k=ymd(sel), p=planFor(sel), log=S.logs[k];
-  $("#tmStart")?.addEventListener("click",()=>{startWorkout(); render(); const d=$("#trainLog"); if(d&&!d.open){d.open=true}});
+  $("#tmStart")?.addEventListener("click",()=>{startWorkout(); render(); if(p&&p.type==="gym") openLive(); else { const d=$("#trainLog"); if(d&&!d.open){d.open=true} } });
+  document.querySelectorAll("[data-openlive]").forEach(b=>b.onclick=()=>openLive());
   bindTimerEnd();
   $("#fillTime")?.addEventListener("click",()=>{const m=(Date.now()-TM.start)/60000; const el=$("#rtime"); el.value=fmtMin(m); drafts[draftKey("rtime")]=el.value; persistDrafts(); el.dispatchEvent(new Event("input",{bubbles:true}))});
   document.querySelectorAll("[data-db]").forEach(c=>c.addEventListener("change",()=>{const id=c.dataset.db; dbOverride[id]=c.checked; S.profile.dbPref={...(S.profile.dbPref||{}),[id]:c.checked}; saveProfile(); render()}));
@@ -2192,15 +2224,15 @@ function bind(){
     drafts[dk]=on; persistDrafts(); b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); $(`#set-${id}-${i}`)?.classList.toggle("done",on);
     if(on){
       if(!TM.start && k===ymd(today) && !S.logs[k]){startWorkout(); toast("Workout timer started"); const tb=document.querySelector(".timerbox"); if(tb){tb.outerHTML=timerBox(k); bindTimerEnd()}}
-      const exIdx=p.ex.findIndex(e=>e.id===id), last=exIdx===p.ex.length-1 && Number(i)===p.ex[exIdx].sets-1;
-      if(!last) startRest(restFor(id));
+      const steps=gymSteps(k,p), si=steps.findIndex(x=>x.ex.id===id&&x.i===Number(i)), st=steps[si];
+      if(si>=0&&si<steps.length-1&&!(st.inSS&&!st.ssLast)) startRest(restFor(id));
     }
   }));
   if(document.querySelector(".dbnote")){updDbNotes(); viewEl.oninput=e=>{if(/^w-/.test(e.target.id||"")) updDbNotes()}}
   $("#saveGym")?.addEventListener("click",()=>{
     const ex={}, db={}; let anyChecked=false;
-    p.ex.forEach(e=>{for(let i=0;i<e.sets;i++){ if($(`#set-${e.id}-${i}`)?.classList.contains("done")) anyChecked=true }});
-    p.ex.forEach(e=>{const sets=[];for(let i=0;i<e.sets;i++){ if(anyChecked && !$(`#set-${e.id}-${i}`)?.classList.contains("done")) continue; const r=Number($(`#r-${e.id}-${i}`).value); const w=e.bw?0:Number($(`#w-${e.id}-${i}`).value); if(r>0&&(e.bw||w>0||e.optW)) sets.push(e.bw?{r}:{w,r})} if(sets.length){ex[e.id]=sets; if(DBCFG[e.id]) db[e.id]=dbNow(e.id,log)}});
+    p.ex.forEach(e=>{for(let i=0;i<setCount(e,k);i++){ if($(`#set-${e.id}-${i}`)?.classList.contains("done")) anyChecked=true }});
+    p.ex.forEach(e=>{const sets=[];for(let i=0;i<setCount(e,k);i++){ if(anyChecked && !$(`#set-${e.id}-${i}`)?.classList.contains("done")) continue; const r=Number($(`#r-${e.id}-${i}`).value); const w=e.bw?0:Number($(`#w-${e.id}-${i}`).value); const ty=setTypeK(k,e.id,i); if(r>0&&(e.bw||w>0||e.optW)) sets.push(e.bw?{r,...(ty?{t:ty}:{})}:{w,r,...(ty?{t:ty}:{})})} if(sets.length){ex[e.id]=sets; if(DBCFG[e.id]) db[e.id]=dbNow(e.id,log)}});
     if(!Object.keys(ex).length){toast(anyChecked?"Ticked sets need a weight and reps":"Enter weight and reps for at least one set");return}
     const durMin = TM.start&&TM.date===k ? (Date.now()-TM.start)/60000 : (log&&log.durMin)||null;
     if(TM.start&&TM.date===k) stopWorkout();

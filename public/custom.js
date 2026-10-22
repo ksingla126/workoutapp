@@ -281,12 +281,13 @@ function routinesEditor(){
     <p class="small muted">Changes apply to your plan from today on.</p></div>`;
   rs.forEach((r,ri)=>{
     if(!R_OPEN.has(r.id)){ h+=`<div class="card routine"><div class="row between" style="gap:8px"><h2>${esc(r.name)}</h2><button type="button" class="btn ghost sm" data-c-ropen="${r.id}">Edit</button></div>
-      <div class="small">${r.ex.length? r.ex.map(e=>{const L=libEx(e.id); return `${esc(L?L.name:e.id)} <span class="muted num">${e.sets}×${e.lo}–${e.hi}${L&&L.type==="t"?"s":""}</span>`}).join("<br>") : `<span class="muted">No exercises yet.</span> <button type="button" class="link small" data-c-ropen="${r.id}">Add some</button>`}</div></div>`; return }
+      <div class="small">${r.ex.length? r.ex.map(e=>{const L=libEx(e.id); return `${e.ss?"⛓ ":""}${esc(L?L.name:e.id)} <span class="muted num">${e.sets}×${e.lo}–${e.hi}${L&&L.type==="t"?"s":""}</span>`}).join("<br>") : `<span class="muted">No exercises yet.</span> <button type="button" class="link small" data-c-ropen="${r.id}">Add some</button>`}</div></div>`; return }
     h+=`<div class="card routine"><div class="row between" style="gap:8px"><input class="rname" data-c-rname="${r.id}" value="${esc(r.name)}" aria-label="Routine name"><button type="button" class="btn sm" data-c-ropen="${r.id}">Done</button></div>`;
     if(!r.ex.length) h+=`<p class="small muted">No exercises yet. Add some below.</p>`;
     r.ex.forEach((e,ei)=>{ const L=libEx(e.id)||{name:e.id,muscle:"",type:"w"}, t=L.type==="t";
-      h+=`<div class="rex"><div class="rex-h"><div><b>${esc(L.name)}</b><span class="small muted">${esc(L.muscle)}${L.equip?` · ${esc(L.equip)}`:""}</span></div>
-        <div class="rex-act"><button type="button" data-c-mv="${r.id}|${ei}|-1" aria-label="Move up" ${ei===0?"disabled":""}>↑</button><button type="button" data-c-mv="${r.id}|${ei}|1" aria-label="Move down" ${ei===r.ex.length-1?"disabled":""}>↓</button><button type="button" data-c-rm="${r.id}|${ei}" aria-label="Remove">✕</button></div></div>
+      const ssTag=e.ss?`<span class="sslabel" style="font-size:11px">Superset</span>`:"";
+      h+=`<div class="rex ${e.ss?"inss":""}"><div class="rex-h"><div>${ssTag}<b>${esc(L.name)}</b><span class="small muted">${esc(L.muscle)}${L.equip?` · ${esc(L.equip)}`:""}</span></div>
+        <div class="rex-act"><button type="button" class="${e.ss?"on":""}" data-c-ss="${r.id}|${ei}" aria-label="${e.ss?"Unlink superset":"Superset with next exercise"}" title="Superset" ${!e.ss&&ei===r.ex.length-1?"disabled":""}>⛓</button><button type="button" data-c-mv="${r.id}|${ei}|-1" aria-label="Move up" ${ei===0?"disabled":""}>↑</button><button type="button" data-c-mv="${r.id}|${ei}|1" aria-label="Move down" ${ei===r.ex.length-1?"disabled":""}>↓</button><button type="button" data-c-rm="${r.id}|${ei}" aria-label="Remove">✕</button></div></div>
         <div class="rex-f"><label>Sets<span class="step"><button type="button" data-c-sets="${r.id}|${ei}|-1">−</button><b class="num">${e.sets}</b><button type="button" data-c-sets="${r.id}|${ei}|1">+</button></span></label>
         <label>${t?"Seconds":"Reps"}<span class="rng"><input inputmode="numeric" data-c-lo="${r.id}|${ei}" value="${e.lo}">–<input inputmode="numeric" data-c-hi="${r.id}|${ei}" value="${e.hi}"></span></label>
         <label>Rest<select data-c-rest="${r.id}|${ei}">${[30,45,60,75,90,120,150,180,240].map(s=>`<option value="${s}" ${Number(e.rest)===s?"selected":""}>${fmtClock(s*1000)}</option>`).join("")}</select></label></div></div>`});
@@ -444,7 +445,7 @@ function initStdAliases(){ if(stdAliased||typeof STD==="undefined") return; stdA
   for(const [id,[t,k,mul]] of Object.entries(STD_ALIAS)){ if(STD[t]&&STD[t][k]&&!STD[id]) STD[id]={[k]:STD[t][k].map(v=>+(v*(mul||1)).toFixed(3))}; if(EX_MUSCLES[t]&&!EX_MUSCLES[id]) EX_MUSCLES[id]=EX_MUSCLES[t] } }
 const SWAP_REST={};
 const BUILTIN_SWAPS=[{day:"B",from:"calfraise",to:"tiltcalf",since:"2026-10-21"}]; // made before the swap button existed
-function swapsOf(){ const sw=(S.profile&&S.profile.swaps)||{}; return {routine:sw.routine||[],once:sw.once||{}} }
+function swapsOf(){ const sw=(S.profile&&S.profile.swaps)||{}; return {routine:sw.routine||[],once:sw.once||{},add:sw.add||{}} }
 function swapEx(orig,toId){
   const L=libEx(toId); let e;
   if(!CUSTOM&&typeof X!=="undefined"&&X[toId]) e={...X[toId]};
@@ -466,6 +467,7 @@ function applySwaps(g,dayKey,d,routineOnly){
     if(r.from) ex=ex.map(e=>{ if(e.id!==r.from) return e; const n={...swapEx(e,r.to)}; ["sets","lo","hi","rest"].forEach(f=>{ if(r[f]!=null) n[f]=r[f] }); if(r.rest) SWAP_REST[n.id]=r.rest; if(r.ss!==undefined) n.ss=r.ss||undefined; return n });
     if(r.from&&r.at!=null){ const i=ex.findIndex(e=>e.id===r.to); if(i>=0&&i!==r.at){ ex=[...ex]; const [m]=ex.splice(i,1); ex.splice(Math.min(r.at,ex.length),0,m) } } });
   const once=!routineOnly&&sw.once[k]; if(once) ex=ex.map(e=>once[e.id]?{...swapEx(e,once[e.id]),once:true}:e);
+  const add=!routineOnly&&sw.add[k]; if(add&&add.length){ ex=[...ex]; add.forEach(a=>{ if(!ex.some(e=>e.id===a.id)){ const e=swapEx({sets:a.sets||3,lo:a.lo||8,hi:a.hi||12,rest:a.rest||90,id:"_"},a.id); ex.push({...e,added:true}) } }) }
   return ex===g.ex&&name===g.name? g : {...g,name,ex};
 }
 /* ----- One-time move of the original hand-built plan onto routines (reversible: delete profile.setup) ----- */
@@ -510,6 +512,7 @@ function muscleOfEx(id){ const L=libEx(id); if(L) return L.muscle; const m=EX_MU
   return {chest:"Chest",back:"Back",shoulders:"Shoulders",arms:"Biceps",core:"Core",quads:"Quads",glutes:"Glutes",hamstrings:"Hamstrings",calves:"Calves"}[top]||"" }
 function swapHtml(){
   const W=SH, p=planFor(parseYmd(W.k)), inDay=new Set((p&&p.ex||[]).map(e=>e.id));
+  if(W.adding) return addExHtml(W,inDay);
   if(W.to){ const L=libEx(W.to)||{name:W.to}, isToday=W.k===ymd(today);
     return `<div class="xs-head"><h2>Swap exercise</h2><button type="button" class="btn ghost sm" data-xs="swapback">Back</button></div>
      <div class="swapfrom"><span>${esc(W.fromName)}</span>${SWAP_ICON}<span>${esc(L.name)}</span></div>
@@ -524,6 +527,15 @@ function swapHtml(){
    <div class="xs-results"><div class="xs-list">${list.map(e=>{const used=inDay.has(e.id); return `<button type="button" class="xs-item" data-xs-swapto="${e.id}" ${used?"disabled":""}><span><b>${esc(e.name)}</b><span class="small muted">${used?"Already in this workout":`${esc(e.muscle)} · ${esc(e.equip)}${e.custom?" · custom":""}`}</span></span><span class="xs-plus">${SWAP_ICON}</span></button>`}).join("")||`<p class="small muted">No matches. Create it as a custom exercise below.</p>`}</div></div>
    <button type="button" class="btn ghost" data-xs="swapnew" style="margin-top:12px">Create custom exercise</button>`;
 }
+function addExHtml(W,inDay){
+  const q=(W.q||"").toLowerCase().trim(), mu=W.mu||"";
+  const list=exLib().filter(e=>(!mu||e.muscle===mu)&&(!q||e.name.toLowerCase().includes(q)||e.muscle.toLowerCase().includes(q)||e.equip.toLowerCase().includes(q)));
+  return `<div class="xs-head"><h2>Add to today</h2><button type="button" class="btn sm" data-xs="close">Done</button></div>
+   <p class="small muted">Adds to ${fmtDate(parseYmd(W.k))} only. To keep it, add it to the routine in Plan.</p>
+   <input class="xs-search" type="search" placeholder="Search exercises" value="${esc(W.q||"")}" data-xs-q="1" data-xs-focus="q" autocomplete="off">
+   <div class="xs-chips"><button type="button" class="${!mu?"on":""}" data-xs-mu="">All</button>${MUSCLES.map(m=>`<button type="button" class="${mu===m?"on":""}" data-xs-mu="${m}">${m}</button>`).join("")}</div>
+   <div class="xs-results"><div class="xs-list">${list.map(e=>{const used=inDay.has(e.id); return `<button type="button" class="xs-item ${used?"on":""}" data-xs-addday="${e.id}" ${used?"disabled":""}><span><b>${esc(e.name)}</b><span class="small muted">${used?"In this workout":`${esc(e.muscle)} · ${esc(e.equip)}`}</span></span><span class="xs-plus">${used?"✓":"+"}</span></button>`}).join("")||`<p class="small muted">No matches.</p>`}</div></div>`;
+}
 function doSwap(mode){ const W=SH, from=W.from, to=W.to, k=W.k;
   S.profile.swaps=S.profile.swaps||{}; const sw=S.profile.swaps; sw.once=sw.once||{}; sw.routine=sw.routine||[];
   if(mode==="once"){ sw.once[k]={...(sw.once[k]||{}),[from]:to}; saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Swapped for this workout"); return }
@@ -537,6 +549,8 @@ function swapsText(){ const sw=swapsOf(), L=id=>(libEx(id)||(typeof X!=="undefin
   (CUSTOM?sw.routine:[...BUILTIN_SWAPS,...sw.routine]).filter(r=>r.from).forEach(r=>out.push(`${CUSTOM&&CUSTOM.gym[r.day]?CUSTOM.gym[r.day].name:"Day "+r.day}: ${L(r.from)} → ${L(r.to)} from ${r.since}`));
   Object.entries(sw.once).filter(([k])=>k>=ymd(addDays(today,-14))).forEach(([k,m])=>Object.entries(m).forEach(([a,b])=>out.push(`${k} only: ${L(a)} → ${L(b)}`)));
   return out.length? `Exercise swaps they made in the app: ${out.join("; ")}.\n` : "" }
+
+function dayMenu(p,k,log){ return "" }
 
 /* ======================= Account & settings ======================= */
 function userPrefs(){ const local=(window.LOOK&&LOOK.read())||{}; const p=(S.profile&&S.profile.prefs)||{}; return {mode:"system",palette:"classic",sound:true,awake:true,...local,...p} }
@@ -572,6 +586,13 @@ document.addEventListener("click",e=>{
   if(d.swap){ const p=planFor(sel), ex=p&&p.ex&&p.ex.find(e=>e.id===d.swap); if(!ex) return;
     openSheet({kind:"swap",from:ex.id,fromName:ex.name,day:p.day,dayName:(p.name||("Day "+p.day)).split(" · ")[0],k:ymd(sel),q:"",mu:muscleOfEx(ex.id)}); return }
   if(d.swapundo){ const sw=swapsOf(), k=ymd(sel), m=S.profile.swaps&&S.profile.swaps.once&&S.profile.swaps.once[k]; if(m){ Object.keys(m).forEach(f=>{ if(m[f]===d.swapundo) delete m[f] }); if(!Object.keys(m).length) delete S.profile.swaps.once[k]; saveProfile(); lastRenderKey=""; render(); toast("Swap undone") } return }
+  // --- workout screen
+  if(d.settype){ const [id,i]=d.settype.split("|"), k=ymd(sel), key=dkey(k,`st-${id}-${i}`), cur=setTypeK(k,id,i); drafts[key]=cur===""?"w":cur==="w"?"d":""; persistDrafts(); lastRenderKey=""; render(); return }
+  if(d.addset){ const k=ymd(sel), key=dkey(k,`xs-${d.addset}`); drafts[key]=(Number(drafts[key])||0)+1; persistDrafts(); lastRenderKey=""; render(); return }
+  if(d.rmset){ const k=ymd(sel), key=dkey(k,`xs-${d.rmset}`), n=Number(drafts[key])||0; if(n>0){ const ex=(planFor(sel).ex||[]).find(e=>e.id===d.rmset), last=ex?setCount(ex,k)-1:-1; ["w","r","c","st"].forEach(f=>delete drafts[dkey(k,`${f}-${d.rmset}-${last}`)]); drafts[key]=n-1; if(!drafts[key]) delete drafts[key]; persistDrafts(); lastRenderKey=""; render() } return }
+  if(d.addex){ openSheet({kind:"swap",adding:true,k:d.addex,q:"",mu:""}); return }
+  if(d.addrm){ const k=ymd(sel), sw=S.profile.swaps, a=sw&&sw.add&&sw.add[k]; if(a){ sw.add[k]=a.filter(x=>x.id!==d.addrm); if(!sw.add[k].length) delete sw.add[k]; saveProfile(); lastRenderKey=""; render() } return }
+  if(d.openlive){ openLive(); return }
   // --- account
   if(d.acct){ openSheet({kind:"account"}); return }
   if(d.acctMode){ setPref({mode:d.acctMode}); paintSheet(); return }
@@ -583,6 +604,9 @@ document.addEventListener("click",e=>{
   if(d.cGotoplan){ tab="plan"; planView="training"; try{localStorage.setItem("rd25-tab","plan")}catch(_){} render(); window.scrollTo(0,0); return }
   if(d.cRopen){ R_OPEN.has(d.cRopen)?R_OPEN.delete(d.cRopen):R_OPEN.add(d.cRopen); render(); return }
   if(d.cAdd){ openSheet({kind:"exPick",rid:d.cAdd,q:"",mu:""}); return }
+  if(d.cSs){ const [rid,i]=d.cSs.split("|"); suMut(su=>{ const r=su.routines.find(x=>x.id===rid), ix=+i, e=r.ex[ix];
+      if(e.ss){ const g=e.ss; delete e.ss; const left=r.ex.filter(x=>x.ss===g); if(left.length<2) left.forEach(x=>delete x.ss) }
+      else if(r.ex[ix+1]){ const nx=r.ex[ix+1], g=nx.ss||(r.ex[ix-1]&&r.ex[ix-1].ss)||newId("s"); e.ss=g; nx.ss=g } }); return }
   if(d.cMv){ const [rid,i,dir]=d.cMv.split("|"); suMut(su=>{const r=su.routines.find(x=>x.id===rid), a=+i, b=a+ +dir; if(b<0||b>=r.ex.length) return; [r.ex[a],r.ex[b]]=[r.ex[b],r.ex[a]]}); return }
   if(d.cRm){ const [rid,i]=d.cRm.split("|"); suMut(su=>{const r=su.routines.find(x=>x.id===rid); r.ex.splice(+i,1)}); return }
   if(d.cSets){ const [rid,i,dir]=d.cSets.split("|"); suMut(su=>{const x=su.routines.find(r=>r.id===rid).ex[+i]; x.sets=Math.max(1,Math.min(10,(x.sets||3)+ +dir))}); return }
@@ -604,6 +628,8 @@ document.addEventListener("click",e=>{
   if(!SH) return;
   if(d.xs==="close"){ xsClose(); return }
   if(d.xsMu!=null){ SH.mu=d.xsMu; paintSheet(); return }
+  if(d.xsAddday){ const k=SH.k, L=libEx(d.xsAddday), tm=L&&L.type==="t"; S.profile.swaps=S.profile.swaps||{}; const sw=S.profile.swaps; sw.add=sw.add||{}; sw.add[k]=[...(sw.add[k]||[]),{id:d.xsAddday,sets:3,lo:tm?30:8,hi:tm?60:12,rest:L&&L.type==="w"&&["Barbell","Smith machine"].includes(L.equip)?150:90}];
+    saveProfile(); lastRenderKey=""; render(); paintSheet(); toast("Added to today"); return }
   if(d.xsSwapto){ SH.to=d.xsSwapto; paintSheet(true); return }
   if(d.xs==="swapback"){ SH.to=null; paintSheet(true); return }
   if(d.xsSwapmode){ doSwap(d.xsSwapmode); return }
