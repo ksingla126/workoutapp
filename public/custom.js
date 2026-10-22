@@ -642,44 +642,123 @@ function accountHtml(){
    <button type="button" class="setlink" data-acct-export="1">Download my data<span>›</span></button>
    <button type="button" class="btn ghost" data-acct-out="1" style="margin-top:8px">Sign out</button>`;
 }
-/* ----- Strava auto-import ----- */
-let stravaBusy=false;
+/* ----- Strava auto-import -----
+   The server is the source of truth for "connected": on iPhone the Strava approval happens in a Safari sheet,
+   so the app asks /api/strava-status when it opens and when it comes back to the foreground. */
+let stravaBusy=false, stravaChecked=0;
+const STRAVA_ERR={not_signed_in:"Sign in again, then connect Strava.",strava_keys_missing:"Setup: add STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET in Vercel, then redeploy.",
+  strava_client_id_invalid:"Setup: STRAVA_CLIENT_ID in Vercel should be just the number from your Strava API page.",service_key_missing:"Setup: add SUPABASE_SERVICE_ROLE_KEY in Vercel, then redeploy.",
+  service_key_is_anon:"Setup: SUPABASE_SERVICE_ROLE_KEY is set to the anon key. Use the service_role key instead.",service_key_invalid:"Setup: SUPABASE_SERVICE_ROLE_KEY in Vercel isn't valid. Copy the service_role key again.",
+  table_missing:"Setup: run the Strava SQL in Supabase first.",database_error:"The database didn't answer. Try again in a minute.",rate_limited:"Strava is busy. Try again in 15 minutes.",
+  revoked:"Strava access was removed. Connect again.",strava_error:"Strava didn't answer. Try again later.",network:"You're offline. Try again when you're connected."};
 function stravaState(){ return (userPrefs().strava)||{} }
-async function api(path,opt){ const tok=window.appAuthToken? await appAuthToken() : null; const r=await fetch(path,{...(opt||{}),headers:{...(tok?{authorization:"Bearer "+tok}:{})}}); const j=await r.json().catch(()=>({})); if(!r.ok) throw Object.assign(new Error(j.code||"error"),{status:r.status,code:j.code}); return j }
-async function stravaConnect(){ try{ const j=await api("/api/strava-start"); location.href=j.url }catch(e){ toast(e.code==="not_configured"?"Strava isn't set up on the server yet.":"Couldn't reach Strava. Try again.") } }
-async function stravaDisconnect(){ try{ await api("/api/strava-disconnect",{method:"POST"}) }catch(e){} setPref({strava:{connected:false}}); paintSheet(); toast("Strava disconnected") }
-// Strava streams → the same run breakdown a GPX file gives
-function stravaToSt(run){ const S2=run.streams||{}, t0=Date.parse(run.start); if(!S2.time||S2.time.length<10||!isFinite(t0)) return null;
-  const pts=S2.time.map((sec,i)=>({t:t0+sec*1000,lat:S2.latlng&&S2.latlng[i]?S2.latlng[i][0]:null,lon:S2.latlng&&S2.latlng[i]?S2.latlng[i][1]:null,ele:S2.altitude?S2.altitude[i]:null,d:S2.distance?S2.distance[i]:null,hr:S2.heartrate?S2.heartrate[i]:null,cad:S2.cadence?S2.cadence[i]:null}));
-  try{ const st=trackFromPoints(pts,run.name); st.src="strava"; st.stravaId=run.id; st.date=String(run.startLocal||run.start).slice(0,10); return st }catch(e){ return null } }
+function setStrava(patch){ setPref({strava:{...stravaState(),...patch}}) }
+async function api(path,opt){ const tok=window.appAuthToken? await appAuthToken() : null; let r;
+  try{ r=await fetch(path,{...(opt||{}),headers:{...(tok?{authorization:"Bearer "+tok}:{})}}) }catch(e){ throw Object.assign(new Error("network"),{code:"network"}) }
+  const j=await r.json().catch(()=>({})); if(!r.ok) throw Object.assign(new Error(j.code||"error"),{status:r.status,code:j.code||"strava_error"}); return j }
+function stravaMsg(e){ return STRAVA_ERR[e&&e.code]||"Couldn't reach Strava. Try again." }
+async function stravaConnect(){
+  if(SH&&SH.kind==="account"){ SH.stravaErr=""; SH.connecting=true; paintSheet() }
+  try{ const j=await api("/api/strava-start"); setStrava({pending:Date.now()}); if(SH&&SH.kind==="account"){ SH.connecting=false; paintSheet() } location.href=j.url }
+  catch(e){ if(SH&&SH.kind==="account"){ SH.connecting=false; SH.stravaErr=stravaMsg(e); paintSheet() } else toast(stravaMsg(e)) } }
+async function stravaDisconnect(){ try{ await api("/api/strava-disconnect",{method:"POST"}) }catch(e){ if(e.code==="network"){ toast(stravaMsg(e)); return } }
+  setStrava({connected:false,pending:0,cursor:null,lastSync:null}); if(SH&&SH.kind==="account") paintSheet(); toast("Strava disconnected") }
+async function stravaCheck(force){
+  const ss=stravaState(); if(!force&&Date.now()-stravaChecked<20000) return; stravaChecked=Date.now();
+  try{ const j=await api("/api/strava-status");
+    if(j.connected&&!ss.connected){ setStrava({connected:true,pending:0}); toast("Strava connected. Importing your runs…"); stravaSync(true) }
+    else if(!j.connected&&(ss.connected||ss.pending)){ setStrava({connected:false,pending:0}) }
+    else if(j.connected&&(!ss.lastSync||Date.now()-ss.lastSync>30*60000)) stravaSync(false);
+    if(SH&&SH.kind==="account") paintSheet();
+  }catch(e){} }
+// Strava activity → the same run breakdown a GPX file gives; runs without GPS/streams keep Strava's summary
+function stravaToSt(run){ const S2=run.streams||{}, t0=Date.parse(run.start), k=String(run.startLocal||run.start||"").slice(0,10);
+  let st=null;
+  if(S2.time&&S2.time.length>=10&&isFinite(t0)){
+    const pts=S2.time.map((sec,i)=>({t:t0+sec*1000,lat:S2.latlng&&S2.latlng[i]?S2.latlng[i][0]:null,lon:S2.latlng&&S2.latlng[i]?S2.latlng[i][1]:null,ele:S2.altitude?S2.altitude[i]:null,d:S2.distance?S2.distance[i]:null,hr:S2.heartrate?S2.heartrate[i]:null,cad:S2.cadence?S2.cadence[i]:null}));
+    try{ st=trackFromPoints(pts,run.name) }catch(e){ st=null } }
+  if(!st){ const mi=(Number(run.distance)||0)/1609.344; if(mi<0.05) return null; let cad=run.cadence; if(cad&&cad<120) cad*=2;
+    st={name:String(run.name||"").slice(0,80),mi:+mi.toFixed(2),movingMin:run.moving?+(run.moving/60).toFixed(2):null,elapsedMin:run.elapsed?+(run.elapsed/60).toFixed(2):null,
+      elevFt:run.elevM!=null?Math.round(run.elevM*3.28084):null,avgHr:run.avgHr?Math.round(run.avgHr):null,maxHr:run.maxHr?Math.round(run.maxHr):null,cad:cad?Math.round(cad):null,splits:[]} }
+  st.src="strava"; st.stravaId=run.id; st.date=k; if(run.type==="VirtualRun") st.treadmill=true; return st }
 async function stravaSync(manual){
-  const ss=stravaState(); if(!ss.connected||stravaBusy) return; stravaBusy=true; if(manual&&SH&&SH.kind==="account"){ SH.syncing=true; paintSheet() }
-  try{ const after=ss.lastSync? Math.floor(ss.lastSync/1000)-2*86400 : Math.floor(START.getTime()/1000);
-    const j=await api("/api/strava-sync?after="+after); let n=0; const ana=[];
-    for(const run of j.runs||[]){ const k=String(run.startLocal||run.start||"").slice(0,10); if(!/^\d{4}-\d{2}-\d{2}$/.test(k)) continue;
-      const log=S.logs[k];
-      if(log&&(log.type==="gym"||log.st)) continue; // never touch a gym day or a run that already has its breakdown
-      const st=stravaToSt(run); if(!st) continue;
-      const p=planFor(parseYmd(k)), base=log||{type:"run",key:p&&p.type==="run"?p.key:"tue",rpe:"",notes:"Imported from Strava"};
-      // on a day that wasn't a planned run, record it as an extra run rather than taking the day's plan
-      const extra=!(p&&p.type==="run")&&!(log&&log.plan)? {plan:{type:"run",key:"tue",t:"Run",d:"Extra run · imported from Strava"}} : {};
-      await saveLog(k,{...base,...extra,type:"run",mi:base.mi||st.mi,min:base.min||st.movingMin||st.elapsedMin,st,savedAt:Date.now()}); n++; ana.push(k) }
-    setPref({strava:{...ss,connected:true,lastSync:Date.now()}});
-    if(n) toast(`Imported ${n} run${n>1?"s":""} from Strava`); else if(manual) toast("No new runs on Strava");
+  const ss=stravaState(); if(!ss.connected||stravaBusy) return; stravaBusy=true;
+  if(SH&&SH.kind==="account"){ SH.syncing=true; SH.stravaErr=""; paintSheet() }
+  let n=0, asks=0; const ana=[], got=[];
+  try{
+    let cursor=ss.cursor||Math.floor(START.getTime()/1000);
+    for(let round=0;round<5;round++){
+      const j=await api("/api/strava-sync?after="+Math.max(0,cursor-2*86400));
+      (j.runs||[]).forEach(run=>{ got.push(run); cursor=Math.max(cursor,Math.floor(Date.parse(run.start)/1000)||0) });
+      if(!j.more) break; cursor=Math.max(cursor,j.next||0) }
+    // group by day, oldest first, skipping anything already recorded
+    const byDay={};
+    got.forEach(run=>{ const k=String(run.startLocal||run.start||"").slice(0,10); if(!/^\d{4}-\d{2}-\d{2}$/.test(k)||knownStrava(k).has(run.id)) return;
+      const st=stravaToSt(run); if(!st) return; (byDay[k]=byDay[k]||[]).push(candidate(run,st)) });
+    const inbox=stravaInbox(); let inboxChanged=false;
+    for(const k of Object.keys(byDay).sort()){
+      const fresh=byDay[k].sort((a,b)=>a.start<b.start?-1:1), log=S.logs[k], p=planFor(parseYmd(k)), gymDay=(log&&log.type==="gym")||(!log&&p&&p.type==="gym");
+      if(log&&(log.type==="gym"||log.st)){                       // day already has its session → these are extras
+        // a run you already imported from a GPX file shows up on Strava too: recognise it instead of adding it twice
+        let same=null; if(log.st&&!log.st.stravaId) same=fresh.find(c=>sameRun(log,c));
+        const add=fresh.filter(c=>c!==same).map(slim), upd={...log};
+        if(same) upd.st={...log.st,stravaId:same.stravaId};
+        if(add.length) upd.extraRuns=[...(log.extraRuns||[]),...add];
+        if(same||add.length){ await saveLog(k,upd); n+=add.length } continue }
+      const waiting=(inbox[k]&&inbox[k].runs)||[];
+      if(gymDay||waiting.length+fresh.length>1||(inbox[k]&&inbox[k].allExtra)){ // let the user choose (gym days: extras)
+        inbox[k]={runs:[...waiting,...fresh],allExtra:gymDay||!!(inbox[k]&&inbox[k].allExtra)}; inboxChanged=true; if(!gymDay) asks++; continue }
+      const c=fresh[0]; await useStravaRun(k,c,[]); n++; if(k>=ymd(addDays(today,-7))) ana.push(k) }
+    if(inboxChanged){ S.profile.stravaInbox=inbox; saveProfile() }
+    setStrava({connected:true,pending:0,cursor,lastSync:Date.now()});
+    if(asks) toast(asks===1?"More than one Strava run on a day. Pick which one counts on that day's card.":`Several days have more than one Strava run. Pick which one counts on each day.`);
+    else if(n) toast(`Imported ${n} run${n>1?"s":""} from Strava`); else if(manual) toast("You're up to date with Strava");
     if(typeof analyzeRun==="function"&&sampleFn) ana.forEach((k,i)=>setTimeout(()=>analyzeRun(k),1500*(i+1)));
-    lastRenderKey=""; render();
-  }catch(e){ if(e.code==="not_connected"){ setPref({strava:{connected:false}}); if(manual) toast("Strava isn't connected anymore. Connect it again.") } else if(manual) toast(e.code==="rate_limited"?"Strava is busy. Try again in a few minutes.":"Couldn't sync with Strava right now.") }
-  finally{ stravaBusy=false; if(SH&&SH.kind==="account"){ SH.syncing=false; paintSheet() } } }
+    if(n||inboxChanged){ lastRenderKey=""; render() }
+  }catch(e){
+    if(e.code==="not_connected"||e.code==="revoked") setStrava({connected:false,pending:0});
+    if(SH&&SH.kind==="account") SH.stravaErr=stravaMsg(e); else if(manual||e.code==="revoked") toast(stravaMsg(e));
+    if(n){ lastRenderKey=""; render() }
+  }finally{ stravaBusy=false; if(SH&&SH.kind==="account"){ SH.syncing=false; paintSheet() } } }
+/* ----- several Strava runs on one day: you choose which is the day's run, the rest become extra runs ----- */
+function stravaInbox(){ return {...((S.profile&&S.profile.stravaInbox)||{})} }
+function candidate(run,st){ return {stravaId:run.id,name:String(run.name||"Run").slice(0,80),start:run.startLocal||run.start,mi:st.mi,min:st.movingMin||st.elapsedMin,st} }
+function knownStrava(k){ const ids=new Set(), l=S.logs[k], ib=((S.profile&&S.profile.stravaInbox)||{})[k];
+  if(l&&l.st&&l.st.stravaId) ids.add(l.st.stravaId); (l&&l.extraRuns||[]).forEach(x=>ids.add(x.stravaId)); (ib&&ib.runs||[]).forEach(x=>ids.add(x.stravaId)); return ids }
+function sameRun(log,c){ const a=Number(log.st.mi||log.mi)||0, b=Number(c.mi)||0, ta=Number(log.st.movingMin||log.st.elapsedMin||log.min)||0, tb=Number(c.min)||0;
+  return a>0&&b>0&&Math.abs(a-b)/Math.max(a,b)<0.15&&(!ta||!tb||Math.abs(ta-tb)/Math.max(ta,tb)<0.2) }
+const slim=c=>({stravaId:c.stravaId,name:c.name,start:c.start,mi:c.mi,min:c.min,avgHr:c.st&&c.st.avgHr||null});
+async function useStravaRun(k,c,extras){
+  const log=S.logs[k], p=planFor(parseYmd(k));
+  const base=log||{type:"run",key:p&&p.type==="run"?p.key:"extra",rpe:"",notes:"Imported from Strava"};
+  const extra=!(p&&p.type==="run")&&!(base.plan)? {plan:{type:"run",key:"extra",t:"Run",d:"Extra run · imported from Strava"}} : {};
+  const xr=[...(log&&log.extraRuns||[]),...extras.map(slim)];
+  await saveLog(k,{...base,...extra,type:"run",mi:base.mi||c.mi,min:base.min||c.min,st:c.st,...(xr.length?{extraRuns:xr}:{}),savedAt:Date.now()});
+}
+function stravaChooser(k,log){ const ib=((S.profile&&S.profile.stravaInbox)||{})[k]; if(!ib||!ib.runs||!ib.runs.length||ib.allExtra||(log&&log.st)) return "";
+  const t=x=>{ const d=new Date(x.start); return isFinite(d)? d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit",timeZone:"UTC"}) : "" };
+  return `<div class="schoose"><b>Which Strava run is ${k===ymd(today)?"today's":"this day's"} run?</b><span class="small muted">The others are saved as extra runs on this day.</span>
+    ${ib.runs.map(x=>`<button type="button" class="opt" data-spick="${k}|${x.stravaId}"><span><b>${esc(x.name)}</b><span class="small muted num">${t(x)} · ${x.mi} mi · ${x.min?fmtMin(x.min):"–"}${x.mi&&x.min?` · ${fmtMin(x.min/x.mi)}/mi`:""}</span></span><span class="xs-plus">✓</span></button>`).join("")}
+    <button type="button" class="link small" data-snone="${k}" style="align-self:flex-start">They're all extra runs</button></div>` }
+function extraRunsBlock(k,log){ const ib=((S.profile&&S.profile.stravaInbox)||{})[k];
+  const list=[...(log&&log.extraRuns||[]),...(ib&&ib.allExtra?ib.runs.map(slim):[])]; if(!list.length) return "";
+  return `<div class="xruns"><div class="eyebrow">Extra run${list.length>1?"s":""} this day</div>${list.map(x=>`<div class="xr"><span>${esc(x.name||"Run")}</span><span class="num muted">${x.mi} mi${x.min?` · ${fmtMin(x.min)}`:""}${x.avgHr?` · ${x.avgHr} bpm`:""}</span></div>`).join("")}</div>` }
+// when a run is logged by hand, runs marked "all extra" come along as extras
+function extrasForSave(k,log){ const ib=((S.profile&&S.profile.stravaInbox)||{})[k]; const xr=[...(log&&log.extraRuns||[])];
+  if(ib&&ib.runs){ ib.runs.forEach(x=>{ if(!xr.some(y=>y.stravaId===x.stravaId)) xr.push(slim(x)) }); const inbox=stravaInbox(); delete inbox[k]; S.profile.stravaInbox=inbox; saveProfile() }
+  return xr }
 function maybeStravaInit(){ if(!window.__stravaInit&&window.__platform&&loaded.profile&&loaded.logs){ window.__stravaInit=true; stravaOnLoad() } }
 function stravaOnLoad(){
+  if(!(window.appConfig&&appConfig().strava)) return;
   const q=new URLSearchParams(location.search), r=q.get("strava");
-  if(r){ history.replaceState(null,"",location.pathname);
-    if(r==="connected"){ setPref({strava:{connected:true}}); toast("Strava connected. Importing your runs…"); setTimeout(()=>stravaSync(true),800) }
-    else toast(r==="denied"?"Strava connection cancelled.":r==="scope"?"Tick “View data about your activities” so runs can import.":"Couldn't connect Strava. Try again."); return }
-  const ss=stravaState(); if(ss.connected&&(!ss.lastSync||Date.now()-ss.lastSync>30*60000)) setTimeout(()=>stravaSync(false),2000) }
-function stravaRows(){ if(!(window.appConfig&&appConfig().strava)) return ""; const ss=stravaState();
-  return `<h3>Strava</h3>`+(ss.connected? `<div class="setrow"><span><b>Connected</b><span class="small muted">${SH&&SH.syncing?"Syncing…":ss.lastSync?"Last synced "+new Date(ss.lastSync).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"Runs import automatically"}</span></span><span class="row" style="gap:6px;flex-wrap:nowrap"><button type="button" class="btn sm" data-acct-ssync="1" ${SH&&SH.syncing?"disabled":""}>Sync</button><button type="button" class="btn ghost sm" data-acct-sdisc="1">Disconnect</button></span></div>`
-    : `<button type="button" class="setlink" data-acct-sconn="1">Connect Strava<span>›</span></button><p class="small muted">Runs you record on Strava import by themselves, with pace, splits and heart rate.</p>`) }
+  if(r){ history.replaceState(null,"",location.pathname); if(r!=="connected") toast(r==="denied"?"Strava connection cancelled.":r==="scope"?"Tick “View data about your activities” so runs can import.":r==="expired"?"That Strava link expired. Connect again.":"Strava didn't finish connecting. Try again.") }
+  stravaCheck(true);
+  document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"){ const ss=stravaState(); if(ss.pending&&Date.now()-ss.pending<30*60000) stravaCheck(true); else if(ss.connected) stravaCheck(false) } }) }
+function stravaRows(){ if(!(window.appConfig&&appConfig().strava)) return ""; const ss=stravaState(), busy=SH&&SH.syncing;
+  const err=SH&&SH.stravaErr?`<p class="note">${esc(SH.stravaErr)}</p>`:"";
+  if(ss.connected) return `<h3>Strava</h3><div class="setrow"><span><b>Connected</b><span class="small muted">${busy?"Syncing…":ss.lastSync?"Last synced "+new Date(ss.lastSync).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"Runs import automatically"}</span></span><span class="row" style="gap:6px;flex-wrap:nowrap"><button type="button" class="btn sm" data-acct-ssync="1" ${busy?"disabled":""}>Sync</button><button type="button" class="btn ghost sm" data-acct-sdisc="1">Disconnect</button></span></div>${err}`;
+  if(ss.pending&&Date.now()-ss.pending<30*60000) return `<h3>Strava</h3><div class="setrow"><span><b>Finishing on Strava…</b><span class="small muted">Approve on the Strava screen, then come back here.</span></span><button type="button" class="btn sm" data-acct-scheck="1">Check</button></div><button type="button" class="link small" data-acct-sconn="1">Start over</button>${err}`;
+  return `<h3>Strava</h3><button type="button" class="setlink" data-acct-sconn="1" ${SH&&SH.connecting?"disabled":""}>${SH&&SH.connecting?"Opening Strava…":"Connect Strava"}<span>›</span></button><p class="small muted">Runs you record on Strava import by themselves, with pace, splits and heart rate.</p>${err}` }
 
 function exportData(){ const data={exportedAt:new Date().toISOString(),profile:S.profile,logs:S.logs,meals:S.meals,photos:S.photos,chat:S.chat,advice:S.advice};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}), url=URL.createObjectURL(blob), a=document.createElement("a");
@@ -689,6 +768,11 @@ function exportData(){ const data={exportedAt:new Date().toISOString(),profile:S
 function numIn(v){ const n=Number(String(v).replace(/,/g,"")); return isFinite(n)?n:0 }
 document.addEventListener("click",e=>{
   const t=e.target.closest&&e.target.closest("button,[data-xs]"); if(!t) return; const d=t.dataset;
+  // --- Strava: pick the day's run
+  if(d.spick){ const [k,id]=d.spick.split("|"), ib=stravaInbox()[k]; if(!ib) return; const c=ib.runs.find(x=>String(x.stravaId)===id); if(!c) return;
+    const others=ib.runs.filter(x=>x!==c), inbox=stravaInbox(); delete inbox[k]; S.profile.stravaInbox=inbox; saveProfile();
+    useStravaRun(k,c,others).then(()=>{ lastRenderKey=""; render(); toast(others.length?`Logged ${c.name}. ${others.length} extra run${others.length>1?"s":""} saved.`:`Logged ${c.name}`); if(typeof analyzeRun==="function"&&sampleFn) setTimeout(()=>analyzeRun(k),800) }); return }
+  if(d.snone){ const inbox=stravaInbox(); if(inbox[d.snone]){ inbox[d.snone]={...inbox[d.snone],allExtra:true}; S.profile.stravaInbox=inbox; saveProfile(); lastRenderKey=""; render(); toast("Saved as extra runs. Log today's run when you do it.") } return }
   // --- swaps
   if(d.swap){ const p=planFor(sel), ex=p&&p.ex&&p.ex.find(e=>e.id===d.swap); if(!ex) return;
     openSheet({kind:"swap",from:ex.id,fromName:ex.name,day:p.day,dayName:(p.name||("Day "+p.day)).split(" · ")[0],k:ymd(sel),q:"",mu:muscleOfEx(ex.id)}); return }
@@ -705,7 +789,7 @@ document.addEventListener("click",e=>{
   if(d.dayskip){ if(t.dataset.armed){ setSrc(d.dayskip,null); saveProfile(); lastRenderKey=""; render(); toast("Session skipped") } else { t.dataset.armed="1"; t.textContent="Tap again to skip"; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.armed; t.textContent="Skip" } },3000) } return }
   if(d.exhist){ const p=planFor(sel), ex=p&&p.ex&&p.ex.find(e=>e.id===d.exhist); openSheet({kind:"hist",id:d.exhist,name:ex&&ex.name}); return }
   // --- account
-  if(d.acct){ openSheet({kind:"account"}); return }
+  if(d.acct){ openSheet({kind:"account"}); if(window.appConfig&&appConfig().strava) stravaCheck(false); return }
   if(d.acctMode){ setPref({mode:d.acctMode}); paintSheet(); return }
   if(d.acctPal){ setPref({palette:d.acctPal}); paintSheet(); return }
   if(d.acctEdit){ xsClose(); setupOpen=true; SUW=null; render(); window.scrollTo(0,0); return }
@@ -713,6 +797,7 @@ document.addEventListener("click",e=>{
   if(d.acctSconn){ stravaConnect(); return }
   if(d.acctSsync){ stravaSync(true); return }
   if(d.acctSdisc){ stravaDisconnect(); return }
+  if(d.acctScheck){ stravaCheck(true); return }
   if(d.acctOut){ xsClose(); if(window.appSignOut) appSignOut(); return }
   // --- routine editor
   if(d.cGotoplan){ tab="plan"; planView="training"; try{localStorage.setItem("rd25-tab","plan")}catch(_){} render(); window.scrollTo(0,0); return }

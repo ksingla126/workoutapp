@@ -50,5 +50,5 @@ Open the site in Safari → **Share → Add to Home Screen**.
 
 1. Create an API app at [strava.com/settings/api](https://www.strava.com/settings/api). Set **Authorization Callback Domain** to your app's domain (e.g. `workoutapp-nine-bay.vercel.app`, no `https://`).
 2. In Supabase **SQL Editor**, run `supabase/migrations-002-strava.sql`.
-3. In Vercel add `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET` (from the Strava app page) and `SUPABASE_SERVICE_ROLE_KEY` (Supabase → Project Settings → API keys → Legacy → **service_role**; server only, never in the app code). Redeploy.
-4. In the app: account button → **Connect Strava**.
+3. In Vercel add `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET` (from the Strava app page) and `SUPABASE_SERVICE_ROLE_KEY` (Supabase → Project Settings → API keys → Legacy → **service_role**; server only, never in the app code). Optional: `APP_URL` (e.g. `https://workoutapp-nine-bay.vercel.app`) so Strava always returns to that domain. Redeploy.
+4. In the app: account button → **Connect Strava**. If something's misconfigured, the account panel says which setting to fix.

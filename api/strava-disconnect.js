@@ -2,6 +2,7 @@
 import { json, userFrom, admin, stravaToken } from "./_lib.js";
 export const config = { runtime: "edge" };
 export default async function handler(req) {
+  if (req.method !== "POST") return json(405, { code: "method_not_allowed" });
   const user = await userFrom(req); if (!user) return json(401, { code: "not_signed_in" });
   const tok = await stravaToken(user.id).catch(() => null);
   if (tok) await fetch("https://www.strava.com/oauth/deauthorize", { method: "POST", headers: { authorization: `Bearer ${tok}` } }).catch(() => {});
