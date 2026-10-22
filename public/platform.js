@@ -6,7 +6,7 @@
   "use strict";
 
   /* ---------- Sign-in ---------- */
-  let sb = null, session = null, resolveReady;
+  let sb = null, session = null, resolveReady, cfgSaved = null;
   const ready = new Promise((r) => (resolveReady = r));
 
   function authScreen(msg) {
@@ -70,6 +70,7 @@
       return;
     }
     if (cfg.problem) { authScreen(cfg.problem); return; }
+    cfgSaved = cfg;
     // No cross-tab lock: avoids sign-in hanging in some iPhone/home-screen contexts.
     const lock = async (_name, _timeout, fn) => fn();
     sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, { auth: { persistSession: true, autoRefreshToken: true, lock } });
@@ -91,6 +92,7 @@
     if (!data.session) authScreen();
   }
 
+  window.appConfig = () => cfgSaved || {};
   window.appUserEmail = () => (session && session.user && session.user.email) || "";
   window.appAuthToken = async () => { if (!sb) return null; const { data } = await sb.auth.getSession(); return data.session ? data.session.access_token : null; };
 

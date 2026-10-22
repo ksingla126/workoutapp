@@ -772,7 +772,7 @@ async function boot(){
       refs.photos.onSnapshot(snap=>{const P={}; snap.docs.forEach(d=>{if(d.exists) P[d.id]=d.data()}); S.photos=P; if(tab==="progress"&&progView==="body") render(true)},()=>{});
       refs.over.onSnapshot(snap=>{const O={}; snap.docs.forEach(d=>{if(d.exists) O[d.id]=d.data()}); S.over=O; S.__overLoaded=true; render(true); maybeOverload()},()=>{S.__overLoaded=true});
       mode="db"; S.logs={}; S.meals={}; S.chat=[];
-      refs.logs.onSnapshot(snap=>{const L={}; snap.docs.forEach(d=>{if(d.exists) L[d.id]=d.data()}); S.logs=L; loaded.logs=true; migrateTiltCalf(); render(true); maybeAutoAdvice()},()=>{});
+      refs.logs.onSnapshot(snap=>{const L={}; snap.docs.forEach(d=>{if(d.exists) L[d.id]=d.data()}); S.logs=L; loaded.logs=true; migrateTiltCalf(); maybeStravaInit(); render(true); maybeAutoAdvice()},()=>{});
       refs.meals.onSnapshot(snap=>{const M={}; snap.docs.forEach(d=>{if(d.exists) M[d.id]={...d.data()}}); for(const k in mealTimers){ if(S.meals[k]) M[k]=S.meals[k] } S.meals=M; render(true)},()=>{});
       // profile + its parts: the app waits for all four before deciding what to show
       const got=new Set(), partVals={}, need=["profile",...Object.keys(PARTS)];
@@ -2119,6 +2119,11 @@ function parseTrack(raw){
   else { for(const p of byL(doc,"trkpt")){ pts.push({t:Date.parse(txt1(p,"time")),lat:numOr(p.getAttribute("lat")),lon:numOr(p.getAttribute("lon")),ele:numOr(txt1(p,"ele")),d:null,hr:numOr(txt1(p,"hr")),cad:numOr(txt1(p,"cad"))}) } }
   }catch(e){ pts=[] }
   if(pts.filter(p=>isFinite(p.t)).length<10){ const r=rxPoints(text); if(r.pts.length>pts.length){pts=r.pts; name=name||r.name} }
+  return trackFromPoints(pts,name);
+}
+// Shared by GPX/TCX files and Strava sync: timed points {t,lat,lon,ele,d,hr,cad} → run breakdown
+function trackFromPoints(pts,name){
+  name=name||"";
   pts=pts.filter(p=>isFinite(p.t)).sort((a,b)=>a.t-b.t);
   if(pts.length<10) throw new Error("No timed GPS points in that file. Try screenshots instead.");
   const useD=pts.every(p=>p.d!=null); let cum=0;
@@ -2440,7 +2445,7 @@ function applySetup(raw){
 }
 let appliedStamp="";
 function onProfile(){
-  syncPrefs(); initStdAliases(); maybeMigrateLegacy();
+  syncPrefs(); initStdAliases(); maybeMigrateLegacy(); maybeStravaInit();
   let su=S.profile&&S.profile.setup;
   if(su&&!(su.routines&&su.week)){ su=S.profile.setup=normalizeSetup(su); saveProfile() }
   const st=su?JSON.stringify(su)+JSON.stringify((S.profile.setup||{}).customEx||[]):"";

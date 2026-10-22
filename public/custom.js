@@ -636,11 +636,51 @@ function accountHtml(){
    ${tog("sound","Rest timer sound","Beep when rest is over")}
    ${tog("awake","Keep screen on","While a workout timer is running")}
    <label class="setrow"><span><b>Resting heart rate</b><span class="small muted">Used for fitness estimates</span></span><input class="setnum" inputmode="numeric" data-acct-rhr="1" value="${esc(S.profile.restHr||"")}" placeholder="70"></label>
+   ${stravaRows()}
    <h3>Account</h3>
    ${CUSTOM?`<button type="button" class="setlink" data-acct-edit="1">Edit plan & goals<span>›</span></button>`:""}
    <button type="button" class="setlink" data-acct-export="1">Download my data<span>›</span></button>
    <button type="button" class="btn ghost" data-acct-out="1" style="margin-top:8px">Sign out</button>`;
 }
+/* ----- Strava auto-import ----- */
+let stravaBusy=false;
+function stravaState(){ return (userPrefs().strava)||{} }
+async function api(path,opt){ const tok=window.appAuthToken? await appAuthToken() : null; const r=await fetch(path,{...(opt||{}),headers:{...(tok?{authorization:"Bearer "+tok}:{})}}); const j=await r.json().catch(()=>({})); if(!r.ok) throw Object.assign(new Error(j.code||"error"),{status:r.status,code:j.code}); return j }
+async function stravaConnect(){ try{ const j=await api("/api/strava-start"); location.href=j.url }catch(e){ toast(e.code==="not_configured"?"Strava isn't set up on the server yet.":"Couldn't reach Strava. Try again.") } }
+async function stravaDisconnect(){ try{ await api("/api/strava-disconnect",{method:"POST"}) }catch(e){} setPref({strava:{connected:false}}); paintSheet(); toast("Strava disconnected") }
+// Strava streams → the same run breakdown a GPX file gives
+function stravaToSt(run){ const S2=run.streams||{}, t0=Date.parse(run.start); if(!S2.time||S2.time.length<10||!isFinite(t0)) return null;
+  const pts=S2.time.map((sec,i)=>({t:t0+sec*1000,lat:S2.latlng&&S2.latlng[i]?S2.latlng[i][0]:null,lon:S2.latlng&&S2.latlng[i]?S2.latlng[i][1]:null,ele:S2.altitude?S2.altitude[i]:null,d:S2.distance?S2.distance[i]:null,hr:S2.heartrate?S2.heartrate[i]:null,cad:S2.cadence?S2.cadence[i]:null}));
+  try{ const st=trackFromPoints(pts,run.name); st.src="strava"; st.stravaId=run.id; st.date=String(run.startLocal||run.start).slice(0,10); return st }catch(e){ return null } }
+async function stravaSync(manual){
+  const ss=stravaState(); if(!ss.connected||stravaBusy) return; stravaBusy=true; if(manual&&SH&&SH.kind==="account"){ SH.syncing=true; paintSheet() }
+  try{ const after=ss.lastSync? Math.floor(ss.lastSync/1000)-2*86400 : Math.floor(START.getTime()/1000);
+    const j=await api("/api/strava-sync?after="+after); let n=0; const ana=[];
+    for(const run of j.runs||[]){ const k=String(run.startLocal||run.start||"").slice(0,10); if(!/^\d{4}-\d{2}-\d{2}$/.test(k)) continue;
+      const log=S.logs[k];
+      if(log&&(log.type==="gym"||log.st)) continue; // never touch a gym day or a run that already has its breakdown
+      const st=stravaToSt(run); if(!st) continue;
+      const p=planFor(parseYmd(k)), base=log||{type:"run",key:p&&p.type==="run"?p.key:"tue",rpe:"",notes:"Imported from Strava"};
+      // on a day that wasn't a planned run, record it as an extra run rather than taking the day's plan
+      const extra=!(p&&p.type==="run")&&!(log&&log.plan)? {plan:{type:"run",key:"tue",t:"Run",d:"Extra run · imported from Strava"}} : {};
+      await saveLog(k,{...base,...extra,type:"run",mi:base.mi||st.mi,min:base.min||st.movingMin||st.elapsedMin,st,savedAt:Date.now()}); n++; ana.push(k) }
+    setPref({strava:{...ss,connected:true,lastSync:Date.now()}});
+    if(n) toast(`Imported ${n} run${n>1?"s":""} from Strava`); else if(manual) toast("No new runs on Strava");
+    if(typeof analyzeRun==="function"&&sampleFn) ana.forEach((k,i)=>setTimeout(()=>analyzeRun(k),1500*(i+1)));
+    lastRenderKey=""; render();
+  }catch(e){ if(e.code==="not_connected"){ setPref({strava:{connected:false}}); if(manual) toast("Strava isn't connected anymore. Connect it again.") } else if(manual) toast(e.code==="rate_limited"?"Strava is busy. Try again in a few minutes.":"Couldn't sync with Strava right now.") }
+  finally{ stravaBusy=false; if(SH&&SH.kind==="account"){ SH.syncing=false; paintSheet() } } }
+function maybeStravaInit(){ if(!window.__stravaInit&&window.__platform&&loaded.profile&&loaded.logs){ window.__stravaInit=true; stravaOnLoad() } }
+function stravaOnLoad(){
+  const q=new URLSearchParams(location.search), r=q.get("strava");
+  if(r){ history.replaceState(null,"",location.pathname);
+    if(r==="connected"){ setPref({strava:{connected:true}}); toast("Strava connected. Importing your runs…"); setTimeout(()=>stravaSync(true),800) }
+    else toast(r==="denied"?"Strava connection cancelled.":r==="scope"?"Tick “View data about your activities” so runs can import.":"Couldn't connect Strava. Try again."); return }
+  const ss=stravaState(); if(ss.connected&&(!ss.lastSync||Date.now()-ss.lastSync>30*60000)) setTimeout(()=>stravaSync(false),2000) }
+function stravaRows(){ if(!(window.appConfig&&appConfig().strava)) return ""; const ss=stravaState();
+  return `<h3>Strava</h3>`+(ss.connected? `<div class="setrow"><span><b>Connected</b><span class="small muted">${SH&&SH.syncing?"Syncing…":ss.lastSync?"Last synced "+new Date(ss.lastSync).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"Runs import automatically"}</span></span><span class="row" style="gap:6px;flex-wrap:nowrap"><button type="button" class="btn sm" data-acct-ssync="1" ${SH&&SH.syncing?"disabled":""}>Sync</button><button type="button" class="btn ghost sm" data-acct-sdisc="1">Disconnect</button></span></div>`
+    : `<button type="button" class="setlink" data-acct-sconn="1">Connect Strava<span>›</span></button><p class="small muted">Runs you record on Strava import by themselves, with pace, splits and heart rate.</p>`) }
+
 function exportData(){ const data={exportedAt:new Date().toISOString(),profile:S.profile,logs:S.logs,meals:S.meals,photos:S.photos,chat:S.chat,advice:S.advice};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}), url=URL.createObjectURL(blob), a=document.createElement("a");
   a.href=url; a.download=`training-data-${ymd(today)}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000) }
@@ -670,6 +710,9 @@ document.addEventListener("click",e=>{
   if(d.acctPal){ setPref({palette:d.acctPal}); paintSheet(); return }
   if(d.acctEdit){ xsClose(); setupOpen=true; SUW=null; render(); window.scrollTo(0,0); return }
   if(d.acctExport){ exportData(); return }
+  if(d.acctSconn){ stravaConnect(); return }
+  if(d.acctSsync){ stravaSync(true); return }
+  if(d.acctSdisc){ stravaDisconnect(); return }
   if(d.acctOut){ xsClose(); if(window.appSignOut) appSignOut(); return }
   // --- routine editor
   if(d.cGotoplan){ tab="plan"; planView="training"; try{localStorage.setItem("rd25-tab","plan")}catch(_){} render(); window.scrollTo(0,0); return }
