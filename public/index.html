@@ -589,11 +589,11 @@ const ROPE_STAGES=[["2026-11-02",6,30,30,"Short rounds while your calves adapt. 
   ["9999-12-31",2,180,60,"Race week: 2 easy rounds just to stay sharp."]];
 function ropeFor(d){ const k=ymd(d); const r=ROPE_STAGES.find(x=>k<x[0]); return {id:"rope",name:"Jump rope rounds",sets:r[1],lo:r[2],hi:r[2],inc:0,unit:"sec",bw:true,fixed:true,rest:r[3],
   alt:"Finisher, after your last exercise. "+r[4]+" Rope length: stand on the middle, handles reach your armpits. Calves still sore 2 days later? Repeat this format next week."} }
-function curPhase(){ if(CUSTOM) return CUSTOM.gym; const ph=GYM2[ymd(today)<=CORE_SWAP.to?"block":"post"], out={}; Object.entries(ph).forEach(([k,g])=>out[k]=applySwaps(g,k,parseYmd("9999-12-31"),true)); return out }
+function curPhase(){ if(CUSTOM){ const out={}; Object.entries(CUSTOM.gym).forEach(([k,g])=>out[k]=applySwaps(g,k,today,true)); return out } const ph=GYM2[ymd(today)<=CORE_SWAP.to?"block":"post"], out={}; Object.entries(ph).forEach(([k,g])=>out[k]=applySwaps(g,k,parseYmd("9999-12-31"),true)); return out }
 const TILTCALF_FROM="2026-10-21";
 function migrateTiltCalf(){ if(CUSTOM) return; Object.entries(S.logs).forEach(([k,l])=>{ if(k>=TILTCALF_FROM&&l&&l.type==="gym"&&l.day==="B"&&l.ex&&l.ex.calfraise&&!l.ex.tiltcalf){
   const ex={...l.ex,tiltcalf:l.ex.calfraise}; delete ex.calfraise; const db={...(l.db||{})}; delete db.calfraise; saveLog(k,{...l,ex,db}) } }) }
-function gymDay(s,d){ if(CUSTOM) return applySwaps(CUSTOM.gym[s]||{name:"Workout",ex:[]},s,d); let g=applySwaps(gymDay0(s,d),s,d);
+function gymDay(s,d){ if(CUSTOM&&CUSTOM.su.fromLegacy&&ymd(d)<V2_FROM&&/^r[ABC]$/.test(s)) return applySwaps(gymDay0(s.slice(1),d),s.slice(1),d); if(CUSTOM){ const g=applySwaps(CUSTOM.gym[s]||{name:"Workout",ex:[]},s,d); return CUSTOM.su.rope&&ymd(d)>=V2_FROM&&g.ex.length? {...g,ex:[...g.ex,ropeFor(d)]} : g } let g=applySwaps(gymDay0(s,d),s,d);
   return ymd(d)>=V2_FROM? {...g, ex:[...g.ex, ropeFor(d)]} : g }
 function gymDay0(s,d){ const k=ymd(d); if(k>=V2_FROM) return GYM2[k<=CORE_SWAP.to?"block":"post"][s];
   const g=GYM[s]; if(!inCoreSwap(d)) return g; const ex=g.ex.map(e=>SWAP_EX[e.id]||e); return {...g, ex, name: s==="B"?"Day B · Press & Core":g.name, swapped:true} }
@@ -1440,7 +1440,8 @@ function prevLine(ex,k){
   return `<div class="prev"><span class="pl">Last · ${DOW[dowOf(parseYmd(last.k))]} ${fmtShort(parseYmd(last.k))}</span>${pills}${last.sets.length<ex.sets?`<span class="small muted">${last.sets.length} of ${ex.sets} sets</span>`:""}</div>`;
 }
 function lastSessionNote(p,k){
-  const prev=Object.entries(S.logs).filter(([kk,l])=>kk<k&&l.type==="gym"&&l.day===p.day&&l.notes).sort((a,b)=>a[0]<b[0]?1:-1)[0];
+  const dk=x=>/^[ABC]$/.test(x||"")?"r"+x:x;
+  const prev=Object.entries(S.logs).filter(([kk,l])=>kk<k&&l.type==="gym"&&dk(l.day)===dk(p.day)&&l.notes).sort((a,b)=>a[0]<b[0]?1:-1)[0];
   return prev? `<div class="lastnote" style="margin-bottom:10px"><b>Your note from ${fmtShort(parseYmd(prev[0]))}:</b> “${esc(prev[1].notes)}”</div>` : "";
 }
 function overStamp(p,k){
@@ -2303,6 +2304,7 @@ function bind(){
 }
 /* ---------- Custom programs: built from each new user's setup answers ---------- */
 const RACE_NAMES={"5k":"5K","10k":"10K",half:"Half marathon"};
+const LEGACY_RUNS=RUNS;
 const BASE_MEALS=JSON.parse(JSON.stringify(MEALS));
 const BASE_BENCH=BENCH_NORM.map(x=>[...x]), BASE_VO2=VO2_NORM.map(x=>[...x]);
 const mondayOf=d=>addDays(midnight(d),-((d.getDay()+6)%7));
@@ -2353,7 +2355,7 @@ function applySetup(raw){
   SCHED=su.week.map(w=>w==="run"?"run":gym[w]?w:"rest"); RUNKEY={};
   const kinds=su.runDays.length===1?["sat"]:su.runDays.length===2?["tue","sat"]:["tue","thu","sat"];
   su.runDays.forEach((d,i)=>RUNKEY[d]=kinds[Math.min(i,2)]);
-  RUNS=buildRuns(su,WEEKS);
+  RUNS= su.legacyRuns? LEGACY_RUNS : buildRuns(su,WEEKS);
   CUSTOM={su,gym,rest};
   const ids=[...new Set(su.routines.flatMap(r=>r.ex.map(e=>e.id)))];
   KEYLIFTS=[...ids.filter(id=>STD[id]&&!STD[id].sec&&!STD[id].add),...ids].filter((x,i,a)=>a.indexOf(x)===i).slice(0,4);
@@ -2362,12 +2364,12 @@ function applySetup(raw){
   const bA=a<30?1:a<40?0.88:a<50?0.79:a<60?0.71:0.63, vA=a<30?1:a<40?0.89:a<50?0.8:a<60?0.7:0.61;
   BENCH_NORM=BASE_BENCH.map(([p,v])=>[p,+(v*(fem?0.56:1)*bA).toFixed(3)]);
   VO2_NORM=BASE_VO2.map(([p,v])=>[p,+(v*(fem?0.79:1)*vA).toFixed(1)]);
-  REF_BW=fem?145:175; HR_MAX_EST=Math.round(208-0.7*AGE); [HR_LO,HR_HI]=hrZone(AGE);
+  REF_BW=fem?145:175; HR_MAX_EST=Math.round(208-0.7*AGE); [HR_LO,HR_HI]=hrZone(AGE); if(su.legacyRuns){ HR_MAX_EST=199; HR_LO=130; HR_HI=150 }
   if(!inProgram(sel)) sel=inProgram(today)?today:(dayNum(today)<0?START:GOAL);
 }
 let appliedStamp="";
 function onProfile(){
-  syncPrefs(); initStdAliases();
+  syncPrefs(); initStdAliases(); maybeMigrateLegacy();
   let su=S.profile&&S.profile.setup;
   if(su&&!(su.routines&&su.week)){ su=S.profile.setup=normalizeSetup(su); saveProfile() }
   const st=su?JSON.stringify(su)+JSON.stringify((S.profile.setup||{}).customEx||[]):"";
@@ -2395,7 +2397,8 @@ ${routines}
 Progression: double progression (beat reps; at the top of the range on every set, add weight; 10% deload after two stalled sessions). Runs: easy runs by heart rate, intervals, and a weekly long run with lighter recovery weeks.
 Daily food goals: ${fmtN(g.kcal)} kcal, ${g.p} g protein, ${g.c} g carbs, ${g.f} g fat. Their saved meals: ${meals}.
 If they report sharp pain, swelling, chest pain, dizziness or fainting, tell them to stop and get it checked by a professional. You're not a doctor.
-Today: ${fmtDate(today)} (week ${w} of ${WEEKS}).${su.race?` ${RACE_NAMES[su.race]} on ${fmtDate(GOAL)}.`:""}
+${su.coachNotes?`Background: ${su.coachNotes}
+`:""}Today: ${fmtDate(today)} (week ${w} of ${WEEKS}).${su.race?` ${RACE_NAMES[su.race]} on ${fmtDate(GOAL)}.`:""}
 `;
 }
 function customPlanIntro(){
@@ -2495,11 +2498,12 @@ function bindSetup(){
     if(!(prot>=30&&prot<=400)) return err("Enter a daily protein goal in grams.");
     const prev=S.profile.setup&&normalizeSetup(S.profile.setup);
     const routines= s.split==="keep"&&prev? prev.routines : splitToSetup(s.split).routines;
-    const su={v:2,name:s.name.slice(0,40),sex:s.sex,age,weight:wt,goal:s.goal,race:s.goal==="race"?s.race:null,goalDate:s.goalDate,
+    const keepLegacy=prev&&prev.legacyRuns&&s.goalDate===prev.goalDate&&s.goal==="race"&&s.race===prev.race&&JSON.stringify(s.week.map(w=>w==="run"))===JSON.stringify(prev.week.map(w=>w==="run"));
+    const su={...(prev||{}),legacyRuns:!!keepLegacy,v:2,name:s.name.slice(0,40),sex:s.sex,age,weight:wt,goal:s.goal,race:s.goal==="race"?s.race:null,goalDate:s.goalDate,
       start:prev&&prev.start&&parseYmd(prev.start)<=today?prev.start:ymd(mondayOf(today)),firstDay:(prev&&prev.firstDay)||ymd(today),split:s.split==="keep"?(prev&&prev.split)||"own":s.split,routines,week:[...s.week],
       customEx:(prev&&prev.customEx)||[],runLevel:s.runLevel,exp:s.exp,kcal:Math.round(kcal),food:{...((prev&&prev.food)||{}),kcal:Math.round(kcal),protein:Math.round(prot)},at:Date.now()};
     S.profile.setup=su;
-    S.profile.about=`${su.name}, ${su.age}${su.sex==="female"?"F":"M"}, ${su.weight} lb at setup. Goal: ${goalText(su)} by ${fmtDate(parseYmd(su.goalDate))}.`;
+    if(!prev||!S.profile.about) S.profile.about=`${su.name}, ${su.age}${su.sex==="female"?"F":"M"}, ${su.weight} lb at setup. Goal: ${goalText(su)} by ${fmtDate(parseYmd(su.goalDate))}.`;
     S.profile.raceDate=su.race?su.goalDate:"";
     const ws=S.profile.weights||(S.profile.weights=[]); if(!ws.some(x=>x.d===ymd(today))) ws.push({d:ymd(today),lb:wt});
     saveProfile(); onProfile(); setupOpen=false; SUW=null; sel=inProgram(today)?today:START;

@@ -82,7 +82,7 @@ function toPlanEx(r){ // routine entry -> exercise object the logger understands
   const timed=L.type==="t", inc= timed?0 : L.id==="legpress45"||L.id==="legpress"||L.id==="hack"? 20 : L.type==="bw"? 5 : L.equip==="Machine"? 10 : 5;
   const note= L.type==="bw"? "Bodyweight: leave weight blank, or enter added weight." : L.equip==="Dumbbell"? (L.uni?"Weight = the one dumbbell.":"Weight = each dumbbell.") : "";
   return {id:L.id,name:L.name,sets:r.sets||3,lo:r.lo||(timed?30:8),hi:r.hi||(timed?60:12),inc,rest:r.rest||90,
-    ...(timed?{bw:true,unit:"sec"}:{}),...(L.type==="bw"?{optW:true}:{}),...(r.note||note?{alt:[note,r.note].filter(Boolean).join(" ")}:{}),muscle:L.muscle,equip:L.equip,uni:L.uni};
+    ...(timed?{bw:true,unit:"sec"}:{}),...(L.type==="bw"?{optW:true}:{}),...(r.ss?{ss:r.ss}:{}),...(r.note||note?{alt:[note,r.note].filter(Boolean).join(" ")}:{}),muscle:L.muscle,equip:L.equip,uni:L.uni};
 }
 
 /* ----- Starter splits ----- */
@@ -229,20 +229,31 @@ const fmtQ=n=>{const x=Number(n)||0; return Number.isInteger(x)?String(x):x.toFi
 const SLOTS=[["b","Breakfast"],["l","Lunch"],["d","Dinner"],["s","Snacks"]];
 
 /* ----- Diary math (used by the main app's food totals) ----- */
-function diaryTotals(k){ const m=S.meals[k]; let t={...ZERO}; (m&&m.items||[]).forEach(x=>{t=addM(t,{kcal:+x.kcal||0,p:+x.p||0,c:+x.c||0,f:+x.f||0})}); return t }
+// Entries from the original meal-plan checkboxes and off-plan extras still count and show in the diary.
+const LEGACY_SLOT={b:"b",l:"l",d:"d",s:"s",e:"s",bn:"s"};
+function legacyItems(k){ const m=S.meals[k]; if(!m) return []; const out=[];
+  Object.entries(m.eaten||{}).forEach(([id,v])=>{ if(v&&typeof MEALS!=="undefined"&&MEALS[id]) out.push({slot:LEGACY_SLOT[id]||"s",n:MEALS[id].n.replace(/^[^·]+·\s*/,""),amt:"meal plan",kcal:MEALS[id].kcal,p:MEALS[id].p,c:0,f:0,legacy:true}) });
+  (m.extras||[]).forEach(x=>out.push({slot:"s",n:x.n||"Extra",amt:"",kcal:+x.kcal||0,p:+x.p||0,c:0,f:0,legacy:true}));
+  return out }
+function diaryTotals(k){ const m=S.meals[k]; let t={...ZERO}; [...(m&&m.items||[]),...legacyItems(k)].forEach(x=>{t=addM(t,{kcal:+x.kcal||0,p:+x.p||0,c:+x.c||0,f:+x.f||0})}); return t }
 function foodGoals(){ const su=CUSTOM&&CUSTOM.su; const g=(su&&su.food)||{}; const kcal=Number(g.kcal||su&&su.kcal)||2000;
   const p=Number(g.protein)||Math.round((Number(su&&su.weight)||170)*0.8), f=Number(g.fat)||Math.round(kcal*0.28/9), c=Number(g.carbs)||Math.max(0,Math.round((kcal-p*4-f*9)/4));
   return {kcal,p,c,f} }
 
 /* ======================= Logged days keep their plan ======================= */
-const SNAP_KEYS=["id","name","sets","lo","hi","inc","rest","bw","unit","optW","alt","muscle","equip","uni"];
+const SNAP_KEYS=["id","name","sets","lo","hi","inc","rest","bw","unit","optW","alt","muscle","equip","uni","ss"];
 function planSnapshot(d){ const p=planFor(d); if(!p||p.type==="rest") return null;
   if(p.type==="gym") return {type:"gym",day:p.day,name:p.name,ex:(p.ex||[]).map(e=>{const o={}; SNAP_KEYS.forEach(k=>{if(e[k]!==undefined) o[k]=e[k]}); return o})};
   return {type:"run",key:p.key,t:p.t,d:p.d} }
 function loggedPlan(d){ const k=ymd(d), l=S.logs[k]; if(!l) return null; const w=weekOf(d), i=dowOf(d);
   if(l.plan&&l.plan.type) return {...l.plan,w,i,logged:true};
-  if(l.type==="gym"&&l.ex){ const cur=CUSTOM.gym[l.day];
+  if(l.type==="gym"&&l.ex&&CUSTOM.su.fromLegacy&&/^[ABC]$/.test(l.day||"")&&typeof gymDay0==="function"){
+    let g=gymDay0(l.day,d); BUILTIN_SWAPS.forEach(r=>{ if(r.day===l.day&&k>=r.since) g={...g,ex:g.ex.map(e=>e.id===r.from?swapEx(e,r.to):e)} });
+    if(k>=V2_FROM) g={...g,ex:[...g.ex,ropeFor(d)]};
+    return {type:"gym",w,i,day:l.day,name:g.name,ex:g.ex,logged:true} }
+  if(l.type==="gym"&&l.ex){ const cur=CUSTOM.gym[l.day]||CUSTOM.gym["r"+l.day];
     return {type:"gym",w,i,day:l.day,name:(cur&&cur.name)||"Workout",logged:true,ex:Object.keys(l.ex).map(id=>{const c=cur&&cur.ex.find(e=>e.id===id), b=c||toPlanEx({id}); return {...b,sets:Math.max(b.sets,l.ex[id].length)}})} }
+  if(l.type==="run"&&!l.plan){ const mv=(S.profile.moves||{})[k], b0=mv&&/^\d{4}-/.test(mv)? basePlan(parseYmd(mv)) : basePlan(d); if(b0&&b0.type==="run") return null }
   if(l.type==="run"){ const b=basePlan(d); return b&&b.type==="run"? b : {type:"run",w,i,key:"tue",t:"Run",d:"Logged run",logged:true} }
   return null }
 
@@ -316,8 +327,9 @@ function diaryCard(d){
   let h=`<div class="card"><div class="row between"><div><div class="eyebrow">Food diary</div><h2>${k===ymd(today)?"Today's food":"Food · "+fmtShort(d)}</h2></div><button type="button" class="btn sm" data-c-food="${k}|">+ Add food</button></div>
    <div class="kcalrow"><div><b class="num">${fmtN(g.kcal)}</b><span>Goal</span></div><b class="op">−</b><div><b class="num">${fmtN(t.kcal)}</b><span>Food</span></div><b class="op">=</b><div class="${left<0?"over":""}"><b class="num">${fmtN(Math.abs(left))}</b><span>${left<0?"Over":"Remaining"}</span></div></div>
    ${macroBars(t,g)}`;
-  SLOTS.forEach(([sk,sn])=>{ const its=items.map((x,i)=>[x,i]).filter(([x])=>x.slot===sk), st=its.reduce((a,[x])=>a+(+x.kcal||0),0), planned=(plan[sk]||[]);
+  SLOTS.forEach(([sk,sn])=>{ const its=items.map((x,i)=>[x,i]).filter(([x])=>x.slot===sk), st=its.reduce((a,[x])=>a+(+x.kcal||0),0)+legacyItems(k).filter(x=>x.slot===sk).reduce((a,x)=>a+x.kcal,0), planned=(plan[sk]||[]);
     h+=`<div class="slot"><div class="row between"><b>${sn}</b><span class="small muted num">${fmtN(st)} kcal</span></div>`;
+    legacyItems(k).filter(x=>x.slot===sk).forEach(x=>{h+=`<div class="extra"><span>${esc(x.n)} <span class="muted small num">· ${fmtN(x.kcal)} kcal · ${Math.round(x.p||0)} g P</span></span></div>`});
     its.forEach(([x,i])=>{h+=`<div class="extra"><span>${esc(x.n)} <span class="muted small num">· ${esc(x.amt||"")} · ${fmtN(x.kcal)} kcal · ${Math.round(x.p||0)} g P</span></span><button type="button" data-c-fdel="${k}|${i}" aria-label="Remove ${esc(x.n)}">×</button></div>`});
     h+=`<div class="row" style="gap:8px">${planned.length&&!its.some(([x])=>x.planned)?`<button type="button" class="link small" data-c-fplan="${k}|${sk}">+ Log planned ${sn.toLowerCase()}</button>`:""}<button type="button" class="link small" data-c-food="${k}|${sk}">+ Add</button></div></div>`});
   return h+`</div>`;
@@ -446,11 +458,49 @@ function swapEx(orig,toId){
   if(L&&!EX_MUSCLES[e.id]&&LIB_MUSCLE_MAP[L.muscle]) EX_MUSCLES[e.id]=LIB_MUSCLE_MAP[L.muscle];
   return e;
 }
+// Routine swaps with a start date. Built-in plans use them for every routine change; custom plans only for scheduled ones.
 function applySwaps(g,dayKey,d,routineOnly){
-  if(!g||!g.ex) return g; const k=ymd(d), sw=swapsOf(); let ex=g.ex;
-  if(!CUSTOM) [...BUILTIN_SWAPS,...sw.routine].forEach(r=>{ if(r.day===dayKey&&k>=r.since) ex=ex.map(e=>e.id===r.from?swapEx(e,r.to):e) });
+  if(!g||!g.ex) return g; const k=ymd(d), sw=swapsOf(); let ex=g.ex, name=g.name;
+  (CUSTOM? sw.routine : [...BUILTIN_SWAPS,...sw.routine]).forEach(r=>{ if(r.day!==dayKey||k<r.since) return;
+    if(r.name) name=r.name;
+    if(r.from) ex=ex.map(e=>{ if(e.id!==r.from) return e; const n={...swapEx(e,r.to)}; ["sets","lo","hi","rest"].forEach(f=>{ if(r[f]!=null) n[f]=r[f] }); if(r.rest) SWAP_REST[n.id]=r.rest; if(r.ss!==undefined) n.ss=r.ss||undefined; return n });
+    if(r.from&&r.at!=null){ const i=ex.findIndex(e=>e.id===r.to); if(i>=0&&i!==r.at){ ex=[...ex]; const [m]=ex.splice(i,1); ex.splice(Math.min(r.at,ex.length),0,m) } } });
   const once=!routineOnly&&sw.once[k]; if(once) ex=ex.map(e=>once[e.id]?{...swapEx(e,once[e.id]),once:true}:e);
-  return ex===g.ex? g : {...g,ex};
+  return ex===g.ex&&name===g.name? g : {...g,name,ex};
+}
+/* ----- One-time move of the original hand-built plan onto routines (reversible: delete profile.setup) ----- */
+function legacyToSetup(){
+  const P=S.profile, about=String(P.about||""), nm=(about.match(/^\s*([A-Za-z][A-Za-z'-]{1,30})\s*,/)||[])[1]||"You";
+  const wts=(P.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1), wt=wts.length?Number(wts[wts.length-1].lb):(Number((about.match(/(\d{3})\s*lb/)||[])[1])||270);
+  const E2=(id,sets,lo,hi,ss)=>({id,sets,lo,hi,rest:REST[id]||90,note:X[id]&&X[id].alt,...(ss?{ss}:{})});
+  const routines=[
+    {id:"rA",name:"Day A · Bench & Leg Press",ex:[E2("bench",4,6,8),E2("legpress45",4,8,12),E2("pulldown",3,8,12),E2("backext",3,10,15),E2("declinecrunch",3,10,15),E2("fly",3,12,15,"a1"),E2("revfly",2,12,15,"a1"),E2("lateral",3,12,15)]},
+    {id:"rB",name:"Day B · Press & Core",ex:[E2("ohp",3,6,10),E2("cablerow",3,8,12),E2("legcurl",3,10,15),E2("legext1",2,10,15),E2("facepull",3,12,15,"b1"),E2("ohtri",2,10,15,"b1"),E2("pallof",3,10,12,"b2"),E2("tiltcalf",3,10,15,"b2")]},
+    {id:"rC",name:"Day C · Incline & Glutes",ex:[E2("incline",4,8,12),E2("dbrow",3,8,12),E2("hipthrust",3,8,12),E2("legcurl",3,10,15),E2("ezcurl",2,10,15,"c1"),E2("pushdown",2,10,15,"c1"),E2("hammer",2,10,15,"c2"),{...E2("calfraise",2,10,15,"c2"),note:"Pair with hammer curls. Full stretch at the bottom, 1 s pause at the top."}]}];
+  // swaps already made with the swap button
+  const sw=P.swaps||{}, keep=[];
+  (sw.routine||[]).forEach(r=>{ const rid="r"+r.day, R=routines.find(x=>x.id===rid); if(!R) return;
+    if(r.since<=ymd(today)){ const e=R.ex.find(x=>x.id===r.from); if(e) e.id=r.to } else keep.push({...r,day:rid}) });
+  // Nov 9: the core block ends and the deadlifts return
+  keep.push({day:"rA",since:"2026-11-09",from:"declinecrunch",to:"rdl",sets:3,lo:8,hi:10,rest:120,at:3});
+  keep.push({day:"rB",since:"2026-11-09",name:"Day B · Press & Deadlift",from:"pallof",to:"tbdl",sets:3,lo:5,hi:8,rest:150,ss:null,at:1});
+  P.swaps={once:sw.once||{},routine:keep};
+  // the meal plan becomes recipes in My meals + a daily plan
+  const K=kitchen(); if(!K.recipes.length){
+    K.recipes=[
+      {id:"rcYog",name:"Yogurt berry bowl",servings:1,items:[{f:"gyog0",amt:1,unit:"1 cup"},{f:"oats",amt:27,unit:"g"},{f:"berries",amt:0.75,unit:"1 cup"}]},
+      {id:"rcPes",name:"Pesto chicken rice bowl",servings:1,items:[{f:"chkbrc",amt:6,unit:"oz"},{f:"ricew",amt:0.5,unit:"1 cup"},{f:"broc",amt:2,unit:"1 cup"},{f:"pesto",amt:1,unit:"1 tbsp"}]},
+      {id:"rcBol",name:"Turkey bolognese pasta (batch)",servings:14,items:[{f:"turk93",amt:4,unit:"1 lb"},{f:"onion",amt:2,unit:"1 medium"},{f:"carrot",amt:2,unit:"1 medium"},{f:"garlic",amt:6,unit:"1 clove"},{f:"crtom",amt:3,unit:"1 can (28 oz)"},{f:"tompaste",amt:170,unit:"g"},{f:"spinach",amt:14,unit:"1 cup"},{f:"pastad",amt:28,unit:"oz"}]},
+      {id:"rcCot",name:"Cottage cheese + berries",servings:1,items:[{f:"cott1",amt:0.75,unit:"1 cup"},{f:"berries",amt:0.5,unit:"1 cup"}]}];
+    K.plan={b:[{t:"r",id:"rcYog",qty:1}],l:[{t:"r",id:"rcPes",qty:1}],d:[{t:"r",id:"rcBol",qty:1}],s:[{t:"r",id:"rcCot",qty:1}]} }
+  return {v:2,name:nm,sex:"male",age:21,weight:wt,goal:"race",race:"half",goalDate:"2026-12-25",start:"2026-10-12",firstDay:"2026-10-12",split:"own",
+    routines,week:["rA","run","rB","run","rC","run","rest"],customEx:[],runLevel:"new",exp:"new",kcal:1600,food:{kcal:1600,protein:140},
+    legacyRuns:true,rope:true,fromLegacy:ymd(today),at:Date.now(),
+    coachNotes:"Core block Oct 19–Nov 8: deadlift patterns were swapped for weighted core work because his core couldn't support his lower back; from Nov 9 the RDL and trap-bar deadlift return at reduced weight (trap bar around 135 lb with straps). Pressing is his weakest area, grip limits his pulls (use straps), and he dislikes split squats. Runs: Tuesday easy by heart rate (jog to 150 bpm, walk to 130), Thursday intervals, Saturday long run building to 11 mi with lighter weeks 4 and 8; half marathon Dec 25 with a 2:30–2:40 run/walk goal. Jump-rope rounds finish each gym day as prep for a Muay Thai camp right after Dec 25. He chose an aggressive calorie deficit, so watch for under-fueling."};
+}
+function maybeMigrateLegacy(){
+  if(!window.__platform||!loaded.profile||S.profile.setup||!S.profile.about||S.profile.legacyKept) return false;
+  S.profile.setup=legacyToSetup(); saveProfile(); return true;
 }
 const SWAP_ICON=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h9.5M10 2.5 12.5 5 10 7.5"/><path d="M13 11H3.5M6 8.5 3.5 11 6 13.5"/></svg>`;
 function swapBtn(ex,log){ if(ex.fixed||log) return "";
@@ -484,7 +534,7 @@ function doSwap(mode){ const W=SH, from=W.from, to=W.to, k=W.k;
   sw.routine.push({day:W.day,from,to,since:k}); saveProfile(); xsClose(); lastRenderKey=""; render(); toast(`${W.dayName} updated from ${fmtShort(parseYmd(k))} on`);
 }
 function swapsText(){ const sw=swapsOf(), L=id=>(libEx(id)||(typeof X!=="undefined"&&X[id])||{name:id}).name, out=[];
-  if(!CUSTOM) [...BUILTIN_SWAPS,...sw.routine].forEach(r=>out.push(`Day ${r.day}: ${L(r.from)} → ${L(r.to)} from ${r.since}`));
+  (CUSTOM?sw.routine:[...BUILTIN_SWAPS,...sw.routine]).filter(r=>r.from).forEach(r=>out.push(`${CUSTOM&&CUSTOM.gym[r.day]?CUSTOM.gym[r.day].name:"Day "+r.day}: ${L(r.from)} → ${L(r.to)} from ${r.since}`));
   Object.entries(sw.once).filter(([k])=>k>=ymd(addDays(today,-14))).forEach(([k,m])=>Object.entries(m).forEach(([a,b])=>out.push(`${k} only: ${L(a)} → ${L(b)}`)));
   return out.length? `Exercise swaps they made in the app: ${out.join("; ")}.\n` : "" }
 
