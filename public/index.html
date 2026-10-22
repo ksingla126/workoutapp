@@ -798,6 +798,7 @@ function render(fromStore){
   if(fromStore && key===lastRenderKey && (typing || (tab==="home" && document.querySelector("#trainLog[open]")))){ renderTop(); renderTabs(); return }
   if(fromStore && tab==="advice" && key===lastRenderKey && (sending||typing)){ renderTop(); renderTabs(); return }
   const openLogger=!!document.querySelector("#trainLog[open]") && key===lastRenderKey;
+  if(TM.start&&S.logs[TM.date]) stopWorkout(); // a logged workout can only be edited, not run live
   if(gateView(fromStore)) return;
   lastRenderKey=key;
   renderTop(); renderTabs();
@@ -1305,10 +1306,11 @@ function beep(){ if(window.userPrefs&&!userPrefs().sound) return; try{unlockAudi
 async function keepAwake(on){ if(on&&window.userPrefs&&!userPrefs().awake) on=false; try{if(on&&navigator.wakeLock&&!wakeLock){wakeLock=await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release",()=>{wakeLock=null})} if(!on&&wakeLock){await wakeLock.release(); wakeLock=null}}catch(e){}}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&TM.start) keepAwake(true)});
 function fmtClock(ms){const s=Math.max(0,Math.round(ms/1000)); const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60; return h?`${h}:${pad(m)}:${pad(x)}`:`${m}:${pad(x)}`}
-function startWorkout(){unlockAudio(); TM={start:Date.now(),date:ymd(sel),restEnd:0,restDur:0}; saveTM(); keepAwake(true); tick()}
+function startWorkout(){ if(S.logs[ymd(sel)]) return; unlockAudio(); TM={start:Date.now(),date:ymd(sel),restEnd:0,restDur:0}; saveTM(); keepAwake(true); tick()}
 function stopWorkout(){TM={start:0,date:"",restEnd:0,restDur:0}; saveTM(); keepAwake(false); tick()}
 function startRest(sec){if(!TM.start) return; unlockAudio(); TM.restDur=sec; TM.restEnd=Date.now()+sec*1000; beeped=false; saveTM(); tick()}
 function timerBox(k){
+  if(S.logs[k]) return `<div class="timerbox"><div><div class="eyebrow">Logged ✓</div><div class="small muted">Edit below and tap Update session. To do it live again, clear the log first.</div></div></div>`;
   const running=TM.start&&TM.date===k, other=TM.start&&TM.date!==k;
   if(running) return `<div class="timerbox"><div><div class="eyebrow">Workout running</div><div class="big num" id="tmWork2">${fmtClock(Date.now()-TM.start)}</div></div><button class="btn ghost sm" id="tmEnd">End without saving</button></div>`;
   if(k!==ymd(today)) return "";
@@ -1331,7 +1333,7 @@ function tick(){
 /* ---------- Live workout view ---------- */
 let liveOpen=false, liveState="";
 const dkey=(k,id)=>k+"|"+id;
-function liveCtx(){ if(!TM.start) return null; const k=TM.date, p=planFor(parseYmd(k)); return p&&p.type!=="rest"?{k,p}:null }
+function liveCtx(){ if(!TM.start||S.logs[TM.date]) return null; const k=TM.date, p=planFor(parseYmd(k)); return p&&p.type!=="rest"?{k,p}:null }
 function setDoneK(k,exId,i){ const v=drafts[dkey(k,`c-${exId}-${i}`)]; if(v!==undefined) return !!v; const l=S.logs[k]; return !!(l&&l.ex&&l.ex[exId]&&l.ex[exId][i]) }
 function gymSteps(k,p){ const out=[]; p.ex.forEach(ex=>{ const t=finalTarget(ex,k); for(let i=0;i<ex.sets;i++) out.push({ex,i,t,done:setDoneK(k,ex.id,i)}) }); return out }
 function setValsK(k,st){ const l=S.logs[k], cur=l&&l.ex&&l.ex[st.ex.id]&&l.ex[st.ex.id][st.i];
@@ -2188,7 +2190,7 @@ function bind(){
     const [id,i]=b.dataset.chk.split("|"), dk=draftKey(`c-${id}-${i}`), on=!b.classList.contains("on");
     drafts[dk]=on; persistDrafts(); b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); $(`#set-${id}-${i}`)?.classList.toggle("done",on);
     if(on){
-      if(!TM.start && k===ymd(today)){startWorkout(); toast("Workout timer started"); const tb=document.querySelector(".timerbox"); if(tb){tb.outerHTML=timerBox(k); bindTimerEnd()}}
+      if(!TM.start && k===ymd(today) && !S.logs[k]){startWorkout(); toast("Workout timer started"); const tb=document.querySelector(".timerbox"); if(tb){tb.outerHTML=timerBox(k); bindTimerEnd()}}
       const exIdx=p.ex.findIndex(e=>e.id===id), last=exIdx===p.ex.length-1 && Number(i)===p.ex[exIdx].sets-1;
       if(!last) startRest(restFor(id));
     }
