@@ -465,6 +465,16 @@ body.xs-open{overflow:hidden}
 .switch:checked{background:var(--food)}.switch:checked::after{transform:translateX(18px)}
 .setlink{display:flex;justify-content:space-between;align-items:center;width:100%;padding:12px 0;border:0;border-bottom:1px solid var(--line);background:none;color:var(--ink);font:600 15px var(--body);text-align:left;cursor:pointer}
 .setlink span{color:var(--muted);font-size:20px}
+
+.swapb{display:inline-grid;place-items:center;width:26px;height:26px;margin-left:6px;vertical-align:middle;border-radius:7px;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);font:600 14px var(--body);cursor:pointer;padding:0;line-height:1}
+.swapb svg{width:14px;height:14px}
+.swapfrom svg{width:20px;height:20px;flex-shrink:0;color:var(--muted)}.xs-plus svg{width:14px;height:14px}
+.xs-item:disabled{opacity:.45;cursor:default}
+.swapped{display:inline-flex;gap:6px;align-items:center;font-size:11px;font-weight:600;color:var(--coach);margin-left:6px}
+.swapped button{border:0;background:none;color:var(--muted);text-decoration:underline;font:inherit;padding:0;cursor:pointer}
+.swapfrom{display:flex;align-items:center;gap:8px;font-weight:600}
+.swapopt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
+.swapopt span{font-size:13px;color:var(--muted)}
 </style>
 <script src="/look.js"></script>
 </head>
@@ -579,19 +589,19 @@ const ROPE_STAGES=[["2026-11-02",6,30,30,"Short rounds while your calves adapt. 
   ["9999-12-31",2,180,60,"Race week: 2 easy rounds just to stay sharp."]];
 function ropeFor(d){ const k=ymd(d); const r=ROPE_STAGES.find(x=>k<x[0]); return {id:"rope",name:"Jump rope rounds",sets:r[1],lo:r[2],hi:r[2],inc:0,unit:"sec",bw:true,fixed:true,rest:r[3],
   alt:"Finisher, after your last exercise. "+r[4]+" Rope length: stand on the middle, handles reach your armpits. Calves still sore 2 days later? Repeat this format next week."} }
-function curPhase(){ return CUSTOM? CUSTOM.gym : GYM2[ymd(today)<=CORE_SWAP.to?"block":"post"] }
+function curPhase(){ if(CUSTOM) return CUSTOM.gym; const ph=GYM2[ymd(today)<=CORE_SWAP.to?"block":"post"], out={}; Object.entries(ph).forEach(([k,g])=>out[k]=applySwaps(g,k,parseYmd("9999-12-31"),true)); return out }
 const TILTCALF_FROM="2026-10-21";
 function migrateTiltCalf(){ if(CUSTOM) return; Object.entries(S.logs).forEach(([k,l])=>{ if(k>=TILTCALF_FROM&&l&&l.type==="gym"&&l.day==="B"&&l.ex&&l.ex.calfraise&&!l.ex.tiltcalf){
   const ex={...l.ex,tiltcalf:l.ex.calfraise}; delete ex.calfraise; const db={...(l.db||{})}; delete db.calfraise; saveLog(k,{...l,ex,db}) } }) }
-function gymDay(s,d){ if(CUSTOM) return CUSTOM.gym[s]||{name:"Workout",ex:[]}; let g=gymDay0(s,d);
-  if(s==="B"&&ymd(d)>=TILTCALF_FROM) g={...g,ex:g.ex.map(e=>e.id==="calfraise"?X.tiltcalf:e)}; return ymd(d)>=V2_FROM? {...g, ex:[...g.ex, ropeFor(d)]} : g }
+function gymDay(s,d){ if(CUSTOM) return applySwaps(CUSTOM.gym[s]||{name:"Workout",ex:[]},s,d); let g=applySwaps(gymDay0(s,d),s,d);
+  return ymd(d)>=V2_FROM? {...g, ex:[...g.ex, ropeFor(d)]} : g }
 function gymDay0(s,d){ const k=ymd(d); if(k>=V2_FROM) return GYM2[k<=CORE_SWAP.to?"block":"post"][s];
   const g=GYM[s]; if(!inCoreSwap(d)) return g; const ex=g.ex.map(e=>SWAP_EX[e.id]||e); return {...g, ex, name: s==="B"?"Day B · Press & Core":g.name, swapped:true} }
 const ALLEX = (()=>{const m={}; [...Object.values(GYM).flatMap(d=>d.ex), ...Object.values(SWAP_EX), ...Object.values(X)].forEach(e=>{ if(!e.bw) m[e.id]=m[e.id]&&Object.values(X).includes(e)?m[e.id]:(Object.values(X).find(x=>x.id===e.id)||e) }); return Object.values(m)})();
 let KEYLIFTS = ["legpress45","bench","tbdl","ohp"];
 // rest between sets (seconds)
 const REST = {revfly:60,fly:60,backext:75,lateral:60,legext1:60,calfraise:60,tiltcalf:60,hipthrust:120,legpress45:150,declinecrunch:60,cablecrunch:60,pallof:60,squat:150,bench:150,tbdl:150,rdl:120,ohp:120,legpress:120,plank:45,facepull:60,conc:60,ohtri:60,ezcurl:60,pushdown:60,hammer:60};
-const restFor = id => id==="rope"? ropeFor(sel).rest : ((CUSTOM&&CUSTOM.rest[id]) || REST[id] || 90);
+const restFor = id => id==="rope"? ropeFor(sel).rest : ((CUSTOM&&CUSTOM.rest[id]) || SWAP_REST[id] || REST[id] || 90);
 // dumbbell option: weight is logged per dumbbell; m = dumbbells counted toward total load
 const DBCFG = {revfly:{def:false,m:2},fly:{def:false,m:2},lateral:{def:true,m:2},calfraise:{def:false,m:2},bench:{def:false,m:2},rdl:{def:false,m:2},ohp:{def:false,m:2},split:{def:true,m:2},incline:{def:true,m:2},dbrow:{def:true,m:2},hammer:{def:true,m:2},conc:{def:true,m:1},ohtri:{def:false,m:1}};
 function logDb(id,l){ if(!DBCFG[id]) return false; return l&&l.db&&(id in l.db)? !!l.db[id] : DBCFG[id].def }
@@ -859,7 +869,7 @@ function trainingCard(p,k,log,openLogger){
   if(p.type==="gym"){
     let h=`<div class="card"><div class="row between"><div><div class="eyebrow">Gym · ~${CUSTOM?estMin(p.ex):"55–60"} min</div><h2>${esc(p.name)}</h2></div>${log?`<span class="chip gym">Logged ✓${log.durMin?` · ${Math.round(log.durMin)} min`:""}</span>`:""}</div>`;
     h+=timerBox(k);
-    h+=`<div class="exlist">${p.ex.map(ex=>{const t=finalTarget(ex,k), db=dbNow(ex.id,log); return `<div><span>${esc(ex.name)}</span><span>${ex.fixed?`${ex.sets} × ${ex.lo}s`:t.first?`${ex.sets}×${ex.lo}${ex.bw?"s":""} · find start`:t.w?`${t.w}${db?"/DB":""} × ${t.reps.join(",")}`:t.reps.map(r=>r+"s").join(",")}</span></div>`}).join("")}</div>`;
+    h+=`<div class="exlist">${p.ex.map(ex=>{const t=finalTarget(ex,k), db=dbNow(ex.id,log); return `<div><span>${esc(ex.name)}${swapBtn(ex,log)}</span><span>${ex.fixed?`${ex.sets} × ${ex.lo}s`:t.first?`${ex.sets}×${ex.lo}${ex.bw?"s":""} · find start`:t.w?`${t.w}${db?"/DB":""} × ${t.reps.join(",")}`:t.reps.map(r=>r+"s").join(",")}</span></div>`}).join("")}</div>`;
     h+=`<details class="logger" id="trainLog" ${openLogger?"open":""}><summary>${hasDraft(k,TRAIN_RE)?"Unsaved entries · tap to finish":log?"View / edit logged sets":"Log this workout"}</summary><div style="margin-top:12px">`;
     h+=`<p class="small muted" style="margin-bottom:10px">Warm up 8 min plus 2 light ramp-up sets on the first lift. Rest 2–3 min on big lifts, 60–90 s on the rest, 60 s on arms.</p>`;
     h+=lastSessionNote(p,k);
@@ -867,7 +877,7 @@ function trainingCard(p,k,log,openLogger){
     p.ex.forEach(ex=>{
       const t=finalTarget(ex,k), cur=log&&log.ex&&log.ex[ex.id];
       const db=dbNow(ex.id,log);
-      h+=`<div class="ex"><div class="row between"><span class="name">${esc(ex.name)}</span><span class="row" style="gap:8px">${DBCFG[ex.id]?`<label class="dbt ${db?"on":""}"><input type="checkbox" data-db="${ex.id}" ${db?"checked":""}>Dumbbells</label>`:""}<span class="small muted num">${ex.sets} × ${ex.lo===ex.hi?ex.lo:ex.lo+"–"+ex.hi}${ex.bw?" s":""} · rest ${fmtClock(restFor(ex.id)*1000)}</span></span></div>`;
+      h+=`<div class="ex"><div class="row between"><span class="name">${esc(ex.name)}${swapBtn(ex,log)}</span><span class="row" style="gap:8px">${DBCFG[ex.id]?`<label class="dbt ${db?"on":""}"><input type="checkbox" data-db="${ex.id}" ${db?"checked":""}>Dumbbells</label>`:""}<span class="small muted num">${ex.sets} × ${ex.lo===ex.hi?ex.lo:ex.lo+"–"+ex.hi}${ex.bw?" s":""} · rest ${fmtClock(restFor(ex.id)*1000)}</span></span></div>`;
       if(db) h+=`<div class="dbnote" id="dbn-${ex.id}"></div>`;
       h+=prevLine(ex,k);
       h+= t.first? `<div class="target first">${esc(t.msg)}</div>`
@@ -1173,7 +1183,7 @@ Meal plan (~1,505 kcal / 139 g protein base; +2 eggs Tue/Thu = 1,645; +eggs and 
 If he reports sharp pain, swelling, chest pain, dizziness or fainting, tell him to stop and get it checked by a professional. You're not a doctor.
 Today: ${fmtDate(today)} (week ${w} of 11). Half marathon date: ${S.profile.raceDate||"not set"}.
 `;
-  return `${intro}About ${CUSTOM?"them":"him"}: ${S.profile.about||"(not filled in)"}
+  return `${intro}${swapsText()}About ${CUSTOM?"them":"him"}: ${S.profile.about||"(not filled in)"}
 This week's plan:
 ${weekPlan}
 ${targets}
@@ -1552,7 +1562,7 @@ function exStanding(id,cut,bw){
     l.ex[id].forEach(s=>{ const r=Number(s.r)||0, w=Number(s.w)||0; let kind,val;
       if(std.sec){ if(!r) return; kind="sec"; val=r }
       else { if(r<1||r>20||!w) return; const one=w*(1+r/30); if(std.add){kind="add"; val=one/bw} else if(db&&std.db){kind="db"; val=one/bw} else if(std.bb){kind="bb"; val=(db?loadW(id,l,w)*(1+r/30):one)/bw} else {kind="db"; val=one/bw} }
-      if(!best||val/std[kind][2]>best.val/std[best.kind][2]) best={val,kind,k,w,r,db} }) });
+      if(!kind||!std[kind]) return; if(!best||val/std[kind][2]>best.val/std[best.kind][2]) best={val,kind,k,w,r,db} }) });
   if(!best) return null;
   const norm=LVL.map((p,i)=>[p,std[best.kind][i]]);
   const lifterPct=pctFrom(norm,best.val);
@@ -2355,7 +2365,7 @@ function applySetup(raw){
 }
 let appliedStamp="";
 function onProfile(){
-  syncPrefs();
+  syncPrefs(); initStdAliases();
   let su=S.profile&&S.profile.setup;
   if(su&&!(su.routines&&su.week)){ su=S.profile.setup=normalizeSetup(su); saveProfile() }
   const st=su?JSON.stringify(su)+JSON.stringify((S.profile.setup||{}).customEx||[]):"";
