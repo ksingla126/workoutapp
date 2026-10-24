@@ -1,6 +1,6 @@
 /* Offline support: the app shell works without a connection. API calls always go to the network. */
-const VERSION = "v1";
-const SHELL = ["/", "/index.html", "/custom.js", "/platform.js", "/look.js", "/manifest.webmanifest", "/icon-192.png", "/apple-touch-icon.png"];
+const VERSION = "v2";
+const SHELL = ["/", "/index.html", "/custom.js", "/rank-config.js", "/ranks.js", "/platform.js", "/look.js", "/manifest.webmanifest", "/icon-192.png", "/apple-touch-icon.png"];
 const CDN = ["https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"];
 
 self.addEventListener("install", (e) => {

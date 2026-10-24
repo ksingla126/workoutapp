@@ -538,6 +538,8 @@ details.tip summary{font-size:12px;color:var(--muted);cursor:pointer}
 </div>
 
 <script src="/custom.js"></script>
+<script src="/rank-config.js"></script>
+<script src="/ranks.js"></script>
 <script>
 /* ---------- Program definition ---------- */
 let CUSTOM = null; // set when the user built their own plan in setup
@@ -746,7 +748,7 @@ let sel = inProgram(today)? today : (dayNum(today)<0? START : GOAL);
 let tab="home";
 let progView="lifts"; try{const v=localStorage.getItem("rd25-pview"); if(v==="runs"||v==="lifts"||v==="body") progView=v}catch(e){}
 let planView="training"; try{const v=localStorage.getItem("rd25-planview"); if(v==="training"||v==="food") planView=v}catch(e){}
-try{const t=localStorage.getItem("rd25-tab"); if(t==="runs"){tab="progress"; progView="runs"} else if(t==="food"){tab="plan"; planView="food"} else if(t&&["home","plan","progress","standings","advice"].includes(t)) tab=t}catch(e){}
+try{const t=localStorage.getItem("rd25-tab"); if(t==="runs"){tab="progress"; progView="runs"} else if(t==="food"){tab="plan"; planView="food"} else if(t==="standings") tab="ranks"; else if(t&&["home","plan","progress","ranks","advice"].includes(t)) tab=t}catch(e){}
 
 function loadLocal(){ setTimeout(onProfile,0); if(window.__platform) return; try{S.photos=JSON.parse(localStorage.getItem("rd25-photos")||"{}")||{}}catch(e){} try{const j=JSON.parse(localStorage.getItem("rd25-data")||"null"); if(j){S.logs=j.logs||{};S.meals=j.meals||{};Object.assign(S.profile,j.profile||{});S.chat=j.chat||[];S.over=j.over||{};Object.assign(S.advice,j.advice||{})}}catch(e){}}
 function saveLocal(){try{const {photos,...rest}=S; localStorage.setItem("rd25-data",JSON.stringify(rest))}catch(e){} try{localStorage.setItem("rd25-photos",JSON.stringify(S.photos))}catch(e){}}
@@ -758,7 +760,7 @@ const mealTimers={};
 function saveMeals(key){clearTimeout(mealTimers[key]); mealTimers[key]=setTimeout(()=>{const data={...S.meals[key],savedAt:Date.now()}; if(mode==="db") enqueue("meal-"+key,()=>refs.meals.doc(key).set(data)); else saveLocal()},400)}
 let profTimer=null;
 // The profile is stored as four documents so edits from two devices to different areas don't overwrite each other.
-const PARTS={plan:["setup","swaps","customEx"],kitchen:["kitchen"],prefs:["prefs"],inbox:["stravaInbox"]}, PART_KEYS=Object.values(PARTS).flat();
+const PARTS={plan:["setup","swaps","customEx"],kitchen:["kitchen"],prefs:["prefs"],inbox:["stravaInbox"],ranks:["ranks"]}, PART_KEYS=Object.values(PARTS).flat();
 const partStamp={};
 function saveProfile(){clearTimeout(profTimer); profTimer=setTimeout(()=>{ if(mode!=="db"){ saveLocal(); return }
   const full=JSON.parse(JSON.stringify(S.profile)), core={...full}; PART_KEYS.forEach(k=>delete core[k]);
@@ -779,7 +781,7 @@ async function boot(){
     const uid = user? await user.id() : null;
     if(db && uid){
       const base="data/users/"+uid;
-      refs={profile:db.doc(base+"/profile"),chat:db.doc(base+"/chat"),advice:db.doc(base+"/advice"),plan:db.doc(base+"/plan"),kitchen:db.doc(base+"/kitchen"),prefs:db.doc(base+"/prefs"),inbox:db.doc(base+"/inbox")};
+      refs={profile:db.doc(base+"/profile"),chat:db.doc(base+"/chat"),advice:db.doc(base+"/advice"),plan:db.doc(base+"/plan"),kitchen:db.doc(base+"/kitchen"),prefs:db.doc(base+"/prefs"),inbox:db.doc(base+"/inbox"),ranks:db.doc(base+"/ranks")};
       refs.logs=refs.profile.collection("logs"); refs.meals=refs.profile.collection("meals"); refs.over=refs.profile.collection("overload");
       refs.photos=refs.profile.collection("photos");
       refs.photos.onSnapshot(snap=>{const P={}; snap.docs.forEach(d=>{if(d.exists) P[d.id]=d.data()}); S.photos=P; if(tab==="progress"&&progView==="body") render(true)},()=>{});
@@ -859,10 +861,10 @@ function render(fromStore){
   lastRenderKey=key;
   renderTop(); renderTabs();
   const v=$("#view");
-  v.innerHTML = tab==="home"?viewHome(openLogger): tab==="plan"?planSwitch()+(planView==="food"?viewFood():viewPlan()): tab==="progress"?viewProgress(): tab==="standings"?viewStandings(): advSwitch()+(advView==="outlook"?viewOutlook():viewAdvice());
+  v.innerHTML = tab==="home"?viewHome(openLogger): tab==="plan"?planSwitch()+(planView==="food"?viewFood():viewPlan()): tab==="progress"?viewProgress(): tab==="ranks"?viewRanks(): advSwitch()+(advView==="outlook"?viewOutlook():viewAdvice());
   applyDrafts();
-  bind();
-  setTimeout(maybeOverload,0);
+  bind(); if(tab==="ranks") bindRanks();
+  setTimeout(maybeOverload,0); setTimeout(rankNotify,0);
 }
 function renderTop(){
   const w=Math.min(WEEKS,Math.max(1,weekOf(today)));
@@ -880,9 +882,9 @@ function countStart(){ if(!CUSTOM||!CUSTOM.su.firstDay) return START; let k=CUST
 function countPlanned(upTo){let n=0;for(let d=new Date(countStart());d<=upTo&&d<=GOAL;d=addDays(d,1)){const p=planFor(d); if(p&&p.type!=="rest") n++}return n}
 function unseenAdvice(){return S.advice.at>(S.advice.seenAt||0)?(S.advice.items||[]).length:0}
 function renderTabs(){
-  const T=[["home","Home","p-ink"],["plan","Plan","p-run"],["progress","Progress","p-gym"],["standings","Standings","p-food"],["advice","Advice","p-coach"]];
-  const n=unseenAdvice();
-  $("#tabs").innerHTML=T.map(([id,l,c])=>`<button data-tab="${id}" class="${tab===id?"on":""}" aria-current="${tab===id}"><span class="plate ${c}"></span>${l}${id==="advice"&&n&&tab!=="advice"?`<span class="badge">${n}</span>`:""}</button>`).join("");
+  const T=[["home","Home","p-ink"],["plan","Plan","p-run"],["progress","Progress","p-gym"],["ranks","Ranks","p-food"],["advice","Advice","p-coach"]];
+  const n=unseenAdvice(); let rk=0;
+  $("#tabs").innerHTML=T.map(([id,l,c])=>`<button data-tab="${id}" class="${tab===id?"on":""}" aria-current="${tab===id}"><span class="plate ${c}"></span>${l}${id==="advice"&&n&&tab!=="advice"?`<span class="badge">${n}</span>`:""}${id==="ranks"&&tab!=="ranks"&&(rk=rkAlertCount())?`<span class="badge">${rk}</span>`:""}</button>`).join("");
   document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{if(b.dataset.tab==="progress"&&tab==="progress") runSel=null; tab=b.dataset.tab; try{localStorage.setItem("rd25-tab",tab)}catch(e){} if(tab==="advice"&&S.advice.at>(S.advice.seenAt||0)){S.advice.seenAt=S.advice.at;saveAdvice()} render(); window.scrollTo(0,0)});
 }
 
@@ -959,6 +961,7 @@ function trainingCard(p,k,log,openLogger){
     </div>
     <div class="row between"><div><div class="eyebrow">Pace</div><div class="pace num" id="pace">–</div></div>${TM.start&&TM.date===k?'<button class="btn ghost sm" id="fillTime">Use timer time</button>':""}</div>
     <div class="field"><label for="rnotes">Notes</label><textarea id="rnotes" placeholder="Weather, legs, anything hurt…">${esc(log?.notes||"")}</textarea></div>
+    <div class="stack" style="gap:6px"><label class="rk-check"><input type="checkbox" id="rrace" ${log&&log.race?"checked":""}> This was a race</label>${(log&&log.gate)||rkRunGateOpen()?`<label class="rk-check"><input type="checkbox" id="rgate" ${log&&log.gate?"checked":""}> Count as a Gate attempt (Speed or Endurance)</label>`:""}</div>
     <div class="row"><button class="btn" id="saveRun">${log?"Update run":"Save run"}</button>${log?'<button class="btn ghost" id="delLog">Clear log</button>':""}</div></div></details>${log&&log.st?ranBlock(k,log):""}${extraRunsBlock(k,log)}${log?`<button class="btn ghost sm" data-openrun="${k}" style="align-self:flex-start">Full breakdown ›</button>`:""}</div>`;
 }
 function setCount(ex,k){ const l=S.logs[k], cur=l&&l.ex&&l.ex[ex.id]; return Math.max(ex.sets, cur?cur.length:0)+(Number(drafts[dkey(k,`xs-${ex.id}`)])||0) }
@@ -976,8 +979,8 @@ function exerciseBlock(ex,k,log){
   for(let i=0;i<n;i++){
     const sw=cur&&cur[i]?toU(cur[i].w):(t.w!=null?toU(t.w):""), sr=cur&&cur[i]?cur[i].r:(t.first?"":(t.reps[i]??""));
     const dk=draftKey(`c-${ex.id}-${i}`), done=(dk in drafts)? !!drafts[dk] : !!(cur&&cur[i]), ty=setTypeK(k,ex.id,i);
-    const lab=ty==="w"?"W":ty==="d"?"D":String(i+1);
-    const num=`<button type="button" class="setno ${ty}" data-settype="${ex.id}|${i}" aria-label="Set ${i+1} type: ${ty==="w"?"warm-up":ty==="d"?"drop set":"normal"}. Tap to change">${lab}</button>`;
+    const lab=ty==="w"?"W":ty==="d"?"D":ty==="g"?"G":String(i+1);
+    const num=`<button type="button" class="setno ${ty}" data-settype="${ex.id}|${i}" aria-label="Set ${i+1} type: ${ty==="w"?"warm-up":ty==="d"?"drop set":ty==="g"?"Gate set":"normal"}. Tap to change">${lab}</button>`;
     const chk=`<button type="button" class="chk ${done?"on":""}" data-chk="${ex.id}|${i}" aria-pressed="${done}" aria-label="Mark ${esc(ex.name)} set ${i+1} done">✓</button>`;
     h+=ex.bw? `<div class="set ${done?"done":""}" id="set-${ex.id}-${i}">${num}<input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} seconds" value="${esc(sr)}" placeholder="${t.reps[i]??ex.lo}"><span>sec</span>${chk}</div>`
       : `<div class="set ${done?"done":""}" id="set-${ex.id}-${i}">${num}<input id="w-${ex.id}-${i}" inputmode="decimal" aria-label="${esc(ex.name)} set ${i+1} weight" value="${esc(sw)}" placeholder="${ex.optW?"+"+uL():db?uL()+"/DB":uL()}"><span>×</span><input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} reps" value="${esc(sr)}" placeholder="${t.reps[i]??ex.lo}">${chk}</div>`;
@@ -2174,7 +2177,24 @@ function trackFromPoints(pts,name){
   if(rem>=0.05) splits.push({n:splits.length+1,mi:+rem.toFixed(2),pace:+(((last.t-sT)/60000)/rem).toFixed(2),hr:hb.length?Math.round(avgOf(hb)):null,elev:last.ele!=null&&sEle!=null?Math.round((last.ele-sEle)*3.28084):null});
   return {src:"gpx",name:name.slice(0,80),date:ymd(new Date(first.t)),mi:+(distM/M_PER_MI).toFixed(2),movingMin:+(moving/60).toFixed(2),elapsedMin:+((last.t-first.t)/60000).toFixed(2),
     elevFt:pts.some(p=>p.ele!=null)?Math.round(gain*3.28084):null,avgHr:hrs.length?Math.round(avgOf(hrs)):null,maxHr:hrs.length?Math.round(Math.max(...hrs)):null,cad:cad?Math.round(cad):null,
-    runMin:+(runS/60).toFixed(1),walkMin:+(walkS/60).toFixed(1),runThrPace:+(M_PER_MI/thr/60).toFixed(2),splits:splits.slice(0,30),series:buildSeries(pts,thr)};
+    runMin:+(runS/60).toFixed(1),walkMin:+(walkS/60).toFixed(1),runThrPace:+(M_PER_MI/thr/60).toFixed(2),splits:splits.slice(0,30),series:buildSeries(pts,thr),
+    gps:pts.some(p=>p.lat!=null),...(()=>{const b=bestEfforts(pts); return b?{best:b}:{}})()};
+}
+// Fastest 400 m and mile inside a run, for the Speed rank. Stretches with a GPS gap over 10 s or an impossible jump (> 12 m/s)
+// are skipped, and anything faster than the world record is treated as a glitch.
+function bestEfforts(pts){
+  if(!pts.some(p=>p.lat!=null)) return null;
+  const n=pts.length, bad=new Array(n).fill(0);
+  for(let i=1;i<n;i++){ const dt=(pts[i].t-pts[i-1].t)/1000, dd=pts[i].c-pts[i-1].c; bad[i]=bad[i-1]+((dt>10||(dt>0&&dd/dt>12))?1:0) }
+  const out={}, rec={m400:43,mile:223};
+  [["m400",400],["mile",M_PER_MI]].forEach(([key,dist])=>{ let i=0, best=null;
+    for(let j=1;j<n;j++){ if(pts[j].c-pts[0].c<dist) continue;
+      while(i+1<j&&pts[j].c-pts[i+1].c>=dist) i++;
+      if(bad[j]-bad[i]>0) continue;
+      const need=pts[j].c-dist, a=pts[i], b=pts[i+1], f=b.c>a.c?Math.max(0,Math.min(1,(need-a.c)/(b.c-a.c))):0, t0=a.t+f*(b.t-a.t), sec=(pts[j].t-t0)/1000;
+      if(sec>rec[key]&&(best==null||sec<best)) best=sec }
+    if(best) out[key]=Math.round(best) });
+  return Object.keys(out).length?out:null;
 }
 async function readShots(files){
   const r=await sampleFn.json(`These images are screenshots of ONE Strava activity (summary, splits and/or heart-rate screens). Extract only what is visible.
@@ -2366,7 +2386,8 @@ function bind(){
     const imp=getImport(k), st=imp||(log&&log.st)||null, analysis=imp?null:((log&&log.analysis)||null);
     clearDrafts(k,TRAIN_RE); delete imports[k];
     const xr=extrasForSave(k,log);
-    saveLog(k,{type:"run",key:p.key,mi:Math.round(mi*100)/100,min:m,rpe,notes:$("#rnotes").value.trim(),st,analysis,...(xr.length?{extraRuns:xr}:{}),savedAt:Date.now()}).then(()=>{toast(imp?"Run saved. Your coach is analyzing it…":"Run saved"); lastRenderKey=""; render(); if(imp) setTimeout(()=>analyzeRun(k),300); setTimeout(maybeAutoAdvice,imp?20000:1500)});
+    const race=!!$("#rrace")?.checked, gate=!!$("#rgate")?.checked;
+    saveLog(k,{type:"run",key:p.key,mi:Math.round(mi*100)/100,min:m,rpe,notes:$("#rnotes").value.trim(),st,analysis,...(race?{race:true}:{}),...(gate?{gate:true}:{}),...(xr.length?{extraRuns:xr}:{}),savedAt:Date.now()}).then(()=>{toast(imp?"Run saved. Your coach is analyzing it…":"Run saved"); lastRenderKey=""; render(); if(imp) setTimeout(()=>analyzeRun(k),300); setTimeout(maybeAutoAdvice,imp?20000:1500)});
   });
   $("#delLog")?.addEventListener("click",function(){ if(this.dataset.armed){clearDrafts(k,TRAIN_RE); deleteLog(k).then(()=>{toast("Log cleared");lastRenderKey="";render()})} else {this.dataset.armed="1"; this.textContent="Tap again to clear"} });
   document.querySelectorAll("[data-meal]").forEach(c=>c.addEventListener("change",()=>{
@@ -2517,7 +2538,7 @@ function suRoutines(s){ return s.split==="keep"? (S.profile.setup.routines||[]) 
 function defaultSUW(){
   const su=S.profile&&S.profile.setup;
   if(su){ const n=normalizeSetup(su); return {...n,weight:n.weight?toU(n.weight):"",split:"keep",week:[...n.week],kcal:(n.food&&n.food.kcal)||n.kcal,protein:(n.food&&n.food.protein)||"",kcalTouched:true,proteinTouched:!!(n.food&&n.food.protein)} }
-  return {name:"",sex:"",age:"",weight:"",goal:"lose",race:"half",goalDate:ymd(addDays(mondayOf(today),7*10+4)),split:"abc3",week:weekFor("abc3",2),runLevel:"new",exp:"new",kcal:"",protein:"",kcalTouched:false,proteinTouched:false};
+  return {name:"",sex:"",age:"",birth:"",weight:"",goal:"lose",race:"half",goalDate:ymd(addDays(mondayOf(today),7*10+4)),split:"abc3",week:weekFor("abc3",2),runLevel:"new",exp:"new",kcal:"",protein:"",kcalTouched:false,proteinTouched:false};
 }
 function gateView(fromStore){
   if(!window.__platform) return false;
@@ -2538,7 +2559,9 @@ function viewSetup(){
   <div class="card"><h2>About you</h2>
     <div class="field"><label for="suName">First name</label><input id="suName" value="${esc(s.name)}" autocomplete="given-name"></div>
     <div class="suopts two">${opt("sex","male","Male")}${opt("sex","female","Female")}</div>
-    <div class="row"><div class="field" style="flex:1"><label for="suAge">Age</label><input id="suAge" inputmode="numeric" value="${esc(s.age)}"></div>
+    <div class="row"><div class="field" style="flex:1"><label for="suBirth">Birth month</label><input id="suBirth" type="month" value="${esc(s.birth||"")}" max="${ymd(today).slice(0,7)}"></div><div class="field" style="flex:1"><label for="suAge">or age</label><input id="suAge" inputmode="numeric" value="${esc(s.age)}"></div></div>
+    <p class="small muted" style="margin:-4px 0 0">Your birth month keeps your age current for the rank system.</p>
+    <div class="row">
     <div class="field" style="flex:1"><label for="suWt">Weight (${uL()}) <button type="button" class="link small" data-unitflip="1">use ${UNIT()==="kg"?"lb":"kg"}</button></label><input id="suWt" inputmode="decimal" value="${esc(s.weight)}"></div></div></div>
   <div class="card"><h2>Your goal</h2>
     <div class="suopts">${opt("goal","lose","Lose fat & get fitter")}${opt("goal","muscle","Build strength & muscle")}${opt("goal","race","Train for a race")}</div>
@@ -2567,8 +2590,9 @@ function bindSetup(){
   const s=SUW, val=id=>$(id).value.trim();
   const hint=()=>{ const h=$("#suKcalHint"), g=suggestKcal(s), gp=suggestProtein(s); if(h) h.textContent=(g?`Suggested for your weight and goal: ${fmtN(g)} kcal and ${gp} g protein.`:"Enter your weight for a suggestion.")+" You'll build meals and log food in the app.";
     if(!s.kcalTouched) $("#suKcal").value=g||""; if(!s.proteinTouched) $("#suProt").value=gp||"" };
-  const sync=()=>{ s.name=val("#suName"); s.age=val("#suAge"); s.weight=val("#suWt"); s.goalDate=$("#suDate").value||s.goalDate; hint() };
-  ["#suName","#suAge","#suWt","#suDate"].forEach(id=>$(id).addEventListener("input",sync));
+  const birthAge=b=>{ if(!/^\d{4}-\d{2}$/.test(b||"")) return null; const [y,m]=b.split("-").map(Number); let a=today.getFullYear()-y; if(today.getMonth()+1<m) a--; return a };
+  const sync=()=>{ s.name=val("#suName"); s.birth=$("#suBirth").value||""; const ba=birthAge(s.birth); if(ba!=null){ s.age=String(ba); $("#suAge").value=s.age } else s.age=val("#suAge"); s.weight=val("#suWt"); s.goalDate=$("#suDate").value||s.goalDate; hint() };
+  ["#suName","#suAge","#suWt","#suDate","#suBirth"].forEach(id=>$(id).addEventListener("input",sync)); $("#suBirth").addEventListener("change",sync);
   $("#suKcal").addEventListener("input",e=>{s.kcalTouched=true; s.kcal=e.target.value.trim()});
   $("#suProt").addEventListener("input",e=>{s.proteinTouched=true; s.protein=e.target.value.trim()});
   const rerender=()=>{ sync(); const y=window.scrollY; $("#view").innerHTML=viewSetup(); bindSetup(); window.scrollTo(0,y) };
@@ -2594,7 +2618,7 @@ function bindSetup(){
     const prev=S.profile.setup&&normalizeSetup(S.profile.setup);
     const routines= s.split==="keep"&&prev? prev.routines : splitToSetup(s.split).routines;
     const keepLegacy=prev&&prev.legacyRuns&&s.goalDate===prev.goalDate&&s.goal==="race"&&s.race===prev.race&&JSON.stringify(s.week.map(w=>w==="run"))===JSON.stringify(prev.week.map(w=>w==="run"));
-    const su={...(prev||{}),legacyRuns:!!keepLegacy,v:2,name:s.name.slice(0,40),sex:s.sex,age,weight:Math.round(wt*10)/10,goal:s.goal,race:s.goal==="race"?s.race:null,goalDate:s.goalDate,
+    const su={...(prev||{}),legacyRuns:!!keepLegacy,v:2,name:s.name.slice(0,40),sex:s.sex,age,...(s.birth?{birth:s.birth}:{}),weight:Math.round(wt*10)/10,goal:s.goal,race:s.goal==="race"?s.race:null,goalDate:s.goalDate,
       start:prev&&prev.start&&parseYmd(prev.start)<=today?prev.start:ymd(mondayOf(today)),firstDay:(prev&&prev.firstDay)||ymd(today),split:s.split==="keep"?(prev&&prev.split)||"own":s.split,routines,week:[...s.week],
       customEx:(prev&&prev.customEx)||[],runLevel:s.runLevel,exp:s.exp,kcal:Math.round(kcal),food:{...((prev&&prev.food)||{}),kcal:Math.round(kcal),protein:Math.round(prot)},at:Date.now()};
     S.profile.setup=su;
