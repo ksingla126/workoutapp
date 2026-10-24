@@ -580,21 +580,44 @@ function swapsText(){ const sw=swapsOf(), L=id=>(libEx(id)||(typeof X!=="undefin
   Object.entries(sw.once).filter(([k])=>k>=ymd(addDays(today,-14))).forEach(([k,m])=>Object.entries(m).forEach(([a,b])=>out.push(`${k} only: ${L(a)} → ${L(b)}`)));
   return out.length? `Exercise swaps they made in the app: ${out.join("; ")}.\n` : "" }
 
-/* ======================= Move / skip a session ======================= */
-function dayMenu(p,k,log){ if(log||!p||p.type==="rest") return "";
-  return `<div class="row daymenu"><button type="button" class="link small" data-daymove="${k}">Move</button><button type="button" class="link small" data-dayskip="${k}">Skip</button></div>` }
+/* ======================= Move / swap / rest a session ======================= */
+// Schedule changes live in profile.moves: {"YYYY-MM-DD": "rest" | "<date whose session happens on this day>"}
+function dayMenu(p,k,log){ if(log||!p) return ""; const past=k<ymd(today);
+  if(p.type==="rest") return past? "" : `<div class="row daymenu"><button type="button" class="link small" data-daymove="${k}|swap">Train today: swap with a workout day</button></div>`;
+  return `<div class="row daymenu"><button type="button" class="link small" data-daymove="${k}|move">Move</button>${past?"":`<button type="button" class="link small" data-daymove="${k}|swap">Swap</button>`}<button type="button" class="link small" data-dayskip="${k}">Make it a rest day</button></div>` }
 function weekResetBtn(k){ return Object.keys(S.profile.moves||{}).some(d=>weekDays(k).includes(d)&&!S.logs[d])? `<button type="button" class="link small" data-resetweek="${k}" style="align-self:flex-start">Undo this week's schedule changes</button>` : "" }
 function srcOf(dk){ const mv=S.profile.moves||{}, v=mv[dk]; if(v==="rest") return null; if(v&&/^\d{4}-/.test(v)) return v; const b=basePlan(parseYmd(dk)); return b&&b.type!=="rest"? dk : null }
 function setSrc(dk,src){ const mv=S.profile.moves=S.profile.moves||{}; const b=basePlan(parseYmd(dk)), own=b&&b.type!=="rest";
   if(src===dk||(src===null&&!own)) delete mv[dk]; else mv[dk]= src===null? "rest" : src }
 function sessLabel(src){ if(!src) return "Rest"; const b=basePlan(parseYmd(src)); return !b?"Rest": b.type==="gym"? b.name : b.t }
 function weekDays(k){ const mon=mondayOf(parseYmd(k)); return [...Array(7)].map((_,i)=>ymd(addDays(mon,i))) }
-function moveHtml(){ const k=SH.k, days=weekDays(k).filter(d=>d!==k), src=srcOf(k);
-  const after=weekDays(k).filter(d=>d>=k&&!S.logs[d]), last=after[after.length-1], drops=after.length>1&&srcOf(last)&&last!==k;
-  return `<div class="xs-head"><h2>Move ${esc(sessLabel(src))}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>
-   <p class="small muted">Pick a day this week. The two days trade places.</p>
-   <div class="xs-list">${days.map(d=>{const dt=parseYmd(d), lg=!!S.logs[d], past=d<ymd(today); return `<button type="button" class="xs-item" data-xs-moveto="${d}" ${lg||past?"disabled":""}><span><b>${DOW[(dt.getDay()+6)%7]} ${dt.getDate()}</b><span class="small muted">${lg?"Logged":past?"Past":esc(sessLabel(srcOf(d)))}</span></span><span class="xs-plus">⇄</span></button>`}).join("")}</div>
-   <button type="button" class="swapopt" data-xs-pushweek="1"><b>Push the rest of the week back a day</b><span>${fmtShort(parseYmd(k))} becomes a rest day and each session moves one day later.${drops?` ${esc(sessLabel(srcOf(last)))} on ${DOW[(parseYmd(last).getDay()+6)%7]} drops off.`:""}</span></button>
+const dayName=d=>{ const dt=parseYmd(d); return `${DOW[(dt.getDay()+6)%7]} ${dt.getDate()}` };
+// days a session can go to: today through the end of next week, not logged, inside the plan
+function moveTargets(k){ const td=ymd(today), base=k>td?k:td, end=ymd(addDays(mondayOf(parseYmd(base)),13)), out=[];
+  for(let d=parseYmd(td);ymd(d)<=end;d=addDays(d,1)){ const x=ymd(d); if(x!==k&&!S.logs[x]&&inProgram(d)) out.push(x) } return out }
+function swapDays(a,b){ const sa=srcOf(a), sb=srcOf(b); setSrc(a,sb); setSrc(b,sa) }
+function moveDay(from,to){ const sa=srcOf(from); setSrc(to,sa); setSrc(from,null) }
+// sessions in the last week that were planned but never logged
+function missedDays(){ const td=ymd(today), out=[]; for(let i=6;i>=1;i--){ const d=addDays(today,-i), k=ymd(d); if(d<countStart()||!inProgram(d)||S.logs[k]) continue; const p=planFor(d); if(p&&(p.type==="gym"||p.type==="run")) out.push(k) } return out }
+function missedCard(){ const ms=missedDays(); if(!ms.length) return "";
+  return `<div class="card missed"><div class="row between"><h2>Missed ${ms.length>1?"sessions":"a session"}</h2></div><p class="small muted">Move ${ms.length>1?"them":"it"} to a day that works, or make ${ms.length>1?"them rest days":"it a rest day"} so your week adds up.</p>
+    ${ms.map(k=>`<div class="row between missrow"><span><b>${dayName(k)}</b> <span class="muted">· ${esc(sessLabel(srcOf(k)))}</span></span><span class="row" style="gap:12px"><button type="button" class="link small" data-daymove="${k}|move">Move</button><button type="button" class="link small" data-dayskip="${k}">Rest day</button></span></div>`).join("")}</div>` }
+function moveHtml(){ const k=SH.k, mode=SH.mode||"move", src=srcOf(k), past=k<ymd(today), targets=moveTargets(k).filter(d=>mode!=="swap"||src||srcOf(d));
+  if(SH.pick){ const t=SH.pick, other=sessLabel(srcOf(t));
+    return `<div class="xs-head"><h2>${esc(dayName(t))} already has ${esc(other)}</h2><button type="button" class="btn ghost sm" data-xs-movepick="back">Back</button></div>
+     <p class="small muted">What should happen to ${esc(other)}?</p>
+     ${past?"":`<button type="button" class="swapopt" data-xs-movepick="swap"><b>Swap them</b><span>${esc(sessLabel(src))} on ${esc(dayName(t))}, ${esc(other)} on ${esc(dayName(k))}.</span></button>`}
+     <button type="button" class="swapopt" data-xs-movepick="replace"><b>Replace it</b><span>${esc(sessLabel(src))} on ${esc(dayName(t))}. ${esc(other)} is skipped${past?"":` and ${esc(dayName(k))} becomes a rest day`}.</span></button>` }
+  const wk=mondayOf(parseYmd(targets[0]||k)), thisWk=ymd(wk), item=d=>{ const s=srcOf(d); return `<button type="button" class="xs-item" data-xs-moveto="${d}"><span><b>${d===ymd(today)?"Today":dayName(d)}</b><span class="small muted">${esc(sessLabel(s))}</span></span><span class="xs-plus">${mode==="swap"?"⇄":"→"}</span></button>` };
+  const a=targets.filter(d=>d<ymd(addDays(wk,7))), b=targets.filter(d=>d>=ymd(addDays(wk,7)));
+  const title= mode==="swap"? (src?`Swap ${esc(sessLabel(src))} with…`:`Swap this rest day with…`) : `Move ${esc(sessLabel(src))} to…`;
+  const sub= mode==="swap"? "The two days trade places." : past? `Pick a day for the session you missed on ${esc(dayName(k))}.` : `${esc(dayName(k))} becomes a rest day.`;
+  return `<div class="xs-head"><h2>${title}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>
+   <p class="small muted">${sub}</p>
+   ${a.length?`<div class="eyebrow">This week</div><div class="xs-list">${a.map(item).join("")}</div>`:""}
+   ${b.length?`<div class="eyebrow">Next week</div><div class="xs-list">${b.map(item).join("")}</div>`:""}
+   ${!a.length&&!b.length?`<p class="small muted">No open days left in your plan.</p>`:""}
+   ${mode==="move"&&!past&&src?`<button type="button" class="swapopt" data-xs-pushweek="1"><b>Push the rest of the week back a day</b><span>${esc(dayName(k))} becomes a rest day and each session moves one day later.${(()=>{ const after=weekDays(k).filter(d=>d>=k&&!S.logs[d]), last=after[after.length-1]; return after.length>1&&srcOf(last)&&last!==k?` ${esc(sessLabel(srcOf(last)))} on ${DOW[(parseYmd(last).getDay()+6)%7]} drops off.`:"" })()}</span></button>`:""}
    ${Object.keys(S.profile.moves||{}).some(d=>weekDays(k).includes(d)&&!S.logs[d])?`<button type="button" class="btn ghost" data-xs-resetweek="1">Reset this week to the plan</button>`:""}`;
 }
 
@@ -824,8 +847,8 @@ document.addEventListener("click",e=>{
   if(d.addrm){ const k=ymd(sel), sw=S.profile.swaps, a=sw&&sw.add&&sw.add[k]; if(a){ sw.add[k]=a.filter(x=>x.id!==d.addrm); if(!sw.add[k].length) delete sw.add[k]; saveProfile(); lastRenderKey=""; render() } return }
   if(d.openlive){ openLive(); return }
   if(d.resetweek){ const mv=S.profile.moves||{}; weekDays(d.resetweek).forEach(x=>{ if(!S.logs[x]) delete mv[x] }); saveProfile(); lastRenderKey=""; render(); toast("Week reset to the plan"); return }
-  if(d.daymove){ openSheet({kind:"move",k:d.daymove}); return }
-  if(d.dayskip){ if(t.dataset.armed){ setSrc(d.dayskip,null); saveProfile(); lastRenderKey=""; render(); toast("Session skipped") } else { t.dataset.armed="1"; t.textContent="Tap again to skip"; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.armed; t.textContent="Skip" } },3000) } return }
+  if(d.daymove){ const [k,m]=d.daymove.split("|"); openSheet({kind:"move",k,mode:m||"move"}); return }
+  if(d.dayskip){ if(t.dataset.armed){ const lab=sessLabel(srcOf(d.dayskip)); setSrc(d.dayskip,null); saveProfile(); lastRenderKey=""; render(); toast(`${lab} skipped. ${dayName(d.dayskip)} is a rest day`) } else { const was=t.textContent; t.dataset.armed="1"; t.textContent="Tap again to confirm"; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.armed; t.textContent=was } },3000) } return }
   if(d.exhist){ const p=planFor(sel), ex=p&&p.ex&&p.ex.find(e=>e.id===d.exhist); openSheet({kind:"hist",id:d.exhist,name:ex&&ex.name}); return }
   // --- account
   if(d.acct){ openSheet({kind:"account"}); if(window.appConfig&&appConfig().strava) stravaCheck(false); return }
@@ -873,7 +896,14 @@ document.addEventListener("click",e=>{
     saveProfile(); lastRenderKey=""; render(); paintSheet(); toast("Added to today"); return }
   if(d.xsBar){ SH.ex={id:BAR_EX[d.xsBar]}; paintSheet(); return }
   if(d.xsPlate){ const u=UNIT(), p=Number(d.xsPlate), plates={...(userPrefs().plates||{})}; const have=new Set(plates[u]||PLATES[u]); have.has(p)?have.delete(p):have.add(p); plates[u]=[...have]; setPref({plates}); paintSheet(); return }
-  if(d.xsMoveto){ const a=srcOf(SH.k), b=srcOf(d.xsMoveto); setSrc(d.xsMoveto,a); setSrc(SH.k,b); saveProfile(); const msg=`${sessLabel(a)} moved to ${DOW[(parseYmd(d.xsMoveto).getDay()+6)%7]}`; xsClose(); lastRenderKey=""; render(); toast(msg); return }
+  if(d.xsMoveto){ const k=SH.k, to=d.xsMoveto, a=srcOf(k), b=srcOf(to);
+    if(SH.mode==="swap"){ swapDays(k,to); saveProfile(); xsClose(); lastRenderKey=""; render(); toast(`${dayName(k)} and ${dayName(to)} swapped`); return }
+    if(b){ SH.pick=to; paintSheet(true); return }
+    moveDay(k,to); saveProfile(); xsClose(); lastRenderKey=""; render(); toast(`${sessLabel(a)} moved to ${dayName(to)}`); return }
+  if(d.xsMovepick){ const k=SH.k, to=SH.pick, a=srcOf(k), b=srcOf(to);
+    if(d.xsMovepick==="back"){ SH.pick=null; paintSheet(true); return }
+    if(d.xsMovepick==="swap") swapDays(k,to); else moveDay(k,to);
+    saveProfile(); xsClose(); lastRenderKey=""; render(); toast(d.xsMovepick==="swap"?`${dayName(k)} and ${dayName(to)} swapped`:`${sessLabel(a)} moved to ${dayName(to)}. ${sessLabel(b)} skipped`); return }
   if(d.xsPushweek){ const days=weekDays(SH.k).filter(x=>x>=SH.k&&!S.logs[x]), srcs=days.map(srcOf); days.forEach((x,i)=>setSrc(x,i===0?null:srcs[i-1])); saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Week pushed back a day"); return }
   if(d.xsResetweek){ const mv=S.profile.moves||{}; weekDays(SH.k).forEach(x=>{ if(!S.logs[x]) delete mv[x] }); saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Week reset to the plan"); return }
   if(d.xsSwapto){ SH.to=d.xsSwapto; paintSheet(true); return }
