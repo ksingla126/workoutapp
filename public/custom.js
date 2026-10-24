@@ -613,7 +613,7 @@ function historyHtml(){ const id=SH.id, L=libEx(id)||(typeof X!=="undefined"&&X[
   h+=`<div class="statrow"><div><b class="num">${timed?Math.round(best.v)+" s":fmtN(toUd(best.v))+" "+uL()}</b><span>${timed?"Longest hold":"Best est. 1-rep max"}</span></div>${heavy?`<div><b class="num">${heavy.db?toU(heavy.raw)+"/DB":toU(heavy.w)} × ${heavy.r}</b><span>Heaviest set</span></div>`:""}<div><b class="num">${rows.length}</b><span>Sessions</span></div></div>`;
   if(series.length>1&&!timed) h+=`<div class="eyebrow">Estimated 1-rep max</div>${lineChart(series.map(x=>({...x,y:toUd(x.y)})),"var(--gym)",v=>Math.round(v),false)}`;
   h+=`<div class="eyebrow" style="margin-top:6px">History</div><div class="xs-list">${rows.map(([k,l])=>{ const pr=(l.prs||[]).includes(id), db=logDb(id,l);
-    return `<div class="histrow"><div class="row between"><b>${fmtDate(parseYmd(k))}</b>${pr?`<span class="prbadge">PR</span>`:""}</div><div class="small num muted">${l.ex[id].map(x=>`${x.t==="w"?"W ":x.t==="d"?"D ":""}${x.w!=null&&!timed?`${toU(x.w)}${db?"/DB":""}×${x.r}`:`${x.r}s`}`).join(" · ")}</div></div>` }).join("")}</div>`;
+    return `<div class="histrow"><div class="row between"><b>${fmtDate(parseYmd(k))}</b>${pr?`<span class="prbadge">PR</span>`:""}</div><div class="small num muted">${l.ex[id].map(x=>`${x.t==="w"?"W ":x.t==="d"?"D ":x.t==="g"?"G ":""}${x.w!=null&&!timed?`${toU(x.w)}${db?"/DB":""}×${x.r}`:`${x.r}s`}`).join(" · ")}</div></div>` }).join("")}</div>`;
   return h;
 }
 
@@ -764,7 +764,7 @@ function knownStrava(k){ const ids=new Set(), l=S.logs[k], ib=((S.profile&&S.pro
   if(l&&l.st&&l.st.stravaId) ids.add(l.st.stravaId); (l&&l.extraRuns||[]).forEach(x=>ids.add(x.stravaId)); (ib&&ib.runs||[]).forEach(x=>ids.add(x.stravaId)); return ids }
 function sameRun(log,c){ const a=Number(log.st.mi||log.mi)||0, b=Number(c.mi)||0, ta=Number(log.st.movingMin||log.st.elapsedMin||log.min)||0, tb=Number(c.min)||0;
   return a>0&&b>0&&Math.abs(a-b)/Math.max(a,b)<0.15&&(!ta||!tb||Math.abs(ta-tb)/Math.max(ta,tb)<0.2) }
-const slim=c=>({stravaId:c.stravaId,name:c.name,start:c.start,mi:c.mi,min:c.min,avgHr:c.st&&c.st.avgHr||null});
+const slim=c=>({stravaId:c.stravaId,name:c.name,start:c.start,mi:c.mi,min:c.min,avgHr:c.st&&c.st.avgHr||null,...(c.st&&c.st.best&&c.st.gps!==false&&!c.st.treadmill?{best:c.st.best}:{})});
 async function useStravaRun(k,c,extras){
   const log=S.logs[k], p=planFor(parseYmd(k));
   const base=log||{type:"run",key:p&&p.type==="run"?p.key:"extra",rpe:"",notes:"Imported from Strava"};
@@ -817,7 +817,7 @@ document.addEventListener("click",e=>{
   // --- workout screen
   if(d.unitflip){ setUnit(UNIT()==="kg"?"lb":"kg"); return }
   if(d.plates){ const [id,w]=d.plates.split("|"), p=planFor(sel), ex=(p&&p.ex&&p.ex.find(e=>e.id===id))||{id}; openSheet({kind:"plates",ex,w:w||""}); return }
-  if(d.settype){ const [id,i]=d.settype.split("|"), k=ymd(sel), key=dkey(k,`st-${id}-${i}`), cur=setTypeK(k,id,i); drafts[key]=cur===""?"w":cur==="w"?"d":""; persistDrafts(); lastRenderKey=""; render(); return }
+  if(d.settype){ const [id,i]=d.settype.split("|"), k=ymd(sel), key=dkey(k,`st-${id}-${i}`), cur=setTypeK(k,id,i); drafts[key]=cur===""?"w":cur==="w"?"d":cur==="d"&&typeof rkGateFor==="function"&&rkGateFor(id)?"g":""; if(drafts[key]==="g") toast("Gate set: lift it for 1–5 reps (max reps for bodyweight moves)"); persistDrafts(); lastRenderKey=""; render(); return }
   if(d.addset){ const k=ymd(sel), key=dkey(k,`xs-${d.addset}`); drafts[key]=(Number(drafts[key])||0)+1; persistDrafts(); lastRenderKey=""; render(); return }
   if(d.rmset){ const k=ymd(sel), key=dkey(k,`xs-${d.rmset}`), n=Number(drafts[key])||0; if(n>0){ const ex=(planFor(sel).ex||[]).find(e=>e.id===d.rmset), last=ex?setCount(ex,k)-1:-1; ["w","r","c","st"].forEach(f=>delete drafts[dkey(k,`${f}-${d.rmset}-${last}`)]); drafts[key]=n-1; if(!drafts[key]) delete drafts[key]; persistDrafts(); lastRenderKey=""; render() } return }
   if(d.addex){ openSheet({kind:"swap",adding:true,k:d.addex,q:"",mu:""}); return }

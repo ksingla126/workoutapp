@@ -13,6 +13,8 @@ progress charts, standings, outlook, and an AI coach (Claude).
 | `api/coach.js` | Calls Claude for signed-in users, with a daily limit per user |
 | `api/foods.js` | Searches the USDA FoodData Central database for signed-in users |
 | `public/custom.js` | Exercise library, routine builder, food database, meal builder and food diary |
+| `public/ranks.js` | Rank system (E–S): scoring, placement, Gates, demotion, the Ranks screen |
+| `public/rank-config.js` | Every rank number: ladders, conversion rates, age factors, timers. Tune here, not in code |
 | `supabase/schema.sql` | Database tables and the rules that keep each user's data private |
 
 ## Setup
