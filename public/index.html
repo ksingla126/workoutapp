@@ -490,7 +490,7 @@ details.tip summary{font-size:12px;color:var(--muted);cursor:pointer}
 .ssgroup{border-left:3px solid var(--gym);padding-left:10px;display:flex;flex-direction:column;gap:12px;margin:2px 0}
 .sslabel{font-size:12px;font-weight:700;color:var(--gym);text-transform:uppercase;letter-spacing:.04em}
 
-.daymenu{gap:16px;margin-top:-4px}
+.daymenu{gap:16px;margin-top:-4px;flex-wrap:wrap}.missed{border-color:var(--warn)}.missrow{align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0;border-top:1px solid var(--line)}
 .statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}.statrow div{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 4px}
 .statrow b{font-size:17px}.statrow span{font-size:11px;color:var(--muted)}
 .histrow{padding:10px 0;border-bottom:1px solid var(--line)}
@@ -916,6 +916,7 @@ function viewHome(openLogger){
     <div class="g"><div class="l">Protein today</div><div class="v num">${Math.round(e.p)}<small> / ${ptg} g</small></div><div class="bar food"><i style="width:${Math.min(100,e.p/ptg*100)}%"></i></div></div>
     <div class="g"><div class="l">Calories this week</div><div class="v num">${fmtN(wf.eaten)}<small> / ${fmtN(wf.target)}</small></div><div class="bar food ${wf.eaten>wf.target?"over":""}"><i style="width:${pctW}%"></i></div></div>
    </div></div>`;
+  if(isToday) h+=missedCard();
   h+=trainingCard(p,k,log,openLogger);
   h+=mealsCard(sel);
   h+=advicePreview();
@@ -923,7 +924,7 @@ function viewHome(openLogger){
   return h;
 }
 function trainingCard(p,k,log,openLogger){
-  if(p.type==="rest") return `<div class="card"><div class="row between"><h2>Rest day</h2><span class="chip">Recovery</span></div><p>Walk 20–30 minutes if you feel like it, stretch hips and calves, and do Sunday meal prep (Plan → Food).</p>${stravaChooser(k,log)}${extraRunsBlock(k,log)}${weekResetBtn(k)}${mondayWeighIn()}</div>`;
+  if(p.type==="rest") return `<div class="card"><div class="row between"><h2>Rest day</h2><span class="chip">Recovery</span></div><p>Walk 20–30 minutes if you feel like it, stretch hips and calves, and do Sunday meal prep (Plan → Food).</p>${dayMenu(p,k,log)}${stravaChooser(k,log)}${extraRunsBlock(k,log)}${weekResetBtn(k)}${mondayWeighIn()}</div>`;
   if(p.type==="gym"&&!(p.ex&&p.ex.length)) return `<div class="card"><div class="eyebrow">Gym</div><h2>${esc(p.name)}</h2><p>This routine has no exercises yet.</p><button type="button" class="btn sm" data-c-gotoplan="1">Add exercises</button></div>`;
   if(p.type==="gym"){
     let h=`<div class="card gymcard"><div class="row between"><div><div class="eyebrow">Gym · ~${CUSTOM?estMin(p.ex):"55–60"} min</div><h2>${esc(p.name)}</h2></div>${log?`<span class="chip gym">Logged ✓${log.durMin?` · ${Math.round(log.durMin)} min`:""}${log.prs&&log.prs.length?` · ${log.prs.length} PR${log.prs.length>1?"s":""}`:""}</span>`:""}</div>`;
