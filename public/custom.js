@@ -535,7 +535,8 @@ function maybeMigrateLegacy(){
   S.profile.setup=legacyToSetup(); saveProfile(); return true;
 }
 const SWAP_ICON=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h9.5M10 2.5 12.5 5 10 7.5"/><path d="M13 11H3.5M6 8.5 3.5 11 6 13.5"/></svg>`;
-function swapBtn(ex,log){ if(ex.fixed||log) return "";
+function swapBtn(ex,log){ if(ex.fixed) return "";
+  if(log) return `<button type="button" class="swapb" data-swap="${esc(ex.id)}" aria-label="Logged the wrong exercise? Change ${esc(ex.name)}" title="Logged the wrong exercise? Change it">${SWAP_ICON}</button>`;
   const undo= ex.once? `<span class="swapped">today only<button type="button" data-swapundo="${esc(ex.id)}">undo</button></span>` : "";
   return `<button type="button" class="swapb" data-swap="${esc(ex.id)}" aria-label="Swap ${esc(ex.name)}">${SWAP_ICON}</button>${undo}` }
 function muscleOfEx(id){ const L=libEx(id); if(L) return L.muscle; const m=EX_MUSCLES[id]; if(!m) return ""; const top=Object.entries(m).sort((a,b)=>b[1]-a[1])[0][0];
@@ -543,6 +544,12 @@ function muscleOfEx(id){ const L=libEx(id); if(L) return L.muscle; const m=EX_MU
 function swapHtml(){
   const W=SH, p=planFor(parseYmd(W.k)), inDay=new Set((p&&p.ex||[]).map(e=>e.id));
   if(W.adding) return addExHtml(W,inDay);
+  if(W.to&&W.fix){ const L=libEx(W.to)||{name:W.to}, can=fixRoutineOK(W);
+    return `<div class="xs-head"><h2>Fix logged exercise</h2><button type="button" class="btn ghost sm" data-xs="swapback">Back</button></div>
+     <div class="swapfrom"><span>${esc(W.fromName)}</span>${SWAP_ICON}<span>${esc(L.name)}</span></div>
+     <p class="small muted">Your sets from ${fmtDate(parseYmd(W.k))} stay exactly as logged, recorded as ${esc(L.name)}. History, PRs and ranks update to match.</p>
+     <button type="button" class="swapopt" data-xs-swapmode="fixonly"><b>Just fix this workout</b><span>Your routine stays the same.</span></button>
+     ${can?`<button type="button" class="swapopt" data-xs-swapmode="fixroutine"><b>Fix it and swap it in your routine too</b><span>Every ${esc(W.dayName)} from today on uses ${esc(L.name)} instead of ${esc(W.fromName)}.</span></button>`:""}` }
   if(W.to){ const L=libEx(W.to)||{name:W.to}, isToday=W.k===ymd(today);
     return `<div class="xs-head"><h2>Swap exercise</h2><button type="button" class="btn ghost sm" data-xs="swapback">Back</button></div>
      <div class="swapfrom"><span>${esc(W.fromName)}</span>${SWAP_ICON}<span>${esc(L.name)}</span></div>
@@ -550,8 +557,10 @@ function swapHtml(){
      <button type="button" class="swapopt" data-xs-swapmode="once"><b>${isToday?"Just today":"Just this workout"}</b><span>${fmtDate(parseYmd(W.k))} only. Your routine stays the same.</span></button>
      <button type="button" class="swapopt" data-xs-swapmode="routine"><b>Every ${esc(W.dayName)} from now on</b><span>Changes your routine for all future workouts${isToday?" starting today":" starting "+fmtShort(parseYmd(W.k))}. Logged workouts keep what you did, and Standings update to match.</span></button>` }
   const q=(W.q||"").toLowerCase().trim(), mu=W.mu||"";
-  const list=exLib().filter(e=>e.id!==W.from&&(!mu||e.muscle===mu)&&(!q||e.name.toLowerCase().includes(q)||e.muscle.toLowerCase().includes(q)||e.equip.toLowerCase().includes(q)));
-  return `<div class="xs-head"><h2>Swap ${esc(W.fromName)}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>
+  const timed=id=>{ const L=libEx(id); return L? L.type==="t" : !!(typeof X!=="undefined"&&X[id]&&X[id].unit==="sec") };
+  const list=exLib().filter(e=>e.id!==W.from&&(!W.fix||timed(e.id)===timed(W.from))&&(!mu||e.muscle===mu)&&(!q||e.name.toLowerCase().includes(q)||e.muscle.toLowerCase().includes(q)||e.equip.toLowerCase().includes(q)));
+  return `<div class="xs-head"><h2>${W.fix?`Change ${esc(W.fromName)} to…`:`Swap ${esc(W.fromName)}`}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>
+   ${W.fix?`<p class="small muted">Logged the wrong exercise on ${fmtDate(parseYmd(W.k))}? Pick what you actually did. Your sets stay as logged.</p>`:""}
    <input class="xs-search" type="search" placeholder="Search exercises" value="${esc(W.q||"")}" data-xs-q="1" data-xs-focus="q" autocomplete="off">
    <div class="xs-chips"><button type="button" class="${!mu?"on":""}" data-xs-mu="">All</button>${MUSCLES.map(m=>`<button type="button" class="${mu===m?"on":""}" data-xs-mu="${m}">${m}</button>`).join("")}</div>
    <div class="xs-results"><div class="xs-list">${list.map(e=>{const used=inDay.has(e.id); return `<button type="button" class="xs-item" data-xs-swapto="${e.id}" ${used?"disabled":""}><span><b>${esc(e.name)}</b><span class="small muted">${used?"Already in this workout":`${esc(e.muscle)} · ${esc(e.equip)}${e.custom?" · custom":""}`}</span></span><span class="xs-plus">${SWAP_ICON}</span></button>`}).join("")||`<p class="small muted">No matches. Create it as a custom exercise below.</p>`}</div></div>
@@ -566,8 +575,29 @@ function addExHtml(W,inDay){
    <div class="xs-chips"><button type="button" class="${!mu?"on":""}" data-xs-mu="">All</button>${MUSCLES.map(m=>`<button type="button" class="${mu===m?"on":""}" data-xs-mu="${m}">${m}</button>`).join("")}</div>
    <div class="xs-results"><div class="xs-list">${list.map(e=>{const used=inDay.has(e.id); return `<button type="button" class="xs-item ${used?"on":""}" data-xs-addday="${e.id}" ${used?"disabled":""}><span><b>${esc(e.name)}</b><span class="small muted">${used?"In this workout":`${esc(e.muscle)} · ${esc(e.equip)}`}</span></span><span class="xs-plus">${used?"✓":"+"}</span></button>`}).join("")||`<p class="small muted">No matches.</p>`}</div></div>`;
 }
+// a logged exercise that was recorded under the wrong name: move its sets to the right exercise
+function fixLoggedEx(k,from,to){ const l=S.logs[k]; if(!l||!l.ex) return null; const L=libEx(to);
+  const ex={}; Object.keys(l.ex).forEach(id=>{ if(id===from) ex[to]=l.ex[from]; else if(id!==to) ex[id]=l.ex[id] }); if(!(to in ex)&&l.ex[from]) ex[to]=l.ex[from];
+  const db={...(l.db||{})}; if(from in db){ delete db[from] } if(L&&L.equip==="Dumbbell"){ db[to]=true; if(!DBCFG[to]) DBCFG[to]={def:true,m:L.uni?1:2} }
+  let plan=l.plan; if(!(plan&&plan.ex)&&l.type==="gym"){ const lp=planFor(parseYmd(k)); if(lp&&lp.ex) plan={type:"gym",day:lp.day,name:lp.name,ex:lp.ex.map(e=>{const o={}; SNAP_KEYS.forEach(x=>{if(e[x]!==undefined) o[x]=e[x]}); return o})} }
+  if(plan&&plan.ex){ plan={...plan,ex:plan.ex.map(e=>{ if(e.id!==from) return e; const n=toPlanEx({id:to,sets:e.sets,lo:e.lo,hi:e.hi,rest:e.rest,ss:e.ss}), o={}; SNAP_KEYS.forEach(x=>{ if(n[x]!==undefined) o[x]=n[x] }); return o }).filter((e,i,a)=>a.findIndex(y=>y.id===e.id)===i)} }
+  if(typeof clearDrafts==="function") clearDrafts(k,new RegExp("^((w|r|c|st)-"+from+"-\\d+|xs-"+from+")$"));
+  const nl={...l,ex,db,...(plan?{plan}:{}),fixed:[...(l.fixed||[]),{from,to,at:Date.now()}],savedAt:Date.now()}; delete nl.prs;
+  const prs=findPRs(k,nl); if(prs.length) nl.prs=prs;
+  return saveLog(k,nl);
+}
+function fixRoutine(W){ const rs=(S.profile.setup&&S.profile.setup.routines)||[]; return rs.find(x=>x.id===W.day)||rs.find(x=>x.id==="r"+W.day) }
+function fixRoutineOK(W){ if(CUSTOM){ const r=fixRoutine(W); return !!(r&&r.ex.some(x=>x.id===W.from)&&!r.ex.some(x=>x.id===W.to)) }
+  const g=typeof gymDay==="function"&&gymDay(W.day,today); return !!(g&&g.ex&&g.ex.some(x=>x.id===W.from)) }
 function doSwap(mode){ const W=SH, from=W.from, to=W.to, k=W.k;
   S.profile.swaps=S.profile.swaps||{}; const sw=S.profile.swaps; sw.once=sw.once||{}; sw.routine=sw.routine||[];
+  if(mode==="fixonly"||mode==="fixroutine"){ const toName=(libEx(to)||{name:to}).name;
+    const done=fixLoggedEx(k,from,to); if(!done){ xsClose(); return }
+    if(mode==="fixroutine"&&fixRoutineOK(W)){
+      if(CUSTOM){ const su=S.profile.setup, r=fixRoutine(W), e=r&&r.ex.find(x=>x.id===from); if(e){ const tm=(libEx(to)||{}).type==="t", wasT=(libEx(from)||{}).type==="t"; e.id=to; if(tm&&!wasT){e.lo=30;e.hi=60} else if(!tm&&wasT){e.lo=8;e.hi=12} su.at=Date.now() } xsClose(); commitPlan() }
+      else { sw.routine.push({day:W.day,from,to,since:ymd(today)}); saveProfile(); xsClose() }
+      lastRenderKey=""; render(); toast(`Fixed, and ${W.dayName} now uses ${toName}`); return }
+    xsClose(); lastRenderKey=""; render(); toast(`Fixed: ${fmtShort(parseYmd(k))} now shows ${toName}`); return }
   if(mode==="once"){ sw.once[k]={...(sw.once[k]||{}),[from]:to}; saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Swapped for this workout"); return }
   if(sw.once[k]&&sw.once[k][from]){ delete sw.once[k][from]; if(!Object.keys(sw.once[k]).length) delete sw.once[k] }
   if(CUSTOM){ const su=S.profile.setup, r=su.routines.find(x=>x.id===W.day); const e=r&&r.ex.find(x=>x.id===from);
@@ -835,7 +865,7 @@ document.addEventListener("click",e=>{
   if(d.snone){ const inbox=stravaInbox(); if(inbox[d.snone]){ inbox[d.snone]={...inbox[d.snone],allExtra:true}; S.profile.stravaInbox=inbox; saveProfile(); lastRenderKey=""; render(); toast("Saved as extra runs. Log today's run when you do it.") } return }
   // --- swaps
   if(d.swap){ const p=planFor(sel), ex=p&&p.ex&&p.ex.find(e=>e.id===d.swap); if(!ex) return;
-    openSheet({kind:"swap",from:ex.id,fromName:ex.name,day:p.day,dayName:(p.name||("Day "+p.day)).split(" · ")[0],k:ymd(sel),q:"",mu:muscleOfEx(ex.id)}); return }
+    openSheet({kind:"swap",from:ex.id,fromName:ex.name,day:p.day,dayName:(p.name||("Day "+p.day)).split(" · ")[0],k:ymd(sel),q:"",mu:muscleOfEx(ex.id),fix:!!S.logs[ymd(sel)]}); return }
   if(d.swapundo){ const sw=swapsOf(), k=ymd(sel), m=S.profile.swaps&&S.profile.swaps.once&&S.profile.swaps.once[k]; if(m){ Object.keys(m).forEach(f=>{ if(m[f]===d.swapundo) delete m[f] }); if(!Object.keys(m).length) delete S.profile.swaps.once[k]; saveProfile(); lastRenderKey=""; render(); toast("Swap undone") } return }
   // --- workout screen
   if(d.unitflip){ setUnit(UNIT()==="kg"?"lb":"kg"); return }
