@@ -358,8 +358,14 @@ function rkAlertCount() {
 /* ---------- screen ---------- */
 let rkOpen = null, rkMode = "raw", rkTrialOpen = false;
 try { const v = localStorage.getItem("rd25-rkmode"); if (v === "raw" || v === "scaled") rkMode = v } catch (e) {}
-const RK_COL = ["var(--muted)", "#4E9A6B", "var(--gym)", "#8B5CF6", "#E07B1F", "#D4A017"];
-const rkBadge = (n, big) => `<span class="rk-l${big ? " big" : ""}" style="--rc:${RK_COL[Math.max(0, Math.min(5, Math.floor(n)))]}">${rkLetter(n)}</span>`;
+const RK_COL = ["#8590A6", "#22A06B", "#3C7BF4", "#7B4DF2", "#F06A1D", "#E2A50C"];
+const rkBadge = (n, big) => { const i = Math.max(0, Math.min(5, Math.floor(n))); return `<span class="rk-l${big ? " big" : ""}${i === 5 ? " s" : ""}" style="--rc:${RK_COL[i]}" role="img" aria-label="Rank ${rkLetter(n)}">${rkLetter(n)}</span>` };
+// Overall rank in the header: taps through to the Ranks screen
+function rankChip() {
+  try { if (!(S.profile && (S.profile.setup || Object.keys(S.logs).length))) return ""; const R = rankState(), n = rkAlertCount();
+    return `<button type="button" class="rk-chip" data-tab-go="ranks" aria-label="Overall rank ${rkLetter(R.overall)}. Open Ranks">${rkBadge(R.overall)}<span>Rank</span>${n ? `<i class="rk-dot" aria-hidden="true"></i>` : ""}</button>` } catch (e) { return "" }
+}
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-tab-go]"); if (!b) return; tab = b.dataset.tabGo; try { localStorage.setItem("rd25-tab", tab) } catch (_) {} lastRenderKey = ""; render(); window.scrollTo(0, 0) });
 const rkBar = (prog, col) => `<div class="rk-bar"><i style="width:${Math.round(Math.max(0, Math.min(1, prog)) * 100)}%;background:${col || "var(--gym)"}"></i></div>`;
 function rkSrcText(P) {
   const s = P.src; if (!s) return "";
@@ -454,27 +460,27 @@ function viewRanks() {
   return h;
 }
 function bindRanks() {
-  const D = rkData(), redo = () => { lastRenderKey = ""; render() };
+  const redo = () => { lastRenderKey = ""; render() };
   document.querySelectorAll("[data-rkmode]").forEach(b => b.onclick = () => { rkMode = b.dataset.rkmode; try { localStorage.setItem("rd25-rkmode", rkMode) } catch (e) {} redo() });
   document.querySelectorAll("[data-rkgroup]").forEach(b => b.onclick = () => { rkOpen = rkOpen === b.dataset.rkgroup ? null : b.dataset.rkgroup; rkTrialOpen = false; redo() });
   document.querySelectorAll("[data-rkgo]").forEach(b => b.onclick = () => { const p = b.dataset.rkgo; rkOpen = (RKC().groups.find(g => p in g.parts) || {}).id; redo(); setTimeout(() => { const el = document.querySelector(`[data-rkgroup="${rkOpen}"]`); if (el) el.scrollIntoView({ block: "start", behavior: "smooth" }) }, 50) });
-  document.querySelectorAll("[data-rkconf]").forEach(b => b.onclick = () => { D.confirmed = { ...(D.confirmed || {}), [b.dataset.rkconf]: 1 }; saveProfile(); toast("Confirmed. It counts now."); redo() });
-  document.querySelectorAll("[data-rkexcl]").forEach(b => b.onclick = () => { const p = b.dataset.rkexcl, ex = { ...(D.excl || {}) }, list = [...(ex[p] || [])], open = list.find(x => x && !x.to);
-    if (open) open.to = ymd(today); else list.push({ from: ymd(today) }); ex[p] = list; D.excl = ex; saveProfile(); toast(open ? "Included again" : "Excluded. Fading and demotion are paused for this part."); redo() });
-  document.querySelectorAll("[data-rkkeep]").forEach(b => b.onclick = () => { const list = (D.excl || {})[b.dataset.rkkeep] || [], open = list.find(x => x && !x.to); if (open) open.ask = ymd(today); saveProfile(); redo() });
-  document.querySelectorAll("[data-rkmap]").forEach(s => s.onchange = () => { D.maps = { ...(D.maps || {}), [s.dataset.rkmap]: s.value || undefined }; if (!s.value) delete D.maps[s.dataset.rkmap]; saveProfile(); redo() });
+  document.querySelectorAll("[data-rkconf]").forEach(b => b.onclick = () => { rkData().confirmed = { ...(rkData().confirmed || {}), [b.dataset.rkconf]: 1 }; saveProfile(); toast("Confirmed. It counts now."); redo() });
+  document.querySelectorAll("[data-rkexcl]").forEach(b => b.onclick = () => { const p = b.dataset.rkexcl, ex = { ...(rkData().excl || {}) }, list = [...(ex[p] || [])], open = list.find(x => x && !x.to);
+    if (open) open.to = ymd(today); else list.push({ from: ymd(today) }); ex[p] = list; rkData().excl = ex; saveProfile(); toast(open ? "Included again" : "Excluded. Fading and demotion are paused for this part."); redo() });
+  document.querySelectorAll("[data-rkkeep]").forEach(b => b.onclick = () => { const list = (rkData().excl || {})[b.dataset.rkkeep] || [], open = list.find(x => x && !x.to); if (open) open.ask = ymd(today); saveProfile(); redo() });
+  document.querySelectorAll("[data-rkmap]").forEach(s => s.onchange = () => { rkData().maps = { ...(rkData().maps || {}), [s.dataset.rkmap]: s.value || undefined }; if (!s.value) delete rkData().maps[s.dataset.rkmap]; saveProfile(); redo() });
   document.querySelectorAll("[data-rktrial]").forEach(b => b.onclick = () => { rkTrialOpen = b.dataset.rktrial === "1"; redo() });
-  document.querySelectorAll("[data-rktdel]").forEach(b => b.onclick = function () { if (!this.dataset.armed) { this.dataset.armed = "1"; this.textContent = "Tap again"; return } D.trials = (D.trials || []).filter(t => t.id !== b.dataset.rktdel); saveProfile(); redo() });
+  document.querySelectorAll("[data-rktdel]").forEach(b => b.onclick = function () { if (!this.dataset.armed) { this.dataset.armed = "1"; this.textContent = "Tap again"; return } rkData().trials = (rkData().trials || []).filter(t => t.id !== b.dataset.rktdel); saveProfile(); redo() });
   $("#rkTsave")?.addEventListener("click", () => {
     const dist = $("#rkTd").value, m = parseTime($("#rkTt").value), d = $("#rkTdate").value || ymd(today), surface = $("#rkTs").value, incline = $("#rkTinc").checked, gate = $("#rkTg").checked;
     if (!(m > 0)) { toast("Enter the time, like 1:45 or 7:30"); return }
     if (d > ymd(today)) { toast("That date is in the future"); return }
     if (surface === "treadmill" && !incline) { toast("Treadmill time trials count at 1% incline or more"); return }
-    D.trials = [...(D.trials || []), { id: "t" + Date.now().toString(36), d, dist, sec: Math.round(m * 60), surface, incline: surface === "treadmill" ? incline : undefined, gate: gate || undefined }];
+    rkData().trials = [...(rkData().trials || []), { id: "t" + Date.now().toString(36), d, dist, sec: Math.round(m * 60), surface, incline: surface === "treadmill" ? incline : undefined, gate: gate || undefined }];
     rkTrialOpen = false; saveProfile(); toast("Time trial saved"); redo();
   });
-  $("#rkPause")?.addEventListener("click", () => { D.pauses = [...(D.pauses || []), { from: ymd(today) }]; saveProfile(); toast("Paused. Fading and demotion are frozen."); redo() });
-  $("#rkPauseEnd")?.addEventListener("click", () => { const P = (D.pauses || []).find(x => x && !x.to); if (P) P.to = ymd(today); saveProfile(); toast("Pause ended"); redo() });
+  $("#rkPause")?.addEventListener("click", () => { rkData().pauses = [...(rkData().pauses || []), { from: ymd(today) }]; saveProfile(); toast("Paused. Fading and demotion are frozen."); redo() });
+  $("#rkPauseEnd")?.addEventListener("click", () => { const P = (rkData().pauses || []).find(x => x && !x.to); if (P) P.to = ymd(today); saveProfile(); toast("Pause ended"); redo() });
   $("#rkBirth")?.addEventListener("change", e => { const v = e.target.value; if (!/^\d{4}-\d{2}$/.test(v)) return; const [y] = v.split("-").map(Number), a = new Date().getFullYear() - y; if (a < 18 || a > 100) { toast("Enter a birth month for an adult (18+)"); return }
     if (!S.profile.setup) { toast("Finish setup first"); return } S.profile.setup.birth = v; S.profile.setup.age = rkAgeAt(ymd(today)); saveProfile(); toast("Saved"); redo() });
 }
@@ -501,12 +507,14 @@ function rkCelebrate(ev, n) {
 
 /* ---------- styles ---------- */
 (function () {
-  const css = `.rk-l{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;font:800 20px/1 var(--display);color:#fff;background:var(--rc);flex:none;letter-spacing:.02em}
-.rk-l.big{width:54px;height:54px;font-size:34px;border-radius:12px;box-shadow:0 0 0 3px color-mix(in srgb,var(--rc) 25%,transparent)}
-.rk-bar{height:8px;border-radius:5px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden;margin:6px 0 4px}.rk-bar i{display:block;height:100%;border-radius:5px;transition:width .4s}
+  const css = `.rk-l{display:inline-flex;align-items:center;justify-content:center;width:34px;height:38px;flex:none;color:#fff;font:900 18px/1 var(--display);font-stretch:125%;letter-spacing:-.02em;
+  clip-path:polygon(50% 0,100% 24%,100% 76%,50% 100%,0 76%,0 24%);background:linear-gradient(155deg,color-mix(in srgb,var(--rc) 62%,#fff) 0%,var(--rc) 46%,color-mix(in srgb,var(--rc) 78%,#000) 100%);text-shadow:0 1px 1px rgba(0,0,0,.18)}
+.rk-l.big{width:56px;height:62px;font-size:30px}
+.rk-l.s{background:linear-gradient(155deg,#FFF1B8 0%,#F5C531 30%,#E2A50C 55%,#B97E00 100%);color:#3B2600;text-shadow:0 1px 0 rgba(255,255,255,.4)}
+.rk-bar{height:8px;border-radius:99px;background:color-mix(in srgb,var(--ink) 8%,transparent);overflow:hidden;margin:6px 0 4px}.rk-bar i{display:block;height:100%;border-radius:99px;transition:width .4s}
 .rk-head{all:unset;display:flex;gap:12px;align-items:center;cursor:pointer;width:100%;box-sizing:border-box}.rk-head:focus-visible{outline:2px solid var(--gym);outline-offset:4px;border-radius:8px}
-.rk-name{font:700 22px/1.1 var(--display);letter-spacing:.01em}
-.rk-part{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:var(--surface-2)}.rk-part.excl{opacity:.6}
+.rk-name{font:800 21px/1.1 var(--display);font-stretch:116%;letter-spacing:-.02em}
+.rk-part{border:0;border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;background:var(--surface-2)}.rk-part.excl{opacity:.6}
 .rk-cons{display:inline-flex;gap:3px;flex:none}.rk-cons i{width:8px;height:8px;border-radius:2px;background:var(--line)}.rk-cons i.on{background:var(--food)}
 .rk-gate{border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:6px}.rk-gate.open{background:var(--coach-soft);border:1px solid var(--coach)}
 .rk-opt{display:flex;justify-content:space-between;gap:10px;font-size:14px;flex-wrap:wrap}.rk-opt .num{text-align:right}
@@ -515,7 +523,8 @@ function rkCelebrate(ev, n) {
 .rk-excl{all:unset;cursor:pointer;font-size:12px;color:var(--muted);text-decoration:underline;align-self:flex-start}.rk-trials{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px}.rk-check{display:flex;gap:8px;align-items:center;font-size:14px}
 .rk-up{position:fixed;inset:0;z-index:50;background:rgba(5,8,12,.82);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}.rk-up.on{opacity:1}
 .rk-up-in{display:flex;flex-direction:column;align-items:center;gap:12px;color:#fff;text-align:center;padding:24px;transform:scale(.8);transition:transform .45s cubic-bezier(.2,1.4,.4,1)}.rk-up.on .rk-up-in{transform:scale(1)}
-.rk-up .rk-l.big{width:110px;height:110px;font-size:72px;border-radius:22px;box-shadow:0 0 40px var(--rc)}.rk-up h2{color:#fff;margin:0}
+.rk-up .rk-l.big{width:116px;height:128px;font-size:64px;filter:drop-shadow(0 0 28px var(--rc))}
+.rk-chip .rk-dot{width:7px;height:7px;border-radius:50%;background:var(--bad);margin-left:-2px}.rk-up h2{color:#fff;margin:0}
 .setno.g{background:var(--coach);color:#fff;border-color:var(--coach)}`;
   const s = document.createElement("style"); s.id = "rankStyles"; s.textContent = css; (document.head || document.documentElement).appendChild(s);
 })();
