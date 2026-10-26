@@ -427,7 +427,7 @@ function customFoodView(){
    <p class="small muted">Carbs fill whatever calories protein and fat leave, unless you set them.</p></div>`;
   // My meals
   h+=`<div class="card"><div class="row between"><h2>My meals</h2><button type="button" class="btn sm" data-c-rec="">+ New meal</button></div>`;
-  h+= K.recipes.length? K.recipes.map(r=>{const T=recipeTotals(r); return `<button type="button" class="dayline" data-c-rec="${r.id}"><span class="txt"><b>${esc(r.name)}</b><br><span class="small muted num">${T.n} serving${T.n===1?"":"s"} · ${fmtN(T.per.kcal)} kcal · ${Math.round(T.per.p)} g P · ${Math.round(T.per.c)} g C · ${Math.round(T.per.f)} g F each</span></span></button>`}).join("")
+  h+= K.recipes.length? K.recipes.map(r=>{const T=recipeTotals(r); return `<button type="button" class="dayline rec" data-c-rec="${r.id}"><span class="txt"><b>${esc(r.name)}</b><br><span class="small muted num">${T.n} serving${T.n===1?"":"s"} · ${fmtN(T.per.kcal)} kcal · ${Math.round(T.per.p)} g P · ${Math.round(T.per.c)} g C · ${Math.round(T.per.f)} g F each</span></span></button>`}).join("")
      : `<p class="small muted">Build your meal prep: add every ingredient in the batch and how many servings it makes. The app works out macros per serving.</p>`;
   h+=`</div>`;
   // Meal plan

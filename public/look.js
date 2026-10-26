@@ -3,7 +3,7 @@
   "use strict";
   // Each preset: accents for gym / run / food / coach, plus page colors, for light and dark.
   const P = {
-    classic: { name: "Classic", light: null, dark: null, dots: ["#2350B8", "#C8322B", "#23794F", "#A87800"] },
+    classic: { name: "Classic", light: null, dark: null, dots: ["#4B48E8", "#EE4F2A", "#0F9D57", "#C98A06"] },
     ocean: { name: "Ocean",
       light: { bg: "#EEF2F6", surface: "#FFFFFF", s2: "#F4F7FA", line: "#D3DCE6", ink: "#0F1B2A", muted: "#56657A", gym: "#1F5FAD", run: "#0E8C8C", food: "#4C7A34", coach: "#7A5AC2" },
       dark: { bg: "#0D131A", surface: "#151E28", s2: "#1B2633", line: "#2A3646", ink: "#E4ECF5", muted: "#93A3B8", gym: "#7FA8F0", run: "#4FC9C4", food: "#9BCB7A", coach: "#B39AF2" } },
@@ -41,7 +41,7 @@
     if (!el) { el = document.createElement("style"); el.id = "paletteStyle"; document.head.appendChild(el); }
     el.textContent = css;
     const isDark = mode === "dark" || (mode === "system" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
-    const bg = p.light ? (isDark ? p.dark.bg : p.light.bg) : (isDark ? "#0F1413" : "#EDF0EF");
+    const bg = p.light ? (isDark ? p.dark.bg : p.light.bg) : (isDark ? "#0C1120" : "#EDF0F4");
     const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute("content", bg);
   }
   function save(prefs) { const cur = { ...read(), ...prefs }; try { localStorage.setItem("rd25-look", JSON.stringify(cur)); } catch (e) {} apply(cur); return cur; }
