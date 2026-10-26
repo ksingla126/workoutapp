@@ -652,6 +652,14 @@ nav.tabs .badge{top:3px;right:calc(50% - 20px);box-shadow:0 0 0 2px var(--surfac
 .top-week .muted{font-weight:600;font-size:.62em;letter-spacing:-.01em}
 .top-meta{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;color:var(--muted);margin-top:-2px}
 .top-meta b{color:var(--ink);font-weight:750;font-size:15px}
+.recwrap{border-top:1px solid var(--line);padding-bottom:4px}.recwrap:first-of-type{border-top:0}.recwrap .dayline.rec{border-top:0}
+details.method,details.prepwk{font-size:14px}
+details.method>summary,details.prepwk>summary{cursor:pointer;color:var(--gym);font-weight:650;padding:2px 0 6px;list-style-position:inside}
+details.prepwk{border-top:1px solid var(--line);padding-top:10px}
+details.prepwk>summary{color:var(--ink);display:flex;justify-content:space-between;gap:10px;list-style:none}details.prepwk>summary::-webkit-details-marker{display:none}
+details.prepwk>summary::after{content:"▾";color:var(--muted)}details.prepwk[open]>summary::after{content:"▴"}
+.steps{margin:4px 0 8px;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.prepwk .mealrow .k{white-space:normal;text-align:right;max-width:48%}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 <script src="/look.js"></script>
@@ -2639,7 +2647,7 @@ function applySetup(raw){
 }
 let appliedStamp="";
 function onProfile(){
-  syncPrefs(); initStdAliases(); maybeMigrateLegacy(); maybeStravaInit();
+  syncPrefs(); initStdAliases(); maybeMigrateLegacy(); maybeMealsV3(); maybeStravaInit();
   let su=S.profile&&S.profile.setup;
   if(su&&!(su.routines&&su.week)){ su=S.profile.setup=normalizeSetup(su); saveProfile() }
   const st=su?JSON.stringify(su)+JSON.stringify((S.profile.setup||{}).customEx||[]):"";

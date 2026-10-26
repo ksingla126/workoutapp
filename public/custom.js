@@ -405,10 +405,12 @@ function recipeHtml(){ const r=SH.r, T=recipeTotals(r);
   h+=`<div class="field"><label>Meal name</label><input data-xs-rf="name" value="${esc(r.name)}" placeholder="e.g. Pesto chicken rice bowls" data-xs-focus="rname"></div>
     <div class="field" style="max-width:160px"><label>Makes (servings)</label><input inputmode="numeric" data-xs-rf="servings" value="${esc(r.servings)}" data-xs-focus="rserv"></div>
     <h3>Ingredients</h3>`;
+  const methodHtml=`<div class="field"><label>Method (one step per line)</label><textarea data-xs-rf="method" rows="7" data-xs-focus="rmethod" placeholder="Brown the turkey…">${esc(r.method||"")}</textarea></div>
+    <div class="field"><label>Storing and reheating</label><textarea data-xs-rf="store" rows="3" data-xs-focus="rstore">${esc(r.store||"")}</textarea></div>`;
   h+= r.items.length? r.items.map((it,i)=>{const f=foodById(it.f); if(!f) return ""; const m=macrosOf(f,gramsOf(f,it.amt,it.unit)); return `<div class="extra"><span>${esc(f.n)} <span class="muted small num">· ${esc(fmtAmt(it.amt,it.unit))} · ${fmtN(m.kcal)} kcal</span></span><button type="button" data-xs-ingrm="${i}" aria-label="Remove">×</button></div>`}).join("") : `<p class="small muted">Add the ingredients for the whole batch.</p>`;
   h+=`<button type="button" class="btn ghost sm" data-xs="ingnew" style="margin:8px 0">+ Add ingredient</button>
     <div class="note num rtot"><b>Per serving:</b> ${fmtN(T.per.kcal)} kcal · ${Math.round(T.per.p)} g protein · ${Math.round(T.per.c)} g carbs · ${Math.round(T.per.f)} g fat<br><span class="small muted">Whole batch: ${fmtN(T.total.kcal)} kcal · ${Math.round(T.total.p)} g protein</span></div>
-    <p class="note" data-xs-err hidden></p>
+    ${methodHtml}<p class="note" data-xs-err hidden></p>
     <div class="row"><button type="button" class="btn" data-xs="rsave">Save meal</button>${SH.isNew?"":`<button type="button" class="btn ghost" data-xs="rdel">${SH.delConfirm?"Tap again to delete":"Delete"}</button>`}</div>`;
   return h;
 }
@@ -427,7 +429,7 @@ function customFoodView(){
    <p class="small muted">Carbs fill whatever calories protein and fat leave, unless you set them.</p></div>`;
   // My meals
   h+=`<div class="card"><div class="row between"><h2>My meals</h2><button type="button" class="btn sm" data-c-rec="">+ New meal</button></div>`;
-  h+= K.recipes.length? K.recipes.map(r=>{const T=recipeTotals(r); return `<button type="button" class="dayline rec" data-c-rec="${r.id}"><span class="txt"><b>${esc(r.name)}</b><br><span class="small muted num">${T.n} serving${T.n===1?"":"s"} · ${fmtN(T.per.kcal)} kcal · ${Math.round(T.per.p)} g P · ${Math.round(T.per.c)} g C · ${Math.round(T.per.f)} g F each</span></span></button>`}).join("")
+  h+= K.recipes.length? K.recipes.map(r=>{const T=recipeTotals(r); return `<div class="recwrap"><button type="button" class="dayline rec" data-c-rec="${r.id}"><span class="txt"><b>${esc(r.name)}</b><br><span class="small muted num">${T.n} serving${T.n===1?"":"s"} · ${fmtN(T.per.kcal)} kcal · ${Math.round(T.per.p)} g P · ${Math.round(T.per.c)} g C · ${Math.round(T.per.f)} g F each</span></span></button>${recipeMethod(r)}</div>`}).join("")
      : `<p class="small muted">Build your meal prep: add every ingredient in the batch and how many servings it makes. The app works out macros per serving.</p>`;
   h+=`</div>`;
   // Meal plan
@@ -438,9 +440,10 @@ function customFoodView(){
     its.forEach((e,i)=>{const M=entryMacros(e); if(!M) return; day=addM(day,M.m); h+=`<div class="extra"><span>${esc(M.name)} <span class="muted small num">· ${esc(M.amount)} · ${fmtN(M.m.kcal)} kcal</span></span><button type="button" data-c-prm="${sk}|${i}" aria-label="Remove">×</button></div>`});
     h+=`</div>`});
   h+=`<div class="note num"><b>Planned per day:</b> ${fmtN(day.kcal)} of ${fmtN(g.kcal)} kcal · ${Math.round(day.p)} of ${g.p} g protein · ${Math.round(day.c)} g carbs · ${Math.round(day.f)} g fat</div></div>`;
+  h+=prepCard(K);
   // Grocery list
   const gl=groceryList(), chk=S.profile.grocery||{};
-  h+=`<div class="card"><div class="row between"><h2>Grocery list</h2><span class="chip">7 days</span></div>`;
+  h+=`<div class="card"><div class="row between"><h2>${K.prep?"Weekly average":"Grocery list"}</h2><span class="chip">7 days</span></div>${K.prep?`<p class="small muted">What your meal plan uses in an average week. Shop from the Sunday prep lists above.</p>`:""}`;
   h+= gl.length? gl.map(x=>`<label class="mealrow ${chk[x.id]?"eaten":""}"><input type="checkbox" data-c-gro="${x.id}" ${chk[x.id]?"checked":""}><span class="m">${esc(x.n)}</span><span class="k num">${esc(x.qty)}</span></label>`).join("")+`<button type="button" class="link small" data-c-groclr="1">Uncheck all</button>`
      : `<p class="small muted">Add meals to your plan and the shopping list fills in.</p>`;
   h+=`</div>`;
@@ -461,6 +464,98 @@ function groceryList(){ const K=kitchen(), g={};
       qty= each? `${Math.ceil(gr/each[1]-0.05)} × ${each[0].replace(/^1 /,"")}` : gr>=454? `${(gr/453.6).toFixed(1)} lb` : `${Math.ceil(gr/28.35)} oz` }
     return {id,n:f.n,qty} }).sort((a,b)=>a.n.localeCompare(b.n));
 }
+
+
+/* ======================= 3-meal batch plan (Oct 26, 2026) ======================= */
+// Three meals that batch-cook and freeze: burritos, pesto chicken bowls, turkey bolognese with protein pasta.
+// Week A (big cook, every other Sunday) makes everything; Week B only makes the chicken bowls.
+const BATCH3={
+  foods:[{id:"cfPP",n:"Protein pasta, dry (e.g. Barilla Protein+)",serving:"2 oz (56 g)",k:190,p:10,c:38,f:1.5}],
+  recipes:[
+    {id:"rcBur",name:"Turkey & egg burritos (batch)",servings:14,
+      items:[{f:"turk93",amt:2.5,unit:"1 lb"},{f:"egg",amt:14,unit:"1 large egg"},{f:"eggwh",amt:850,unit:"g"},{f:"tortf",amt:1008,unit:"g"},{f:"cheddar",amt:98,unit:"g"},{f:"salsa",amt:14,unit:"2 tbsp"}],
+      when:"Week A · about 45 min · makes 14",
+      method:`Mix the seasoning: 2 tsp salt, 1 tsp pepper, 2 tsp garlic powder, 2 tsp smoked paprika, 1 tsp dried sage, ½ tsp chili flakes.
+Brown 2.5 lb ground turkey in a large nonstick pan over medium-high, 8–10 min, breaking it up. Stir in the seasoning and tip it into a big bowl.
+Whisk 14 eggs with 3½ cups liquid egg whites and a pinch of salt. Scramble in the same pan over medium-low, stirring slowly. Take them off while still a little wet: they finish cooking when you reheat.
+Fold the eggs into the turkey. Let the filling cool 10 minutes so the tortillas don't steam and tear.
+Warm the 10-inch tortillas 15 seconds in the microwave so they bend without cracking.
+Lay ¾ cup filling in a line on each tortilla and top with 1 tbsp shredded cheese. Fold in the sides, then roll tight away from you.
+Wrap each burrito in foil and freeze flat in gallon bags, labeled with the date. Keep salsa in the fridge and add it when you eat (2 tbsp each).`,
+      store:`Freezer up to 2 months. Reheat: take off the foil, wrap in a damp paper towel and microwave 2–2½ min, flipping halfway, then rest 1 min. Air fryer: 350 °F for 12–14 min from frozen, still in foil for the first 8 min.`},
+    {id:"rcPes",name:"Pesto chicken rice bowls (batch)",servings:7,
+      items:[{f:"chkbr",amt:4,unit:"lb"},{f:"ricewd",amt:6,unit:"¼ cup"},{f:"broc",amt:14,unit:"1 cup"},{f:"pesto",amt:9,unit:"1 tbsp"}],
+      when:"Every Sunday · about 40 min · makes 7",
+      method:`Heat the oven to 425 °F and line a sheet pan with foil.
+Pat 4 lb chicken breasts dry. Slice any piece thicker than an inch in half horizontally so everything cooks evenly.
+Rub with 2 tbsp pesto (2 thawed cubes), 1½ tsp salt and ½ tsp pepper. Spread out on the pan.
+Bake 18–22 min, until the thickest piece reads 160 °F. Rest 10 min (it climbs to 165 °F), then slice.
+While it bakes, rinse 1½ cups rice. Bring it to a boil with 2¼ cups water and ½ tsp salt, cover, cook on the lowest heat 15 min, then off the heat 10 min. Fluff and spread on a tray to cool.
+Split the chicken and rice across 7 containers (about ¾ cup rice each) with 1 tbsp pesto on top.
+Keep 2 cups frozen broccoli per bowl in the freezer bag until you eat.`,
+      store:`Fridge 4 days, so freeze 3 bowls for Thu–Sat and move one to the fridge the night before. Reheat: add 2 cups frozen broccoli, cover, microwave 3–4 min, stirring halfway.`},
+    {id:"rcBol",name:"Turkey bolognese with protein pasta (batch)",servings:14,
+      items:[{f:"turk93",amt:6,unit:"1 lb"},{f:"onion",amt:2,unit:"1 medium"},{f:"carrot",amt:2,unit:"1 medium"},{f:"garlic",amt:6,unit:"1 clove"},{f:"crtom",amt:9.8,unit:"1 cup"},{f:"tompaste",amt:170,unit:"g"},{f:"spinach",amt:14,unit:"1 cup"},{f:"cfPP",amt:14,unit:"2 oz (56 g)"}],
+      when:"Week A · about 50 min, mostly simmering · makes 14",
+      method:`Finely chop 2 onions and 2 carrots (a few pulses in a food processor works) and mince 6 garlic cloves.
+In your biggest pot (7 qt or more) over medium-high, brown 6 lb ground turkey in two batches with 1 tsp salt each, 8–10 min per batch, breaking it up. Keep the first batch in a bowl while you do the second.
+Put all the turkey back. Add the onion and carrot and cook 6–8 min until soft, then the garlic for 1 min.
+Stir in a 6 oz can of tomato paste and cook 2 min until it darkens.
+Add 3 × 28 oz cans crushed tomatoes, 2 tbsp Italian seasoning, 1 tsp salt, ½ tsp pepper and 1 tbsp balsamic vinegar. Bring to a simmer.
+Simmer uncovered 30 min, stirring every 5–10 min, until thick. Stir in 14 cups spinach for the last 2 min (it wilts down to almost nothing).
+Cool 20 min, then portion into 14 containers (about 1½ cups each).
+Pasta, per dinner: boil 2 oz protein pasta in salted water for the time on the box (about 10 min). Or cook 7 portions on Sunday, toss with 1 tsp oil and keep in the fridge up to 4 days.`,
+      store:`4 portions in the fridge (4 days), 10 in the freezer (3 months). Reheat sauce from frozen 4–5 min in the microwave, stirring halfway (2–3 min if thawed overnight), then toss with the pasta.`}
+  ],
+  plan:{b:[{t:"r",id:"rcBur",qty:1}],l:[{t:"r",id:"rcPes",qty:1}],d:[{t:"r",id:"rcBol",qty:1}],s:[]},
+  prep:{start:"2026-11-01",
+    weeks:[
+      {name:"Week A: big cook",time:"about 2½ hours",steps:[
+        "0:00 Chop the bolognese vegetables. Start browning the first 3 lb of turkey in the big pot.",
+        "0:15 Oven to 425 °F. Season the chicken. Brown the second batch of bolognese turkey.",
+        "0:30 Chicken in the oven. Rice on the stove. Vegetables, garlic and paste into the pot, then tomatoes: simmer 30 min.",
+        "0:35 Burrito turkey in a skillet, then the eggs.",
+        "0:52 Chicken out to rest. Put 6 eggs on to boil (12 min, then ice water).",
+        "1:00 Roll and wrap 14 burritos.",
+        "1:30 Spinach into the sauce. Slice the chicken.",
+        "1:40 Portion 7 chicken bowls (freeze 3) and 14 bolognese (freeze 10). Burritos into the freezer."],
+       shop:[["chicken","Chicken breast","4 lb"],["turkey","93% lean ground turkey","8.5 lb (three 3-lb packs)"],["eggs","Eggs","2½ dozen"],["whites","Liquid egg whites","32 oz carton"],["tort","10-inch flour tortillas","14"],["cheese","Shredded cheddar or Mexican blend","8 oz"],["salsa","Salsa","1 jar (16 oz)"],["crtom","Crushed tomatoes","3 × 28 oz cans"],["paste","Tomato paste","1 × 6 oz can"],["veg","Onions, carrots, garlic","2 + 2 + 1 head"],["spin","Baby spinach","1 lb"],["pasta","Protein pasta","1 box"],["broc","Frozen broccoli","2 × 32 oz"],["banana","Bananas","for long runs"],["rice","Rice","if you're low (1½ cups a week)"]]},
+      {name:"Week B: quick cook",time:"about 40 minutes",steps:[
+        "Oven to 425 °F. Season and bake the chicken (18–22 min).",
+        "Rice on the stove while it bakes. Boil 6 eggs for run days.",
+        "Rest and slice the chicken, then portion 7 bowls (freeze 3).",
+        "Burritos and bolognese come out of the freezer: move 4 bolognese and a few burritos to the fridge."],
+       shop:[["chicken","Chicken breast","4 lb"],["eggs","Eggs","1 dozen"],["pasta","Protein pasta","1 box"],["broc","Frozen broccoli","2 × 32 oz"],["salsa","Salsa","if you're out"],["banana","Bananas","for long runs"]]}],
+    every:[{name:"Walnut pesto",time:"every 4–5 weeks · 15 min",steps:[
+        "Toast 1 cup walnuts in a dry pan 3 min until fragrant; let them cool.",
+        "Blend 2 packed cups basil, 2 cups baby spinach, the walnuts, 1 cup grated parmesan, 4 garlic cloves, juice of 1 lemon and 1 tsp salt until chopped.",
+        "With the blender running, stream in ¾ cup olive oil until smooth. Taste for salt and lemon.",
+        "Freeze in an ice-cube tray (1 tbsp per cube), then bag the cubes. Keeps 3 months; keep a week's worth in the fridge."]},
+      {name:"Run-day eggs",time:"with each Sunday prep",steps:["Boil 6 eggs 12 min, then ice water 5 min. Two each for Tue, Thu and Sat. Add a banana 30–45 min before the Saturday long run."]}]}
+};
+function maybeMealsV3(){
+  if(!window.__platform||!loaded.profile||!CUSTOM||!CUSTOM.su.fromLegacy) return false;
+  const K=kitchen(); if(K.v3) return false;
+  BATCH3.foods.forEach(f=>{ if(!K.foods.some(x=>x.id===f.id)) K.foods.push({...f}) });
+  const ids=new Set(BATCH3.recipes.map(r=>r.id));
+  K.recipes=[...BATCH3.recipes.map(r=>JSON.parse(JSON.stringify(r))),...K.recipes.filter(r=>!ids.has(r.id)&&r.id!=="rcYog")];
+  K.plan=JSON.parse(JSON.stringify(BATCH3.plan)); K.prep=JSON.parse(JSON.stringify(BATCH3.prep)); K.v3=Date.now();
+  saveProfile(); return true;
+}
+function prepWeekIdx(P){ const st=parseYmd(P.start), d=today; if(d<addDays(st,-6)) return 0; const w=Math.floor((d-addDays(st,-6))/86400000/7); return ((w%P.weeks.length)+P.weeks.length)%P.weeks.length }
+function prepCard(K){ const P=K.prep; if(!P||!P.weeks||!P.weeks.length) return ""; const cur=prepWeekIdx(P), chk=S.profile.grocery||{};
+  const next=(()=>{ let d=today; while(d.getDay()!==0) d=addDays(d,1); return d })();
+  let h=`<div class="card prep"><div class="row between"><h2>Sunday prep</h2><span class="chip food">${fmtShort(next)}: ${esc(P.weeks[cur].name.split(":")[0])}</span></div>
+    <p class="small muted">Weeks alternate. The big cook fills the freezer for two weeks; the quick week only makes chicken bowls.</p>`;
+  P.weeks.forEach((w,i)=>{ h+=`<details class="prepwk" ${i===cur?"open":""}><summary><b>${esc(w.name)}</b><span class="small muted">${esc(w.time)}</span></summary>
+    <ol class="steps small">${w.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>
+    <div class="eyebrow" style="margin-top:6px">Shopping list</div>
+    ${w.shop.map(([id,n,q])=>{ const key=`prep${i}-${id}`; return `<label class="mealrow ${chk[key]?"eaten":""}"><input type="checkbox" data-c-gro="${key}" ${chk[key]?"checked":""}><span class="m">${esc(n)}</span><span class="k small">${esc(q)}</span></label>` }).join("")}</details>` });
+  (P.every||[]).forEach(e=>{ h+=`<details class="prepwk"><summary><b>${esc(e.name)}</b><span class="small muted">${esc(e.time)}</span></summary><ol class="steps small">${e.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol></details>` });
+  return h+`</div>` }
+function recipeMethod(r){ if(!r.method&&!r.store) return "";
+  const lines=String(r.method||"").split("\n").map(x=>x.trim()).filter(Boolean);
+  return `<details class="method"><summary>How to make it${r.when?` <span class="muted">· ${esc(r.when)}</span>`:""}</summary>${lines.length?`<ol class="steps small">${lines.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`:""}${r.store?`<p class="small"><b>Storing and reheating:</b> ${esc(r.store)}</p>`:""}</details>` }
 
 /* ======================= Exercise swaps ======================= */
 // Library exercises borrow strength standards from a close equivalent, so swaps still count in Standings.
