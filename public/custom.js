@@ -268,7 +268,7 @@ function paintSheet(scrollTop){ if(!SH) return; const el=sheetEl(), inn=el.query
   if(focusSel){ const f=inn.querySelector(`[data-xs-focus="${focusSel}"]`); if(f){ f.focus(); try{const v=f.value; f.setSelectionRange(v.length,v.length)}catch(e){} } } }
 const commitPlan=()=>{ saveProfile(); onProfile(); render() };
 // Repaint only part of the sheet, so the input being typed in (and the iPhone keyboard) stays put.
-function sheetHtml(){ return SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
+function sheetHtml(){ return SH.kind==="gscan"? gscanHtml() : SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
 function paintPart(sel){ if(!SH) return; const el=document.querySelector("#xsheet .xs-in"); const dst=el&&el.querySelector(sel); if(!dst){ paintSheet(); return }
   const tmp=document.createElement("div"); tmp.innerHTML=sheetHtml(); const src=tmp.querySelector(sel); if(src) dst.innerHTML=src.innerHTML; else paintSheet() }
 function estMin(ex){ const sec=(ex||[]).reduce((t,e)=>t+(e.sets||3)*((e.rest||90)+(e.bw?(e.hi||45):40)),0); return Math.max(10,Math.round(sec/60/5)*5) }
@@ -382,13 +382,15 @@ function loadScanLib(){ if(window.Html5Qrcode) return Promise.resolve(); if(scan
   scanLoading=new Promise((ok,no)=>{ const sc=document.createElement("script"); sc.src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"; sc.onload=ok; sc.onerror=()=>{scanLoading=null; no(new Error("load"))}; document.head.appendChild(sc) }); return scanLoading }
 async function startScan(){ try{ await loadScanLib(); if(!SH||SH.view!=="scan") return; const box=document.getElementById("scanbox"); if(!box) return; box.innerHTML="";
     const F=window.Html5QrcodeSupportedFormats; scanner=new Html5Qrcode("scanbox",{verbose:false,formatsToSupport:F?[F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E]:undefined});
-    await scanner.start({facingMode:"environment"},{fps:10,qrbox:{width:260,height:140}},code=>{ stopScan(); SH.code=code; lookupCode(code) },()=>{});
+    await scanner.start({facingMode:"environment"},{fps:10,qrbox:{width:260,height:140}},code=>{ stopScan(); SH.code=code; (SH.kind==="gscan"?gLookup:lookupCode)(code) },()=>{});
   }catch(e){ if(SH&&SH.view==="scan"){ SH.scanErr="Camera isn't available. Type the barcode number instead."; paintSheet() } } }
+function startScanG(){ SH.view="scan"; startScan() }
 function stopScan(){ const sc=scanner; scanner=null; if(sc){ try{ sc.stop().catch(()=>{}) }catch(e){} } }
 async function lookupCode(code){ code=String(code||"").replace(/\D/g,""); if(code.length<6){ SH.lookErr="Enter the full barcode number."; paintSheet(); return }
   SH.lookErr="Looking up…"; paintSheet();
   try{ const tok=window.appAuthToken? await window.appAuthToken() : null; const r=await fetch("/api/barcode?code="+code,{headers:tok?{authorization:"Bearer "+tok}:{}}); const j=await r.json().catch(()=>({}));
     if(r.status===404){ SH.lookErr="Not found in Open Food Facts. Add it as a custom food from its label."; paintSheet(); return }
+    if(r.ok&&!j.food&&j.product){ SH.lookErr=`Found ${j.product.name}, but it has no nutrition info. Add it as a custom food from its label.`; paintSheet(); return }
     if(!r.ok||!j.food) throw 0; USDA.cache.set(j.food.id,j.food); keepUsda(j.food);
     SH.view=null; SH.lookErr=""; SH.tab="foods"; SH.pick={t:"f",id:j.food.id,amt:1,unit:unitsOf(j.food)[0][0]}; paintSheet(true) }
   catch(e){ SH.lookErr="Lookup isn't available right now."; paintSheet() } }
@@ -444,7 +446,7 @@ function customFoodView(){
   // Grocery list
   const gl=groceryList(), chk=S.profile.grocery||{};
   h+=`<div class="card"><div class="row between"><h2>${K.prep?"Weekly average":"Grocery list"}</h2><span class="chip">7 days</span></div>${K.prep?`<p class="small muted">What your meal plan uses in an average week. Shop from the Sunday prep lists above.</p>`:""}`;
-  h+= gl.length? gl.map(x=>`<label class="mealrow ${chk[x.id]?"eaten":""}"><input type="checkbox" data-c-gro="${x.id}" ${chk[x.id]?"checked":""}><span class="m">${esc(x.n)}</span><span class="k num">${esc(x.qty)}</span></label>`).join("")+`<button type="button" class="link small" data-c-groclr="1">Uncheck all</button>`
+  h+= gl.length? (K.prep?"":storeBar())+gl.map(x=>shopRow("f:"+x.id,x.id,x.n,x.qty,{q:x.gr,u:"g"})).join("")+`<button type="button" class="link small" data-c-groclr="1">Uncheck all</button>`
      : `<p class="small muted">Add meals to your plan and the shopping list fills in.</p>`;
   h+=`</div>`;
   // Custom foods
@@ -462,7 +464,7 @@ function groceryList(){ const K=kitchen(), g={};
     if(f.custom) qty=`${fmtQ(Math.round(gr/100*10)/10)} × ${f.serving||"serving"}`;
     else { const each=f.sv.find(([l])=>/^1 (large|medium|bagel|bun|tortilla|avocado|clove|cake|bar|can|block|package|fillet|breast|thigh|steak|bottle)/.test(l));
       qty= each? `${Math.ceil(gr/each[1]-0.05)} × ${each[0].replace(/^1 /,"")}` : gr>=454? `${(gr/453.6).toFixed(1)} lb` : `${Math.ceil(gr/28.35)} oz` }
-    return {id,n:f.n,qty} }).sort((a,b)=>a.n.localeCompare(b.n));
+    return {id,n:f.n,qty,gr} }).sort((a,b)=>a.n.localeCompare(b.n));
 }
 
 
@@ -519,14 +521,14 @@ Pasta, per dinner: boil 2 oz protein pasta in salted water for the time on the b
         "1:00 Roll and wrap 14 burritos.",
         "1:30 Spinach into the sauce. Slice the chicken.",
         "1:40 Portion 7 chicken bowls (freeze 3) and 14 bolognese (freeze 10). Burritos into the freezer."],
-       shop:[["chicken","Chicken breast","4 lb"],["turkey","93% lean ground turkey","8.5 lb (three 3-lb packs)"],["eggs","Eggs","2½ dozen"],["whites","Liquid egg whites","32 oz carton"],["tort","10-inch flour tortillas","14"],["cheese","Shredded cheddar or Mexican blend","8 oz"],["salsa","Salsa","1 jar (16 oz)"],["crtom","Crushed tomatoes","3 × 28 oz cans"],["paste","Tomato paste","1 × 6 oz can"],["veg","Onions, carrots, garlic","2 + 2 + 1 head"],["spin","Baby spinach","1 lb"],["pasta","Protein pasta","1 box"],["broc","Frozen broccoli","2 × 32 oz"],["banana","Bananas","for long runs"],["rice","Rice","if you're low (1½ cups a week)"]]},
+       shop:[["chicken","Chicken breast","4 lb",{q:4,u:"lb"}],["turkey","93% lean ground turkey","8.5 lb (three 3-lb packs)",{q:8.5,u:"lb"}],["eggs","Eggs","2½ dozen",{q:30,u:"count"}],["whites","Liquid egg whites","32 oz carton",{q:32,u:"fl oz"}],["tort","10-inch flour tortillas","14",{q:14,u:"count"}],["cheese","Shredded cheddar or Mexican blend","8 oz",{q:8,u:"oz"}],["salsa","Salsa","1 jar (16 oz)",{q:16,u:"oz"}],["crtom","Crushed tomatoes","3 × 28 oz cans",{q:84,u:"oz"}],["paste","Tomato paste","1 × 6 oz can",{q:6,u:"oz"}],["veg","Onions, carrots, garlic","2 + 2 + 1 head"],["spin","Baby spinach","1 lb",{q:16,u:"oz"}],["pasta","Protein pasta","1 box",{q:14,u:"oz"}],["broc","Frozen broccoli","2 × 32 oz",{q:64,u:"oz"}],["banana","Bananas","for long runs",{q:2,u:"count"}],["rice","Rice","if you're low (1½ cups a week)",{q:11,u:"oz"}]]},
       {name:"Week B: quick cook",time:"about 40 minutes",steps:[
         "Oven to 425 °F. Season and bake the chicken (18–22 min).",
         "Rice on the stove while it bakes. Boil 6 eggs for run days.",
         "Rest and slice the chicken, then portion 7 bowls (freeze 3).",
         "Burritos and bolognese come out of the freezer: move 4 bolognese and a few burritos to the fridge."],
-       shop:[["chicken","Chicken breast","4 lb"],["eggs","Eggs","1 dozen"],["pasta","Protein pasta","1 box"],["broc","Frozen broccoli","2 × 32 oz"],["salsa","Salsa","if you're out"],["banana","Bananas","for long runs"]]}],
-    every:[{name:"Walnut pesto",time:"every 4–5 weeks · 15 min",shop:[["basil","Fresh basil","4 oz container (2 packed cups)"],["walnuts","Walnuts","8 oz bag"],["parm","Parmesan","5 oz wedge or tub"],["lemon","Lemon","1"],["oil","Olive oil","500 ml bottle (lasts ~3 batches)"],["garlic","Garlic","4 cloves from your head"],["spin","Baby spinach","2 cups from the Week A bag"],["tray","Ice-cube tray and freezer bags","if you don't have them"]],steps:[
+       shop:[["chicken","Chicken breast","4 lb",{q:4,u:"lb"}],["eggs","Eggs","1 dozen",{q:12,u:"count"}],["pasta","Protein pasta","1 box",{q:14,u:"oz"}],["broc","Frozen broccoli","2 × 32 oz",{q:64,u:"oz"}],["salsa","Salsa","if you're out"],["banana","Bananas","for long runs",{q:2,u:"count"}]]}],
+    every:[{name:"Walnut pesto",time:"every 4–5 weeks · 15 min",shop:[["basil","Fresh basil","4 oz container (2 packed cups)",{q:2.5,u:"oz"}],["walnuts","Walnuts","8 oz bag",{q:4,u:"oz"}],["parm","Parmesan","5 oz wedge or tub",{q:3,u:"oz"}],["lemon","Lemon","1",{q:1,u:"count"}],["oil","Olive oil","500 ml bottle (lasts ~3 batches)",{q:6,u:"fl oz"}],["garlic","Garlic","4 cloves from your head"],["spin","Baby spinach","2 cups from the Week A bag"],["tray","Ice-cube tray and freezer bags","if you don't have them"]],steps:[
         "Toast 1 cup walnuts in a dry pan 3 min until fragrant; let them cool.",
         "Blend 2 packed cups basil, 2 cups baby spinach, the walnuts, 1 cup grated parmesan, 4 garlic cloves, juice of 1 lemon and 1 tsp salt until chopped.",
         "With the blender running, stream in ¾ cup olive oil until smooth. Taste for salt and lemon.",
@@ -536,28 +538,97 @@ Pasta, per dinner: boil 2 oz protein pasta in salted water for the time on the b
 function maybeMealsV3(){
   if(!window.__platform||!loaded.profile||!CUSTOM||!CUSTOM.su.fromLegacy) return false;
   const K=kitchen();
+  if(K.v3&&(K.prepV||1)<2){ K.prep=JSON.parse(JSON.stringify(BATCH3.prep)); K.prepV=2; saveProfile(); return true }
   if(K.v3){ const pe=K.prep&&(K.prep.every||[]).find(e=>e.name==="Walnut pesto"); if(pe&&!pe.shop){ pe.shop=[["basil","Fresh basil","4 oz container (2 packed cups)"],["walnuts","Walnuts","8 oz bag"],["parm","Parmesan","5 oz wedge or tub"],["lemon","Lemon","1"],["oil","Olive oil","500 ml bottle (lasts ~3 batches)"],["garlic","Garlic","4 cloves from your head"],["spin","Baby spinach","2 cups from the Week A bag"],["tray","Ice-cube tray and freezer bags","if you don't have them"]]; saveProfile(); return true } return false }
   BATCH3.foods.forEach(f=>{ if(!K.foods.some(x=>x.id===f.id)) K.foods.push({...f}) });
   const ids=new Set(BATCH3.recipes.map(r=>r.id));
   K.recipes=[...BATCH3.recipes.map(r=>JSON.parse(JSON.stringify(r))),...K.recipes.filter(r=>!ids.has(r.id)&&r.id!=="rcYog")];
-  K.plan=JSON.parse(JSON.stringify(BATCH3.plan)); K.prep=JSON.parse(JSON.stringify(BATCH3.prep)); K.v3=Date.now();
+  K.plan=JSON.parse(JSON.stringify(BATCH3.plan)); K.prep=JSON.parse(JSON.stringify(BATCH3.prep)); K.prepV=2; K.v3=Date.now();
   saveProfile(); return true;
 }
 function prepWeekIdx(P){ const st=parseYmd(P.start), d=today; if(d<addDays(st,-6)) return 0; const w=Math.floor((d-addDays(st,-6))/86400000/7); return ((w%P.weeks.length)+P.weeks.length)%P.weeks.length }
 function prepCard(K){ const P=K.prep; if(!P||!P.weeks||!P.weeks.length) return ""; const cur=prepWeekIdx(P), chk=S.profile.grocery||{};
   const next=(()=>{ let d=today; while(d.getDay()!==0) d=addDays(d,1); return d })();
   let h=`<div class="card prep"><div class="row between"><h2>Sunday prep</h2><span class="chip food">${fmtShort(next)}: ${esc(P.weeks[cur].name.split(":")[0])}</span></div>
-    <p class="small muted">Weeks alternate. The big cook fills the freezer for two weeks; the quick week only makes chicken bowls.</p>`;
+    <p class="small muted">Weeks alternate. The big cook fills the freezer for two weeks; the quick week only makes chicken bowls.</p>${storeBar()}`;
   P.weeks.forEach((w,i)=>{ h+=`<details class="prepwk" ${i===cur?"open":""}><summary><b>${esc(w.name)}</b><span class="small muted">${esc(w.time)}</span></summary>
-    <ol class="steps small">${w.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>
-    <div class="eyebrow" style="margin-top:6px">Shopping list</div>
-    ${w.shop.map(([id,n,q])=>{ const key=`prep${i}-${id}`; return `<label class="mealrow ${chk[key]?"eaten":""}"><input type="checkbox" data-c-gro="${key}" ${chk[key]?"checked":""}><span class="m">${esc(n)}</span><span class="k small">${esc(q)}</span></label>` }).join("")}</details>` });
+    <div class="eyebrow" style="margin-top:4px">Shopping list</div>
+    ${w.shop.map(([id,n,q,need])=>shopRow(id,`prep${i}-${id}`,n,q,need)).join("")}
+    <div class="eyebrow" style="margin-top:12px">Cooking order</div>
+    <ol class="steps small">${w.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol></details>` });
   (P.every||[]).forEach((e,i)=>{ h+=`<details class="prepwk"><summary><b>${esc(e.name)}</b><span class="small muted">${esc(e.time)}</span></summary><ol class="steps small">${e.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>
-    ${e.shop?`<div class="eyebrow" style="margin-top:6px">Shopping list</div>${e.shop.map(([id,n,q])=>{ const key=`prepE${i}-${id}`; return `<label class="mealrow ${chk[key]?"eaten":""}"><input type="checkbox" data-c-gro="${key}" ${chk[key]?"checked":""}><span class="m">${esc(n)}</span><span class="k small">${esc(q)}</span></label>` }).join("")}`:""}</details>` });
+    ${e.shop?`<div class="eyebrow" style="margin-top:6px">Shopping list</div>${e.shop.map(([id,n,q,need])=>shopRow("pesto-"+id,`prepE${i}-${id}`,n,q,need)).join("")}`:""}</details>` });
   return h+`</div>` }
 function recipeMethod(r){ if(!r.method&&!r.store) return "";
   const lines=String(r.method||"").split("\n").map(x=>x.trim()).filter(Boolean);
   return `<details class="method"><summary>How to make it${r.when?` <span class="muted">· ${esc(r.when)}</span>`:""}</summary>${lines.length?`<ol class="steps small">${lines.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`:""}${r.store?`<p class="small"><b>Storing and reheating:</b> ${esc(r.store)}</p>`:""}</details>` }
+
+
+/* ======================= Grocery scanning ======================= */
+// Scan a product for a shopping-list item and the app remembers it for that store: name, package size,
+// and how many packages cover what the plan needs ("Buy 2 × 2.5 lb"). Products are saved per store,
+// and every scanned barcode is remembered, so the next scan is instant even for items the databases don't know.
+const GU={g:["g",1],kg:["g",1000],oz:["g",28.3495],lb:["g",453.592],"fl oz":["ml",29.5735],ml:["ml",1],l:["ml",1000],count:["count",1]};
+const G_UNITS=["oz","lb","g","kg","fl oz","ml","l","count"];
+const BARCODE_ICON=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><path d="M8 8v8M11 8v8M14 8v8M17 8v8"/></svg>`;
+const gBase=(q,u)=>{ const x=GU[u]; return x? {v:q*x[1],d:x[0]} : null };
+const gFrom=(v,u)=>v/(GU[u]?GU[u][1]:1);
+const gFmt=(q,u)=>u==="count"? `${fmtQ(Math.round(q*10)/10)}` : `${fmtQ(Math.round(q*100)/100)} ${u}`;
+function gNeedTxt(need){ if(!need) return ""; if(need.u==="g"&&need.q>=454) return gFmt(need.q/453.592,"lb"); if(need.u==="g") return gFmt(need.q/28.3495,"oz"); return need.u==="count"? `${fmtQ(need.q)}` : gFmt(need.q,need.u) }
+function storesOf(){ const K=kitchen(); return K.stores&&K.stores.length? K.stores : ["My store"] }
+function storeName(){ const K=kitchen(), st=storesOf(); return st.includes(K.store)? K.store : st[0] }
+function linkFor(key){ const K=kitchen(); return ((K.products||{})[key]||{})[storeName()]||null }
+// what to buy: number of packages that covers the need (weight and volume are treated as interchangeable, ≈ 1 g per ml)
+function packPlan(need,pack){ if(!need||!pack||!(pack.qty>0)) return null; const nb=gBase(need.q,need.u); if(!nb) return null;
+  if((nb.d==="count")!==(pack.unit==="count")) return null;
+  const n=Math.max(1,Math.ceil(nb.v/pack.qty-0.03)), disp= GU[need.u]&&GU[need.u][0]===pack.unit&&need.u!=="g"? need.u : pack.unit==="g"? (pack.qty>=454?"lb":"oz") : pack.unit==="ml"? "fl oz" : "count";
+  return {n, approx:nb.d!==pack.unit, packTxt:gFmt(gFrom(pack.qty,disp),disp), totTxt:gFmt(gFrom(n*pack.qty,disp),disp)} }
+const SHOPKEYS={};
+function shopRow(key,chkKey,name,qtyTxt,need){ SHOPKEYS[chkKey]={key,name,need}; const chk=(S.profile.grocery||{})[chkKey], L=linkFor(key), P=L&&packPlan(need,L.pack);
+  const right= L&&P? `<b>Buy ${P.n}</b> <span class="muted">× ${esc(P.packTxt)}</span>` : L&&L.pack&&L.pack.txt? esc(L.pack.txt) : esc(qtyTxt);
+  const sub= L? `<span class="pname">${esc(L.name)}${P?` · ${P.approx?"≈ ":""}${esc(P.totTxt)} for ${esc(gNeedTxt(need))}`:""}</span>` : "";
+  return `<div class="shoprow"><label class="mealrow ${chk?"eaten":""}"><input type="checkbox" data-c-gro="${esc(chkKey)}" ${chk?"checked":""}><span class="m">${esc(name)}${sub}</span><span class="k small">${right}</span></label><button type="button" class="scanb ${L?"on":""}" data-c-gscan="${esc(chkKey)}" data-gkey="${esc(key)}" aria-label="${L?"Change the":"Scan a"} product for ${esc(name)}">${BARCODE_ICON}</button></div>` }
+function storeBar(){ const st=storesOf(), cur=storeName();
+  return `<div class="storebar"><label for="gStore" class="small muted">Shopping at</label><select id="gStore" data-c-store="1">${st.map(x=>`<option ${x===cur?"selected":""}>${esc(x)}</option>`).join("")}<option value="__add">+ Add a store…</option></select>
+    <span class="small muted">Tap ${BARCODE_ICON.replace('<svg','<svg class="inl"')} next to an item to scan it here.</span></div>` }
+function gscanHtml(){ const W=SH, st=storeName(), L=linkFor(W.key), need=W.need;
+  const head=`<div class="xs-head"><h2>${esc(W.name)}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>
+    <p class="small muted">At <b>${esc(st)}</b>${need?` · you need ${esc(gNeedTxt(need))}`:""}.</p>`;
+  if(W.view==="store") return `<div class="xs-head"><h2>Add a store</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>
+    <div class="field"><label>Store name</label><input data-xs-gstore="1" placeholder="e.g. ShopRite Bridgewater" data-xs-focus="gstore" value="${esc(W.store||"")}"></div>
+    <p class="small muted">Products you scan are saved per store, since package sizes differ.</p><button type="button" class="btn" data-xs="gstoresave">Add store</button>`;
+  if(W.view==="edit"){ const pl=packPlanFromEdit();
+    return head+`<div class="field"><label>Product</label><input data-xs-gn="1" value="${esc(W.pname||"")}" placeholder="e.g. Perdue chicken breast, family pack" data-xs-focus="gn"></div>
+      <div class="row" style="flex-wrap:nowrap"><div class="field" style="flex:1 1 0;min-width:0"><label>Package size</label><input inputmode="decimal" data-xs-gq="1" value="${esc(W.eq||"")}" placeholder="e.g. 2.5" data-xs-focus="gq"></div>
+      <div class="field" style="flex:0 0 110px;min-width:0"><label>Unit</label><select data-xs-gu="1">${G_UNITS.map(u=>`<option ${u===W.eu?"selected":""}>${u}</option>`).join("")}</select></div></div>
+      ${W.hint?`<p class="small muted">${esc(W.hint)}</p>`:""}
+      <div class="note gplan">${gPlanTxt(pl)}</div>
+      <div class="row"><button type="button" class="btn" data-xs="gsave">Save for ${esc(st)}</button><button type="button" class="btn ghost" data-xs="gscanagain">Scan again</button></div>
+      ${W.src?`<p class="small muted">${esc(W.src)}</p>`:""}` }
+  return head+(L?`<div class="note"><b>Saved:</b> ${esc(L.name)}${L.pack&&L.pack.txt?` · ${esc(L.pack.txt)}`:""}<div class="row" style="margin-top:6px"><button type="button" class="btn ghost sm" data-xs="gedit">Edit</button><button type="button" class="btn ghost sm" data-xs="grm">Remove</button></div></div>`:"")+
+    `<div id="scanbox" class="scanbox"><p class="small muted">${W.scanErr?esc(W.scanErr):"Starting camera…"}</p></div>
+    <div class="row" style="gap:8px;flex-wrap:nowrap"><input class="xs-search" inputmode="numeric" placeholder="Or type the barcode number" data-xs-code="1" value="${esc(W.code||"")}" data-xs-focus="code"><button type="button" class="btn sm" data-xs="glookup" style="flex-shrink:0">Look up</button></div>
+    <p class="note" data-xs-err ${W.lookErr?"":"hidden"}>${esc(W.lookErr||"")}</p>
+    <button type="button" class="btn ghost" data-xs="gmanual">No barcode? Enter the size yourself</button>` }
+function packPlanFromEdit(){ const W=SH, q=numIn(W.eq), b=q>0&&gBase(q,W.eu); return b? packPlan(W.need,{qty:b.v,unit:b.d}) : null }
+function gPlanTxt(pl){ const W=SH; if(!W.need) return "Saved sizes show on your shopping list."; if(!(numIn(W.eq)>0)) return `Enter the package size to see how many to buy for ${esc(gNeedTxt(W.need))}.`;
+  if(!pl) return `This package is sold by ${W.eu==="count"?"count":"weight or volume"} but the list counts ${W.need.u==="count"?"items":"weight"}, so check the amount yourself.`;
+  return `<b>Buy ${pl.n}</b> ${pl.n===1?"package":"packages"}: ${pl.approx?"about ":""}${esc(pl.totTxt)} for the ${esc(gNeedTxt(W.need))} you need.` }
+function gEditFrom(prod){ const W=SH, pk=prod&&prod.pack; W.pname=prod&&prod.name||""; W.hint=""; W.eq=""; W.eu=W.need&&GU[W.need.u]&&W.need.u!=="g"? W.need.u : "oz";
+  if(pk&&pk.qty>0){ let u=W.eu; if(!GU[u]||GU[u][0]!==pk.unit) u= pk.unit==="g"? (pk.qty>=454?"lb":"oz") : pk.unit==="ml"? "fl oz" : "count"; W.eu=u; W.eq=String(Math.round(gFrom(pk.qty,u)*100)/100) }
+  else if(pk&&pk.txt) W.hint=`The barcode database says "${pk.txt}". Enter the size from the label.`;
+  W.view="edit" }
+async function gLookup(code){ code=String(code||"").replace(/\D/g,""); const W=SH; if(!W||W.kind!=="gscan") return;
+  if(code.length<6){ W.lookErr="Enter the full barcode number."; paintSheet(); return }
+  W.code=code; const mine=(kitchen().barcodes||{})[code];
+  if(mine){ gEditFrom(mine); W.src="Saved from an earlier scan."; paintSheet(true); return }
+  W.lookErr="Looking up…"; paintSheet();
+  try{ const tok=window.appAuthToken? await window.appAuthToken() : null; const r=await fetch("/api/barcode?code="+code,{headers:tok?{authorization:"Bearer "+tok}:{}}); const j=await r.json().catch(()=>({}));
+    if(SH!==W) return;
+    if(r.status===404||(r.ok&&!j.product)){ W.lookErr=""; gEditFrom(null); W.hint="That barcode isn't in the product databases yet. Enter the name and size from the package: next time you scan it, it'll come straight up."; paintSheet(true); return }
+    if(!r.ok) throw 0;
+    W.lookErr=""; gEditFrom(j.product); W.src="Name and size from Open Food Facts / UPCitemdb. Check them against the package."; paintSheet(true) }
+  catch(e){ if(SH!==W) return; W.lookErr="Lookup isn't available right now. You can still enter the size yourself."; paintSheet() } }
 
 /* ======================= Exercise swaps ======================= */
 // Library exercises borrow strength standards from a close equivalent, so swaps still count in Standings.
@@ -1017,6 +1088,7 @@ document.addEventListener("click",e=>{
   if(d.cRec!=null){ const r=d.cRec? kitchen().recipes.find(x=>x.id===d.cRec) : null; openSheet({kind:"recipe",isNew:!r,r:r?JSON.parse(JSON.stringify(r)):{id:newId("rc"),name:"",servings:4,items:[]}}); return }
   if(d.cCf!=null){ const f=d.cCf? kitchen().foods.find(x=>x.id===d.cCf) : null; openSheet({kind:"cfood",isNew:!f,d:f?{...f}:{id:newId("cf"),n:"",serving:"1 serving",k:"",p:"",c:"",f:""}}); return }
   if(d.cGroclr){ S.profile.grocery={}; saveProfile(); render(); return }
+  if(d.cGscan){ const R=SHOPKEYS[d.cGscan]||{key:d.gkey||d.cGscan,name:d.gkey||d.cGscan,need:null}; openSheet({kind:"gscan",key:R.key,name:R.name,need:R.need,view:linkFor(R.key)?"home":"scan"}); if(SH.view==="scan") startScanG(); return }
   // --- sheet
   if(!SH) return;
   if(d.xs==="close"){ xsClose(); return }
@@ -1053,6 +1125,19 @@ document.addEventListener("click",e=>{
     if(r.src&&(r.src.t==="r"||r.src.t==="f")&&(r.src.t==="r"?kitchen().recipes.some(x=>x.id===r.src.id):foodById(r.src.id))){ SH.pick=r.src.t==="r"?{t:"r",id:r.src.id,qty:r.src.qty}:{t:"f",id:r.src.id,amt:r.src.amt,unit:r.src.unit}; paintSheet(true); return }
     if(SH.mode==="plan"){ toast("Quick-add entries can't go in the plan"); return }
     const m=S.meals[SH.k]||(S.meals[SH.k]={eaten:{},extras:[]}); m.items=m.items||[]; const {count,planned,...x}=r; m.items.push({...x,slot:SH.slot}); saveMeals(SH.k); xsClose(); lastRenderKey=""; render(); toast("Added"); return }
+  if(d.xs==="glookup"){ stopScan(); const inp=document.querySelector("[data-xs-code]"); gLookup(inp?inp.value:SH.code); return }
+  if(d.xs==="gmanual"){ stopScan(); gEditFrom(null); paintSheet(true); return }
+  if(d.xs==="gscanagain"){ SH.view="scan"; SH.scanErr=""; SH.lookErr=""; paintSheet(true); startScanG(); return }
+  if(d.xs==="gedit"){ const L=linkFor(SH.key); gEditFrom(L); SH.code=L&&L.code||SH.code; paintSheet(true); return }
+  if(d.xs==="grm"){ const K=kitchen(), m=(K.products||{})[SH.key]; if(m){ delete m[storeName()]; saveProfile() } xsClose(); lastRenderKey=""; render(); toast("Removed"); return }
+  if(d.xs==="gsave"){ const W=SH, q=numIn(W.eq), b=q>0&&gBase(q,W.eu), name=(W.pname||"").trim();
+    if(!name){ toast("Add the product name"); return } if(!b){ toast("Enter the package size"); return }
+    const K=kitchen(), st=storeName(), pack={qty:+b.v.toFixed(2),unit:b.d,txt:gFmt(q,W.eu)};
+    K.products=K.products||{}; K.products[W.key]={...(K.products[W.key]||{}),[st]:{code:W.code||null,name,pack,at:Date.now()}};
+    if(W.code){ K.barcodes=K.barcodes||{}; K.barcodes[W.code]={name,pack} }
+    saveProfile(); xsClose(); lastRenderKey=""; render(); const pl=packPlan(W.need,pack); toast(pl?`Saved: buy ${pl.n} at ${st}`:`Saved for ${st}`); return }
+  if(d.xs==="gstoresave"){ const inp=document.querySelector("[data-xs-gstore]"), name=(inp&&inp.value||"").trim().slice(0,40); if(!name){ toast("Enter a store name"); return }
+    const K=kitchen(), st=storesOf(); K.stores=st.includes(name)? st : [...(K.stores&&K.stores.length?K.stores:["My store"]).filter(x=>!(x==="My store"&&!Object.values(K.products||{}).some(m=>m["My store"]))),name]; K.store=name; saveProfile(); xsClose(); lastRenderKey=""; render(); toast(`Shopping at ${name}`); return }
   if(d.xs==="scan"){ SH.view="scan"; SH.scanErr=""; SH.lookErr=""; paintSheet(true); startScan(); return }
   if(d.xs==="scanback"){ stopScan(); SH.view=null; paintSheet(true); return }
   if(d.xs==="lookup"){ stopScan(); const inp=document.querySelector("[data-xs-code]"); lookupCode(inp?inp.value:SH.code); return }
@@ -1091,10 +1176,14 @@ document.addEventListener("input",e=>{ const t=e.target, d=t.dataset||{};
   if(d.xsQty){ SH.pick.qty=t.value; paintPart(".macroline"); return }
   if(d.xsAmt){ SH.pick.amt=t.value; paintPart(".macroline"); return }
   if(d.xsNf){ SH.d[d.xsNf]=t.value; return }
+  if(d.xsGn!=null&&SH&&SH.kind==="gscan"){ SH.pname=t.value; return }
+  if(d.xsGq!=null&&SH&&SH.kind==="gscan"){ SH.eq=t.value; paintPart(".gplan"); return }
   if(d.xsRf){ SH.r[d.xsRf]=t.value; if(d.xsRf==="servings") paintPart(".rtot"); return }
   if(d.xsCf){ SH.d[d.xsCf]=t.value; return }
 });
 document.addEventListener("change",e=>{ const t=e.target, d=t.dataset||{};
+  if(d.xsGu!=null&&SH&&SH.kind==="gscan"){ SH.eu=t.value; paintPart(".gplan"); return }
+  if(d.cStore){ if(t.value==="__add"){ t.value=storeName(); openSheet({kind:"gscan",view:"store",key:"",name:""}); return } kitchen().store=t.value; saveProfile(); lastRenderKey=""; render(); toast(`Shopping at ${t.value}`); return }
   if(d.xsUnit&&SH){ SH.pick.unit=t.value; paintPart(".macroline"); return }
   if(d.xsNf&&SH){ SH.d[d.xsNf]=t.value; return }
   if(d.cWeek!=null){ const su0=S.profile.setup; if(t.value==="run"&&su0.week.filter((w,i)=>w==="run"&&i!==+d.cWeek).length>=3){ toast("Up to 3 run days a week"); t.value=su0.week[+d.cWeek]; return }
