@@ -268,7 +268,7 @@ function paintSheet(scrollTop){ if(!SH) return; const el=sheetEl(), inn=el.query
   if(focusSel){ const f=inn.querySelector(`[data-xs-focus="${focusSel}"]`); if(f){ f.focus(); try{const v=f.value; f.setSelectionRange(v.length,v.length)}catch(e){} } } }
 const commitPlan=()=>{ saveProfile(); onProfile(); render() };
 // Repaint only part of the sheet, so the input being typed in (and the iPhone keyboard) stays put.
-function sheetHtml(){ return SH.kind==="gscan"? gscanHtml() : SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
+function sheetHtml(){ return SH.kind==="shopItem"? shopItemHtml() : SH.kind==="shopList"? shopListHtml() : SH.kind==="shopSched"? shopSchedHtml() : SH.kind==="gscan"? gscanHtml() : SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
 function paintPart(sel){ if(!SH) return; const el=document.querySelector("#xsheet .xs-in"); const dst=el&&el.querySelector(sel); if(!dst){ paintSheet(); return }
   const tmp=document.createElement("div"); tmp.innerHTML=sheetHtml(); const src=tmp.querySelector(sel); if(src) dst.innerHTML=src.innerHTML; else paintSheet() }
 function estMin(ex){ const sec=(ex||[]).reduce((t,e)=>t+(e.sets||3)*((e.rest||90)+(e.bw?(e.hi||45):40)),0); return Math.max(10,Math.round(sec/60/5)*5) }
@@ -442,11 +442,11 @@ function customFoodView(){
     its.forEach((e,i)=>{const M=entryMacros(e); if(!M) return; day=addM(day,M.m); h+=`<div class="extra"><span>${esc(M.name)} <span class="muted small num">· ${esc(M.amount)} · ${fmtN(M.m.kcal)} kcal</span></span><button type="button" data-c-prm="${sk}|${i}" aria-label="Remove">×</button></div>`});
     h+=`</div>`});
   h+=`<div class="note num"><b>Planned per day:</b> ${fmtN(day.kcal)} of ${fmtN(g.kcal)} kcal · ${Math.round(day.p)} of ${g.p} g protein · ${Math.round(day.c)} g carbs · ${Math.round(day.f)} g fat</div></div>`;
-  h+=prepCard(K);
+  h+=shopCard(K);
   // Grocery list
   const gl=groceryList(), chk=S.profile.grocery||{};
-  h+=`<div class="card"><div class="row between"><h2>${K.prep?"Weekly average":"Grocery list"}</h2><span class="chip">7 days</span></div>${K.prep?`<p class="small muted">What your meal plan uses in an average week. Shop from the Sunday prep lists above.</p>`:""}`;
-  h+= gl.length? (K.prep?"":storeBar())+gl.map(x=>shopRow("f:"+x.id,x.id,x.n,x.qty,{q:x.gr,u:"g"})).join("")+`<button type="button" class="link small" data-c-groclr="1">Uncheck all</button>`
+  h+=`<div class="card"><div class="row between"><h2>${K.shop?"Meal plan needs":"Grocery list"}</h2><span class="chip">7 days</span></div>${K.shop?`<p class="small muted">What your meal plan uses in an average week, for checking your lists.</p>`:""}`;
+  h+= gl.length? (K.shop?"":storeBar())+gl.map(x=>shopRow("f:"+x.id,x.id,x.n,x.qty,{q:x.gr,u:"g"})).join("")+`<button type="button" class="link small" data-c-groclr="1">Uncheck all</button>`
      : `<p class="small muted">Add meals to your plan and the shopping list fills in.</p>`;
   h+=`</div>`;
   // Custom foods
@@ -538,27 +538,21 @@ Pasta, per dinner: boil 2 oz protein pasta in salted water for the time on the b
 function maybeMealsV3(){
   if(!window.__platform||!loaded.profile||!CUSTOM||!CUSTOM.su.fromLegacy) return false;
   const K=kitchen();
-  if(K.v3&&(K.prepV||1)<2){ K.prep=JSON.parse(JSON.stringify(BATCH3.prep)); K.prepV=2; saveProfile(); return true }
-  if(K.v3){ const pe=K.prep&&(K.prep.every||[]).find(e=>e.name==="Walnut pesto"); if(pe&&!pe.shop){ pe.shop=[["basil","Fresh basil","4 oz container (2 packed cups)"],["walnuts","Walnuts","8 oz bag"],["parm","Parmesan","5 oz wedge or tub"],["lemon","Lemon","1"],["oil","Olive oil","500 ml bottle (lasts ~3 batches)"],["garlic","Garlic","4 cloves from your head"],["spin","Baby spinach","2 cups from the Week A bag"],["tray","Ice-cube tray and freezer bags","if you don't have them"]]; saveProfile(); return true } return false }
+  if(K.v3){ if(!K.shop){ K.shop=prepToShop(BATCH3.prep); delete K.prep; delete K.prepV; saveProfile(); return true } return false }
   BATCH3.foods.forEach(f=>{ if(!K.foods.some(x=>x.id===f.id)) K.foods.push({...f}) });
   const ids=new Set(BATCH3.recipes.map(r=>r.id));
   K.recipes=[...BATCH3.recipes.map(r=>JSON.parse(JSON.stringify(r))),...K.recipes.filter(r=>!ids.has(r.id)&&r.id!=="rcYog")];
-  K.plan=JSON.parse(JSON.stringify(BATCH3.plan)); K.prep=JSON.parse(JSON.stringify(BATCH3.prep)); K.prepV=2; K.v3=Date.now();
+  K.plan=JSON.parse(JSON.stringify(BATCH3.plan)); K.shop=prepToShop(BATCH3.prep); K.v3=Date.now();
   saveProfile(); return true;
 }
-function prepWeekIdx(P){ const st=parseYmd(P.start), d=today; if(d<addDays(st,-6)) return 0; const w=Math.floor((d-addDays(st,-6))/86400000/7); return ((w%P.weeks.length)+P.weeks.length)%P.weeks.length }
-function prepCard(K){ const P=K.prep; if(!P||!P.weeks||!P.weeks.length) return ""; const cur=prepWeekIdx(P), chk=S.profile.grocery||{};
-  const next=(()=>{ let d=today; while(d.getDay()!==0) d=addDays(d,1); return d })();
-  let h=`<div class="card prep"><div class="row between"><h2>Sunday prep</h2><span class="chip food">${fmtShort(next)}: ${esc(P.weeks[cur].name.split(":")[0])}</span></div>
-    <p class="small muted">Weeks alternate. The big cook fills the freezer for two weeks; the quick week only makes chicken bowls.</p>${storeBar()}`;
-  P.weeks.forEach((w,i)=>{ h+=`<details class="prepwk" ${i===cur?"open":""}><summary><b>${esc(w.name)}</b><span class="small muted">${esc(w.time)}</span></summary>
-    <div class="eyebrow" style="margin-top:4px">Shopping list</div>
-    ${w.shop.map(([id,n,q,need])=>shopRow(id,`prep${i}-${id}`,n,q,need)).join("")}
-    <div class="eyebrow" style="margin-top:12px">Cooking order</div>
-    <ol class="steps small">${w.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol></details>` });
-  (P.every||[]).forEach((e,i)=>{ h+=`<details class="prepwk"><summary><b>${esc(e.name)}</b><span class="small muted">${esc(e.time)}</span></summary><ol class="steps small">${e.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>
-    ${e.shop?`<div class="eyebrow" style="margin-top:6px">Shopping list</div>${e.shop.map(([id,n,q,need])=>shopRow("pesto-"+id,`prepE${i}-${id}`,n,q,need)).join("")}`:""}</details>` });
-  return h+`</div>` }
+// The old two-week prep (Week A / Week B + a separate pesto list) as general lists on a rotation; pesto now shops with Week A.
+function prepToShop(P){ const simple=(t,n)=>n&&(t===`${n.q} ${n.u}`||t===`${n.q}`);
+  const item=([id,name,txt,need])=>({id,name,amt:need?need.q:null,unit:need?need.u:"",note:simple(txt,need)?"":txt});
+  const pe=(P.every||[]).find(e=>e.name==="Walnut pesto");
+  const pesto=pe&&pe.shop? pe.shop.filter(([id])=>!["garlic","spin","tray"].includes(id)).map(x=>item(x)).map(x=>({...x,id:"pesto-"+x.id,name:x.name+(x.name.includes("basil")?"":" (pesto)")})) : [];
+  const lists=P.weeks.map((w,i)=>({id:i===0?"la":"lb",name:w.name.split(":")[0],items:w.shop.map(item),steps:[...w.steps]}));
+  if(lists[0]&&pe){ lists[0].items.push(...pesto); lists[0].steps.push(...pe.steps.map(x=>"Pesto: "+x)) }
+  return {day:0,start:P.start,cycle:lists.map(l=>l.id),lists} }
 function recipeMethod(r){ if(!r.method&&!r.store) return "";
   const lines=scaledMethod(r).split("\n").map(x=>x.trim()).filter(Boolean), sc=recipeScales(r);
   return `<details class="method"><summary>How to make it${r.when?` <span class="muted">· ${esc(r.when)}</span>`:""}</summary>${sc.length?`<p class="small adj">Adjusted to what you buy at ${esc(storeName())}: ${sc.map(x=>`${esc(SHOPLABEL[x.key]||x.key)} ${esc(x.P.totTxt)}`).join(", ")}. Same number of portions, a little more in each.</p>`:""}${lines.length?`<ol class="steps small">${lines.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`:""}${r.store?`<p class="small"><b>Storing and reheating:</b> ${esc(r.store)}</p>`:""}</details>` }
@@ -660,6 +654,62 @@ function recipeScales(r){ const out=[]; for(const key in RECIPE_SCALE){ if(RECIP
 function scaledMethod(r){ let m=String(r.method||""); (METHOD_SUBS[r.id]||[]).forEach(([key,txt,u,base,word])=>{ const sc=scaleOf(key); if(!sc||!m.includes(txt)) return;
   const q=base*sc.f, amt= u==="cup"? `${fmtQ(Math.round(q))} cups` : u==="lb"? `${fmtQ(Math.round(q*100)/100)} lb` : q>=32? `${fmtQ(Math.round(q))} oz (${fmtQ(Math.round(q/16*100)/100)} lb)` : `${fmtQ(Math.round(q*10)/10)} oz`;
   m=m.replace(txt,word(amt)) }); return m }
+
+
+/* ======================= Shopping lists ======================= */
+// Your own lists on a weekly rotation, like gym days: e.g. Week A (big shop) → Week B (top-up) → repeat, on your shopping day.
+// Each item can carry an amount (for the scanner's "how many to buy") and a note shown instead of it ("2½ dozen").
+const DAYS7=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+let shopEdit=null; // list id in edit mode
+function shopOf(){ const K=kitchen(); return K.shop||null }
+function nextShopDay(sh){ let d=midnight(today); while(d.getDay()!==(sh.day||0)) d=addDays(d,1); return d }
+function shopCycleIdx(sh,d){ const n=(sh.cycle||[]).length; if(!n) return -1; const st=parseYmd(sh.start||ymd(d)); const w=Math.floor(Math.round((d-st)/86400000)/7); return ((w%n)+n)%n }
+function shopItemQty(it){ if(it.note) return it.note; if(it.amt>0) return it.unit==="count"||!it.unit? `${fmtQ(it.amt)}` : `${fmtQ(it.amt)} ${it.unit}`; return "" }
+function shopItemNeed(it){ return it.amt>0&&GU[it.unit]? {q:Number(it.amt),u:it.unit} : null }
+function shopCard(K){ const sh=K.shop;
+  if(!sh||!sh.lists||!sh.lists.length) return `<div class="card"><h2>Shopping lists</h2><p class="small muted">Make the lists you shop from and put them on a weekly rotation, like gym days. Scan items once and the app works out how many packages to buy at each store.</p>
+    <div class="row"><button type="button" class="btn sm" data-c-shopfromplan="1">Start from my meal plan</button><button type="button" class="btn ghost sm" data-c-shoplist="">+ New list</button></div></div>`;
+  const nd=nextShopDay(sh), ci=shopCycleIdx(sh,nd), curId=ci>=0? sh.cycle[ci] : null, cur=sh.lists.find(l=>l.id===curId);
+  const cyc=(sh.cycle||[]).map(id=>{ const l=sh.lists.find(x=>x.id===id); return l? esc(l.name) : "No shop" }).join(" → ");
+  let h=`<div class="card shop"><div class="row between"><h2>Shopping</h2><span class="chip food">${fmtShort(nd)}: ${cur?esc(cur.name):"no shop"}</span></div>
+    <div class="row between shopsched"><span class="small muted">${DAYS7[sh.day||0]}s · ${cyc||"no rotation yet"}</span><button type="button" class="link small" data-c-shopsched="1">Edit schedule</button></div>${storeBar()}`;
+  const order=[...sh.lists].sort((a,b)=>(a.id===curId?-1:b.id===curId?1:0));
+  order.forEach(l=>{ const editing=shopEdit===l.id, open=l.id===curId||editing;
+    h+=`<details class="prepwk" ${open?"open":""} data-shopl="${esc(l.id)}"><summary><b>${esc(l.name)}</b><span class="small muted">${l.items.length} item${l.items.length===1?"":"s"}${l.id===curId?" · this week":""}</span></summary>`;
+    h+= l.items.length? l.items.map(it=> editing
+        ? `<button type="button" class="shopedit" data-c-shopitem="${esc(l.id)}|${esc(it.id)}"><span><b>${esc(it.name)}</b><span class="small muted">${esc(shopItemQty(it))}</span></span><span class="xs-plus">✎</span></button>`
+        : shopRow(it.id,`${l.id}-${it.id}`,it.name,shopItemQty(it),shopItemNeed(it))).join("") : `<p class="small muted">No items yet.</p>`;
+    h+=`<div class="row" style="margin-top:8px;gap:8px">${editing?`<button type="button" class="btn sm" data-c-shopitem="${esc(l.id)}|">+ Add item</button><button type="button" class="btn ghost sm" data-c-shoplist="${esc(l.id)}">Rename or delete</button><button type="button" class="btn ghost sm" data-c-shopedit="">Done</button>`
+        : `<button type="button" class="btn ghost sm" data-c-shopedit="${esc(l.id)}">Edit list</button><button type="button" class="link small" data-c-shopclr="${esc(l.id)}">Uncheck all</button>`}</div>`;
+    if(l.steps&&l.steps.length) h+=`<div class="eyebrow" style="margin-top:12px">Cooking order</div><ol class="steps small">${l.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`;
+    h+=`</details>` });
+  return h+`<button type="button" class="btn ghost sm" data-c-shoplist="" style="align-self:flex-start;margin-top:4px">+ New list</button></div>` }
+function shopItemHtml(){ const W=SH, l=shopOf().lists.find(x=>x.id===W.listId);
+  return `<div class="xs-head"><h2>${W.itemId?"Edit item":"Add item"}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>
+    <p class="small muted">On ${esc(l?l.name:"this list")}.</p>
+    <div class="field"><label>Item</label><input data-xs-si="name" value="${esc(W.name||"")}" placeholder="e.g. Chicken breast" data-xs-focus="siname"></div>
+    <div class="row" style="flex-wrap:nowrap"><div class="field" style="flex:1 1 0;min-width:0"><label>Amount you need</label><input inputmode="decimal" data-xs-si="amt" value="${esc(W.amt??"")}" placeholder="e.g. 4" data-xs-focus="siamt"></div>
+      <div class="field" style="flex:0 0 110px;min-width:0"><label>Unit</label><select data-xs-si="unit"><option value="" ${!W.unit?"selected":""}>—</option>${G_UNITS.map(u=>`<option ${u===W.unit?"selected":""}>${u}</option>`).join("")}</select></div></div>
+    <div class="field"><label>Note (optional, shown instead of the amount)</label><input data-xs-si="note" value="${esc(W.note||"")}" placeholder="e.g. 2½ dozen, or if you're low" data-xs-focus="sinote"></div>
+    <p class="small muted">With an amount and unit, scanning the product tells you how many packages to buy.</p>
+    <div class="row"><button type="button" class="btn" data-xs="sisave">${W.itemId?"Save":"Add"}</button>${W.itemId?`<button type="button" class="btn ghost" data-xs="sidel">${W.delConfirm?"Tap again to delete":"Delete"}</button>`:""}</div>` }
+function shopListHtml(){ const W=SH;
+  return `<div class="xs-head"><h2>${W.listId?"Edit list":"New list"}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>
+    <div class="field"><label>List name</label><input data-xs-sl="name" value="${esc(W.name||"")}" placeholder="e.g. Week A, Costco run, Pesto" data-xs-focus="slname"></div>
+    <div class="field"><label>Cooking order or notes (one per line, optional)</label><textarea data-xs-sl="steps" rows="6" data-xs-focus="slsteps">${esc(W.steps||"")}</textarea></div>
+    ${W.listId?"":`<p class="small muted">After saving, add it to your schedule so it comes up on the right week.</p>`}
+    <div class="row"><button type="button" class="btn" data-xs="slsave">Save list</button>${W.listId?`<button type="button" class="btn ghost" data-xs="sldel">${W.delConfirm?"Tap again to delete":"Delete list"}</button>`:""}</div>` }
+function shopSchedHtml(){ const W=SH, sh=shopOf(), opts=id=>`<option value="">No shopping</option>${sh.lists.map(l=>`<option value="${esc(l.id)}" ${l.id===id?"selected":""}>${esc(l.name)}</option>`).join("")}`;
+  return `<div class="xs-head"><h2>Shopping schedule</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>
+    <div class="field"><label>Shopping day</label><select data-xs-ss="day">${DAYS7.map((d,i)=>`<option value="${i}" ${i===W.day?"selected":""}>${d}</option>`).join("")}</select></div>
+    <p class="small muted">Your weeks repeat in this order, like a gym split.</p>
+    ${W.cycle.map((id,i)=>`<div class="row sswk" style="flex-wrap:nowrap"><span class="small" style="width:64px;flex:none">Week ${i+1}</span><select data-xs-ss="wk" data-i="${i}" style="flex:1;min-width:0">${opts(id)}</select>${W.cycle.length>1?`<button type="button" class="btn ghost sm" data-xs-ssrm="${i}" aria-label="Remove week ${i+1}">×</button>`:""}</div>`).join("")}
+    <button type="button" class="btn ghost sm" data-xs="ssadd" style="align-self:flex-start">+ Add a week</button>
+    <div class="field"><label>Your next shopping day (${fmtShort(nextShopDay({day:W.day}))}) is</label><select data-xs-ss="pos">${W.cycle.map((id,i)=>`<option value="${i}" ${i===W.pos?"selected":""}>Week ${i+1}</option>`).join("")}</select></div>
+    <button type="button" class="btn" data-xs="sssave">Save schedule</button>` }
+function shopFromPlan(){ const K=kitchen(), gl=groceryList(); if(!gl.length){ toast("Add meals to your meal plan first"); return }
+  const items=gl.map(x=>{ const f=foodById(x.id), lb=x.gr/453.592; return {id:"f:"+x.id,name:x.n,amt:lb>=1?+lb.toFixed(2):+(x.gr/28.3495).toFixed(1),unit:lb>=1?"lb":"oz",note:""} });
+  K.shop={day:0,start:ymd(nextShopDay({day:0})),cycle:["l1"],lists:[{id:"l1",name:"Weekly shop",items,steps:[]}]}; commitPlan(); toast("Shopping list made from your meal plan") }
 
 /* ======================= Exercise swaps ======================= */
 // Library exercises borrow strength standards from a close equivalent, so swaps still count in Standings.
@@ -1119,6 +1169,13 @@ document.addEventListener("click",e=>{
   if(d.cRec!=null){ const r=d.cRec? kitchen().recipes.find(x=>x.id===d.cRec) : null; openSheet({kind:"recipe",isNew:!r,r:r?JSON.parse(JSON.stringify(r)):{id:newId("rc"),name:"",servings:4,items:[]}}); return }
   if(d.cCf!=null){ const f=d.cCf? kitchen().foods.find(x=>x.id===d.cCf) : null; openSheet({kind:"cfood",isNew:!f,d:f?{...f}:{id:newId("cf"),n:"",serving:"1 serving",k:"",p:"",c:"",f:""}}); return }
   if(d.cGroclr){ S.profile.grocery={}; saveProfile(); render(); return }
+  if(d.cShopfromplan){ shopFromPlan(); return }
+  if(d.cShopedit!=null){ shopEdit=d.cShopedit||null; lastRenderKey=""; render(); return }
+  if(d.cShopclr){ const g={...(S.profile.grocery||{})}; Object.keys(g).forEach(k=>{ if(k.startsWith(d.cShopclr+"-")) delete g[k] }); S.profile.grocery=g; saveProfile(); lastRenderKey=""; render(); return }
+  if(d.cShopitem!=null){ const [lid,iid]=d.cShopitem.split("|"), l=shopOf().lists.find(x=>x.id===lid), it=iid&&l&&l.items.find(x=>x.id===iid);
+    openSheet({kind:"shopItem",listId:lid,itemId:iid||null,name:it?it.name:"",amt:it&&it.amt!=null?String(it.amt):"",unit:it?it.unit||"":"",note:it?it.note||"":""}); return }
+  if(d.cShoplist!=null){ const l=d.cShoplist&&shopOf()&&shopOf().lists.find(x=>x.id===d.cShoplist); openSheet({kind:"shopList",listId:l?l.id:null,name:l?l.name:"",steps:l?(l.steps||[]).join("\n"):""}); return }
+  if(d.cShopsched){ const sh=shopOf(); openSheet({kind:"shopSched",day:sh.day||0,cycle:[...(sh.cycle&&sh.cycle.length?sh.cycle:[sh.lists[0].id])],pos:Math.max(0,shopCycleIdx(sh,nextShopDay(sh)))}); return }
   if(d.cGscan){ const R=SHOPKEYS[d.cGscan]||{key:d.gkey||d.cGscan,name:d.gkey||d.cGscan,need:null}; openSheet({kind:"gscan",key:R.key,name:R.name,need:R.need,view:linkFor(R.key)?"home":"scan"}); if(SH.view==="scan") startScanG(); return }
   // --- sheet
   if(!SH) return;
@@ -1156,6 +1213,21 @@ document.addEventListener("click",e=>{
     if(r.src&&(r.src.t==="r"||r.src.t==="f")&&(r.src.t==="r"?kitchen().recipes.some(x=>x.id===r.src.id):foodById(r.src.id))){ SH.pick=r.src.t==="r"?{t:"r",id:r.src.id,qty:r.src.qty}:{t:"f",id:r.src.id,amt:r.src.amt,unit:r.src.unit}; paintSheet(true); return }
     if(SH.mode==="plan"){ toast("Quick-add entries can't go in the plan"); return }
     const m=S.meals[SH.k]||(S.meals[SH.k]={eaten:{},extras:[]}); m.items=m.items||[]; const {count,planned,...x}=r; m.items.push({...x,slot:SH.slot}); saveMeals(SH.k); xsClose(); lastRenderKey=""; render(); toast("Added"); return }
+  if(d.xs==="sisave"){ const W=SH, K=kitchen(), l=K.shop.lists.find(x=>x.id===W.listId), name=(W.name||"").trim().slice(0,60); if(!name){ toast("Add the item name"); return }
+    const amt=numIn(W.amt), it={name,amt:amt>0?amt:null,unit:amt>0?W.unit||"":"",note:(W.note||"").trim().slice(0,60)};
+    if(W.itemId){ const x=l.items.find(y=>y.id===W.itemId); Object.assign(x,it) } else l.items.push({id:newId("it"),...it});
+    saveProfile(); xsClose(); lastRenderKey=""; render(); toast(W.itemId?"Saved":"Added"); return }
+  if(d.xs==="sidel"){ if(!SH.delConfirm){ SH.delConfirm=true; paintSheet(); return } const K=kitchen(), l=K.shop.lists.find(x=>x.id===SH.listId); l.items=l.items.filter(x=>x.id!==SH.itemId); saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Deleted"); return }
+  if(d.xs==="slsave"){ const W=SH, K=kitchen(), name=(W.name||"").trim().slice(0,40); if(!name){ toast("Name the list"); return }
+    const steps=String(W.steps||"").split("\n").map(x=>x.trim()).filter(Boolean);
+    K.shop=K.shop||{day:0,start:ymd(nextShopDay({day:0})),cycle:[],lists:[]};
+    if(W.listId){ const l=K.shop.lists.find(x=>x.id===W.listId); l.name=name; l.steps=steps }
+    else { const id=newId("sl"); K.shop.lists.push({id,name,items:[],steps}); if(!K.shop.cycle.length) K.shop.cycle=[id]; shopEdit=id }
+    saveProfile(); xsClose(); lastRenderKey=""; render(); toast(W.listId?"Saved":"List made. Add your items"); return }
+  if(d.xs==="sldel"){ if(!SH.delConfirm){ SH.delConfirm=true; paintSheet(); return } const K=kitchen(), id=SH.listId; K.shop.lists=K.shop.lists.filter(x=>x.id!==id); K.shop.cycle=K.shop.cycle.map(x=>x===id?"":x); if(shopEdit===id) shopEdit=null; saveProfile(); xsClose(); lastRenderKey=""; render(); toast("List deleted"); return }
+  if(d.xs==="ssadd"){ SH.cycle.push(shopOf().lists[0].id); paintSheet(); return }
+  if(d.xsSsrm!=null){ SH.cycle.splice(+d.xsSsrm,1); SH.pos=Math.min(SH.pos,SH.cycle.length-1); paintSheet(); return }
+  if(d.xs==="sssave"){ const W=SH, K=kitchen(), nd=nextShopDay({day:W.day}); K.shop.day=W.day; K.shop.cycle=[...W.cycle]; K.shop.start=ymd(addDays(nd,-7*W.pos)); saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Schedule saved"); return }
   if(d.xs==="glookup"){ stopScan(); const inp=document.querySelector("[data-xs-code]"); gLookup(inp?inp.value:SH.code); return }
   if(d.xs==="gmanual"){ stopScan(); gEditFrom(null); paintSheet(true); return }
   if(d.xs==="gscanagain"){ SH.view="scan"; SH.scanErr=""; SH.lookErr=""; paintSheet(true); startScanG(); return }
@@ -1207,12 +1279,16 @@ document.addEventListener("input",e=>{ const t=e.target, d=t.dataset||{};
   if(d.xsQty){ SH.pick.qty=t.value; paintPart(".macroline"); return }
   if(d.xsAmt){ SH.pick.amt=t.value; paintPart(".macroline"); return }
   if(d.xsNf){ SH.d[d.xsNf]=t.value; return }
+  if(d.xsSi&&SH&&SH.kind==="shopItem"){ SH[d.xsSi]=t.value; return }
+  if(d.xsSl&&SH&&SH.kind==="shopList"){ SH[d.xsSl]=t.value; return }
   if(d.xsGn!=null&&SH&&SH.kind==="gscan"){ SH.pname=t.value; return }
   if(d.xsGq!=null&&SH&&SH.kind==="gscan"){ SH.eq=t.value; paintPart(".gplan"); return }
   if(d.xsRf){ SH.r[d.xsRf]=t.value; if(d.xsRf==="servings") paintPart(".rtot"); return }
   if(d.xsCf){ SH.d[d.xsCf]=t.value; return }
 });
 document.addEventListener("change",e=>{ const t=e.target, d=t.dataset||{};
+  if(d.xsSi==="unit"&&SH&&SH.kind==="shopItem"){ SH.unit=t.value; return }
+  if(d.xsSs&&SH&&SH.kind==="shopSched"){ if(d.xsSs==="day"){ SH.day=+t.value; paintSheet() } else if(d.xsSs==="wk"){ SH.cycle[+t.dataset.i]=t.value } else if(d.xsSs==="pos") SH.pos=+t.value; return }
   if(d.xsGu!=null&&SH&&SH.kind==="gscan"){ SH.eu=t.value; paintPart(".gplan"); return }
   if(d.cStore){ if(t.value==="__add"){ t.value=storeName(); openSheet({kind:"gscan",view:"store",key:"",name:""}); return } kitchen().store=t.value; saveProfile(); lastRenderKey=""; render(); toast(`Shopping at ${t.value}`); return }
   if(d.xsUnit&&SH){ SH.pick.unit=t.value; paintPart(".macroline"); return }
