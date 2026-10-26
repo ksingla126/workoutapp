@@ -220,7 +220,7 @@ function macrosOf(f,grams){ const m=grams/100; return {kcal:f.k*m,p:f.p*m,c:f.c*
 const addM=(a,b,x=1)=>({kcal:a.kcal+b.kcal*x,p:a.p+b.p*x,c:a.c+b.c*x,f:a.f+b.f*x});
 const ZERO={kcal:0,p:0,c:0,f:0};
 function kitchen(){ S.profile.kitchen=S.profile.kitchen||{foods:[],recipes:[],plan:{b:[],l:[],d:[],s:[]}}; const k=S.profile.kitchen; k.foods=k.foods||[]; k.recipes=k.recipes||[]; k.plan=k.plan||{b:[],l:[],d:[],s:[]}; return k }
-function recipeTotals(r){ let t={...ZERO}; (r.items||[]).forEach(it=>{const f=foodById(it.f); if(f) t=addM(t,macrosOf(f,gramsOf(f,it.amt,it.unit)))}); const n=Math.max(1,Number(r.servings)||1); return {total:t,per:{kcal:t.kcal/n,p:t.p/n,c:t.c/n,f:t.f/n},n} }
+function recipeTotals(r,base){ let t={...ZERO}; (base?(r.items||[]):scaledItems(r)).forEach(it=>{const f=foodById(it.f); if(f) t=addM(t,macrosOf(f,gramsOf(f,it.amt,it.unit)))}); const n=Math.max(1,Number(r.servings)||1); return {total:t,per:{kcal:t.kcal/n,p:t.p/n,c:t.c/n,f:t.f/n},n} }
 function entryMacros(e){ // plan/diary source: {t:"r",id,qty} or {t:"f",id,amt,unit}
   if(e.t==="r"){ const r=kitchen().recipes.find(x=>x.id===e.id); if(!r) return null; const T=recipeTotals(r).per; return {name:r.name,amount:`${fmtQ(e.qty)} serving${Number(e.qty)===1?"":"s"}`,m:{kcal:T.kcal*e.qty,p:T.p*e.qty,c:T.c*e.qty,f:T.f*e.qty}} }
   const f=foodById(e.id); if(!f) return null; return {name:f.n,amount:fmtAmt(e.amt,e.unit),m:macrosOf(f,gramsOf(f,e.amt,e.unit))} }
@@ -394,7 +394,7 @@ async function lookupCode(code){ code=String(code||"").replace(/\D/g,""); if(cod
     if(!r.ok||!j.food) throw 0; USDA.cache.set(j.food.id,j.food); keepUsda(j.food);
     SH.view=null; SH.lookErr=""; SH.tab="foods"; SH.pick={t:"f",id:j.food.id,amt:1,unit:unitsOf(j.food)[0][0]}; paintSheet(true) }
   catch(e){ SH.lookErr="Lookup isn't available right now."; paintSheet() } }
-function recipeHtml(){ const r=SH.r, T=recipeTotals(r);
+function recipeHtml(){ const r=SH.r, T=recipeTotals(r,true);
   let h=`<div class="xs-head"><h2>${SH.isNew?"New meal":"Edit meal"}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>`;
   if(SH.adding){ const q=(SH.q||"").toLowerCase().trim(); const list=foodDb().filter(f=>!q||f.n.toLowerCase().includes(q));
     if(SH.pick){ const P=SH.pick, f=foodById(P.id), m=macrosOf(f,gramsOf(f,P.amt,P.unit));
@@ -431,7 +431,7 @@ function customFoodView(){
    <p class="small muted">Carbs fill whatever calories protein and fat leave, unless you set them.</p></div>`;
   // My meals
   h+=`<div class="card"><div class="row between"><h2>My meals</h2><button type="button" class="btn sm" data-c-rec="">+ New meal</button></div>`;
-  h+= K.recipes.length? K.recipes.map(r=>{const T=recipeTotals(r); return `<div class="recwrap"><button type="button" class="dayline rec" data-c-rec="${r.id}"><span class="txt"><b>${esc(r.name)}</b><br><span class="small muted num">${T.n} serving${T.n===1?"":"s"} · ${fmtN(T.per.kcal)} kcal · ${Math.round(T.per.p)} g P · ${Math.round(T.per.c)} g C · ${Math.round(T.per.f)} g F each</span></span></button>${recipeMethod(r)}</div>`}).join("")
+  h+= K.recipes.length? K.recipes.map(r=>{const T=recipeTotals(r); return `<div class="recwrap"><button type="button" class="dayline rec" data-c-rec="${r.id}"><span class="txt"><b>${esc(r.name)}</b><br><span class="small muted num">${T.n} serving${T.n===1?"":"s"} · ${fmtN(T.per.kcal)} kcal · ${Math.round(T.per.p)} g P · ${Math.round(T.per.c)} g C · ${Math.round(T.per.f)} g F each</span>${recipeScales(r).length?`<span class="chip food adjchip">Adjusted to your packages</span>`:""}</span></button>${recipeMethod(r)}</div>`}).join("")
      : `<p class="small muted">Build your meal prep: add every ingredient in the batch and how many servings it makes. The app works out macros per serving.</p>`;
   h+=`</div>`;
   // Meal plan
@@ -560,8 +560,8 @@ function prepCard(K){ const P=K.prep; if(!P||!P.weeks||!P.weeks.length) return "
     ${e.shop?`<div class="eyebrow" style="margin-top:6px">Shopping list</div>${e.shop.map(([id,n,q,need])=>shopRow("pesto-"+id,`prepE${i}-${id}`,n,q,need)).join("")}`:""}</details>` });
   return h+`</div>` }
 function recipeMethod(r){ if(!r.method&&!r.store) return "";
-  const lines=String(r.method||"").split("\n").map(x=>x.trim()).filter(Boolean);
-  return `<details class="method"><summary>How to make it${r.when?` <span class="muted">· ${esc(r.when)}</span>`:""}</summary>${lines.length?`<ol class="steps small">${lines.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`:""}${r.store?`<p class="small"><b>Storing and reheating:</b> ${esc(r.store)}</p>`:""}</details>` }
+  const lines=scaledMethod(r).split("\n").map(x=>x.trim()).filter(Boolean), sc=recipeScales(r);
+  return `<details class="method"><summary>How to make it${r.when?` <span class="muted">· ${esc(r.when)}</span>`:""}</summary>${sc.length?`<p class="small adj">Adjusted to what you buy at ${esc(storeName())}: ${sc.map(x=>`${esc(SHOPLABEL[x.key]||x.key)} ${esc(x.P.totTxt)}`).join(", ")}. Same number of portions, a little more in each.</p>`:""}${lines.length?`<ol class="steps small">${lines.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`:""}${r.store?`<p class="small"><b>Storing and reheating:</b> ${esc(r.store)}</p>`:""}</details>` }
 
 
 /* ======================= Grocery scanning ======================= */
@@ -598,22 +598,26 @@ function gscanHtml(){ const W=SH, st=storeName(), L=linkFor(W.key), need=W.need;
     <div class="field"><label>Store name</label><input data-xs-gstore="1" placeholder="e.g. ShopRite Bridgewater" data-xs-focus="gstore" value="${esc(W.store||"")}"></div>
     <p class="small muted">Products you scan are saved per store, since package sizes differ.</p><button type="button" class="btn" data-xs="gstoresave">Add store</button>`;
   if(W.view==="edit"){ const pl=packPlanFromEdit();
-    return head+`<div class="field"><label>Product</label><input data-xs-gn="1" value="${esc(W.pname||"")}" placeholder="e.g. Perdue chicken breast, family pack" data-xs-focus="gn"></div>
+    return head+`<div class="seg two gtabs"><button type="button" data-xs="gscanagain" aria-pressed="false">Scan barcode</button><button type="button" class="on" aria-pressed="true">Type it in</button></div>
+      <div class="field"><label>Product</label><input data-xs-gn="1" value="${esc(W.pname||"")}" placeholder="e.g. Perdue chicken breast, family pack" data-xs-focus="gn"></div>
       <div class="row" style="flex-wrap:nowrap"><div class="field" style="flex:1 1 0;min-width:0"><label>Package size</label><input inputmode="decimal" data-xs-gq="1" value="${esc(W.eq||"")}" placeholder="e.g. 2.5" data-xs-focus="gq"></div>
       <div class="field" style="flex:0 0 110px;min-width:0"><label>Unit</label><select data-xs-gu="1">${G_UNITS.map(u=>`<option ${u===W.eu?"selected":""}>${u}</option>`).join("")}</select></div></div>
       ${W.hint?`<p class="small muted">${esc(W.hint)}</p>`:""}
       <div class="note gplan">${gPlanTxt(pl)}</div>
       <div class="row"><button type="button" class="btn" data-xs="gsave">Save for ${esc(st)}</button><button type="button" class="btn ghost" data-xs="gscanagain">Scan again</button></div>
       ${W.src?`<p class="small muted">${esc(W.src)}</p>`:""}` }
-  return head+(L?`<div class="note"><b>Saved:</b> ${esc(L.name)}${L.pack&&L.pack.txt?` · ${esc(L.pack.txt)}`:""}<div class="row" style="margin-top:6px"><button type="button" class="btn ghost sm" data-xs="gedit">Edit</button><button type="button" class="btn ghost sm" data-xs="grm">Remove</button></div></div>`:"")+
+  const tabs=`<div class="seg two gtabs"><button type="button" class="on" aria-pressed="true">Scan barcode</button><button type="button" data-xs="gmanual" aria-pressed="false">Type it in</button></div>`;
+  return head+tabs+(L?`<div class="note"><b>Saved:</b> ${esc(L.name)}${L.pack&&L.pack.txt?` · ${esc(L.pack.txt)}`:""}<div class="row" style="margin-top:6px"><button type="button" class="btn ghost sm" data-xs="gedit">Edit</button><button type="button" class="btn ghost sm" data-xs="grm">Remove</button></div></div>`:"")+
     `<div id="scanbox" class="scanbox"><p class="small muted">${W.scanErr?esc(W.scanErr):"Starting camera…"}</p></div>
     <div class="row" style="gap:8px;flex-wrap:nowrap"><input class="xs-search" inputmode="numeric" placeholder="Or type the barcode number" data-xs-code="1" value="${esc(W.code||"")}" data-xs-focus="code"><button type="button" class="btn sm" data-xs="glookup" style="flex-shrink:0">Look up</button></div>
     <p class="note" data-xs-err ${W.lookErr?"":"hidden"}>${esc(W.lookErr||"")}</p>
-    <button type="button" class="btn ghost" data-xs="gmanual">No barcode? Enter the size yourself</button>` }
+    <p class="small muted">No barcode, like loose produce? Use “Type it in”.</p>` }
 function packPlanFromEdit(){ const W=SH, q=numIn(W.eq), b=q>0&&gBase(q,W.eu); return b? packPlan(W.need,{qty:b.v,unit:b.d}) : null }
 function gPlanTxt(pl){ const W=SH; if(!W.need) return "Saved sizes show on your shopping list."; if(!(numIn(W.eq)>0)) return `Enter the package size to see how many to buy for ${esc(gNeedTxt(W.need))}.`;
   if(!pl) return `This package is sold by ${W.eu==="count"?"count":"weight or volume"} but the list counts ${W.need.u==="count"?"items":"weight"}, so check the amount yourself.`;
-  return `<b>Buy ${pl.n}</b> ${pl.n===1?"package":"packages"}: ${pl.approx?"about ":""}${esc(pl.totTxt)} for the ${esc(gNeedTxt(W.need))} you need.` }
+  const R=RECIPE_SCALE[W.key], b=gBase(numIn(W.eq),W.eu), f=R&&b? (pl.n*b.v)/gBase(R.need.q,R.need.u).v : 1;
+  const rec= R&&f>1.005&&f<3? `<br><span class="small">Your recipes will use all ${esc(pl.totTxt)} (${Math.round((f-1)*100)}% more), so each portion gets a little more. Macros update to match.</span>` : "";
+  return `<b>Buy ${pl.n}</b> ${pl.n===1?"package":"packages"}: ${pl.approx?"about ":""}${esc(pl.totTxt)} for the ${esc(gNeedTxt(W.need))} you need.${rec}` }
 function gEditFrom(prod){ const W=SH, pk=prod&&prod.pack; W.pname=prod&&prod.name||""; W.hint=""; W.eq=""; W.eu=W.need&&GU[W.need.u]&&W.need.u!=="g"? W.need.u : "oz";
   if(pk&&pk.qty>0){ let u=W.eu; if(!GU[u]||GU[u][0]!==pk.unit) u= pk.unit==="g"? (pk.qty>=454?"lb":"oz") : pk.unit==="ml"? "fl oz" : "count"; W.eu=u; W.eq=String(Math.round(gFrom(pk.qty,u)*100)/100) }
   else if(pk&&pk.txt) W.hint=`The barcode database says "${pk.txt}". Enter the size from the label.`;
@@ -629,6 +633,33 @@ async function gLookup(code){ code=String(code||"").replace(/\D/g,""); const W=S
     if(!r.ok) throw 0;
     W.lookErr=""; gEditFrom(j.product); W.src="Name and size from Open Food Facts / UPCitemdb. Check them against the package."; paintSheet(true) }
   catch(e){ if(SH!==W) return; W.lookErr="Lookup isn't available right now. You can still enter the size yourself."; paintSheet() } }
+
+
+/* ----- recipes follow what you actually buy -----
+   Packages never match the plan exactly (2 × 2.5 lb chicken = 5 lb for a 4 lb recipe). For the fresh batch
+   ingredients, the recipe uses the whole amount you bought at the current store: same number of portions, a bit
+   more in each, with the macros and the method updated to match. Pantry and counted items (pasta, rice, eggs,
+   tortillas) aren't scaled, since the extra just keeps for next time. */
+const SHOPLABEL={chicken:"chicken",turkey:"turkey",crtom:"crushed tomatoes",paste:"tomato paste",spin:"spinach"};
+const RECIPE_SCALE={
+  chicken:{need:{q:4,u:"lb"},uses:[["rcPes","chkbr"]]},
+  turkey:{need:{q:8.5,u:"lb"},uses:[["rcBur","turk93"],["rcBol","turk93"]]},
+  crtom:{need:{q:84,u:"oz"},uses:[["rcBol","crtom"]]},
+  paste:{need:{q:6,u:"oz"},uses:[["rcBol","tompaste"]]},
+  spin:{need:{q:16,u:"oz"},uses:[["rcBol","spinach"]]}};
+const METHOD_SUBS={ // phrases in the method that carry a scaled amount: [recipe, ingredient key, text, unit, base amount, wording]
+  rcPes:[["chicken","4 lb chicken breasts","lb",4,q=>`${q} chicken breasts`]],
+  rcBur:[["turkey","2.5 lb ground turkey","lb",2.5,q=>`${q} ground turkey`]],
+  rcBol:[["turkey","6 lb ground turkey","lb",6,q=>`${q} ground turkey`],["crtom","3 × 28 oz cans crushed tomatoes","oz",84,q=>`${q} crushed tomatoes`],["paste","a 6 oz can of tomato paste","oz",6,q=>`${q} tomato paste`],["spin","14 cups spinach","cup",14,q=>`${q} spinach`]]};
+function scaleOf(key){ const R=RECIPE_SCALE[key], L=R&&linkFor(key); if(!L||!L.pack||!(L.pack.qty>0)) return null;
+  const nb=gBase(R.need.q,R.need.u), P=packPlan(R.need,L.pack); if(!P||!nb) return null;
+  const f=(P.n*L.pack.qty)/nb.v; return f>1.005&&f<3? {f,key,L,P} : null }
+function scaleFor(rid,fid){ for(const key in RECIPE_SCALE){ if(RECIPE_SCALE[key].uses.some(([r,f])=>r===rid&&f===fid)) return scaleOf(key) } return null }
+function scaledItems(r){ if(!r||!r.items) return []; return r.items.map(it=>{ const sc=scaleFor(r.id,it.f); return sc? {...it,amt:+(it.amt*sc.f).toFixed(3)} : it }) }
+function recipeScales(r){ const out=[]; for(const key in RECIPE_SCALE){ if(RECIPE_SCALE[key].uses.some(([rid])=>rid===r.id)){ const sc=scaleOf(key); if(sc) out.push(sc) } } return out }
+function scaledMethod(r){ let m=String(r.method||""); (METHOD_SUBS[r.id]||[]).forEach(([key,txt,u,base,word])=>{ const sc=scaleOf(key); if(!sc||!m.includes(txt)) return;
+  const q=base*sc.f, amt= u==="cup"? `${fmtQ(Math.round(q))} cups` : u==="lb"? `${fmtQ(Math.round(q*100)/100)} lb` : q>=32? `${fmtQ(Math.round(q))} oz (${fmtQ(Math.round(q/16*100)/100)} lb)` : `${fmtQ(Math.round(q*10)/10)} oz`;
+  m=m.replace(txt,word(amt)) }); return m }
 
 /* ======================= Exercise swaps ======================= */
 // Library exercises borrow strength standards from a close equivalent, so swaps still count in Standings.
