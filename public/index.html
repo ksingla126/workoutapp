@@ -821,10 +821,10 @@ function targetFor(ex, key){
     return {w:null,reps,last:lastTxt,msg: maxed? "Maxed at 60s: add a plate on your back or go to a harder variation" : "+5 s per set"};
   }
   const allTop = last.length>=ex.sets && last.slice(0,ex.sets).every(s=>Number(s.r)>=ex.hi);
-  if(allTop) return {w:w+ex.inc,reps:Array(ex.sets).fill(ex.lo),last:lastTxt,msg:`Add ${incTxt(ex.inc)} — you hit ${ex.hi} on every set`};
+  if(allTop) return {w:w+incU(ex.inc),reps:Array(ex.sets).fill(ex.lo),last:lastTxt,msg:`Add ${incTxt(ex.inc)} — you hit ${ex.hi} on every set`};
   if(h[1]){
     const prev=h[1].sets, pw=Number(prev[0].w)||0, sum=a=>a.reduce((t,s)=>t+(Number(s.r)||0),0);
-    if(pw===w && sum(last)<=sum(prev)) return {w:round5(w*0.9),reps:Array(ex.sets).fill(ex.lo),last:lastTxt,stall:true,msg:"Stalled twice: drop ~10% and build back up"};
+    if(pw===w && sum(last)<=sum(prev)) return {w:deloadW(ex,w),reps:Array(ex.sets).fill(ex.lo),last:lastTxt,stall:true,msg:"Stalled twice: drop ~10% and build back up"};
   }
   const reps=Array.from({length:ex.sets},(_,i)=>Math.min(ex.hi,(Number(last[i]?.r)||ex.lo)+1));
   return {w,reps,last:lastTxt,msg:"Same weight, beat last time by a rep"};
@@ -1534,9 +1534,14 @@ function finalTarget(ex,k){
   const rule={...t, mode: t.stall?"deload": /^Add/.test(t.msg)?"add_weight": ex.bw?"add_reps":"add_reps"};
   const o=S.over[k], c=o&&o.items&&o.items[ex.id];
   if(!c) return rule;
-  return {...t, w: ex.bw?null:(c.w??t.w), reps: c.reps&&c.reps.length===ex.sets? c.reps : t.reps, msg:c.note||t.msg, mode:c.mode||rule.mode, coach:true, stall:c.mode==="deload"};
+  const lastW=(()=>{ const h=exHistory(ex.id,k); return h.length? Number(h[0].sets[0].w)||null : null })();
+  return {...t, w: ex.bw?null:(c.w==null? t.w : snapW(ex,c.w,lastW)), reps: c.reps&&c.reps.length===ex.sets? c.reps : t.reps, msg:c.note||t.msg, mode:c.mode||rule.mode, coach:true, stall:c.mode==="deload"};
 }
-function clampW(ex,w,last){ if(w==null||!isFinite(w)||w<=0) return null; if(last){ w=Math.min(last*1.25+ex.inc, Math.max(last*0.8,w)) } const step=w<40?2.5:5; return Math.round(w/step)*step }
+// Weights are never rounded to "nice" numbers: a coach suggestion is snapped onto your own ladder (last weight ± whole weight steps),
+// so 121 stays 121, +1 step is 131, a deload is 111.
+function snapW(ex,w,last){ if(w==null||!isFinite(w)||w<=0) return null; if(!(last>0)) return Math.round(w*10)/10; const st=incU(ex.inc||5), n=Math.round((w-last)/st), out=last+n*st; return out>0? Math.round(out*1000)/1000 : last }
+function clampW(ex,w,last){ if(w==null||!isFinite(w)||w<=0) return null; if(last){ w=Math.min(last*1.25+incU(ex.inc), Math.max(last*0.8,w)) } return snapW(ex,w,last) }
+function deloadW(ex,w){ const st=incU(ex.inc||5), n=Math.max(1,Math.round(w*0.1/st)), out=w-n*st; return out>0? Math.round(out*1000)/1000 : w }
 async function maybeOverload(){
   if(tab!=="home"||!sampleFn) return;
   const k=ymd(sel), p=planFor(sel); if(!p||p.type!=="gym"||S.logs[k]||!loaded.logs) return;
@@ -1557,7 +1562,7 @@ Exercises:
 ${lines}
 
 ${UNIT()==="kg"?"He views weights in kg: keep \"weight\" in lb as above, but write any weight inside \"note\" in kg rounded to 0.5 kg.\n":""}Reply with ONLY a JSON object: {"exercises":[{"id":"<id>","mode":"add_weight"|"add_reps"|"hold"|"deload"|"form","weight":number|null,"reps":[one number per set],"note":"one or two sentences, max 35 words, that explain why using his actual numbers and say exactly what to do"}]}
-Weight is in the same unit he logs (per dumbbell where noted); use null for timed holds. Reps must stay within the prescribed range.`;
+Weight is in the same unit he logs (per dumbbell where noted); use null for timed holds. Start from his exact logged weight and change it only by whole weight steps (121 stays 121, +1 step of 10 is 131); never round to a multiple of 5. Reps must stay within the prescribed range.`;
   try{
     const r=await sampleFn.json(prompt,{modelTier:"default",cache:false});
     const items={};

@@ -674,14 +674,16 @@ function historyHtml(){ const id=SH.id, L=libEx(id)||(typeof X!=="undefined"&&X[
 const KG=2.20462;
 function UNIT(){ try{ return (userPrefs().unit==="kg")?"kg":"lb" }catch(e){ return "lb" } }
 const uL=()=>UNIT();
-// lift weights shown to the user: kg rounded to 0.5, lb to 0.1
-function toU(lb){ const n=Number(lb); if(lb===""||lb==null||!isFinite(n)) return lb; return UNIT()==="kg"? Math.round(n/KG*2)/2 : Math.round(n*10)/10 }
+// lift weights shown to the user, to 0.1 in either unit: what was logged is shown as logged, never rounded to plates
+function toU(lb){ const n=Number(lb); if(lb===""||lb==null||!isFinite(n)) return lb; return UNIT()==="kg"? Math.round(n/KG*10)/10 : Math.round(n*10)/10 }
+// an exercise's weight step in lb, in a size that makes sense in the unit you use (kg: nearest 0.5 kg)
+const incU=inc=>UNIT()==="kg"? Math.max(0.5,Math.round(inc/KG*2)/2)*KG : inc;
 const toUd=lb=>UNIT()==="kg"? Number(lb)/KG : Number(lb);     // unrounded, for charts, totals and rates
 function fromU(v){ const n=Number(v); if(!isFinite(n)) return n; return UNIT()==="kg"? +(n*KG).toFixed(3) : n }
-const incTxt=inc=>UNIT()==="kg"? `${Math.max(1,toU(inc))} kg` : `${inc} lb`;
+const incTxt=inc=>UNIT()==="kg"? `${Math.max(0.5,Math.round(inc/KG*2)/2)} kg` : `${inc} lb`;
 function setUnit(u){ if(u===UNIT()) return; const from=UNIT();
   // typed-but-unsaved weights switch with you
-  Object.keys(drafts).forEach(k=>{ if(/\|(w-|bwIn2?$|lvW)/.test(k)&&drafts[k]!==""&&isFinite(Number(drafts[k]))){ const lb= from==="kg"? Number(drafts[k])*KG : Number(drafts[k]); drafts[k]=String(u==="kg"? Math.round(lb/KG*2)/2 : Math.round(lb*10)/10) } }); persistDrafts();
+  Object.keys(drafts).forEach(k=>{ if(/\|(w-|bwIn2?$|lvW)/.test(k)&&drafts[k]!==""&&isFinite(Number(drafts[k]))){ const lb= from==="kg"? Number(drafts[k])*KG : Number(drafts[k]); drafts[k]=String(u==="kg"? Math.round(lb/KG*10)/10 : Math.round(lb*10)/10) } }); persistDrafts();
   if(SUW&&SUW.weight){ const lb= from==="kg"? Number(SUW.weight)*KG : Number(SUW.weight); SUW.weight=String(u==="kg"? Math.round(lb/KG*10)/10 : Math.round(lb)) }
   setPref({unit:u}); lastRenderKey=""; render() }
 
