@@ -659,7 +659,7 @@ details.prepwk{border-top:1px solid var(--line);padding-top:10px}
 details.prepwk>summary{color:var(--ink);display:flex;justify-content:space-between;gap:10px;list-style:none}details.prepwk>summary::-webkit-details-marker{display:none}
 details.prepwk>summary::after{content:"▾";color:var(--muted)}details.prepwk[open]>summary::after{content:"▴"}
 .steps{margin:4px 0 8px;padding-left:20px;display:flex;flex-direction:column;gap:6px}
-.prepwk .mealrow .k{white-space:normal;text-align:right;max-width:48%}
+.prepwk .mealrow{grid-template-columns:22px 1fr minmax(0,52%)}.prepwk .mealrow .k{white-space:normal;text-align:right}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 <script src="/look.js"></script>

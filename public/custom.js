@@ -526,7 +526,7 @@ Pasta, per dinner: boil 2 oz protein pasta in salted water for the time on the b
         "Rest and slice the chicken, then portion 7 bowls (freeze 3).",
         "Burritos and bolognese come out of the freezer: move 4 bolognese and a few burritos to the fridge."],
        shop:[["chicken","Chicken breast","4 lb"],["eggs","Eggs","1 dozen"],["pasta","Protein pasta","1 box"],["broc","Frozen broccoli","2 × 32 oz"],["salsa","Salsa","if you're out"],["banana","Bananas","for long runs"]]}],
-    every:[{name:"Walnut pesto",time:"every 4–5 weeks · 15 min",steps:[
+    every:[{name:"Walnut pesto",time:"every 4–5 weeks · 15 min",shop:[["basil","Fresh basil","4 oz container (2 packed cups)"],["walnuts","Walnuts","8 oz bag"],["parm","Parmesan","5 oz wedge or tub"],["lemon","Lemon","1"],["oil","Olive oil","500 ml bottle (lasts ~3 batches)"],["garlic","Garlic","4 cloves from your head"],["spin","Baby spinach","2 cups from the Week A bag"],["tray","Ice-cube tray and freezer bags","if you don't have them"]],steps:[
         "Toast 1 cup walnuts in a dry pan 3 min until fragrant; let them cool.",
         "Blend 2 packed cups basil, 2 cups baby spinach, the walnuts, 1 cup grated parmesan, 4 garlic cloves, juice of 1 lemon and 1 tsp salt until chopped.",
         "With the blender running, stream in ¾ cup olive oil until smooth. Taste for salt and lemon.",
@@ -535,7 +535,8 @@ Pasta, per dinner: boil 2 oz protein pasta in salted water for the time on the b
 };
 function maybeMealsV3(){
   if(!window.__platform||!loaded.profile||!CUSTOM||!CUSTOM.su.fromLegacy) return false;
-  const K=kitchen(); if(K.v3) return false;
+  const K=kitchen();
+  if(K.v3){ const pe=K.prep&&(K.prep.every||[]).find(e=>e.name==="Walnut pesto"); if(pe&&!pe.shop){ pe.shop=[["basil","Fresh basil","4 oz container (2 packed cups)"],["walnuts","Walnuts","8 oz bag"],["parm","Parmesan","5 oz wedge or tub"],["lemon","Lemon","1"],["oil","Olive oil","500 ml bottle (lasts ~3 batches)"],["garlic","Garlic","4 cloves from your head"],["spin","Baby spinach","2 cups from the Week A bag"],["tray","Ice-cube tray and freezer bags","if you don't have them"]]; saveProfile(); return true } return false }
   BATCH3.foods.forEach(f=>{ if(!K.foods.some(x=>x.id===f.id)) K.foods.push({...f}) });
   const ids=new Set(BATCH3.recipes.map(r=>r.id));
   K.recipes=[...BATCH3.recipes.map(r=>JSON.parse(JSON.stringify(r))),...K.recipes.filter(r=>!ids.has(r.id)&&r.id!=="rcYog")];
@@ -551,7 +552,8 @@ function prepCard(K){ const P=K.prep; if(!P||!P.weeks||!P.weeks.length) return "
     <ol class="steps small">${w.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>
     <div class="eyebrow" style="margin-top:6px">Shopping list</div>
     ${w.shop.map(([id,n,q])=>{ const key=`prep${i}-${id}`; return `<label class="mealrow ${chk[key]?"eaten":""}"><input type="checkbox" data-c-gro="${key}" ${chk[key]?"checked":""}><span class="m">${esc(n)}</span><span class="k small">${esc(q)}</span></label>` }).join("")}</details>` });
-  (P.every||[]).forEach(e=>{ h+=`<details class="prepwk"><summary><b>${esc(e.name)}</b><span class="small muted">${esc(e.time)}</span></summary><ol class="steps small">${e.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol></details>` });
+  (P.every||[]).forEach((e,i)=>{ h+=`<details class="prepwk"><summary><b>${esc(e.name)}</b><span class="small muted">${esc(e.time)}</span></summary><ol class="steps small">${e.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>
+    ${e.shop?`<div class="eyebrow" style="margin-top:6px">Shopping list</div>${e.shop.map(([id,n,q])=>{ const key=`prepE${i}-${id}`; return `<label class="mealrow ${chk[key]?"eaten":""}"><input type="checkbox" data-c-gro="${key}" ${chk[key]?"checked":""}><span class="m">${esc(n)}</span><span class="k small">${esc(q)}</span></label>` }).join("")}`:""}</details>` });
   return h+`</div>` }
 function recipeMethod(r){ if(!r.method&&!r.store) return "";
   const lines=String(r.method||"").split("\n").map(x=>x.trim()).filter(Boolean);
