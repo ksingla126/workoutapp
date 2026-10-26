@@ -16,8 +16,8 @@
 #authGate{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:24px 18px;background:var(--bg,#EDF0F4);color:var(--ink,#0E1626);font-family:var(--body,system-ui,sans-serif)}
 #authGate[hidden]{display:none}
 #authGate .ag-card{width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px}
-#authGate .ag-mark{width:60px;height:66px;clip-path:polygon(50% 0,100% 24%,100% 76%,50% 100%,0 76%,0 24%);background:linear-gradient(155deg,#8F8BFF,#4B48E8 55%,#2F2CB8);color:#fff;display:grid;place-items:center;font:900 24px var(--display,system-ui);font-stretch:125%;margin-bottom:6px}
-#authGate h1{margin:4px 0 0;font:850 34px/1.05 var(--display,system-ui);font-stretch:116%;letter-spacing:-.02em}
+#authGate .ag-mark{width:60px;height:66px;clip-path:polygon(50% 0,100% 24%,100% 76%,50% 100%,0 76%,0 24%);background:linear-gradient(155deg,#8F8BFF,#4B48E8 55%,#2F2CB8);color:#fff;display:grid;place-items:center;font:900 24px var(--display,system-ui);margin-bottom:6px}
+#authGate h1{margin:4px 0 0;font:800 38px/1.05 var(--display,system-ui);letter-spacing:-.02em}
 #authGate .ag-sub{margin:0 0 8px;color:var(--muted,#5F6B7E)}
 #authGate label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--muted,#5F6B7E)}
 #authGate input{font:16px var(--body,system-ui);padding:13px 14px;border-radius:12px;border:1px solid var(--line,#E1E5EC);background:var(--surface,#fff);color:var(--ink,#0E1626)}
@@ -32,7 +32,7 @@
 <script src="/platform.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Semi+Condensed:wght@600;700;800;900&display=swap">
 <style>
 /* Layout: phone-first single column (max 640px) with a fixed bottom tab bar; competition-plate colors mark gym / run / food / advice. */
 :root{
@@ -40,8 +40,8 @@
   --gym:#4B48E8; --run:#EE4F2A; --food:#0F9D57; --coach:#C98A06;
   --gym-soft:#ECEBFD; --run-soft:#FDEBE6; --food-soft:#E3F5EB; --coach-soft:#FBF1DC;
   --good:#0F9D57; --warn:#C98A06; --bad:#E0402A;
-  --display:"Archivo","Arial",sans-serif;
-  --body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:"Barlow Semi Condensed","Barlow","Arial Narrow",sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
   --r:20px; --r2:14px; --edge:transparent;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
@@ -517,11 +517,11 @@ details.tip summary{font-size:12px;color:var(--muted);cursor:pointer}
 .pviz .bar{width:44px;height:8px;border-radius:4px;background:var(--muted)}
 .pviz .pl{display:grid;place-items:center;width:22px;border-radius:4px;background:var(--gym);color:#fff;font:700 9px var(--body);font-style:normal;writing-mode:vertical-rl}
 
-/* ===== Visual layer v2: Archivo (wide for headings and numbers), sentence-case labels, flat surfaces on a cool page,
+/* ===== Visual layer v2: Barlow (Semi Condensed for headings and numbers), sentence-case labels, flat surfaces on a cool page,
    pill controls, a floating tab bar. Rank letters are the one bold element (hex emblems, see ranks.js). ===== */
-body{font-size:15.5px;line-height:1.5;letter-spacing:-.003em;font-feature-settings:"ss01"}
-h1,h2,h3,.stat .v,.g .v,.strip button.d .n,.pct .n,.race .rt b,.timerbox .big,.sheet-tier,.mp,.lv-ex,.lv-title b,.kcalrow div b{font-family:var(--display);font-stretch:116%;letter-spacing:-.02em}
-h1{font-size:30px;font-weight:850}
+body{font-size:16px;line-height:1.5;letter-spacing:0}
+h1,h2,h3,.stat .v,.g .v,.strip button.d .n,.pct .n,.race .rt b,.timerbox .big,.sheet-tier,.mp,.lv-ex,.lv-title b,.kcalrow div b{font-family:var(--display);letter-spacing:-.02em}
+h1{font-size:32px;font-weight:800}
 h2{font-size:21px;font-weight:800}
 h3{font-size:17px;font-weight:760;letter-spacing:-.01em}
 .small{font-size:13.5px}
@@ -537,8 +537,8 @@ h3{font-size:17px;font-weight:760;letter-spacing:-.01em}
 /* header */
 .top{gap:10px;padding-block:8px 6px}
 .top h1{font-size:32px}
-.top h1 .muted{font-weight:650;font-stretch:100%}
-.stat .v{font-size:26px;font-weight:850}
+.top h1 .muted{font-weight:650;}
+.stat .v{font-size:26px;font-weight:800}
 .stat .l{font-size:12px;font-weight:500;color:var(--muted)}
 .bar{height:8px;border-radius:99px;background:color-mix(in srgb,var(--ink) 8%,transparent)}
 .bar>i{border-radius:99px}
@@ -548,8 +548,8 @@ h3{font-size:17px;font-weight:760;letter-spacing:-.01em}
 .glance{gap:8px}
 .g{border:1px solid var(--edge);border-radius:18px;padding:14px 14px 12px;gap:8px}
 .g .l{font-size:12.5px;font-weight:600;line-height:1.2}
-.g .v{font-size:22px;font-weight:850}
-.g .v small{font-family:var(--body);font-stretch:100%;font-weight:500;letter-spacing:0}
+.g .v{font-size:24px;font-weight:800}
+.g .v small{font-family:var(--body);font-weight:500;letter-spacing:0}
 
 /* week strip */
 .strip{gap:5px}
@@ -648,8 +648,8 @@ nav.tabs .badge{top:3px;right:calc(50% - 20px);box-shadow:0 0 0 2px var(--surfac
 .top .acct,.top .rk-chip{position:static;flex:none}
 .top .acct{width:38px;height:38px}
 .top .rk-chip{height:38px;padding:0 12px 0 6px}
-.top h1.top-week{font-size:34px;line-height:1.05;margin-top:2px}
-.top-week .muted{font-weight:600;font-stretch:100%;font-size:.62em;letter-spacing:-.01em}
+.top h1.top-week{font-size:38px;line-height:1.05;margin-top:2px}
+.top-week .muted{font-weight:600;font-size:.62em;letter-spacing:-.01em}
 .top-meta{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;color:var(--muted);margin-top:-2px}
 .top-meta b{color:var(--ink);font-weight:750;font-size:15px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
