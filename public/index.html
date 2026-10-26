@@ -640,6 +640,18 @@ nav.tabs .badge{top:3px;right:calc(50% - 20px);box-shadow:0 0 0 2px var(--surfac
 .missed .missrow .link{background:var(--surface)}
 .missed{background:var(--coach-soft);border-color:transparent}
 .missed .missrow{border-top-color:color-mix(in srgb,var(--coach) 22%,transparent)}
+/* header: name + actions on one line, the week on its own line, then progress with its two numbers underneath */
+.top{gap:10px;padding-block:4px 6px}
+.top-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:38px}
+.top-name{font-size:14px;font-weight:650;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top-act{display:flex;align-items:center;gap:8px;flex:none}
+.top .acct,.top .rk-chip{position:static;flex:none}
+.top .acct{width:38px;height:38px}
+.top .rk-chip{height:38px;padding:0 12px 0 6px}
+.top h1.top-week{font-size:34px;line-height:1.05;margin-top:2px}
+.top-week .muted{font-weight:600;font-stretch:100%;font-size:.62em;letter-spacing:-.01em}
+.top-meta{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;color:var(--muted);margin-top:-2px}
+.top-meta b{color:var(--ink);font-weight:750;font-size:15px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 <script src="/look.js"></script>
@@ -1003,11 +1015,10 @@ function renderTop(){
   const plannedSoFar=countPlanned(today), done=Object.keys(S.logs).filter(k=>parseYmd(k)<=today&&parseYmd(k)>=countStart()).length;
   const pct=Math.min(100,Math.max(0,dayNum(today)/(dayNum(GOAL)+1)*100));
   if(document.title!==progName()) document.title=progName();
-  $("#top").innerHTML=`${accountBtn()}${typeof rankChip==="function"?rankChip():""}<div class="eyebrow">${esc(progName())}</div>
-   <div class="row between" style="align-items:flex-end"><h1>Week ${w} <span class="muted">/ ${WEEKS}</span></h1>
-   <div class="countdown"><div class="stat"><div class="v num">${left}</div><div class="l">days left</div></div>
-   <div class="stat"><div class="v num">${done}<span class="muted" style="font-size:18px">/${plannedSoFar}</span></div><div class="l">sessions</div></div></div></div>
-   <div class="bar" aria-hidden="true"><i style="width:${pct}%"></i></div>`;
+  $("#top").innerHTML=`<div class="top-row"><span class="top-name">${esc(progName())}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}${accountBtn()}</span></div>
+   <h1 class="top-week">Week ${w} <span class="muted">of ${WEEKS}</span></h1>
+   <div class="bar" role="progressbar" aria-label="Plan progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div>
+   <div class="top-meta"><span><b class="num">${left}</b> ${left===1?"day":"days"} to go</span><span><b class="num">${done}</b> of ${plannedSoFar} sessions done</span></div>`;
 }
 function countStart(){ if(!CUSTOM||!CUSTOM.su.firstDay) return START; let k=CUSTOM.su.firstDay; Object.keys(S.logs).forEach(x=>{if(x<k) k=x}); const d=parseYmd(k); return d>START?d:START }
 function countPlanned(upTo){let n=0;for(let d=new Date(countStart());d<=upTo&&d<=GOAL;d=addDays(d,1)){const p=planFor(d); if(p&&p.type!=="rest") n++}return n}
