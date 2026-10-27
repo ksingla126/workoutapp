@@ -12,6 +12,7 @@ progress charts, standings, outlook, and an AI coach (Claude).
 | `api/config.js` | Gives the page the public Supabase settings |
 | `api/coach.js` | Calls Claude for signed-in users, with a daily limit per user |
 | `api/foods.js` | Searches the USDA FoodData Central database for signed-in users |
+| `api/barcode.js` | Barcode lookup: USDA branded foods, Open Food Facts, products other users entered, then UPCitemdb |
 | `public/custom.js` | Exercise library, routine builder, food database, meal builder and food diary |
 | `public/ranks.js` | Rank system (E–S): scoring, placement, Gates, demotion, the Ranks screen |
 | `public/rank-config.js` | Every rank number: ladders, conversion rates, age factors, timers. Tune here, not in code |
@@ -54,3 +55,13 @@ Open the site in Safari → **Share → Add to Home Screen**.
 2. In Supabase **SQL Editor**, run `supabase/migrations-002-strava.sql`.
 3. In Vercel add `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET` (from the Strava app page) and `SUPABASE_SERVICE_ROLE_KEY` (Supabase → Project Settings → API keys → Legacy → **service_role**; server only, never in the app code). Optional: `APP_URL` (e.g. `https://workoutapp-nine-bay.vercel.app`) so Strava always returns to that domain. Redeploy.
 4. In the app: account button → **Connect Strava**. If something's misconfigured, the account panel says which setting to fix.
+
+## Shared barcodes
+
+When a scan finds nothing and someone types in the product (name and package size, or the nutrition label), it's shared so the next person who scans that barcode gets it straight away.
+
+1. In Supabase **SQL Editor**, run `supabase/migrations-003-shared-barcodes.sql`.
+2. Make sure `SUPABASE_SERVICE_ROLE_KEY` is set in Vercel (the same one Strava uses). Entries are written by the server so each one is tied to the signed-in user; other users can read the product but never see who added it.
+
+Barcode lookups also use `USDA_API_KEY`: USDA's branded foods are matched on the UPC and are usually the best source for US groceries.
+

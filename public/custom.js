@@ -375,7 +375,8 @@ function scanHtml(){
    <div id="scanbox" class="scanbox"><p class="small muted">${SH.scanErr?esc(SH.scanErr):"Starting camera…"}</p></div>
    <div class="row" style="gap:8px;flex-wrap:nowrap"><input class="xs-search" inputmode="numeric" placeholder="Or type the barcode number" data-xs-code="1" value="${esc(SH.code||"")}" data-xs-focus="code"><button type="button" class="btn sm" data-xs="lookup" style="flex-shrink:0">Look up</button></div>
    <p class="note" data-xs-err ${SH.lookErr?"":"hidden"}>${esc(SH.lookErr||"")}</p>
-   <p class="small muted">Nutrition from Open Food Facts. Check it against the label.</p>`;
+   ${SH.lookAdd?`<div class="note"><b>Add it from the label</b> and it'll come straight up next time, for you and anyone else who scans it.<div class="row" style="margin-top:8px"><button type="button" class="btn sm" data-xs="scanadd">Enter the label</button></div></div>`:""}
+   <p class="small muted">Nutrition from USDA, Open Food Facts and other RankUp users. Check it against the label.</p>`;
 }
 let scanner=null, scanLoading=null;
 function loadScanLib(){ if(window.Html5Qrcode) return Promise.resolve(); if(scanLoading) return scanLoading;
@@ -386,14 +387,24 @@ async function startScan(){ try{ await loadScanLib(); if(!SH||SH.view!=="scan") 
   }catch(e){ if(SH&&SH.view==="scan"){ SH.scanErr="Camera isn't available. Type the barcode number instead."; paintSheet() } } }
 function startScanG(){ SH.view="scan"; startScan() }
 function stopScan(){ const sc=scanner; scanner=null; if(sc){ try{ sc.stop().catch(()=>{}) }catch(e){} } }
-async function lookupCode(code){ code=String(code||"").replace(/\D/g,""); if(code.length<6){ SH.lookErr="Enter the full barcode number."; paintSheet(); return }
-  SH.lookErr="Looking up…"; paintSheet();
+// Share a product someone typed in after a scan, so the next person who scans it gets it straight away.
+async function shareBarcode(entry){ try{ const tok=window.appAuthToken? await window.appAuthToken() : null; if(!tok||!entry||!entry.code) return;
+  await fetch("/api/barcode",{method:"POST",headers:{authorization:"Bearer "+tok,"content-type":"application/json"},body:JSON.stringify(entry)}) }catch(e){} }
+const srcTxt=src=>src&&src.length? src.join(" + ") : "the barcode databases";
+async function lookupCode(code){ code=String(code||"").replace(/\D/g,""); if(code.length<6){ SH.lookErr="Enter the full barcode number."; SH.lookAdd=null; paintSheet(); return }
+  const W=SH, pickFood=f=>{ W.view=null; W.lookErr=""; W.lookAdd=null; W.tab="foods"; W.pick={t:"f",id:f.id,amt:1,unit:unitsOf(f)[0][0]}; paintSheet(true) };
+  const mine=kitchen().foods.find(f=>f.code===code); if(mine) return pickFood({...mine,custom:true});
+  W.lookErr="Looking up…"; W.lookAdd=null; paintSheet();
   try{ const tok=window.appAuthToken? await window.appAuthToken() : null; const r=await fetch("/api/barcode?code="+code,{headers:tok?{authorization:"Bearer "+tok}:{}}); const j=await r.json().catch(()=>({}));
-    if(r.status===404){ SH.lookErr="Not found in Open Food Facts. Add it as a custom food from its label."; paintSheet(); return }
-    if(r.ok&&!j.food&&j.product){ SH.lookErr=`Found ${j.product.name}, but it has no nutrition info. Add it as a custom food from its label.`; paintSheet(); return }
-    if(!r.ok||!j.food) throw 0; USDA.cache.set(j.food.id,j.food); keepUsda(j.food);
-    SH.view=null; SH.lookErr=""; SH.tab="foods"; SH.pick={t:"f",id:j.food.id,amt:1,unit:unitsOf(j.food)[0][0]}; paintSheet(true) }
-  catch(e){ SH.lookErr="Lookup isn't available right now."; paintSheet() } }
+    if(SH!==W) return;
+    if(r.ok&&j.food){ USDA.cache.set(j.food.id,j.food); keepUsda(j.food); W.src=srcTxt(j.src); return pickFood(j.food) }
+    if(r.ok&&j.cfood){ // label nutrition another RankUp user entered: keep a copy in this person's foods
+      const K=kitchen(), x={id:newId("cf"),n:j.cfood.n||j.product.name,serving:j.cfood.serving||"1 serving",k:j.cfood.k,p:j.cfood.p||0,c:j.cfood.c||0,f:j.cfood.f||0,code,shared:1};
+      K.foods.push(x); saveProfile(); toast("Found it: added by another RankUp user"); return pickFood({...x,custom:true}) }
+    if(r.status===404||r.ok){ W.lookErr= r.ok&&j.product? `Found ${j.product.name}, but no nutrition info yet.` : "This barcode isn't in any food database yet.";
+      W.lookAdd={code,name:r.ok&&j.product?j.product.name:""}; paintSheet(); return }
+    throw 0 }
+  catch(e){ if(SH!==W) return; W.lookErr="Lookup isn't available right now."; W.lookAdd=null; paintSheet() } }
 function recipeHtml(){ const r=SH.r, T=recipeTotals(r,true);
   let h=`<div class="xs-head"><h2>${SH.isNew?"New meal":"Edit meal"}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>`;
   if(SH.adding){ const q=(SH.q||"").toLowerCase().trim(); const list=foodDb().filter(f=>!q||f.n.toLowerCase().includes(q));
@@ -422,7 +433,7 @@ function cfoodHtml(){ const d=SH.d;
    <div class="field"><label>Serving size</label><input data-xs-cf="serving" value="${esc(d.serving)}" placeholder="e.g. 1 bar"></div>
    <div class="row"><div class="field"><label>Calories</label><input inputmode="decimal" data-xs-cf="k" value="${esc(d.k)}"></div><div class="field"><label>Protein g</label><input inputmode="decimal" data-xs-cf="p" value="${esc(d.p)}"></div></div>
    <div class="row"><div class="field"><label>Carbs g</label><input inputmode="decimal" data-xs-cf="c" value="${esc(d.c)}"></div><div class="field"><label>Fat g</label><input inputmode="decimal" data-xs-cf="f" value="${esc(d.f)}"></div></div>
-   <p class="small muted">Per serving, from the nutrition label.</p><p class="note" data-xs-err hidden></p>
+   <p class="small muted">Per serving, from the nutrition label.${d.code?` Linked to barcode ${esc(d.code)} and shared so others who scan it get it too.`:""}</p><p class="note" data-xs-err hidden></p>
    <div class="row"><button type="button" class="btn" data-xs="cfsave">Save food</button>${SH.isNew?"":`<button type="button" class="btn ghost" data-xs="cfdel">${SH.delConfirm?"Tap again to delete":"Delete"}</button>`}</div>`;
 }
 function customFoodView(){
@@ -623,9 +634,9 @@ async function gLookup(code){ code=String(code||"").replace(/\D/g,""); const W=S
   W.lookErr="Looking up…"; paintSheet();
   try{ const tok=window.appAuthToken? await window.appAuthToken() : null; const r=await fetch("/api/barcode?code="+code,{headers:tok?{authorization:"Bearer "+tok}:{}}); const j=await r.json().catch(()=>({}));
     if(SH!==W) return;
-    if(r.status===404||(r.ok&&!j.product)){ W.lookErr=""; gEditFrom(null); W.hint="That barcode isn't in the product databases yet. Enter the name and size from the package: next time you scan it, it'll come straight up."; paintSheet(true); return }
+    if(r.status===404||(r.ok&&!j.product)){ W.lookErr=""; gEditFrom(null); W.hint="That barcode isn't in the product databases yet. Enter the name and size from the package: next time you or anyone else scans it, it'll come straight up."; paintSheet(true); return }
     if(!r.ok) throw 0;
-    W.lookErr=""; gEditFrom(j.product); W.src="Name and size from Open Food Facts / UPCitemdb. Check them against the package."; paintSheet(true) }
+    W.lookErr=""; gEditFrom(j.product); W.src=`Name and size from ${srcTxt(j.src)}. Check them against the package.`; paintSheet(true) }
   catch(e){ if(SH!==W) return; W.lookErr="Lookup isn't available right now. You can still enter the size yourself."; paintSheet() } }
 
 
@@ -1237,12 +1248,13 @@ document.addEventListener("click",e=>{
     if(!name){ toast("Add the product name"); return } if(!b){ toast("Enter the package size"); return }
     const K=kitchen(), st=storeName(), pack={qty:+b.v.toFixed(2),unit:b.d,txt:gFmt(q,W.eu)};
     K.products=K.products||{}; K.products[W.key]={...(K.products[W.key]||{}),[st]:{code:W.code||null,name,pack,at:Date.now()}};
-    if(W.code){ K.barcodes=K.barcodes||{}; K.barcodes[W.code]={name,pack} }
+    if(W.code){ K.barcodes=K.barcodes||{}; K.barcodes[W.code]={name,pack}; shareBarcode({code:W.code,name,pack}) }
     saveProfile(); xsClose(); lastRenderKey=""; render(); const pl=packPlan(W.need,pack); toast(pl?`Saved: buy ${pl.n} at ${st}`:`Saved for ${st}`); return }
   if(d.xs==="gstoresave"){ const inp=document.querySelector("[data-xs-gstore]"), name=(inp&&inp.value||"").trim().slice(0,40); if(!name){ toast("Enter a store name"); return }
     const K=kitchen(), st=storesOf(); K.stores=st.includes(name)? st : [...(K.stores&&K.stores.length?K.stores:["My store"]).filter(x=>!(x==="My store"&&!Object.values(K.products||{}).some(m=>m["My store"]))),name]; K.store=name; saveProfile(); xsClose(); lastRenderKey=""; render(); toast(`Shopping at ${name}`); return }
   if(d.xs==="scan"){ SH.view="scan"; SH.scanErr=""; SH.lookErr=""; paintSheet(true); startScan(); return }
   if(d.xs==="scanback"){ stopScan(); SH.view=null; paintSheet(true); return }
+  if(d.xs==="scanadd"){ const A=SH.lookAdd||{}, back=SH; stopScan(); openSheet({kind:"cfood",isNew:true,back,d:{id:newId("cf"),n:A.name||"",serving:"1 serving",k:"",p:"",c:"",f:"",code:A.code}}); return }
   if(d.xs==="lookup"){ stopScan(); const inp=document.querySelector("[data-xs-code]"); lookupCode(inp?inp.value:SH.code); return }
   if(d.xsPickr){ SH.pick={t:"r",id:d.xsPickr,qty:1}; paintSheet(true); return }
   if(d.xsPickf){ const f=foodById(d.xsPickf); keepUsda(f); SH.pick={t:"f",id:f.id,amt:1,unit:unitsOf(f)[0][0]}; paintSheet(true); return }
@@ -1268,7 +1280,10 @@ document.addEventListener("click",e=>{
   // custom food
   if(d.xs==="cfsave"){ const x=SH.d; x.n=(x.n||"").trim(); ["k","p","c","f"].forEach(k=>x[k]=numIn(x[k])); x.serving=(x.serving||"1 serving").trim()||"1 serving";
     if(!x.n||!(x.k>=0)){ const er=document.querySelector("[data-xs-err]"); er.textContent="Add a name and calories."; er.hidden=false; return }
-    const K=kitchen(), i=K.foods.findIndex(f=>f.id===x.id); if(i>=0) K.foods[i]=x; else K.foods.push(x); xsClose(); commitPlan(); toast("Food saved"); return }
+    const K=kitchen(), i=K.foods.findIndex(f=>f.id===x.id); if(i>=0) K.foods[i]=x; else K.foods.push(x);
+    if(x.code&&!x.shared) shareBarcode({code:x.code,name:x.n,food:{n:x.n,serving:x.serving,k:x.k,p:x.p,c:x.c,f:x.f}});
+    const back=SH.back; if(back){ commitPlan(); back.view=null; back.lookErr=""; back.lookAdd=null; back.tab="foods"; back.pick={t:"f",id:x.id,amt:1,unit:unitsOf({...x,custom:true})[0][0]}; openSheet(back); toast("Saved. Everyone who scans it gets it now"); return }
+    xsClose(); commitPlan(); toast("Food saved"); return }
   if(d.xs==="cfdel"){ if(!SH.delConfirm){ SH.delConfirm=true; paintSheet(); return } const K=kitchen(); K.foods=K.foods.filter(f=>f.id!==SH.d.id); xsClose(); commitPlan(); return }
 });
 document.addEventListener("input",e=>{ const t=e.target, d=t.dataset||{};
