@@ -2,7 +2,7 @@
  * rates can be tuned without touching scoring code. Spec: "Fitness Rank System — Design Spec v2" (Oct 24, 2026).
  * Weights are one-rep maxes in lb, times are seconds. Ladders list the minimum for D, C, B, A, S (E is anything below D). */
 window.RANK_CFG = {
-  version: 2,
+  version: 3,
   letters: ["E", "D", "C", "B", "A", "S"],
   refBW: { male: 200, female: 170 },          // raw ladders are written for these body weights
   scaleExp: 0.67,                             // scaled mode: target × (bodyweight ÷ reference)^0.67
@@ -56,7 +56,7 @@ window.RANK_CFG = {
   // Discipline: the 6th category, from consistency rather than strength. A week is "on target" when you
   // log at least hitPct of its planned sessions; the rank comes from on-target weeks in the last \`weeks\`.
   // No Gates: it rises and falls on its own. th = on-target weeks needed for D, C, B, A, S.
-  discipline: { weeks: 16, hitPct: 0.75, th: [2, 4, 7, 10, 14] },
+  discipline: { weeks: 16, hitPct: 0.75, th: [2, 4, 7, 10, 14], overallWeight: 0.1 }, // 10% of the Overall
   overallRoundAt: 0.7, // the Overall moves up a rank once the average is 70% of the way there
 
   // How each exercise counts. p = part, r = conversion rate (exercise ≈ r × reference lift),
