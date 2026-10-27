@@ -312,7 +312,8 @@ function rankState() {
   const avg = f => gs.reduce((t, g) => t + wOf(g) * f(g), 0);
   R.overallAvg = gs.length ? avg(g => g.num) : 0;
   R.overall = gs.length ? Math.min(5, Math.floor(R.overallAvg + (1 - C.overallRoundAt))) : 0;
-  R.overallScaled = gs.length ? Math.min(5, Math.floor(avg(g => Math.min(5, g.scaled)) + (1 - C.overallRoundAt))) : 0;
+  R.overallAvgScaled = gs.length ? avg(g => Math.min(5, g.scaled)) : 0;
+  R.overallScaled = gs.length ? Math.min(5, Math.floor(R.overallAvgScaled + (1 - C.overallRoundAt))) : 0;
   R.flagged = E.filter(e => e.flag);
   RK_CACHE = { sig, R };
   return R;
@@ -501,14 +502,53 @@ function rkUnrated() {
   Object.entries(S.logs).forEach(([k, l]) => { if (k < from || !l || l.type !== "gym" || !l.ex) return; Object.keys(l.ex).forEach(id => { const L = typeof libEx === "function" && libEx(id); if (L && L.custom && !rkConv(id, l)) seen.set(id, L) }) });
   return [...seen.entries()];
 }
+/* ---------- status window (hexagon stat chart) ---------- */
+const RK_SHORT = { upper: "Upper", lower: "Lower", core: "Core", speed: "Speed", endur: "Endurance", disc: "Discipline" };
+let rkHudT = 0;
+function rkOverallProg(avg, ov) { // progress toward the next Overall rank (it moves up once the average is 70% of the way)
+  if (ov >= 5) return 1; const at = RKC().overallRoundAt, lo = ov ? ov - 1 + at : 0, hi = ov + at; return Math.max(0, Math.min(1, (avg - lo) / (hi - lo))) }
+function rkRadar(R, sc) {
+  const W = 340, H = 300, cx = 170, cy = 148, RR = 104, gs = R.groups, n = gs.length;
+  const val = g => g.num == null ? 0 : Math.min(5, sc ? g.scaled : g.num);
+  const rad = v => RR * (0.12 + 0.88 * v / 5); // E sits just off the centre so progress inside E still shows
+  const pt = (i, r) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return [cx + r * Math.cos(a), cy + r * Math.sin(a)] };
+  const poly = r => gs.map((_, i) => pt(i, typeof r === "function" ? r(i) : r).map(x => x.toFixed(1)).join(",")).join(" ");
+  let h = `<svg class="rk-radar" viewBox="0 0 ${W} ${H}" role="img" aria-label="${gs.map(g => `${RK_SHORT[g.id] || g.name} ${g.num == null ? "excluded" : rkLetter(val(g))}`).join(", ")}">
+    <defs><radialGradient id="rkFill" cx="50%" cy="50%" r="60%"><stop offset="0" stop-color="#7DE3FF" stop-opacity=".75"/><stop offset="1" stop-color="#6A5CFF" stop-opacity=".55"/></radialGradient>
+    <filter id="rkGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+  for (let k = 5; k >= 0; k--) h += `<polygon class="rk-ring${k === 5 ? " out" : ""}" points="${poly(rad(k))}"/>`;
+  gs.forEach((_, i) => { const [x, y] = pt(i, rad(5)); h += `<line class="rk-axis" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>` });
+  for (let k = 1; k <= 5; k++) { const [x, y] = pt(0, rad(k)); h += `<text class="rk-tick" x="${(x + 5).toFixed(1)}" y="${(y + 3.5).toFixed(1)}">${RKC().letters[k]}</text>` }
+  h += `<g class="rk-shape${Date.now() - rkHudT > 20000 ? " anim" : ""}"><polygon class="rk-poly" points="${poly(i => rad(val(gs[i])))}" filter="url(#rkGlow)"/>`;
+  gs.forEach((g, i) => { const v = val(g), [x, y] = pt(i, rad(v)); h += `<circle class="rk-vtx" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" style="fill:${g.num == null ? "#5B6378" : RK_COL[Math.floor(v)]}"/>` });
+  h += `</g>`;
+  gs.forEach((g, i) => {
+    const [x, y] = pt(i, rad(5) + 24), side = Math.abs(x - cx) < 4 ? "middle" : x > cx ? "start" : "end", dy = y < cy - 20 ? -2 : y > cy + 20 ? 12 : 4;
+    const lx = side === "middle" ? x : x + (side === "start" ? -6 : 6);
+    h += `<text class="rk-lab" x="${lx.toFixed(1)}" y="${(y + dy).toFixed(1)}" text-anchor="${side}">${esc(RK_SHORT[g.id] || g.name)} <tspan class="rk-lab-r" style="fill:${g.num == null ? "#8590A6" : RK_COL[Math.floor(val(g))] === RK_COL[0] ? "#AEB7CC" : RK_COL[Math.floor(val(g))]}">${g.num == null ? "–" : rkLetter(val(g))}</tspan></text>`;
+  });
+  rkHudT = Date.now();
+  return h + `</svg>`;
+}
+function rkHud(R, sc, su) {
+  const ov = sc ? R.overallScaled : R.overall, avg = sc ? R.overallAvgScaled : R.overallAvg, prog = rkOverallProg(avg, ov);
+  const tiles = R.groups.map(g => { const v = g.num == null ? null : Math.min(5, sc ? g.scaled : g.num), f = v == null ? 0 : v >= 5 ? 1 : v - Math.floor(v);
+    return `<button type="button" class="rk-tile" data-rkjump="${g.id}"><span class="rk-tname">${esc(RK_SHORT[g.id] || g.name)}</span><span class="rk-tile-row">${v == null ? '<span class="rk-l sm" style="--rc:#5B6378">–</span>' : rkBadge(v).replace('class="rk-l', 'class="rk-l sm')}<span class="rk-tcol">
+      <span class="rk-tbar"><i style="width:${Math.round(f * 100)}%;background:${RK_COL[Math.min(5, Math.floor(v || 0) + 1)]}"></i></span><span class="rk-tsub">${v == null ? "Excluded" : v >= 5 ? "Max" : `${Math.round(f * 100)}%<span class="rk-tnext"> → ${rkLetter(Math.floor(v) + 1)}</span>`}</span></span></span></button>` }).join("");
+  return `<div class="rk-hud"><i class="rk-c tl"></i><i class="rk-c tr"></i><i class="rk-c bl"></i><i class="rk-c br"></i>
+    <div class="rk-hud-head"><span class="rk-sys">Status</span><span class="rk-name-h">${esc((su && su.name) || "Hunter")}</span></div>
+    <div class="rk-ov">${rkBadge(ov, true)}<div style="flex:1;min-width:0"><div class="rk-ov-l">Overall rank</div><div class="rk-ov-v">${rkLetter(ov)}-Rank</div>
+      <div class="rk-xp"><i style="width:${Math.round(prog * 100)}%"></i></div><div class="rk-ov-s">${ov >= 5 ? "Max rank" : `${Math.round(prog * 100)}% to ${rkLetter(ov + 1)}-Rank`}</div></div></div>
+    ${rkRadar(R, sc)}
+    <div class="rk-tiles">${tiles}</div>
+    <div class="seg two rk-seg" role="tablist" aria-label="Rank view"><button role="tab" data-rkmode="raw" class="${!sc ? "on" : ""}" aria-selected="${!sc}">Raw</button><button role="tab" data-rkmode="scaled" class="${sc ? "on" : ""}" aria-selected="${sc}">For your size</button></div>
+    <p class="rk-hud-note">${sc ? "What your lifts are worth at your body weight. Gates and rank-ups always use raw ranks." : "Strength and speed come from your best recent lifts and runs, and each rank-up needs a Gate. Discipline comes from showing up week after week."}</p></div>`;
+}
 function viewRanks() {
   const R = rankState(), C = RKC(), sc = rkMode === "scaled", su = rkSu();
-  let h = `<div class="card rk-top"><div class="row between" style="align-items:center"><div><div class="eyebrow">Overall rank</div><h2 style="margin:0">${sc ? "For your size" : "Your ranks"}</h2></div>${rkBadge(sc ? R.overallScaled : R.overall, true)}</div>
-    <div class="seg two" role="tablist" aria-label="Rank view"><button role="tab" data-rkmode="raw" class="${!sc ? "on" : ""}" aria-selected="${!sc}">Raw</button><button role="tab" data-rkmode="scaled" class="${sc ? "on" : ""}" aria-selected="${sc}">For your size</button></div>
-    <p class="small muted">${sc ? "What your lifts are worth at your body weight. Gates and rank-ups always use raw ranks." : "Strength and speed ranks come from your best recent lifts and runs, and each rank-up needs a Gate. Discipline comes from showing up week after week."}</p>`;
-  if (R.place && R.place.pending) h += `<div class="rk-alert"><b>Placement week.</b> Your starting ranks are set on ${fmtShort(parseYmd(R.place.ready))}, after a week of training. Bars below are a preview.</div>`;
-  else if (R.place) h += `<p class="small muted">Placed ${fmtShort(parseYmd(R.place.at))} from your training ${fmtShort(parseYmd(R.place.from))}–${fmtShort(parseYmd(R.place.to))} (placement caps at B).</p>`;
-  h += `</div>`;
+  let h = rkHud(R, sc, su);
+  if (R.place && R.place.pending) h += `<div class="rk-alert"><b>Placement week.</b> Your starting ranks are set on ${fmtShort(parseYmd(R.place.ready))}, after a week of training. The chart is a preview.</div>`;
+  else if (R.place) h += `<p class="small muted" style="margin:0 4px">Placed ${fmtShort(parseYmd(R.place.at))} from your training ${fmtShort(parseYmd(R.place.from))}–${fmtShort(parseYmd(R.place.to))} (placement caps at B).</p>`;
   const al = rkAlerts(R); if (al) h += `<div class="stack" style="gap:8px">${al}</div>`;
   R.groups.forEach(g => h += g.disc ? rkDiscCard(R) : rkGroupCard(g, R));
   const un = rkUnrated();
@@ -521,6 +561,7 @@ function viewRanks() {
 function bindRanks() {
   const redo = () => { lastRenderKey = ""; render() };
   document.querySelectorAll("[data-rkmode]").forEach(b => b.onclick = () => { rkMode = b.dataset.rkmode; try { localStorage.setItem("rd25-rkmode", rkMode) } catch (e) {} redo() });
+  document.querySelectorAll("[data-rkjump]").forEach(b => b.onclick = () => { rkOpen = b.dataset.rkjump; rkTrialOpen = false; redo(); setTimeout(() => { const el = document.querySelector(`[data-rkgroup="${rkOpen}"]`); if (el) el.scrollIntoView({ block: "start", behavior: "smooth" }) }, 50) });
   document.querySelectorAll("[data-rkgroup]").forEach(b => b.onclick = () => { rkOpen = rkOpen === b.dataset.rkgroup ? null : b.dataset.rkgroup; rkTrialOpen = false; redo() });
   document.querySelectorAll("[data-rkgo]").forEach(b => b.onclick = () => { const p = b.dataset.rkgo; rkOpen = (RKC().groups.find(g => p in g.parts) || {}).id; redo(); setTimeout(() => { const el = document.querySelector(`[data-rkgroup="${rkOpen}"]`); if (el) el.scrollIntoView({ block: "start", behavior: "smooth" }) }, 50) });
   document.querySelectorAll("[data-rkconf]").forEach(b => b.onclick = () => { rkData().confirmed = { ...(rkData().confirmed || {}), [b.dataset.rkconf]: 1 }; saveProfile(); toast("Confirmed. It counts now."); redo() });
@@ -584,6 +625,41 @@ function rkCelebrate(ev, n) {
 .rk-up-in{display:flex;flex-direction:column;align-items:center;gap:12px;color:#fff;text-align:center;padding:24px;transform:scale(.8);transition:transform .45s cubic-bezier(.2,1.4,.4,1)}.rk-up.on .rk-up-in{transform:scale(1)}
 .rk-up .rk-l.big{width:116px;height:128px;font-size:64px;filter:drop-shadow(0 0 28px var(--rc))}
 .rk-chip .rk-dot{width:7px;height:7px;border-radius:50%;background:var(--bad);margin-left:-2px}.rk-up h2{color:#fff;margin:0}
+.rk-l.sm{width:24px;height:27px;font-size:13px}
+.rk-hud{position:relative;overflow:hidden;border-radius:22px;padding:16px 16px 14px;color:#E6ECFF;display:flex;flex-direction:column;gap:12px;
+  background:radial-gradient(120% 70% at 50% 0%,#22307A 0%,#111A44 45%,#090E24 100%);border:1px solid rgba(128,160,255,.38);
+  box-shadow:0 0 0 1px rgba(90,130,255,.12) inset,0 0 34px rgba(80,110,255,.22),0 14px 30px rgba(9,13,36,.28)}
+.rk-hud::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 4px)}
+.rk-c{position:absolute;width:16px;height:16px;border:2px solid #8FB4FF;opacity:.85;pointer-events:none}
+.rk-c.tl{top:8px;left:8px;border-right:0;border-bottom:0;border-top-left-radius:6px}.rk-c.tr{top:8px;right:8px;border-left:0;border-bottom:0;border-top-right-radius:6px}
+.rk-c.bl{bottom:8px;left:8px;border-right:0;border-top:0;border-bottom-left-radius:6px}.rk-c.br{bottom:8px;right:8px;border-left:0;border-top:0;border-bottom-right-radius:6px}
+.rk-hud-head{display:flex;justify-content:space-between;align-items:center;padding:0 6px}
+.rk-sys{font:800 12px/1 var(--display);letter-spacing:.32em;text-transform:uppercase;color:#9FC2FF;text-shadow:0 0 10px rgba(110,160,255,.8)}
+.rk-name-h{font-size:13px;color:#AFC0EA;font-weight:600}
+.rk-ov{display:flex;gap:14px;align-items:center;padding:0 6px}
+.rk-ov-l{font-size:12px;color:#9FB0D8;font-weight:600}.rk-ov-v{font:800 28px/1.05 var(--display);letter-spacing:-.01em;color:#fff;text-shadow:0 0 16px rgba(130,160,255,.55)}
+.rk-xp{height:6px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin:7px 0 4px}.rk-xp i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#6A5CFF,#7DE3FF);box-shadow:0 0 10px #7DE3FF}
+.rk-ov-s{font-size:12px;color:#9FB0D8}
+.rk-radar{width:100%;max-width:400px;align-self:center;display:block;overflow:visible}
+.rk-ring{fill:rgba(120,150,255,.035);stroke:rgba(150,175,255,.22);stroke-width:1}.rk-ring.out{stroke:rgba(160,190,255,.55);stroke-width:1.5;fill:rgba(120,150,255,.06)}
+.rk-axis{stroke:rgba(150,175,255,.22);stroke-width:1}
+.rk-tick{font:700 9px/1 var(--body);fill:rgba(170,190,240,.55)}
+.rk-poly{fill:url(#rkFill);stroke:#A9C6FF;stroke-width:2;stroke-linejoin:round}
+.rk-vtx{stroke:#0B1024;stroke-width:2}
+.rk-lab{font:650 12.5px/1 var(--body);fill:#C9D5F5}.rk-lab-r{font:800 14px/1 var(--display)}
+@media (prefers-reduced-motion:no-preference){.rk-shape.anim{transform-box:view-box;transform-origin:170px 148px;animation:rkgrow .9s cubic-bezier(.2,1.25,.35,1) both}
+  @keyframes rkgrow{from{transform:scale(.05);opacity:0}to{transform:scale(1);opacity:1}}
+  .rk-poly{animation:rkpulse 3.2s ease-in-out infinite}@keyframes rkpulse{50%{stroke:#D6E4FF;filter:drop-shadow(0 0 6px rgba(125,227,255,.7))}}}
+.rk-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rk-tile{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:7px;padding:9px 9px;border-radius:14px;background:rgba(120,150,255,.08);border:1px solid rgba(140,170,255,.18);min-width:0}
+.rk-tile:hover,.rk-tile:focus-visible{border-color:rgba(160,190,255,.6);background:rgba(120,150,255,.14)}
+.rk-tname{font-size:12.5px;font-weight:650;color:#DCE4FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk-tile-row{display:flex;align-items:center;gap:7px;min-width:0}.rk-tcol{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.rk-tbar{height:4px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}.rk-tbar i{display:block;height:100%;border-radius:99px}
+.rk-tsub{font-size:11px;color:#93A3C9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk-hud .rk-seg{background:rgba(255,255,255,.07)!important;border:0}.rk-hud .rk-seg button{color:#B8C5E8}.rk-hud .rk-seg button.on{background:#E6ECFF;color:#0B1024}
+.rk-hud-note{font-size:12.5px;color:#93A3C9;margin:0;padding:0 4px}
+@media (max-width:359px){.rk-tiles{grid-template-columns:repeat(2,1fr)}}@media (max-width:419px) and (min-width:360px){.rk-tnext{display:none}}
 .setno.g{background:var(--coach);color:#fff;border-color:var(--coach)}`;
   const s = document.createElement("style"); s.id = "rankStyles"; s.textContent = css; (document.head || document.documentElement).appendChild(s);
 })();
