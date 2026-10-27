@@ -706,8 +706,8 @@ svg.inl{width:15px;height:15px;vertical-align:-3px}
 /* ---------- Program definition ---------- */
 let CUSTOM = null; // set when the user built their own plan in setup
 let START = new Date(2026, 9, 12);   // Mon Oct 12, 2026
-let GOAL  = new Date(2026, 11, 25);  // Fri Dec 25, 2026
-let WEEKS = 11;
+let GOAL  = null;                    // plans are ongoing: no end date
+let WEEKS = 11;                      // how far ahead the week strip can go (current week + 12), set at load
 const DAYMS = 86400000;
 const DOW = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 let SCHED = ["A","run","B","run","C","run","rest"];
@@ -790,7 +790,7 @@ const ROPE_STAGES=[["2026-11-02",6,30,30,"Short rounds while your calves adapt. 
   ["2026-11-30",4,120,60,"2-minute rounds. Once your rhythm is steady, shadowbox lightly during the rest."],
   ["2026-12-14",3,180,60,"Full camp-length rounds: 3 min on, 1 min rest. Shadowbox during the rest."],
   ["2026-12-21",4,180,60,"4 full rounds. Feeling good? Add a 5th. Shadowbox during the rest."],
-  ["9999-12-31",2,180,60,"Race week: 2 easy rounds just to stay sharp."]];
+  ["9999-12-31",4,180,60,"Camp-length rounds: 3 min on, 1 min rest. Shadowbox during the rest; add a 5th round when 4 feel easy."]];
 function ropeFor(d){ const k=ymd(d); const r=ROPE_STAGES.find(x=>k<x[0]); return {id:"rope",name:"Jump rope rounds",sets:r[1],lo:r[2],hi:r[2],inc:0,unit:"sec",bw:true,fixed:true,rest:r[3],
   alt:"Finisher, after your last exercise. "+r[4]+" Rope length: stand on the middle, handles reach your armpits. Calves still sore 2 days later? Repeat this format next week."} }
 function curPhase(){ if(CUSTOM){ const out={}; Object.entries(CUSTOM.gym).forEach(([k,g])=>out[k]=applySwaps(g,k,today,true)); return out } const ph=GYM2[ymd(today)<=CORE_SWAP.to?"block":"post"], out={}; Object.entries(ph).forEach(([k,g])=>out[k]=applySwaps(g,k,parseYmd("9999-12-31"),true)); return out }
@@ -814,7 +814,7 @@ const dbOverride={};
 const loadW=(id,l,w)=>(Number(w)||0)*(logDb(id,l)?DBCFG[id].m:1);
 
 const R = (t,d)=>({t,d});
-let RUNS = [
+const LEGACY_RUNS = [
  {tag:"",       tue:R("Easy run/walk","30 min · run 2 / walk 2"), thu:R("Intervals","5-min walk, 6 × (run 3 min / walk 2), 5-min walk"), sat:R("Long run/walk","4 mi · run 2 / walk 2")},
  {tag:"",       tue:R("Easy run/walk · heart rate","30 min · jog until 150 bpm, walk until 130 bpm, repeat"), thu:R("Intervals","5-min walk, 6 × (run 3 min / walk 2), 5-min walk"), sat:R("Long run/walk","4.5 mi · run 3 / walk 2")},
  {tag:"",       tue:R("Easy run/walk · heart rate","35 min · jog until 150 bpm, walk until 130 bpm, repeat"), thu:R("Intervals","5-min walk, 5 × (run 4 min / walk 2), 5-min walk"), sat:R("Long run/walk","5.5 mi · run 3 / walk 2")},
@@ -824,9 +824,13 @@ let RUNS = [
  {tag:"",       tue:R("Easy run/walk · heart rate","40 min · jog until 150 bpm, walk until 130 bpm, repeat, then 6 strides"), thu:R("Intervals","5-min walk, 6 × (run 5 min / walk 2), 5-min walk"), sat:R("Long run/walk","8.5 mi · run 4 / walk 1")},
  {tag:"Recovery week", tue:R("Easy run/walk · heart rate","35 min · jog until 150 bpm, walk until 130 bpm, repeat, then 4 strides"), thu:R("Intervals","5-min walk, 4 × (run 5 min / walk 2), 5-min walk"), sat:R("Long run/walk","6.5 mi · run 4 / walk 1")},
  {tag:"",       tue:R("Easy run/walk · heart rate","45 min · jog until 150 bpm, walk until 130 bpm, repeat, then 6 strides"), thu:R("Intervals","5-min walk, 5 × (run 6 min / walk 2), 5-min walk"), sat:R("Long run/walk","10 mi · run 4 / walk 1")},
- {tag:"Peak week", tue:R("Easy run/walk · heart rate","45 min · jog until 150 bpm, walk until 130 bpm, repeat, then 6 strides"), thu:R("Intervals","5-min walk, 6 × (run 6 min / walk 2), 5-min walk"), sat:R("Long run/walk","11 mi · run 4 / walk 1")},
- {tag:"Taper · finish line", tue:R("Easy run/walk · heart rate","30 min · jog until 150 bpm, walk until 130 bpm, repeat, then 4 easy strides"), thu:R("Intervals","5-min walk, 4 × (run 4 min / walk 2), relaxed"), sat:null}
+ {tag:"",       tue:R("Easy run/walk · heart rate","45 min · jog until 150 bpm, walk until 130 bpm, repeat, then 6 strides"), thu:R("Intervals","5-min walk, 6 × (run 6 min / walk 2), 5-min walk"), sat:R("Long run/walk","11 mi · run 4 / walk 1")}
 ];
+// No race: after week 10 the long run cycles (lighter week, then 8.5 → 10 → 11 mi) and keeps going
+const LEGACY_CYCLE=[7,6,8,9];
+function legacyRunWeek(w){ return w<=LEGACY_RUNS.length? LEGACY_RUNS[w-1] : LEGACY_RUNS[LEGACY_CYCLE[(w-LEGACY_RUNS.length-1)%4]] }
+let RUNWK=null; // set by applySetup for plans with generated runs
+function runWeek(w){ w=Math.max(1,w); return RUNWK? RUNWK(w) : legacyRunWeek(w) }
 
 /* ---------- Food plan (~1,500–1,750 kcal) ---------- */
 const MEALS = {
@@ -869,7 +873,7 @@ const midnight=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
 const dayNum=d=>Math.round((midnight(d)-START)/DAYMS);
 const weekOf=d=>Math.floor(dayNum(d)/7)+1;
 const dowOf=d=>((dayNum(d)%7)+7)%7;
-const inProgram=d=>dayNum(d)>=0 && midnight(d)<=GOAL;
+const inProgram=d=>dayNum(d)>=0;
 const monOf=w=>addDays(START,(w-1)*7);
 const fmtDate=d=>d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
 const fmtShort=d=>d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
@@ -885,10 +889,9 @@ function planFor(d){
 }
 function basePlan(d){
   if(!inProgram(d)) return null;
-  if(CUSTOM&&CUSTOM.su.race&&ymd(d)===CUSTOM.su.goalDate) return {type:"run",w:weekOf(d),i:dowOf(d),key:"sat",t:"Race day · "+RACE_NAMES[CUSTOM.su.race],d:"Start slower than you think, settle in after the first mile, and enjoy it. You earned this."};
   const w=weekOf(d), i=dowOf(d), s=SCHED[i];
   if(s==="rest") return {type:"rest",w,i};
-  if(s==="run"){const r=RUNS[w-1][RUNKEY[i]]; return r?{type:"run",w,i,key:RUNKEY[i],...r}:null}
+  if(s==="run"){const r=runWeek(w)[RUNKEY[i]]; return r?{type:"run",w,i,key:RUNKEY[i],...r}:null}
   return {type:"gym",w,i,day:s,...gymDay(s,d)};
 }
 function parseTime(s){
@@ -906,7 +909,8 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const S={photos:{},over:{},logs:{},meals:{},profile:{about:"",raceDate:"",weights:[],grocery:{}},chat:[],advice:{items:[],stamp:"",at:0,seenAt:0,history:[]}};
 let mode="local", refs=null, sampleFn=null, userReady=false, loaded={logs:false,advice:false,profile:false};
 const today=midnight(new Date());
-let sel = inProgram(today)? today : (dayNum(today)<0? START : GOAL);
+WEEKS=Math.max(1,weekOf(today))+12;
+let sel = inProgram(today)? today : START;
 let tab="home";
 let progView="lifts"; try{const v=localStorage.getItem("rd25-pview"); if(v==="runs"||v==="lifts"||v==="body") progView=v}catch(e){}
 let planView="training"; try{const v=localStorage.getItem("rd25-planview"); if(v==="training"||v==="food") planView=v}catch(e){}
@@ -1034,18 +1038,18 @@ function render(fromStore){
   setTimeout(maybeOverload,0); setTimeout(rankNotify,0);
 }
 function renderTop(){
-  const w=Math.min(WEEKS,Math.max(1,weekOf(today)));
-  const left=Math.max(0,Math.round((GOAL-today)/DAYMS));
+  const w=Math.max(1,weekOf(today)), mon=monOf(w);
+  let wkPlan=0, wkDone=0; for(let i=0;i<7;i++){ const d=addDays(mon,i), p=planFor(d); if(p&&p.type!=="rest"){ wkPlan++; if(S.logs[ymd(d)]) wkDone++ } }
   const plannedSoFar=countPlanned(today), done=Object.keys(S.logs).filter(k=>parseYmd(k)<=today&&parseYmd(k)>=countStart()).length;
-  const pct=Math.min(100,Math.max(0,dayNum(today)/(dayNum(GOAL)+1)*100));
+  const pct=wkPlan? Math.min(100,wkDone/wkPlan*100) : 0;
   if(document.title!==APP_NAME) document.title=APP_NAME;
   $("#top").innerHTML=`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}${accountBtn()}</span></div>
-   <h1 class="top-week">Week ${w} <span class="muted">of ${WEEKS}</span></h1>
-   <div class="bar" role="progressbar" aria-label="Plan progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div>
-   <div class="top-meta"><span><b class="num">${left}</b> ${left===1?"day":"days"} to ${fmtShort(GOAL)}</span><span><b class="num">${done}</b> of ${plannedSoFar} sessions done</span></div>`;
+   <h1 class="top-week">Week ${w}</h1>
+   <div class="bar" role="progressbar" aria-label="This week's sessions" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div>
+   <div class="top-meta"><span><b class="num">${wkDone}</b> of ${wkPlan} this week</span><span><b class="num">${done}</b> of ${plannedSoFar} done overall</span></div>`;
 }
 function countStart(){ if(!CUSTOM||!CUSTOM.su.firstDay) return START; let k=CUSTOM.su.firstDay; Object.keys(S.logs).forEach(x=>{if(x<k) k=x}); const d=parseYmd(k); return d>START?d:START }
-function countPlanned(upTo){let n=0;for(let d=new Date(countStart());d<=upTo&&d<=GOAL;d=addDays(d,1)){const p=planFor(d); if(p&&p.type!=="rest") n++}return n}
+function countPlanned(upTo){let n=0;for(let d=new Date(countStart());d<=upTo;d=addDays(d,1)){const p=planFor(d); if(p&&p.type!=="rest") n++}return n}
 function unseenAdvice(){return S.advice.at>(S.advice.seenAt||0)?(S.advice.items||[]).length:0}
 const TAB_ICON=(()=>{ const sv=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
   return { home:sv('<path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/>'),
@@ -1077,12 +1081,11 @@ function viewHome(openLogger){
   const isToday=k===ymd(today);
   let h=weekStrip();
   if(mode==="local" && userReady && !window.__platform) h+=`<p class="note">Entries stay in this browser only.</p>`;
-  if(p && midnight(today)>GOAL && k===ymd(GOAL)) h+=`<div class="card"><h2>Finish line</h2><p>Your ${WEEKS}-week block ended ${fmtDate(GOAL)}. ${CUSTOM?`<button class="btn ghost sm" type="button" data-su-edit="1">Build your next plan</button>`:"Ask your coach to plan the next block."}</p></div>`;
-  if(!p){return h+`<div class="card"><h2>Finish line</h2><p>Your ${WEEKS}-week block ended ${fmtDate(GOAL)}. Check Progress for your numbers, then ${CUSTOM?`<button class="btn ghost sm" type="button" data-su-edit="1">build your next plan</button>`:"ask your coach to plan the next block."}</p></div>`}
+  if(!p){return h+`<div class="card"><h2>Your plan starts ${fmtDate(START)}</h2><p>Check back then for your first session.</p></div>`}
   // glance
   const e=dayEaten(k), tgt=dayTarget(sel), ptg=dayProtein(sel), wf=weekFood(p.w);
   const pctW=Math.min(100,wf.target?wf.eaten/wf.target*100:0);
-  h+=`<div><div class="eyebrow" style="margin-bottom:6px">${isToday?"Today":"Day view"} · ${fmtDate(sel)} · Week ${p.w}${p.moved?(p.src?` · moved from ${DOW[dowOf(parseYmd(p.src))]}`:" · rest day (schedule shifted)"):""}${RUNS[p.w-1].tag?" · "+esc(RUNS[p.w-1].tag):""}</div>
+  h+=`<div><div class="eyebrow" style="margin-bottom:6px">${isToday?"Today":"Day view"} · ${fmtDate(sel)} · Week ${p.w}${p.moved?(p.src?` · moved from ${DOW[dowOf(parseYmd(p.src))]}`:" · rest day (schedule shifted)"):""}${runWeek(p.w).tag?" · "+esc(runWeek(p.w).tag):""}</div>
    <div class="glance">
     <div class="g"><div class="l">Calories today</div><div class="v num">${fmtN(e.kcal)}<small> / ${fmtN(tgt)}</small></div><div class="bar food ${e.kcal>tgt?"over":""}"><i style="width:${Math.min(100,e.kcal/tgt*100)}%"></i></div></div>
     <div class="g"><div class="l">Protein today</div><div class="v num">${Math.round(e.p)}<small> / ${ptg} g</small></div><div class="bar food"><i style="width:${Math.min(100,e.p/ptg*100)}%"></i></div></div>
@@ -1198,7 +1201,7 @@ function weekSnapshot(w){
   for(let i=0;i<7;i++){const d=addDays(mon,i),p=planFor(d); if(!p) continue; const l=S.logs[ymd(d)];
     if(p.type==="gym"){gymPlan++; if(l) gymDone++} if(p.type==="run"){runPlan++; if(l){runDone++; mi+=Number(l.mi)||0}}}
   const tom=addDays(sel,1), tp=planFor(tom);
-  const tomTxt=!tp?"Finish line":tp.type==="rest"?"Rest day + meal prep":tp.type==="gym"?tp.name:`${tp.t} — ${tp.d}`;
+  const tomTxt=!tp?"Nothing planned":tp.type==="rest"?"Rest day + meal prep":tp.type==="gym"?tp.name:`${tp.t} — ${tp.d}`;
   return `<div class="card"><div class="eyebrow">This week</div><div class="kpis">
     <div class="kpi"><div class="v num">${gymDone}/${gymPlan}</div><div class="l">gym sessions</div></div>
     <div class="kpi"><div class="v num">${runDone}/${runPlan}</div><div class="l">runs</div></div>
@@ -1210,15 +1213,16 @@ function weekSnapshot(w){
 function planSwitch(){
   return `<div class="seg two" role="tablist" aria-label="Plan view"><button role="tab" data-plv="training" aria-selected="${planView==="training"}" class="${planView==="training"?"on":""}"><span class="plate p-gym"></span>Training</button><button role="tab" data-plv="food" aria-selected="${planView==="food"}" class="${planView==="food"?"on":""}"><span class="plate p-food"></span>Food</button></div>`;
 }
+let planPast=false, planMore=0;
+document.addEventListener("click",e=>{ const b=e.target.closest&&e.target.closest("[data-planpast],[data-planmore]"); if(!b) return; if(b.dataset.planpast) planPast=true; else planMore+=4; render() });
 function viewPlan(){
   const cw=weekOf(today);
   let h= CUSTOM? customPlanIntro() : `<div class="card"><h2>How the block works</h2>
    <p><span class="chip gym">Mon · Wed · Fri</span> Gym, about an hour. Three fixed workouts (A, B, C). Beat last session by a rep; when every set reaches the top of the range, add weight.</p>
-   <p><span class="chip run">Tue · Thu · Sat</span> Run/walk. Tuesday easy, Thursday intervals, Saturday long. Run segments get longer and the long run builds to 11 miles, with lighter weeks 4 and 8.</p>
+   <p><span class="chip run">Tue · Thu · Sat</span> Run/walk. Tuesday easy, Thursday intervals, Saturday long. Run segments get longer and the long run builds to 11 miles, then keeps cycling with a lighter week every 4th week.</p>
    <p><span class="chip run">Tuesdays from week 2</span> Easy runs go by heart rate, not the clock: jog slowly until you reach 150 bpm, walk until you drop to 130, and repeat for the set time. As you get fitter, the jogs get longer on their own.</p>
    <p><span class="chip coach">From week 4</span> Tuesday ends with 4–6 strides: 15–20 seconds of fast, relaxed running at about 85% effort (not a sprint), with a 60–90 second walk between each. They sharpen form and leg turnover with little injury risk.</p>
-   <div class="field"><label for="race">Half marathon date</label><input id="race" type="date" value="${esc(S.profile.raceDate||"")}"></div>
-   <p class="small muted">Set your race date and ask your coach to line the long runs up with it.</p></div>`;
+   </div>`;
   if(CUSTOM) h+=routinesEditor(); else {
   h+=`<div class="card"><h2>Gym workouts</h2>`;
   if(!CUSTOM) h+=`<p class="note"><b>Core block, ${fmtShort(parseYmd(CORE_SWAP.from))}–${fmtShort(parseYmd(CORE_SWAP.to))}:</b> deadlifts are paused for core work. They return Nov 9.</p>`;
@@ -1227,14 +1231,17 @@ function viewPlan(){
   Object.values(ph).forEach(d=>{h+=`<div><h3>${esc(d.name)}</h3><div class="small num">${d.ex.map(e=>`${esc(e.name)} <span class="muted">${e.sets}×${e.lo}–${e.hi}${e.bw?"s":""}${e.inc?` · +${e.inc} lb`:""}</span>`).join("<br>")}</div></div>`});
   h+=`</div>`;
   }
-  for(let w=1;w<=WEEKS;w++){
-    const mon=monOf(w), r=RUNS[w-1];
-    h+=`<div class="card wk ${w===cw?"cur":""}"><div class="row between"><h3>Week ${w} <span class="muted small" style="font-family:var(--body);font-weight:500">${fmtShort(mon)} – ${fmtShort(addDays(mon,w===WEEKS?4:6))}</span></h3><div class="row" style="gap:6px">${r.tag?`<span class="chip">${esc(r.tag)}</span>`:""}${w===cw?'<span class="chip run">This week</span>':""}</div></div><div class="days">`;
+  const wFirst=planPast?1:Math.max(1,cw-1), wLast=Math.min(WEEKS,Math.max(1,cw)+3+planMore);
+  if(wFirst>1) h+=`<button type="button" class="btn ghost sm" data-planpast="1">Show earlier weeks</button>`;
+  for(let w=wFirst;w<=wLast;w++){
+    const mon=monOf(w), r=runWeek(w);
+    h+=`<div class="card wk ${w===cw?"cur":""}"><div class="row between"><h3>Week ${w} <span class="muted small" style="font-family:var(--body);font-weight:500">${fmtShort(mon)} – ${fmtShort(addDays(mon,6))}</span></h3><div class="row" style="gap:6px">${r.tag?`<span class="chip">${esc(r.tag)}</span>`:""}${w===cw?'<span class="chip run">This week</span>':""}</div></div><div class="days">`;
     for(let i=0;i<7;i++){const d=addDays(mon,i),p=planFor(d); if(!p||p.type==="rest") continue; const k=ymd(d);
       const txt=(p.type==="gym"?(CUSTOM?p.name:`Gym ${p.day}`):`${p.t}: ${p.d}`)+(p.src?` (moved from ${DOW[dowOf(parseYmd(p.src))]})`:"");
       h+=`<button class="dayline ${S.logs[k]?"done":""}" data-goto="${k}"><span class="dn">${DOW[i]} ${d.getDate()}</span><span class="plate ${p.type==="gym"?"p-gym":"p-run"}"></span><span class="txt">${esc(txt)}</span></button>`}
     h+=`</div></div>`;
   }
+  if(wLast<WEEKS) h+=`<button type="button" class="btn ghost sm" data-planmore="1">Show more weeks</button>`;
   return h;
 }
 
@@ -1275,7 +1282,7 @@ let progEx="pulldown";
 
 function viewProgress(){
   const cw=Math.min(WEEKS,Math.max(1,weekOf(today)));
-  const rows=[];
+  let rows=[];
   for(let w=1;w<=cw;w++){
     const mon=monOf(w); let gym=0,runs=0,mi=0,long=null,easy=null,vol=0;
     for(let i=0;i<7;i++){const k=ymd(addDays(mon,i)),l=S.logs[k]; if(!l) continue;
@@ -1286,6 +1293,7 @@ function viewProgress(){
     rows.push({w,gym,runs,mi,long,easy,vol,kcal:f.eaten,ktarget:f.target,klog:f.daysLogged});
   }
   const tot=rows.reduce((a,r)=>({mi:a.mi+r.mi,gym:a.gym+r.gym}),{mi:0,gym:0});
+  rows=rows.slice(-12); // charts and the weekly table show the last 12 weeks
   const wts=(S.profile.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1);
   const wchg=wts.length>1? (wts[wts.length-1].lb-wts[0].lb):null;
   let h=`<div class="seg" role="tablist" aria-label="Progress view"><button role="tab" data-pv="lifts" aria-selected="${progView==="lifts"}" class="${progView==="lifts"?"on":""}"><span class="plate p-gym"></span>Lifts</button><button role="tab" data-pv="runs" aria-selected="${progView==="runs"}" class="${progView==="runs"?"on":""}"><span class="plate p-run"></span>Runs</button><button role="tab" data-pv="body" aria-selected="${progView==="body"}" class="${progView==="body"?"on":""}"><span class="plate p-food"></span>Body &amp; Food</button></div>`;
@@ -1424,12 +1432,12 @@ function coachContext(){
   const wts=(S.profile.weights||[]).slice(-6).map(x=>`${x.d}: ${x.lb} lb`).join(", ")||"none";
   const food=[...Array(7)].map((_,n)=>{const d=addDays(today,-n); if(!inProgram(d)) return null; const e=dayEaten(ymd(d)); return e.any?`${ymd(d)}: ${fmtN(e.kcal)}/${fmtN(dayTarget(d))} kcal, ${Math.round(e.p)} g protein`:`${ymd(d)}: not logged`}).filter(Boolean).join("\n");
   const wf=weekFood(w);
-  const intro = CUSTOM? customCoachIntro(w) : `You are the personal trainer and nutrition coach inside ${APP_NAME}, a training app with an E-to-S rank system. This user is on an 11-week plan (Oct 12 – Dec 25, 2026).
+  const intro = CUSTOM? customCoachIntro(w) : `You are the personal trainer and nutrition coach inside ${APP_NAME}, a training app with an E-to-S rank system. This user is on an ongoing plan that started Oct 12, 2026, with no end date and no race: the aim is getting steadily stronger and healthier.
 Be direct, encouraging and practical. Keep replies under ~150 words unless asked for a full plan. Plain text with short lines; **bold** is fine, no tables.
 TEMPORARY CORE BLOCK Oct 19–Nov 8: he asked to drop deadlift patterns because his core is too weak to support his lower back; Romanian deadlift → weighted decline crunch (holding a plate; switched from cable crunch Oct 19), trap-bar deadlift → Pallof press. After Nov 8, deadlifts return at reduced weight. Program v2 from Oct 20 (he approved it; built from his logs: pressing weakest, pulling and legs stronger, grip limits pulls, he dislikes split squats): gym Mon/Wed/Fri ~1 hr. Through Nov 8: Day A bench 4×6–8 / angled leg press 4×8–12 / lat pulldown / 45° back extension / weighted decline crunch / chest fly 3×12–15 + reverse pec deck 2×12–15 for rear delts (paired) / lateral raise 3×12–15 on its own; Day B overhead press / cable row (straps) / leg curl / single-leg leg extension 2×10–15 / face pull 3 sets + overhead triceps ext (paired) / Pallof + tilt-seat calf raise (paired; standing calf raise before Oct 21); Day C incline DB press 4×8–12 / chest-supported DB row / hip thrust 3×8–12 / leg curl / EZ curl + pushdown (paired) / hammer curl + standing calf raise 2 sets (paired). From Nov 9: RDL replaces decline crunch (Day A); trap-bar deadlift replaces Pallof (Day B), restarting ~135 lb with straps. Uses double progression (beat reps; at top of range on every set, add weight; 10% deload after two stalled sessions). Runs Tue easy run/walk, from week 2 heart-rate based (jog until 150 bpm, walk until 130 bpm, target zone 130–150) (plus 4–6 strides of 15–20 s at ~85% from week 4; no all-out sprinting, chosen over sprint intervals to limit injury risk), Thu intervals, Sat long run building to 11 mi in week 10, lighter weeks 4 and 8, taper week 11.
 Meal plan (~1,505 kcal / 139 g protein base; +2 eggs Tue/Thu = 1,645; +eggs and banana Sat = 1,750): yogurt-oat-berry bowl, pesto chicken breast rice bowl, turkey bolognese pasta, cottage cheese + berries. Batch pesto + bolognese. Groceries ≈$79/week, cap $100. He chose this low intake; it's an aggressive deficit for his size and training, so watch for under-fueling (stalled lifts, fast weight loss, hard easy runs) and recommend adding 200–300 kcal when you see it.
 If he reports sharp pain, swelling, chest pain, dizziness or fainting, tell him to stop and get it checked by a professional. You're not a doctor.
-Today: ${fmtDate(today)} (week ${w} of 11). Half marathon date: ${S.profile.raceDate||"not set"}.
+Today: ${fmtDate(today)} (week ${w}).
 `;
   return `${intro}${UNIT()==="kg"?"Units: the user views weights in kg. Logged numbers below are in lb (1 kg = 2.2046 lb); answer in kg.\n":""}${swapsText()}About ${CUSTOM?"them":"him"}: ${S.profile.about||"(not filled in)"}
 This week's plan:
@@ -1854,8 +1862,8 @@ function standings(cut){
 }
 let openMuscle=null, openTier=null;
 /* ---------- Outlook (projections) ---------- */
-let advView="advice", outH="dec25", openOut=null;
-try{const v=localStorage.getItem("rd25-advview"); if(v==="advice"||v==="outlook") advView=v; const h=localStorage.getItem("rd25-outh"); if(["4w","dec25","6m"].includes(h)) outH=h}catch(e){}
+let advView="advice", outH="3m", openOut=null;
+try{const v=localStorage.getItem("rd25-advview"); if(v==="advice"||v==="outlook") advView=v; const h=localStorage.getItem("rd25-outh"); if(["4w","3m","6m"].includes(h)) outH=h}catch(e){}
 function advSwitch(){ return `<div class="seg two" role="tablist" aria-label="Advice view"><button role="tab" data-adv="advice" class="${advView==="advice"?"on":""}" aria-selected="${advView==="advice"}"><span class="plate p-coach"></span>Advice</button><button role="tab" data-adv="outlook" class="${advView==="outlook"?"on":""}" aria-selected="${advView==="outlook"}"><span class="plate p-gym"></span>Outlook</button></div>` }
 function adherence(){ let gp=0,gd=0,rp=0,rd=0; const t=ymd(today);
   for(let d=new Date(START); d<=today; d=addDays(d,1)){ const k=ymd(d), p=planFor(d); if(!p||p.type==="rest") continue; if(k===t&&!S.logs[k]) continue;
@@ -1875,7 +1883,7 @@ function exRate(id){
   return {r:Math.max(0.002, w*(obs??0)+(1-w)*typ), obs, typ, w, level, n} }
 let lifterPctOf=null;
 function grow(r,weeks,adh){ let g=1, w=0; for(;w+1<=weeks;w++) g*=1+r*adh*Math.pow(0.96,w); g*=1+r*adh*Math.pow(0.96,w)*(weeks-w); return g }
-function horizon(){ const end= outH==="4w"? addDays(today,28) : outH==="6m"? addDays(today,182) : GOAL; return {end,weeks:Math.max(0,(end-today)/DAYMS/7),label: outH==="4w"?"in 4 weeks":outH==="6m"?"in 6 months":"by "+fmtShort(GOAL)} }
+function horizon(){ const end= outH==="4w"? addDays(today,28) : outH==="6m"? addDays(today,182) : addDays(today,91); return {end,weeks:Math.max(0,(end-today)/DAYMS/7),label: outH==="4w"?"in 4 weeks":outH==="6m"?"in 6 months":"in 3 months"} }
 function bwTrend(){ const ws=(S.profile.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1); if(ws.length>=2){ const days=(parseYmd(ws[ws.length-1].d)-parseYmd(ws[0].d))/DAYMS; if(days>=7) return {rate:Math.max(-2.5,Math.min(0.5,(ws[ws.length-1].lb-ws[0].lb)/(days/7))),obs:true} } return {rate:-1,obs:false} }
 function aggRegion(key,exs){
   const R=REGIONS[key], inPlan=currentPlanIds();
@@ -1910,7 +1918,7 @@ function project(full){
     if(/5K\s*~?\s*\d+\s*min/i.test(S.profile.about||"")) longest=Math.max(longest,3.107); // he has finished a 5K before
     walk.sort((a,b)=>a-b); const walkPace=walk.length?walk[Math.floor(walk.length/2)]:18.5;
     const effW=hz.weeks*A.run, capP=Math.min(150,cap*Math.pow(2,effW/2.5));
-    const endWeek=Math.min(WEEKS,Math.max(1,weekOf(hz.end))); let planLong=0; for(let i=0;i<Math.min(endWeek,RUNS.length);i++){ const sr=RUNS[i]&&RUNS[i].sat; const m=sr&&sr.d.match(/([\d.]+) mi/); if(m) planLong=Math.max(planLong,Number(m[1])) } if(!planLong) planLong=3; if(outH==="6m") planLong=Math.max(planLong,13.1);
+    const endWeek=Math.max(1,weekOf(hz.end)); let planLong=0; for(let w=Math.max(1,weekOf(today));w<=endWeek;w++){ const sr=runWeek(w).sat; const m=sr&&sr.d.match(/([\d.]+) mi/); if(m) planLong=Math.max(planLong,Number(m[1])) } if(!planLong) planLong=3;
     const longP=longest+(Math.max(longest,planLong)-longest)*A.run;
     const rwP=(rwPace||16)*v0/v1;
     const race=(vd,capMin,longMi,rw,mi)=>{ const run=solveRace(vd,mi); const walkT=walkPace*(1+0.02*Math.log2(Math.max(1,mi/3)))*mi;
@@ -1936,7 +1944,7 @@ function nowToProj(n,p){ return `<div class="ntp">${chip(n)}<span class="arrow">
 function viewOutlook(){
   const P=project(), hz=P.hz, a=P.adh;
   let h=`<div class="card"><div><div class="eyebrow">If you keep going like this</div><h2>Outlook</h2></div>
-    <div class="seg three" role="tablist" aria-label="Time frame">${[["4w","4 weeks"],["dec25",fmtShort(GOAL)],["6m","6 months"]].map(([k,l])=>`<button role="tab" data-outh="${k}" class="${outH===k?"on":""}" aria-selected="${outH===k}">${l}</button>`).join("")}</div>
+    <div class="seg three" role="tablist" aria-label="Time frame">${[["4w","4 weeks"],["3m","3 months"],["6m","6 months"]].map(([k,l])=>`<button role="tab" data-outh="${k}" class="${outH===k?"on":""}" aria-selected="${outH===k}">${l}</button>`).join("")}</div>
     <p class="small muted">If you hit every session from here.</p></div>`;
   h+=`<div class="card"><div class="row between"><h2>Overall fitness</h2></div><div class="pct"><span class="n tier" style="color:${P.overallP!=null?tierColor(P.overallP):"var(--muted)"}">${P.overallP!=null?tier(P.overallP):"–"}</span><span class="u">${hz.label}</span></div>
     <div class="row" style="gap:8px"><span class="small muted">Now</span>${chip(P.overallN)}</div></div>`;
@@ -2469,7 +2477,7 @@ function logWeight(v){
 }
 function bind(){
   document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{sel=parseYmd(b.dataset.day);render()});
-  document.querySelectorAll("[data-wk]").forEach(b=>b.onclick=()=>{const n=addDays(sel,7*Number(b.dataset.wk)); sel = inProgram(n)?n:(dayNum(n)<0?START:monOf(WEEKS)); render()});
+  document.querySelectorAll("[data-wk]").forEach(b=>b.onclick=()=>{const n=addDays(sel,7*Number(b.dataset.wk)); sel = inProgram(n)?(weekOf(n)>WEEKS?monOf(WEEKS):n):START; render()});
   document.querySelectorAll("[data-goto]").forEach(b=>b.onclick=()=>{sel=parseYmd(b.dataset.goto);tab="home";render();window.scrollTo(0,0)});
   document.querySelectorAll("[data-goto-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.gotoTab; if(tab==="advice"&&S.advice.at>(S.advice.seenAt||0)){S.advice.seenAt=S.advice.at;saveAdvice()} render();window.scrollTo(0,0)});
   const k=ymd(sel), p=planFor(sel), log=S.logs[k];
@@ -2578,7 +2586,6 @@ function bind(){
     const m=S.meals[k]||{eaten:{},extras:[]}; m.extras=[...(m.extras||[]),{n,kcal:Math.round(kc),p:Math.round(pr)}]; m.eaten=m.eaten||{}; S.meals[k]=m; saveMeals(k); clearDrafts(k,/^(xn|xk|xp)$/); toast("Added"); lastRenderKey=""; render();
   });
   document.querySelectorAll("[data-delx]").forEach(b=>b.onclick=()=>{const m=S.meals[k]; if(!m) return; m.extras=(m.extras||[]).filter((_,i)=>i!==Number(b.dataset.delx)); saveMeals(k); lastRenderKey=""; render()});
-  $("#race")?.addEventListener("change",e=>{S.profile.raceDate=e.target.value; saveProfile(); toast("Race date saved")});
   $("#progEx")?.addEventListener("change",e=>{progEx=e.target.value; render()});
   $("#bwSave")?.addEventListener("click",()=>logWeight(Number($("#bwIn").value)));
   $("#bwSave2")?.addEventListener("click",()=>logWeight(Number($("#bwIn2").value)));
@@ -2598,34 +2605,29 @@ function bind(){
 }
 /* ---------- Custom programs: built from each new user's setup answers ---------- */
 const RACE_NAMES={"5k":"5K","10k":"10K",half:"Half marathon"};
-const LEGACY_RUNS=RUNS;
 const BASE_MEALS=JSON.parse(JSON.stringify(MEALS));
 const BASE_BENCH=BENCH_NORM.map(x=>[...x]), BASE_VO2=VO2_NORM.map(x=>[...x]);
 const mondayOf=d=>addDays(midnight(d),-((d.getDay()+6)%7));
 function hrZone(age){ const mx=Math.round(208-0.7*age); return [Math.round(mx*0.65),Math.round(mx*0.78)] }
-function buildRuns(su,W){
-  const lvl=su.runLevel||"new", race=su.race||"none";
-  const PEAK={none:{new:4,some:6,regular:8},"5k":{new:3.5,some:4.5,regular:6},"10k":{new:6,some:7,regular:8},half:{new:10,some:11,regular:12}};
-  const peak=PEAK[race][lvl], startL=Math.min({new:2,some:3,regular:4}[lvl],peak);
-  const [zl,zh]=hrZone(su.age||30), out=[];
-  const buildW=Math.max(2,W-1);
-  for(let w=1;w<=W;w++){
-    const last=w===W, rec=W>=6&&w%4===0&&!last, prog=Math.min(1,(w-1)/Math.max(1,buildW-1));
-    let L=startL+(peak-startL)*prog; if(rec) L*=0.8; if(last) L=Math.max(startL,peak*0.5); L=Math.round(L*2)/2;
-    const runMin=Math.min(5,1+Math.round(prog*4)), walkMin=prog>0.6?1:2;
-    const easy=Math.max(20,Math.round((25+20*prog)/5)*5-(rec?5:0)-(last?10:0));
-    const strides=w>=4&&!last?`, then ${rec?4:6} strides`:"";
-    const n=last?3:rec?4:5+(w%2), m=lvl==="new"?Math.min(6,2+Math.round(prog*4)):Math.min(6,(lvl==="some"?2:3)+Math.round(prog*3));
-    out.push({
-      tag: rec?"Recovery week": last?(su.race?"Race week":"Final week"): (w===W-1&&W>=6?"Peak week":""),
-      tue: lvl==="new"? R("Easy run/walk · heart rate",`${easy} min · jog until ${zh} bpm, walk until ${zl} bpm, repeat${strides}`)
-                     : R("Easy run · heart rate",`${easy} min · relaxed jog, keep heart rate ${zl}–${zh} bpm${strides}`),
-      thu: lvl==="new"? R("Intervals",`5-min walk, ${n} × (run ${m} min / walk 2), 5-min walk`)
-                     : R("Intervals",`10-min easy jog, ${n} × (${m} min hard / 2 min easy), 10-min easy jog`),
-      sat: last&&su.race? null : R(lvl==="new"?"Long run/walk":"Long run",`${L} mi · ${lvl==="new"?`run ${runMin} / walk ${walkMin}`:"easy, conversational pace"}`)
-    });
-  }
-  return out;
+// Runs keep going: the long run builds over ~10 weeks, then holds, with a lighter week every 4th week
+function runWeekFor(su,w){
+  const lvl=su.runLevel||"new", BUILD=10;
+  const peak={new:4,some:6,regular:8}[lvl], startL=Math.min({new:2,some:3,regular:4}[lvl],peak);
+  const [zl,zh]=hrZone(su.age||30);
+  const rec=w%4===0, prog=Math.min(1,(w-1)/(BUILD-1));
+  let L=startL+(peak-startL)*prog; if(rec) L*=0.8; L=Math.round(L*2)/2;
+  const runMin=Math.min(5,1+Math.round(prog*4)), walkMin=prog>0.6?1:2;
+  const easy=Math.max(20,Math.round((25+20*prog)/5)*5-(rec?5:0));
+  const strides=w>=4?`, then ${rec?4:6} strides`:"";
+  const n=rec?4:5+(w%2), m=lvl==="new"?Math.min(6,2+Math.round(prog*4)):Math.min(6,(lvl==="some"?2:3)+Math.round(prog*3));
+  return {
+    tag: rec?"Recovery week":"",
+    tue: lvl==="new"? R("Easy run/walk · heart rate",`${easy} min · jog until ${zh} bpm, walk until ${zl} bpm, repeat${strides}`)
+                   : R("Easy run · heart rate",`${easy} min · relaxed jog, keep heart rate ${zl}–${zh} bpm${strides}`),
+    thu: lvl==="new"? R("Intervals",`5-min walk, ${n} × (run ${m} min / walk 2), 5-min walk`)
+                   : R("Intervals",`10-min easy jog, ${n} × (${m} min hard / 2 min easy), 10-min easy jog`),
+    sat: R(lvl==="new"?"Long run/walk":"Long run",`${L} mi · ${lvl==="new"?`run ${runMin} / walk ${walkMin}`:"easy, conversational pace"}`)
+  };
 }
 // v1 setups (fixed templates by day count) become routines + a weekly schedule
 function normalizeSetup(su){
@@ -2639,8 +2641,8 @@ function applySetup(raw){
   su.gymDays=su.week.map((w,i)=>w!=="rest"&&w!=="run"&&su.routines.some(r=>r.id===w)?i:-1).filter(i=>i>=0);
   su.runDays=su.week.map((w,i)=>w==="run"?i:-1).filter(i=>i>=0);
   su.kcal=(su.food&&su.food.kcal)||su.kcal;
-  START=mondayOf(parseYmd(su.start)); GOAL=parseYmd(su.goalDate);
-  WEEKS=Math.max(1,Math.ceil((dayNum(GOAL)+1)/7));
+  START=mondayOf(parseYmd(su.start)); GOAL=null;
+  WEEKS=Math.max(1,weekOf(today))+12;
   const gym={}, rest={};
   su.routines.forEach(r=>{ const ex=r.ex.map(toPlanEx); gym[r.id]={name:r.name,ex}; ex.forEach(e=>{ if(!(e.id in rest)) rest[e.id]=e.rest;
     if(e.equip==="Dumbbell"&&!DBCFG[e.id]) DBCFG[e.id]={def:true,m:e.uni?1:2};
@@ -2649,7 +2651,7 @@ function applySetup(raw){
   SCHED=su.week.map(w=>w==="run"?"run":gym[w]?w:"rest"); RUNKEY={};
   const kinds=su.runDays.length===1?["sat"]:su.runDays.length===2?["tue","sat"]:["tue","thu","sat"];
   su.runDays.forEach((d,i)=>RUNKEY[d]=kinds[Math.min(i,2)]);
-  RUNS= su.legacyRuns? LEGACY_RUNS : buildRuns(su,WEEKS);
+  if(su.legacyRuns) RUNWK=null; else { const cache={}; RUNWK=w=>cache[w]||(cache[w]=runWeekFor(su,w)) }
   CUSTOM={su,gym,rest};
   const ids=[...new Set(su.routines.flatMap(r=>r.ex.map(e=>e.id)))];
   KEYLIFTS=[...ids.filter(id=>STD[id]&&!STD[id].sec&&!STD[id].add),...ids].filter((x,i,a)=>a.indexOf(x)===i).slice(0,4);
@@ -2659,11 +2661,23 @@ function applySetup(raw){
   BENCH_NORM=BASE_BENCH.map(([p,v])=>[p,+(v*(fem?0.56:1)*bA).toFixed(3)]);
   VO2_NORM=BASE_VO2.map(([p,v])=>[p,+(v*(fem?0.79:1)*vA).toFixed(1)]);
   REF_BW=fem?145:175; HR_MAX_EST=Math.round(208-0.7*AGE); [HR_LO,HR_HI]=hrZone(AGE); if(su.legacyRuns){ HR_MAX_EST=199; HR_LO=130; HR_HI=150 }
-  if(!inProgram(sel)) sel=inProgram(today)?today:(dayNum(today)<0?START:GOAL);
+  if(!inProgram(sel)) sel=inProgram(today)?today:START;
 }
 let appliedStamp="";
+// Plans no longer end: drop goal dates and races from existing setups (once)
+function maybeOngoing(){
+  const su=S.profile&&S.profile.setup; if(!su) return false;
+  if(!S.profile.aboutOngoing&&S.profile.about){ // the plan's About text: drop race goals and the end date
+    S.profile.about=S.profile.about.split(/(?<=\.)\s+/).filter(x=>!/half marathon|\b(5|10)K\b.*\bby\b/i.test(x)).join(" ").replace(/ by Dec(ember)? 25(, 2026)?/,"").replace(/ by (Mon|Tue|Wed|Thu|Fri|Sat|Sun), [A-Z][a-z]{2} \d{1,2}\./,".");
+    S.profile.aboutOngoing=1; if(su.ongoing){ saveProfile(); return true } }
+  if(su.ongoing) return false;
+  const n={...su,ongoing:1,race:null}; delete n.goalDate; if(n.goal==="race") n.goal="fit";
+  if(n.coachNotes) n.coachNotes=n.coachNotes.replace(/; half marathon Dec 25 with a 2:30–2:40 run\/walk goal/,"").replace("Saturday long run building to 11 mi with lighter weeks 4 and 8","Saturday long run building to 11 mi, then cycling with a lighter week every 4th week").replace(/ No race on the calendar[^]*$/,"")+" No race on the calendar: the plan is ongoing, focused on getting steadily stronger and healthier.";
+  S.profile.setup=n; S.profile.raceDate="";
+  saveProfile(); return true;
+}
 function onProfile(){
-  syncPrefs(); initStdAliases(); maybeMigrateLegacy(); maybeMealsV3(); maybeStravaInit();
+  syncPrefs(); initStdAliases(); maybeMigrateLegacy(); maybeOngoing(); maybeMealsV3(); maybeStravaInit();
   let su=S.profile&&S.profile.setup;
   if(su&&!(su.routines&&su.week)){ su=S.profile.setup=normalizeSetup(su); saveProfile() }
   const st=su?JSON.stringify(su)+JSON.stringify((S.profile.setup||{}).customEx||[]):"";
@@ -2672,30 +2686,29 @@ function onProfile(){
 }
 const APP_NAME="RankUp";
 const BRAND_MARK=`<svg class="brandmark" viewBox="0 0 24 26" aria-hidden="true"><defs><linearGradient id="bmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8F8BFF"/><stop offset=".55" stop-color="#4B48E8"/><stop offset="1" stop-color="#2F2CB8"/></linearGradient></defs><path d="M12 0l12 6.3v13.4L12 26 0 19.7V6.3z" fill="url(#bmg)"/><path d="M7 15.5l5-5 5 5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-// the plan's own name (its goal date), used in the coach's context; the app itself is RankUp
-function progName(){ return CUSTOM? `Road to ${fmtShort(GOAL)}` : "Road to Dec 25" }
+function progName(){ return APP_NAME }
 function perWeek(kind,w){ let n=0; const mon=monOf(w); for(let i=0;i<7;i++){ const p=basePlan(addDays(mon,i)); if(p&&p.type===kind) n++ } return n }
 function personLine(){
-  if(!CUSTOM) return "He is 21, training for a December half marathon, lifting 3x/week and running 3x/week on a calorie deficit; his goal is getting into the best shape of his life by Dec 25.";
-  const su=CUSTOM.su; return `The user is ${su.name}, a ${su.age}-year-old ${su.sex==="female"?"woman":"man"} (use matching pronouns), lifting ${su.gymDays.length}x/week and running ${su.runDays.length}x/week; goal: ${goalText(su)} by ${fmtDate(GOAL)}.`;
+  if(!CUSTOM) return "He is 21, lifting 3x/week and running 3x/week on a calorie deficit; his goal is getting steadily stronger and healthier, with no end date.";
+  const su=CUSTOM.su; return `The user is ${su.name}, a ${su.age}-year-old ${su.sex==="female"?"woman":"man"} (use matching pronouns), lifting ${su.gymDays.length}x/week and running ${su.runDays.length}x/week; goal: ${goalText(su)} (ongoing, no end date).`;
 }
-function goalText(su){ return su.goal==="race"?`run a ${RACE_NAMES[su.race]}`: su.goal==="muscle"?"build strength and muscle":"lose fat and get fitter" }
+function goalText(su){ return su.goal==="muscle"?"build strength and muscle": su.goal==="lose"?"lose fat and get fitter":"get stronger and fitter overall" }
 function customCoachIntro(w){
   const su=CUSTOM.su, g=foodGoals(), K=kitchen();
   const sched=su.week.map((x,i)=>`${DOW[i]}: ${x==="run"?"run":x==="rest"?"rest":(CUSTOM.gym[x]||{}).name||"rest"}`).join(", ");
   const routines=su.routines.map(r=>`${r.name}: ${r.ex.map(e=>{const L=libEx(e.id); return `${L?L.name:e.id} ${e.sets}×${e.lo}-${e.hi}`}).join("; ")||"(empty)"}`).join("\n");
   const meals=K.recipes.map(r=>{const T=recipeTotals(r).per; return `${r.name} (${Math.round(T.kcal)} kcal, ${Math.round(T.p)} g P per serving)`}).join("; ")||"none saved yet";
-  return `You are the personal trainer and nutrition coach inside ${APP_NAME}, a training app with an E-to-S rank system. This user's plan is ${WEEKS} weeks (${fmtShort(START)} – ${fmtShort(GOAL)}).
+  return `You are the personal trainer and nutrition coach inside ${APP_NAME}, a training app with an E-to-S rank system. This user's plan is ongoing (started ${fmtShort(START)}) with no end date: the aim is getting steadily stronger and healthier, tracked through progress charts and ranks.
 Be direct, encouraging and practical. Keep replies under ~150 words unless asked for a full plan. Plain text with short lines; **bold** is fine, no tables.
 ${personLine()} Lifting experience: ${{new:"new to lifting",some:"under a year",exp:"1+ years"}[su.exp]||"unknown"}. Running now: ${{new:"can't run a mile without walking",some:"can jog 20–30 minutes",regular:"runs regularly"}[su.runLevel]}.
 Weekly schedule (they built it): ${sched}.
 Their routines (they chose these exercises; suggest changes only when useful):
 ${routines}
-Progression: double progression (beat reps; at the top of the range on every set, add weight; 10% deload after two stalled sessions). Runs: easy runs by heart rate, intervals, and a weekly long run with lighter recovery weeks.
+Progression: double progression (beat reps; at the top of the range on every set, add weight; 10% deload after two stalled sessions). Runs: easy runs by heart rate, intervals, and a weekly long run that builds over about 10 weeks, then holds, with a lighter week every 4th week.
 Daily food goals: ${fmtN(g.kcal)} kcal, ${g.p} g protein, ${g.c} g carbs, ${g.f} g fat. Their saved meals: ${meals}.
 If they report sharp pain, swelling, chest pain, dizziness or fainting, tell them to stop and get it checked by a professional. You're not a doctor.
 ${su.coachNotes?`Background: ${su.coachNotes}
-`:""}Today: ${fmtDate(today)} (week ${w} of ${WEEKS}).${su.race?` ${RACE_NAMES[su.race]} on ${fmtDate(GOAL)}.`:""}
+`:""}Today: ${fmtDate(today)} (week ${w}).
 `;
 }
 function customPlanIntro(){
@@ -2703,7 +2716,7 @@ function customPlanIntro(){
   return `<div class="card"><div class="row between"><h2>Your plan</h2><button class="btn ghost sm" type="button" data-su-edit="1">Edit goals</button></div>
    <p><span class="chip gym">Lifting</span> Beat last session by a rep; when every set reaches the top of the range, add weight. Edit your routines and schedule below.</p>
    ${su.runDays.length?`<p><span class="chip run">${rd}</span> ${su.runDays.length===1?"One long run each week":su.runDays.length===2?"An easy run and a long run each week":"Easy run, intervals and a long run each week"}. Easy runs go by heart rate: stay around ${zl}–${zh} bpm.</p>`:""}
-   ${su.race?`<p><span class="chip coach">${RACE_NAMES[su.race]} · ${fmtShort(GOAL)}</span> Runs peak the week before and ease off into race day.</p>`:""}</div>`;
+   <p><span class="chip coach">No end date</span> Your plan keeps going. Long runs build for about 10 weeks, then hold, with a lighter week every 4th week.</p></div>`;
 }
 
 /* ---------- Setup screen ---------- */
@@ -2711,16 +2724,16 @@ let setupOpen=false, SUW=null;
 function isLegacy(){ const p=S.profile||{}; return !p.setup && !!(p.about || (p.moves&&Object.keys(p.moves).length) || Object.keys(S.logs).length) }
 function needsSetup(){ return !!window.__platform && loaded.profile && !(S.profile&&S.profile.setup) && !isLegacy() }
 function suggestKcal(s){ const lb=fromU(Number(s.weight))||0; if(!lb) return ""; const fem=s.sex==="female";
-  const k= s.goal==="muscle"? lb*15 : s.goal==="race"? lb*13 : lb*11;
+  const k= s.goal==="muscle"? lb*15 : s.goal==="lose"? lb*11 : lb*13;
   return Math.round(Math.min(fem?2800:3400,Math.max(fem?1300:1500,k))/50)*50 }
 function suggestProtein(s){ const lb=fromU(Number(s.weight))||0; if(!lb) return ""; return Math.round(Math.min(lb,s.goal==="muscle"?lb:lb*0.85)*(s.goal==="muscle"?1:0.9)/5)*5 }
-const GOAL_RUNS={lose:2,muscle:0,race:3};
+const GOAL_RUNS={lose:2,muscle:0,fit:3};
 function weekFor(split,runN){ const x=splitToSetup(split); const wk=[...x.week]; defaultRunDays(wk,runN).forEach(d=>wk[d]="run"); return wk }
 function suRoutines(s){ return s.split==="keep"? (S.profile.setup.routines||[]) : splitToSetup(s.split).routines }
 function defaultSUW(){
   const su=S.profile&&S.profile.setup;
-  if(su){ const n=normalizeSetup(su); return {...n,weight:n.weight?toU(n.weight):"",split:"keep",week:[...n.week],weekTouched:true,kcal:(n.food&&n.food.kcal)||n.kcal,protein:(n.food&&n.food.protein)||"",kcalTouched:true,proteinTouched:!!(n.food&&n.food.protein)} }
-  return {name:"",sex:"",age:"",birth:"",weight:"",goal:"lose",race:"half",goalDate:ymd(addDays(mondayOf(today),7*10+4)),split:"abc3",week:weekFor("abc3",GOAL_RUNS.lose),runLevel:"new",exp:"new",kcal:"",protein:"",kcalTouched:false,proteinTouched:false};
+  if(su){ const n=normalizeSetup(su); return {...n,weight:n.weight?toU(n.weight):"",split:"keep",week:[...n.week],weekTouched:true,goal:n.goal==="race"||!GOAL_RUNS.hasOwnProperty(n.goal)?"fit":n.goal,kcal:(n.food&&n.food.kcal)||n.kcal,protein:(n.food&&n.food.protein)||"",kcalTouched:true,proteinTouched:!!(n.food&&n.food.protein)} }
+  return {name:"",sex:"",age:"",birth:"",weight:"",goal:"lose",split:"abc3",week:weekFor("abc3",GOAL_RUNS.lose),runLevel:"new",exp:"new",kcal:"",protein:"",kcalTouched:false,proteinTouched:false};
 }
 function gateView(fromStore){
   if(!window.__platform) return false;
@@ -2733,7 +2746,7 @@ function gateView(fromStore){
   v.innerHTML=viewSetup(); bindSetup(); return true;
 }
 function viewSetup(){
-  const s=SUW, wk=Math.round((parseYmd(s.goalDate)-mondayOf(today))/DAYMS/7);
+  const s=SUW;
   const opt=(name,val,label,sub)=>`<button type="button" class="suopt ${s[name]===val?"on":""}" data-su-opt="${name}|${val}" aria-pressed="${s[name]===val}"><b>${label}</b>${sub?`<span>${sub}</span>`:""}</button>`;
   const rs=suRoutines(s), sug=suggestKcal(s), sugP=suggestProtein(s);
   const splitOpts=(S.profile.setup?[["keep","Keep my routines",rs.map(r=>r.name).join(" · ")]]:[]).concat(Object.entries(SPLITS).map(([k,sp])=>[k,sp.name,k==="own"?"Empty routines: you pick every exercise":sp.routines.map(r=>r.name).join(" · ")]));
@@ -2746,17 +2759,14 @@ function viewSetup(){
     <div class="row">
     <div class="field" style="flex:1"><label for="suWt">Weight (${uL()}) <button type="button" class="link small" data-unitflip="1">use ${UNIT()==="kg"?"lb":"kg"}</button></label><input id="suWt" inputmode="decimal" value="${esc(s.weight)}"></div></div></div>
   <div class="card"><h2>Your goal</h2>
-    <div class="suopts">${opt("goal","lose","Lose fat & get fitter")}${opt("goal","muscle","Build strength & muscle")}${opt("goal","race","Train for a race")}</div>
-    ${s.goal==="race"?`<div class="suopts three">${opt("race","5k","5K")}${opt("race","10k","10K")}${opt("race","half","Half marathon")}</div>`:""}
-    <div class="field"><label for="suDate">${s.goal==="race"?"Race date":"Goal date"}</label><input id="suDate" type="date" value="${esc(s.goalDate)}" min="${ymd(addDays(today,28))}" max="${ymd(addDays(today,26*7))}"></div>
-    <p class="small muted">${wk>0?`${/^(8|11|18)$/.test(String(wk))?"An":"A"} ${wk}-week plan. `:""}Pick 4 to 26 weeks out.</p></div>
-  <div class="card"><h2>Your split</h2>
+    <div class="suopts">${opt("goal","lose","Lose fat & get fitter")}${opt("goal","muscle","Build strength & muscle")}${opt("goal","fit","Stronger & fitter overall","Lifting plus running")}</div>
+    <p class="small muted">No end date. Your plan keeps progressing as you do, and you can change your focus any time.</p></div>  <div class="card"><h2>Your split</h2>
     <div class="suopts">${splitOpts.map(([k,n,sub])=>opt("split",k,n,sub)).join("")}</div>
     <p class="small"><b>Weekly schedule</b> <span class="muted">· pick a workout, a run, or rest for each day</span></p>
     ${s.goal==="muscle"&&!s.week.includes("run")?`<p class="small muted" style="margin-top:-4px">No runs for a strength goal, so all your recovery goes to lifting. Set any rest day to Run if you want cardio.</p>`:""}
     <div class="sched">${DOW.map((d,i)=>`<label><span>${d}</span><select data-su-wk="${i}">${[["rest","Rest"],["run","Run"],...rs.map(r=>[r.id,r.name])].map(([id,n])=>`<option value="${esc(id)}" ${s.week[i]===id?"selected":""}>${esc(n)}</option>`).join("")}</select></label>`).join("")}</div>
     <p class="small muted">After setup you can add, remove and reorder exercises and change sets, reps and rest in Plan.</p></div>
-  ${s.week.includes("run")||s.goal==="race"?`<div class="card"><h2>Running right now</h2>
+  ${s.week.includes("run")?`<div class="card"><h2>Running right now</h2>
     <div class="suopts">${opt("runLevel","new","I can't run a mile without walking","Run/walk plan")}${opt("runLevel","some","I can jog 20–30 minutes")}${opt("runLevel","regular","I run regularly")}</div></div>`:""}
   <div class="card"><h2>Lifting experience</h2>
     <div class="suopts three">${opt("exp","new","New")}${opt("exp","some","Under a year")}${opt("exp","exp","1+ years")}</div></div>
@@ -2774,8 +2784,8 @@ function bindSetup(){
   const hint=()=>{ const h=$("#suKcalHint"), g=suggestKcal(s), gp=suggestProtein(s); if(h) h.textContent=(g?`Suggested for your weight and goal: ${fmtN(g)} kcal and ${gp} g protein.`:"Enter your weight for a suggestion.")+" You'll build meals and log food in the app.";
     if(!s.kcalTouched) $("#suKcal").value=g||""; if(!s.proteinTouched) $("#suProt").value=gp||"" };
   const birthAge=b=>{ if(!/^\d{4}-\d{2}$/.test(b||"")) return null; const [y,m]=b.split("-").map(Number); let a=today.getFullYear()-y; if(today.getMonth()+1<m) a--; return a };
-  const sync=()=>{ s.name=val("#suName"); s.birth=$("#suBirth").value||""; const ba=birthAge(s.birth); if(ba!=null){ s.age=String(ba); $("#suAge").value=s.age } else s.age=val("#suAge"); s.weight=val("#suWt"); s.goalDate=$("#suDate").value||s.goalDate; hint() };
-  ["#suName","#suAge","#suWt","#suDate","#suBirth"].forEach(id=>$(id).addEventListener("input",sync)); $("#suBirth").addEventListener("change",sync);
+  const sync=()=>{ s.name=val("#suName"); s.birth=$("#suBirth").value||""; const ba=birthAge(s.birth); if(ba!=null){ s.age=String(ba); $("#suAge").value=s.age } else s.age=val("#suAge"); s.weight=val("#suWt"); hint() };
+  ["#suName","#suAge","#suWt","#suBirth"].forEach(id=>$(id).addEventListener("input",sync)); $("#suBirth").addEventListener("change",sync);
   $("#suKcal").addEventListener("input",e=>{s.kcalTouched=true; s.kcal=e.target.value.trim()});
   $("#suProt").addEventListener("input",e=>{s.proteinTouched=true; s.protein=e.target.value.trim()});
   const rerender=()=>{ sync(); const y=window.scrollY; $("#view").innerHTML=viewSetup(); bindSetup(); window.scrollTo(0,y) };
@@ -2788,27 +2798,25 @@ function bindSetup(){
   $("#suCancel")?.addEventListener("click",()=>{setupOpen=false; SUW=null; render()});
   $("#suSave").onclick=()=>{
     sync(); const err=t=>{const e=$("#suErr"); e.textContent=t; e.hidden=false; e.scrollIntoView({block:"center",behavior:"smooth"})};
-    const age=Number(s.age), wt=fromU(Number(s.weight)), kcal=Number(s.kcalTouched?s.kcal:suggestKcal(s)), prot=Number(s.proteinTouched?s.protein:suggestProtein(s)), gd=parseYmd(s.goalDate), days=(gd-today)/DAYMS;
+    const age=Number(s.age), wt=fromU(Number(s.weight)), kcal=Number(s.kcalTouched?s.kcal:suggestKcal(s)), prot=Number(s.proteinTouched?s.protein:suggestProtein(s));
     const runN=s.week.filter(w=>w==="run").length, gymN=s.week.filter(w=>w!=="run"&&w!=="rest").length;
     if(!s.name) return err("Add your first name.");
     if(!s.sex) return err("Choose male or female. It sets your heart-rate zones and rankings.");
     if(!(age>=18&&age<=90)) return err("This app is for adults 18 and over. Enter your age.");
     if(!(wt>=80&&wt<=600)) return err(`Enter your weight in ${UNIT()==="kg"?"kilograms":"pounds"}.`);
-    if(!(days>=27&&days<=26*7+1)) return err("Pick a goal date between 4 and 26 weeks from today.");
     if(!gymN&&!runN) return err("Add at least one workout or run to your week.");
     if(runN>3) return err("Pick at most 3 run days.");
-    if(s.goal==="race"&&runN<2) return err("Pick at least 2 run days to train for a race.");
     if(!(kcal>=1200&&kcal<=5000)) return err("Enter daily calories between 1,200 and 5,000.");
     if(!(prot>=30&&prot<=400)) return err("Enter a daily protein goal in grams.");
     const prev=S.profile.setup&&normalizeSetup(S.profile.setup);
     const routines= s.split==="keep"&&prev? prev.routines : splitToSetup(s.split).routines;
-    const keepLegacy=prev&&prev.legacyRuns&&s.goalDate===prev.goalDate&&s.goal==="race"&&s.race===prev.race&&JSON.stringify(s.week.map(w=>w==="run"))===JSON.stringify(prev.week.map(w=>w==="run"));
-    const su={...(prev||{}),legacyRuns:!!keepLegacy,v:2,name:s.name.slice(0,40),sex:s.sex,age,...(s.birth?{birth:s.birth}:{}),weight:Math.round(wt*10)/10,goal:s.goal,race:s.goal==="race"?s.race:null,goalDate:s.goalDate,
+    const keepLegacy=prev&&prev.legacyRuns&&s.runLevel===prev.runLevel&&JSON.stringify(s.week.map(w=>w==="run"))===JSON.stringify(prev.week.map(w=>w==="run"));
+    const su={...(prev||{}),legacyRuns:!!keepLegacy,v:2,name:s.name.slice(0,40),sex:s.sex,age,...(s.birth?{birth:s.birth}:{}),weight:Math.round(wt*10)/10,goal:s.goal,race:null,ongoing:1,
       start:prev&&prev.start&&parseYmd(prev.start)<=today?prev.start:ymd(mondayOf(today)),firstDay:(prev&&prev.firstDay)||ymd(today),split:s.split==="keep"?(prev&&prev.split)||"own":s.split,routines,week:[...s.week],
       customEx:(prev&&prev.customEx)||[],runLevel:s.runLevel,exp:s.exp,kcal:Math.round(kcal),food:{...((prev&&prev.food)||{}),kcal:Math.round(kcal),protein:Math.round(prot)},at:Date.now()};
-    S.profile.setup=su;
-    if(!prev||!S.profile.about) S.profile.about=`${su.name}, ${su.age}${su.sex==="female"?"F":"M"}, ${su.weight} lb at setup. Goal: ${goalText(su)} by ${fmtDate(parseYmd(su.goalDate))}.`;
-    S.profile.raceDate=su.race?su.goalDate:"";
+    delete su.goalDate; S.profile.setup=su;
+    if(!prev||!S.profile.about) S.profile.about=`${su.name}, ${su.age}${su.sex==="female"?"F":"M"}, ${su.weight} lb at setup. Goal: ${goalText(su)}.`;
+    S.profile.raceDate="";
     const ws=S.profile.weights||(S.profile.weights=[]); if(!ws.some(x=>x.d===ymd(today))) ws.push({d:ymd(today),lb:wt});
     saveProfile(); onProfile(); setupOpen=false; SUW=null; sel=inProgram(today)?today:START;
     if(s.split==="own") su.routines.forEach(r=>R_OPEN.add(r.id));
