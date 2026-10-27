@@ -1126,7 +1126,7 @@ function viewHome(openLogger){
   return h;
 }
 function trainingCard(p,k,log,openLogger){
-  if(p.type==="rest") return `<div class="card"><div class="row between"><h2>Rest day</h2><span class="chip">Recovery</span></div><p>Walk 20–30 minutes if you feel like it, stretch hips and calves, and do Sunday meal prep (Plan → Food).</p>${dayMenu(p,k,log)}${stravaChooser(k,log)}${extraRunsBlock(k,log)}${weekResetBtn(k)}${mondayWeighIn()}</div>`;
+  if(p.type==="rest") return `<div class="card"><div class="row between"><h2>Rest day</h2><span class="chip">Recovery</span></div><p>Walk 20–30 minutes if you feel like it, stretch hips and calves. A good day to shop and prep food for the week (Plan → Food).</p>${dayMenu(p,k,log)}${stravaChooser(k,log)}${extraRunsBlock(k,log)}${weekResetBtn(k)}${mondayWeighIn()}</div>`;
   if(p.type==="gym"&&!(p.ex&&p.ex.length)) return `<div class="card"><div class="eyebrow">Gym</div><h2>${esc(p.name)}</h2><p>This routine has no exercises yet.</p><button type="button" class="btn sm" data-c-gotoplan="1">Add exercises</button></div>`;
   if(p.type==="gym"){
     let h=`<div class="card gymcard"><div class="row between"><div><div class="eyebrow">Gym · ~${CUSTOM?estMin(p.ex):"55–60"} min</div><h2>${esc(p.name)}</h2></div>${log?`<span class="chip gym">Logged ✓${log.durMin?` · ${Math.round(log.durMin)} min`:""}${log.prs&&log.prs.length?` · ${log.prs.length} PR${log.prs.length>1?"s":""}`:""}</span>`:""}</div>`;
@@ -1194,11 +1194,13 @@ function exerciseBlock(ex,k,log){
   if(!ex.fixed) h+=`<div class="row setbtns"><button type="button" class="link small" data-addset="${ex.id}">+ Add set</button>${extra>0?`<button type="button" class="link small" data-rmset="${ex.id}">− Remove set</button>`:""}${pl?`<button type="button" class="link small" data-plates="${ex.id}|${t.w!=null?toU(t.w):""}">Plates</button>`:""}</div>`;
   return h+`</div>`;
 }
+// weight placeholder: the last weight you logged, or a round number
+function wtHint(){ const ws=(S.profile.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1), last=ws[ws.length-1]; return last? `e.g. ${toU(last.lb)}` : UNIT()==="kg"? "e.g. 80.5" : "e.g. 180.5" }
 function mondayWeighIn(){
   const k=ymd(sel); if(dowOf(sel)!==0 || k!==ymd(today)) return "";
   const done=(S.profile.weights||[]).some(w=>w.d===k);
   if(done) return `<p class="small muted">Weigh-in logged for today ✓</p>`;
-  return `<div class="row" style="align-items:flex-end;border-top:1px solid var(--line);padding-top:12px"><div class="field"><label for="bwIn">Monday weigh-in (${uL()})</label><input id="bwIn" inputmode="decimal" placeholder="e.g. 248.4"></div><button class="btn" id="bwSave">Log</button></div>`;
+  return `<div class="row" style="align-items:flex-end;border-top:1px solid var(--line);padding-top:12px"><div class="field"><label for="bwIn">Monday weigh-in (${uL()})</label><input id="bwIn" inputmode="decimal" placeholder="${wtHint()}"></div><button class="btn" id="bwSave">Log</button></div>`;
 }
 function mealsCard(d){
   if(CUSTOM) return diaryCard(d);
@@ -1334,7 +1336,7 @@ function viewProgress(){
   if(wts.length>1){const days=Math.max(1,Math.round((parseYmd(wts[wts.length-1].d)-parseYmd(wts[0].d))/DAYMS)); const rate=wchg/(days/7);
     shared+=`<p class="small">Average change: <b class="num">${rate>0?"+":""}${toUd(rate).toFixed(1)} ${uL()}/week</b> <span class="muted">· a steady ${UNIT()==="kg"?"0.5–1 kg":"1–2 lb"}/week keeps strength while you lean out</span></p>`}
   shared+= wts.length? lineChart(wts.map(w=>({x:fmtShort(parseYmd(w.d)),y:toUd(w.lb)})),"var(--food)",v=>v.toFixed(0),false) : `<p class="small muted">Weigh in every Monday morning, before eating. The Home tab prompts you.</p>`;
-  shared+=`<div class="row" style="align-items:flex-end"><div class="field"><label for="bwIn2">Log today's weight (${uL()})</label><input id="bwIn2" inputmode="decimal" placeholder="e.g. 248.4"></div><button class="btn" id="bwSave2">Log</button></div></div>`;
+  shared+=`<div class="row" style="align-items:flex-end"><div class="field"><label for="bwIn2">Log today's weight (${uL()})</label><input id="bwIn2" inputmode="decimal" placeholder="${wtHint()}"></div><button class="btn" id="bwSave2">Log</button></div></div>`;
   let lifts="";
   // strength
   lifts+=`<div class="card"><h2>Strength</h2><div class="eyebrow">Estimated 1-rep max</div><div class="multiples">`;
@@ -1355,7 +1357,7 @@ function viewProgress(){
   // running
   runsH+=`<div class="card"><h2>Running</h2><div><div class="eyebrow">Miles per week</div>${barChart(rows.map(r=>r.mi),rows.map(r=>"W"+r.w),"var(--run)",v=>v.toFixed(0))}</div>`;
   const pacePts=rows.filter(r=>r.easy).map(r=>({x:"W"+r.w,y:r.easy}));
-  runsH+=pacePts.length? `<div><div class="eyebrow">Easy-run pace (higher on chart = faster)</div>${lineChart(pacePts,"var(--run)",v=>fmtMin(v),true)}</div>` : `<p class="small muted">Log a Tuesday run to start the pace trend.</p>`;
+  runsH+=pacePts.length? `<div><div class="eyebrow">Easy-run pace (higher on chart = faster)</div>${lineChart(pacePts,"var(--run)",v=>fmtMin(v),true)}</div>` : `<p class="small muted">Log an easy run to start the pace trend.</p>`;
   runsH+=`</div>`;
   runsH+=runTrends();
   // calories
@@ -1401,7 +1403,7 @@ function viewAdvice(){
   h+=`<div class="card"><div class="row between"><h2>Ask your coach</h2>${S.chat.length?'<button class="btn ghost sm" id="chatClear">Clear chat</button>':""}</div>
    <details class="logger"><summary class="small">About me (your coach reads this)</summary><div class="field" style="margin-top:8px"><textarea id="about" placeholder="Age, weight, goals, injuries, gym equipment…">${esc(S.profile.about||"")}</textarea></div></details>
    <div class="chat" id="chatList"></div>`;
-  if(!S.chat.length) h+=`<div class="sugg" id="sugg">${["How should today go?","I only have 35 minutes today","My knees ache after runs","Swap a meal, same budget","How am I doing this week?"].map(s=>`<button data-s="${esc(s)}">${esc(s)}</button>`).join("")}</div>`;
+  if(!S.chat.length) h+=`<div class="sugg" id="sugg">${coachSuggestions().map(s=>`<button data-s="${esc(s)}">${esc(s)}</button>`).join("")}</div>`;
   h+=`<div class="composer"><textarea id="chatIn" rows="1" placeholder="Message your coach"></textarea><button class="btn" id="chatSend">Send</button><button class="btn ghost" id="chatStop" hidden>Stop</button></div>`;
   if(userReady && !sampleFn) h+=`<p class="note">Your coach is unavailable right now. Check your connection and try again.</p>`;
   h+=`<div class="row between" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><span class="small muted">Signed in</span><button class="btn ghost sm" type="button" onclick="appSignOut()">Sign out</button></div>`;
@@ -1461,7 +1463,7 @@ function coachContext(){
   const wf=weekFood(w);
   const intro = CUSTOM? customCoachIntro(w) : `You are the personal trainer and nutrition coach inside ${APP_NAME}, a training app with an E-to-S rank system. This user is on an ongoing plan that started Oct 12, 2026, with no end date and no race: the aim is getting steadily stronger and healthier.
 Be direct, encouraging and practical. Keep replies under ~150 words unless asked for a full plan. Plain text with short lines; **bold** is fine, no tables.
-TEMPORARY CORE BLOCK Oct 19–Nov 8: he asked to drop deadlift patterns because his core is too weak to support his lower back; Romanian deadlift → weighted decline crunch (holding a plate; switched from cable crunch Oct 19), trap-bar deadlift → Pallof press. After Nov 8, deadlifts return at reduced weight. Program v2 from Oct 20 (he approved it; built from his logs: pressing weakest, pulling and legs stronger, grip limits pulls, he dislikes split squats): gym Mon/Wed/Fri ~1 hr. Through Nov 8: Day A bench 4×6–8 / angled leg press 4×8–12 / lat pulldown / 45° back extension / weighted decline crunch / chest fly 3×12–15 + reverse pec deck 2×12–15 for rear delts (paired) / lateral raise 3×12–15 on its own; Day B overhead press / cable row (straps) / leg curl / single-leg leg extension 2×10–15 / face pull 3 sets + overhead triceps ext (paired) / Pallof + tilt-seat calf raise (paired; standing calf raise before Oct 21); Day C incline DB press 4×8–12 / chest-supported DB row / hip thrust 3×8–12 / leg curl / EZ curl + pushdown (paired) / hammer curl + standing calf raise 2 sets (paired). From Nov 9: RDL replaces decline crunch (Day A); trap-bar deadlift replaces Pallof (Day B), restarting ~135 lb with straps. Uses double progression (beat reps; at top of range on every set, add weight; 10% deload after two stalled sessions). Runs Tue easy run/walk, from week 2 heart-rate based (jog until 150 bpm, walk until 130 bpm, target zone 130–150) (plus 4–6 strides of 15–20 s at ~85% from week 4; no all-out sprinting, chosen over sprint intervals to limit injury risk), Thu intervals, Sat long run building to 11 mi in week 10, lighter weeks 4 and 8, taper week 11.
+TEMPORARY CORE BLOCK Oct 19–Nov 8: he asked to drop deadlift patterns because his core is too weak to support his lower back; Romanian deadlift → weighted decline crunch (holding a plate; switched from cable crunch Oct 19), trap-bar deadlift → Pallof press. After Nov 8, deadlifts return at reduced weight. Program v2 from Oct 20 (he approved it; built from his logs: pressing weakest, pulling and legs stronger, grip limits pulls, he dislikes split squats): gym Mon/Wed/Fri ~1 hr. Through Nov 8: Day A bench 4×6–8 / angled leg press 4×8–12 / lat pulldown / 45° back extension / weighted decline crunch / chest fly 3×12–15 + reverse pec deck 2×12–15 for rear delts (paired) / lateral raise 3×12–15 on its own; Day B overhead press / cable row (straps) / leg curl / single-leg leg extension 2×10–15 / face pull 3 sets + overhead triceps ext (paired) / Pallof + tilt-seat calf raise (paired; standing calf raise before Oct 21); Day C incline DB press 4×8–12 / chest-supported DB row / hip thrust 3×8–12 / leg curl / EZ curl + pushdown (paired) / hammer curl + standing calf raise 2 sets (paired). From Nov 9: RDL replaces decline crunch (Day A); trap-bar deadlift replaces Pallof (Day B), restarting ~135 lb with straps. Uses double progression (beat reps; at top of range on every set, add weight; 10% deload after two stalled sessions). Runs Tue easy run/walk, from week 2 heart-rate based (jog until 150 bpm, walk until 130 bpm, target zone 130–150) (plus 4–6 strides of 15–20 s at ~85% from week 4; no all-out sprinting, chosen over sprint intervals to limit injury risk), Thu intervals, Sat long run building to 11 mi in week 10, then cycling (a lighter week, then 8.5 → 10 → 11 mi); no race.
 Meal plan (~1,505 kcal / 139 g protein base; +2 eggs Tue/Thu = 1,645; +eggs and banana Sat = 1,750): yogurt-oat-berry bowl, pesto chicken breast rice bowl, turkey bolognese pasta, cottage cheese + berries. Batch pesto + bolognese. Groceries ≈$79/week, cap $100. He chose this low intake; it's an aggressive deficit for his size and training, so watch for under-fueling (stalled lifts, fast weight loss, hard easy runs) and recommend adding 200–300 kcal when you see it.
 If he reports sharp pain, swelling, chest pain, dizziness or fainting, tell him to stop and get it checked by a professional. You're not a doctor.
 Today: ${fmtDate(today)} (week ${w}).
@@ -2245,7 +2247,7 @@ function viewRuns(){ return runSel&&S.logs[runSel]&&S.logs[runSel].type==="run"?
 function runsIndex(){
   const L=runList();
   let h=`<div class="card"><div><div class="eyebrow">Every run you've logged · tap one for the full breakdown</div><h2>Runs</h2></div>`;
-  if(!L.length) return h+`<p class="small muted">No runs yet. Log one from the Home tab on Tue, Thu or Sat (import from Strava for graphs), and it'll show up here.</p></div>`;
+  if(!L.length) return h+`<p class="small muted">No runs yet. Log one from the Home tab on a run day${CUSTOM&&CUSTOM.su.runDays.length?` (${CUSTOM.su.runDays.map(i=>DOW[i]).join(", ")})`:""}, or import from Strava for maps and splits, and it'll show up here.</p></div>`;
   const tot=L.reduce((a,[k,l])=>a+(Number(l.mi)||0),0), longest=Math.max(...L.map(([k,l])=>Number(l.mi)||0)), best=Math.min(...L.filter(([k,l])=>l.mi&&l.min).map(([k,l])=>l.min/l.mi));
   h+=`<div class="kpis"><div class="kpi"><div class="v num">${L.length}</div><div class="l">runs</div></div><div class="kpi"><div class="v num">${tot.toFixed(1)}</div><div class="l">total miles</div></div><div class="kpi"><div class="v num">${longest.toFixed(1)}</div><div class="l">longest (mi)</div></div></div>`;
   if(isFinite(best)) h+=`<p class="small muted">Fastest average pace so far: <b class="num" style="color:var(--ink)">${fmtMin(best)}/mi</b></p>`;
@@ -2720,6 +2722,10 @@ function personLine(){
   const su=CUSTOM.su; return `The user is ${su.name}, a ${su.age}-year-old ${su.sex==="female"?"woman":"man"} (use matching pronouns), lifting ${su.gymDays.length}x/week and running ${su.runDays.length}x/week; goal: ${goalText(su)} (ongoing, no end date).`;
 }
 function goalText(su){ return su.goal==="muscle"?"build strength and muscle": su.goal==="lose"?"lose fat and get fitter":"get stronger and fitter overall" }
+// conversation starters that fit this person's plan
+function coachSuggestions(){
+  const runs=CUSTOM? CUSTOM.su.runDays.length>0 : true;
+  return ["How should today go?","I only have 35 minutes today", runs?"My legs feel heavy after runs":"Something feels sore after lifting","Give me a high-protein meal idea","How am I doing this week?"] }
 function customCoachIntro(w){
   const su=CUSTOM.su, g=foodGoals(), K=kitchen();
   const sched=su.week.map((x,i)=>`${DOW[i]}: ${x==="run"?"run":x==="rest"?"rest":(CUSTOM.gym[x]||{}).name||"rest"}`).join(", ");
