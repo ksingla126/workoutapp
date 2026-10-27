@@ -268,7 +268,7 @@ function paintSheet(scrollTop){ if(!SH) return; const el=sheetEl(), inn=el.query
   if(focusSel){ const f=inn.querySelector(`[data-xs-focus="${focusSel}"]`); if(f){ f.focus(); try{const v=f.value; f.setSelectionRange(v.length,v.length)}catch(e){} } } }
 const commitPlan=()=>{ saveProfile(); onProfile(); render() };
 // Repaint only part of the sheet, so the input being typed in (and the iPhone keyboard) stays put.
-function sheetHtml(){ return SH.kind==="autogen"? autogenHtml() : SH.kind==="shopItem"? shopItemHtml() : SH.kind==="shopList"? shopListHtml() : SH.kind==="shopSched"? shopSchedHtml() : SH.kind==="gscan"? gscanHtml() : SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
+function sheetHtml(){ return SH.kind==="form"? formHtml() : SH.kind==="autogen"? autogenHtml() : SH.kind==="shopItem"? shopItemHtml() : SH.kind==="shopList"? shopListHtml() : SH.kind==="shopSched"? shopSchedHtml() : SH.kind==="gscan"? gscanHtml() : SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
 function paintPart(sel){ if(!SH) return; const el=document.querySelector("#xsheet .xs-in"); const dst=el&&el.querySelector(sel); if(!dst){ paintSheet(); return }
   const tmp=document.createElement("div"); tmp.innerHTML=sheetHtml(); const src=tmp.querySelector(sel); if(src) dst.innerHTML=src.innerHTML; else paintSheet() }
 function estMin(ex){ const sec=(ex||[]).reduce((t,e)=>t+(e.sets||3)*((e.rest||90)+(e.bw?(e.hi||45):40)),0); return Math.max(10,Math.round(sec/60/5)*5) }
@@ -436,6 +436,89 @@ function cfoodHtml(){ const d=SH.d;
    <p class="small muted">Per serving, from the nutrition label.${d.code?` Linked to barcode ${esc(d.code)} and shared so others who scan it get it too.`:""}</p><p class="note" data-xs-err hidden></p>
    <div class="row"><button type="button" class="btn" data-xs="cfsave">Save food</button>${SH.isNew?"":`<button type="button" class="btn ghost" data-xs="cfdel">${SH.delConfirm?"Tap again to delete":"Delete"}</button>`}</div>`;
 }
+/* ======================= Form check (video → coach feedback) =======================
+   The video never leaves the phone: the app pulls still frames from it, shrinks them, and sends those to the
+   coach with the exercise and the person's recent numbers. Results are kept (text only) so the coach chat and
+   later checks can refer back to them. */
+const FORM_FRAMES=8, FORM_MAX_SEC=30, FORM_PX=768;
+const FORM_ICON=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="4" width="9.5" height="8" rx="1.8"/><path d="M11 7l3.5-2v6L11 9"/></svg>`;
+function formBtn(ex){ if(!ex||ex.fixed||ex.unit==="sec") return ""; return `<button type="button" class="swapb" data-formcheck="${esc(ex.id)}" aria-label="Form check: ${esc(ex.name)}" title="Check my form">${FORM_ICON}</button>` }
+function formExercises(){ const seen=new Map(); try{ Object.values(curPhase()).forEach(d=>(d.ex||[]).forEach(e=>{ if(!e.fixed&&e.unit!=="sec"&&!seen.has(e.id)) seen.set(e.id,e.name) })) }catch(e){}
+  return [...seen.entries()] }
+function formLast(id){ const ks=Object.keys(S.logs).filter(k=>S.logs[k]&&S.logs[k].ex&&S.logs[k].ex[id]).sort(); const k=ks[ks.length-1]; if(!k) return "";
+  const sets=(S.logs[k].ex[id]||[]).filter(s=>s&&(s.w||s.r)); return sets.length? `${fmtDate(parseYmd(k))}: ${sets.map(s=>`${s.w?toU(s.w)+" "+uL()+" × ":""}${s.r}`).join(", ")}` : "" }
+function formChecks(){ return (S.profile.formChecks||[]) }
+async function extractFrames(file,n){
+  const url=URL.createObjectURL(file), v=document.createElement("video"); v.muted=true; v.playsInline=true; v.setAttribute("playsinline",""); v.preload="auto"; v.src=url;
+  try{
+    await new Promise((ok,no)=>{ v.onloadeddata=ok; v.onerror=()=>no(new Error("decode")); setTimeout(()=>no(new Error("timeout")),20000); v.load() });
+    try{ await v.play(); v.pause() }catch(e){} // iPhone Safari draws frames only after playback has started once
+    const dur=v.duration; if(!isFinite(dur)||dur<=0||!v.videoWidth) throw new Error("decode");
+    const span=Math.min(dur,FORM_MAX_SEC), W=v.videoWidth, H=v.videoHeight, s=Math.min(1,FORM_PX/Math.max(W,H));
+    const cv=document.createElement("canvas"); cv.width=Math.round(W*s); cv.height=Math.round(H*s); const cx=cv.getContext("2d"), out=[];
+    for(let i=0;i<n;i++){ const t=Math.min(dur-0.05,span*(i+0.5)/n);
+      await new Promise((ok,no)=>{ const done=()=>{ v.removeEventListener("seeked",done); ok() }; v.addEventListener("seeked",done); setTimeout(()=>{ v.removeEventListener("seeked",done); ok() },4000); v.currentTime=Math.max(0,t) });
+      cx.drawImage(v,0,0,cv.width,cv.height);
+      const blob=await new Promise(ok=>cv.toBlob(ok,"image/jpeg",0.82)); if(blob) out.push({blob,url:URL.createObjectURL(blob),t}) }
+    return {frames:out,dur,span,cut:dur>FORM_MAX_SEC} }
+  finally{ URL.revokeObjectURL(url) } }
+function formPrompt(W){ const su=CUSTOM&&CUSTOM.su, n=W.frames.length, gap=W.span/n;
+  return `You are a strength coach reviewing a lifter's form. The ${n} images are frames in order (frame 1 first) from a video of: ${W.name}.
+They are about ${gap.toFixed(1)} seconds apart and cover ${W.span.toFixed(0)} seconds${W.cut?" (the first 30 s of a longer clip)":""}.
+${formLast(W.ex)?`Their most recent sets of this lift: ${formLast(W.ex)}.`:""}${su?` Lifting experience: ${{new:"new to lifting",some:"under a year",exp:"1+ years"}[su.exp]||"unknown"}.`:""}${W.note?`\nWhat they asked: "${String(W.note).slice(0,300)}"`:""}
+Judge only what the frames show. Still frames can't show bar speed or tempo, so don't guess at those. If the camera angle hides something important (like squat depth from the front), say which angle would show it.
+Reply with JSON only:
+{"verdict":"good|minor|fix|unclear","summary":"1–2 sentences","good":["what they're doing well"],"fixes":[{"issue":"","why":"why it matters","cue":"a short cue to think about mid-rep","frame":3}],"safety":"only if something risks injury, else empty","drill":"one drill or setup tweak for next session, or empty","angle":"a tip for filming next time, or empty"}
+Give at most 3 fixes, most important first, and point each one at the clearest frame. If the frames don't show a person doing this exercise, use verdict "unclear" and say why in the summary.` }
+function formOpen(id){ const list=formExercises(), ex=id||(list[0]&&list[0][0])||"", name=(list.find(x=>x[0]===ex)||[])[1]||(typeof libEx==="function"&&libEx(ex)?libEx(ex).name:"");
+  openSheet({kind:"form",step:"pick",ex,name,note:""}) }
+async function formPick(file){ const W=SH; if(!W||W.kind!=="form"||!file) return;
+  if(!/^video\//.test(file.type||"")&&!/\.(mov|mp4|m4v|webm|3gp)$/i.test(file.name||"")){ W.err="That isn't a video file."; paintSheet(); return }
+  W.err=""; W.step="reading"; paintSheet(true);
+  try{ const r=await extractFrames(file,FORM_FRAMES); if(SH!==W) return; if(r.frames.length<3) throw new Error("decode");
+    Object.assign(W,r); W.step="frames"; paintSheet(true) }
+  catch(e){ if(SH!==W) return; W.step="pick"; W.err= e.message==="timeout"? "That video took too long to open. Try a shorter clip (10–20 seconds is plenty)." : "Couldn't read that video on this device. Try another clip, or on iPhone set Camera → Formats → Most Compatible."; paintSheet(true) } }
+async function formRun(){ const W=SH; if(!sampleFn){ W.err="Form checks need a connection to your coach. Check that you're online."; paintSheet(); return }
+  W.step="busy"; W.err=""; paintSheet(true);
+  try{ const r=await sampleFn.json(formPrompt(W),{cache:false,images:W.frames.map(f=>f.blob)}); if(SH!==W) return;
+    const arr=x=>Array.isArray(x)?x.map(s=>String(s).slice(0,240)).filter(Boolean).slice(0,4):[];
+    const res={id:"fc"+Date.now().toString(36),d:ymd(today),ex:W.ex,name:W.name,verdict:["good","minor","fix","unclear"].includes(r.verdict)?r.verdict:"minor",summary:String(r.summary||"").slice(0,400),good:arr(r.good),
+      fixes:(Array.isArray(r.fixes)?r.fixes:[]).slice(0,3).map(f=>({issue:String(f.issue||"").slice(0,160),why:String(f.why||"").slice(0,240),cue:String(f.cue||"").slice(0,120),frame:Math.max(1,Math.min(W.frames.length,Math.round(Number(f.frame)||1)))})).filter(f=>f.issue),
+      safety:String(r.safety||"").slice(0,300),drill:String(r.drill||"").slice(0,300),angle:String(r.angle||"").slice(0,240)};
+    W.res=res; W.step="result";
+    S.profile.formChecks=[...formChecks(),res].slice(-30); saveProfile();
+    // so the coach chat knows what it said
+    S.chat.push({role:"user",content:`Form check: ${W.name} (video, ${W.frames.length} frames)${W.note?` — ${W.note}`:""}`,t:Date.now()});
+    S.chat.push({role:"assistant",content:formText(res),t:Date.now()}); saveChat();
+    paintSheet(true) }
+  catch(e){ if(SH!==W) return; W.step="frames"; W.err= e&&e.code==="rate_limited"? "You've hit today's coach limit. Try again tomorrow." : "Couldn't get feedback this time. Try again."; paintSheet(true) } }
+const FORM_VERDICT={good:["Looks solid","good"],minor:["Small tweaks","minor"],fix:["Worth fixing","fix"],unclear:["Couldn't tell","unclear"]};
+function formText(r){ return [`**${FORM_VERDICT[r.verdict][0]}.** ${r.summary}`, r.good.length?`Good: ${r.good.join("; ")}.`:"", ...r.fixes.map((f,i)=>`${i+1}. ${f.issue}. ${f.why} Cue: "${f.cue}"`), r.safety?`Safety: ${r.safety}`:"", r.drill?`Try: ${r.drill}`:"", r.angle?`Filming: ${r.angle}`:""].filter(Boolean).join("\n") }
+function formResultHtml(r,frames){
+  const th=n=>frames&&frames[n-1]? `<img class="fc-thumb" src="${frames[n-1].url}" alt="Frame ${n}">` : "";
+  return `<div class="fc-verdict ${FORM_VERDICT[r.verdict][1]}">${FORM_VERDICT[r.verdict][0]}</div><p>${esc(r.summary)}</p>
+    ${r.safety?`<div class="note fc-safety"><b>Safety:</b> ${esc(r.safety)}</div>`:""}
+    ${r.good.length?`<h3>What's working</h3><ul class="fc-good">${r.good.map(g=>`<li>${esc(g)}</li>`).join("")}</ul>`:""}
+    ${r.fixes.length?`<h3>To fix</h3>${r.fixes.map((f,i)=>`<div class="fc-fix">${th(f.frame)}<div><b>${i+1}. ${esc(f.issue)}</b><div class="small muted">${esc(f.why)}</div>${f.cue?`<div class="fc-cue">Cue: “${esc(f.cue)}”</div>`:""}${frames?`<div class="small muted">Frame ${f.frame}</div>`:""}</div></div>`).join("")}`:""}
+    ${r.drill?`<p><b>Next session:</b> ${esc(r.drill)}</p>`:""}${r.angle?`<p class="small muted"><b>Filming tip:</b> ${esc(r.angle)}</p>`:""}` }
+function formHtml(){ const W=SH, list=formExercises();
+  const head=`<div class="xs-head"><h2>Form check</h2><button type="button" class="btn ghost sm" data-xs="close">${W.step==="result"?"Done":"Cancel"}</button></div>`;
+  const err=W.err?`<p class="note">${esc(W.err)}</p>`:"";
+  if(W.step==="reading") return head+`<div class="gen-busy"><div class="gen-spin" aria-hidden="true"></div><b>Reading your video…</b><p class="small muted">Pulling ${FORM_FRAMES} frames. The video stays on your phone.</p></div>`;
+  if(W.step==="busy") return head+`<div class="fc-strip">${W.frames.map(f=>`<img src="${f.url}" alt="">`).join("")}</div><div class="gen-busy"><div class="gen-spin" aria-hidden="true"></div><b>Your coach is watching…</b><p class="small muted">Usually 10–20 seconds.</p></div>`;
+  if(W.step==="result") return head+`<p class="small muted">${esc(W.name)} · ${fmtDate(today)}</p>`+formResultHtml(W.res,W.frames)+
+    `<div class="row" style="margin-top:12px"><button type="button" class="btn" data-xs="formchat">Ask a follow-up</button><button type="button" class="btn ghost" data-xs="formagain">Check another video</button></div>`;
+  if(W.step==="frames") return head+`<p class="small"><b>${esc(W.name)}</b> · ${W.frames.length} frames from ${W.span.toFixed(0)} s${W.cut?" (first 30 s)":""}</p>
+    <div class="fc-strip">${W.frames.map((f,i)=>`<figure><img src="${f.url}" alt="Frame ${i+1}"><figcaption>${i+1}</figcaption></figure>`).join("")}</div>
+    <div class="field"><label>Anything to look at? <span class="muted">(optional)</span></label><input data-xs-fnote="1" value="${esc(W.note||"")}" placeholder="e.g. my lower back on the way up" data-xs-focus="fnote"></div>${err}
+    <div class="row"><button type="button" class="btn" data-xs="formrun">Get feedback</button><button type="button" class="btn ghost" data-xs="formagain">Use another video</button></div>
+    <p class="small muted">Your coach sees these still frames, not the full video. Uses one coach request.</p>`;
+  const past=formChecks().filter(x=>x.ex===W.ex).slice(-3).reverse();
+  return head+`<div class="field"><label>Exercise</label><select data-xs-fex="1">${list.map(([id,n])=>`<option value="${esc(id)}" ${id===W.ex?"selected":""}>${esc(n)}</option>`).join("")}</select></div>
+    <label class="btn fc-pick">${FORM_ICON} Record or choose a video<input type="file" accept="video/*" data-xs-fvid="1" hidden></label>${err}
+    <ul class="fc-tips small"><li><b>Side view</b> for squats, deadlifts, presses and rows; <b>front</b> to check knees or bar level.</li><li>Whole body and the weight in frame, phone at hip height.</li><li>One set of 2–5 reps is plenty. Clips over 30 s use the first 30.</li></ul>
+    ${past.length?`<h3>Past checks</h3>${past.map(x=>`<details class="logger"><summary>${fmtShort(parseYmd(x.d))} · ${FORM_VERDICT[x.verdict][0]}</summary>${formResultHtml(x,null)}</details>`).join("")}`:""}` }
+
 /* ======================= Auto-generated food plan =======================
    The person gives calories, protein, what they want the food to be like, what to leave out and a weekly budget.
    Claude writes the recipes using only foods from the built-in database (so every macro is computed here, not
@@ -1332,6 +1415,7 @@ document.addEventListener("click",e=>{
   if(d.cGroclr){ S.profile.grocery={}; saveProfile(); render(); return }
   if(d.cShopfromplan){ shopFromPlan(); return }
   if(d.cAutogen){ genStart(); return }
+  if(d.formcheck!=null){ formOpen(d.formcheck); return }
   if(d.cGenhide){ kitchen().genHide=1; commitPlan(); return }
   if(d.cShopedit!=null){ shopEdit=d.cShopedit||null; lastRenderKey=""; render(); return }
   if(d.cShopclr){ const g={...(S.profile.grocery||{})}; Object.keys(g).forEach(k=>{ if(k.startsWith(d.cShopclr+"-")) delete g[k] }); S.profile.grocery=g; saveProfile(); lastRenderKey=""; render(); return }
@@ -1391,6 +1475,10 @@ document.addEventListener("click",e=>{
   if(d.xs==="ssadd"){ SH.cycle.push(shopOf().lists[0].id); paintSheet(); return }
   if(d.xsSsrm!=null){ SH.cycle.splice(+d.xsSsrm,1); SH.pos=Math.min(SH.pos,SH.cycle.length-1); paintSheet(); return }
   if(d.xs==="sssave"){ const W=SH, K=kitchen(), nd=nextShopDay({day:W.day}); K.shop.day=W.day; K.shop.cycle=[...W.cycle]; K.shop.start=ymd(addDays(nd,-7*W.pos)); saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Schedule saved"); return }
+  if(SH.kind==="form"){
+    if(d.xs==="formrun"){ formRun(); return }
+    if(d.xs==="formagain"){ SH.step="pick"; SH.err=""; SH.frames=null; SH.res=null; paintSheet(true); return }
+    if(d.xs==="formchat"){ xsClose(); tab="advice"; advView="advice"; lastRenderKey=""; render(); setTimeout(()=>{ const ta=document.getElementById("chatIn"); if(ta){ ta.value="About that form check: "; ta.focus(); ta.scrollIntoView({block:"center"}) } },60); return } }
   if(SH.kind==="autogen"){ const f=SH.f;
     if(d.xsGstyle){ const k=d.xsGstyle; f.styles=f.styles.includes(k)? f.styles.filter(x=>x!==k) : [...f.styles,k]; paintSheet(); return }
     if(d.xsGcook){ f.cook=d.xsGcook; paintSheet(); return }
@@ -1456,6 +1544,7 @@ document.addEventListener("input",e=>{ const t=e.target, d=t.dataset||{};
   if(d.xsNf){ SH.d[d.xsNf]=t.value; return }
   if(d.xsSi&&SH&&SH.kind==="shopItem"){ SH[d.xsSi]=t.value; return }
   if(d.xsSl&&SH&&SH.kind==="shopList"){ SH[d.xsSl]=t.value; return }
+  if(d.xsFnote&&SH&&SH.kind==="form"){ SH.note=t.value; return }
   if(d.xsGf&&SH&&SH.kind==="autogen"){ const k=d.xsGf; SH.f[k]= k==="desc"? t.value : String(t.value).replace(/[^\d.]/g,"")===""? "" : Number(String(t.value).replace(/[^\d.]/g,"")); return }
   if(d.xsGn!=null&&SH&&SH.kind==="gscan"){ SH.pname=t.value; return }
   if(d.xsGq!=null&&SH&&SH.kind==="gscan"){ SH.eq=t.value; paintPart(".gplan"); return }
@@ -1463,6 +1552,8 @@ document.addEventListener("input",e=>{ const t=e.target, d=t.dataset||{};
   if(d.xsCf){ SH.d[d.xsCf]=t.value; return }
 });
 document.addEventListener("change",e=>{ const t=e.target, d=t.dataset||{};
+  if(d.xsFvid&&SH&&SH.kind==="form"){ const f=t.files&&t.files[0]; t.value=""; formPick(f); return }
+  if(d.xsFex&&SH&&SH.kind==="form"){ SH.ex=t.value; SH.name=t.options[t.selectedIndex].text; paintSheet(); return }
   if(d.xsSi==="unit"&&SH&&SH.kind==="shopItem"){ SH.unit=t.value; return }
   if(d.xsSs&&SH&&SH.kind==="shopSched"){ if(d.xsSs==="day"){ SH.day=+t.value; paintSheet() } else if(d.xsSs==="wk"){ SH.cycle[+t.dataset.i]=t.value } else if(d.xsSs==="pos") SH.pos=+t.value; return }
   if(d.xsGu!=null&&SH&&SH.kind==="gscan"){ SH.eu=t.value; paintPart(".gplan"); return }
