@@ -639,6 +639,18 @@ details.card.needs summary{cursor:pointer;list-style:none}details.card.needs sum
 .mob-list{margin:8px 0;padding-left:20px;display:flex;flex-direction:column;gap:6px}.mob-list li span:first-child{margin-right:8px}
 .rest-next{display:flex;flex-direction:column;gap:3px;border-top:1px solid var(--line);padding-top:10px;margin-top:10px}
 
+/* form check */
+.fc-pick{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;box-sizing:border-box;margin:6px 0;cursor:pointer}.fc-pick svg,.fc-card .btn svg{width:18px;height:18px}
+.fc-card .btn{display:inline-flex;align-items:center;gap:6px;flex:none}
+.fc-tips{padding-left:18px;display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.fc-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}.fc-strip figure{margin:0;position:relative}.fc-strip img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;background:var(--surface-2);display:block}
+.fc-strip figcaption{position:absolute;left:5px;top:4px;font-size:11px;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+.fc-verdict{display:inline-block;font-weight:800;font-size:13px;padding:5px 12px;border-radius:999px;margin:4px 0 6px}
+.fc-verdict.good{background:color-mix(in srgb,var(--good) 20%,var(--surface));color:var(--good)}.fc-verdict.minor{background:color-mix(in srgb,var(--warn) 20%,var(--surface));color:var(--warn)}
+.fc-verdict.fix{background:color-mix(in srgb,var(--bad) 18%,var(--surface));color:var(--bad)}.fc-verdict.unclear{background:var(--surface-2);color:var(--muted)}
+.fc-fix{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}.fc-thumb{width:72px;height:96px;object-fit:cover;border-radius:10px;flex:none}
+.fc-cue{margin-top:4px;font-weight:700;color:var(--gym)}.fc-good{padding-left:18px;margin:4px 0}.fc-safety{border-color:var(--bad)}
+
 /* auto-generated food plan */
 .gen-card{border:1px solid color-mix(in srgb,var(--food) 40%,var(--edge))}
 .gen-chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px}
@@ -1197,7 +1209,7 @@ function setCount(ex,k){ const l=S.logs[k], cur=l&&l.ex&&l.ex[ex.id]; return Mat
 function setTypeK(k,id,i){ const v=drafts[dkey(k,`st-${id}-${i}`)]; if(v!==undefined) return v||""; const l=S.logs[k], c=l&&l.ex&&l.ex[id]&&l.ex[id][i]; return (c&&c.t)||"" }
 function exerciseBlock(ex,k,log){
   const t=finalTarget(ex,k), cur=log&&log.ex&&log.ex[ex.id], db=dbNow(ex.id,log), n=setCount(ex,k), extra=Number(drafts[dkey(k,`xs-${ex.id}`)])||0;
-  let h=`<div class="ex"><div class="exhead"><button type="button" class="exname" data-exhist="${esc(ex.id)}">${esc(ex.name)}</button>${swapBtn(ex,log)}${ex.added&&!log?`<span class="swapped">added<button type="button" data-addrm="${esc(ex.id)}">remove</button></span>`:""}</div>
+  let h=`<div class="ex"><div class="exhead"><button type="button" class="exname" data-exhist="${esc(ex.id)}">${esc(ex.name)}</button>${swapBtn(ex,log)}${formBtn(ex)}${ex.added&&!log?`<span class="swapped">added<button type="button" data-addrm="${esc(ex.id)}">remove</button></span>`:""}</div>
     <div class="row between exmeta"><span class="small muted num">${ex.sets} × ${ex.lo===ex.hi?ex.lo:ex.lo+"–"+ex.hi}${ex.bw?" s":""} · rest ${fmtClock(restFor(ex.id)*1000)}</span>${DBCFG[ex.id]?`<label class="dbt ${db?"on":""}"><input type="checkbox" data-db="${ex.id}" ${db?"checked":""}>Dumbbells</label>`:""}</div>`;
   if(db) h+=`<div class="dbnote" id="dbn-${ex.id}"></div>`;
   h+=prevLine(ex,k);
@@ -1454,6 +1466,7 @@ function viewAdvice(){
   const hist=(S.advice.history||[]).filter(x=>x.at!==S.advice.at).slice(-6).reverse();
   if(hist.length) h+=`<details class="logger"><summary>Earlier advice</summary><div class="stack" style="gap:10px;margin-top:10px">${hist.map(x=>`<div class="small muted">${new Date(x.at).toLocaleDateString("en-US",{month:"short",day:"numeric"})}</div>`+x.items.map(advCard).join("")).join("")}</div></details>`;
   h+=`</div>`;
+  if(CUSTOM) h+=`<div class="card fc-card"><div class="row between" style="align-items:center;gap:12px"><div><h2>Form check</h2><p class="small muted" style="margin:4px 0 0">Send a short video of a set and get feedback on your technique.</p></div><button type="button" class="btn sm" data-formcheck="">${FORM_ICON} Check my form</button></div></div>`;
   h+=`<div class="card"><div class="row between"><h2>Ask your coach</h2>${S.chat.length?'<button class="btn ghost sm" id="chatClear">Clear chat</button>':""}</div>
    <details class="logger"><summary class="small">About me (your coach reads this)</summary><div class="field" style="margin-top:8px"><textarea id="about" placeholder="Age, weight, goals, injuries, gym equipment…">${esc(S.profile.about||"")}</textarea></div></details>
    <div class="chat" id="chatList"></div>`;
