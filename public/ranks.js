@@ -246,7 +246,7 @@ let RK_CACHE = { sig: "", R: null };
 function rkSig() {
   const L = Object.keys(S.logs).sort().map(k => k + ":" + ((S.logs[k] && S.logs[k].savedAt) || 0)).join(",");
   const su = rkSu();
-  return [ymd(today), L, JSON.stringify({ ...rkData(), seen: 0 }), typeof loaded !== "undefined" && loaded.logs && loaded.profile, (S.profile.weights || []).length, (S.profile.weights || []).map(w => w.d + w.lb).join(), su.sex, su.age, su.birth, su.weight, RKC().version, typeof CUSTOM !== "undefined" && CUSTOM ? JSON.stringify(rkSplitIds()) : ""].join("|");
+  return [ymd(today), L, JSON.stringify({ ...rkData(), seen: 0 }), typeof loaded !== "undefined" && loaded.logs && loaded.profile, (S.profile.weights || []).length, (S.profile.weights || []).map(w => w.d + w.lb).join(), su.sex, su.age, su.birth, su.weight, RKC().version, JSON.stringify(S.profile.moves || {}), JSON.stringify((S.profile.setup || {}).week || []), typeof CUSTOM !== "undefined" && CUSTOM ? JSON.stringify(rkSplitIds()) : ""].join("|");
 }
 function rkSplitIds() { try { const ph = curPhase(); return [...new Set(Object.values(ph).flatMap(d => (d.ex || []).map(e => e.id)))] } catch (e) { return [] } }
 function rankState() {
@@ -303,6 +303,8 @@ function rankState() {
     const scaled = g.best ? Math.max(...ps.map(p => R.part[p].scaled.v)) : ps.reduce((t, p) => t + g.parts[p] * R.part[p].scaled.v, 0) / ps.reduce((t, p) => t + g.parts[p], 0);
     return { ...g, num, scaled };
   });
+  R.disc = rkDiscipline(R);
+  R.groups.push({ id: "disc", name: "Discipline", parts: {}, disc: true, num: R.disc.num, scaled: R.disc.num });
   const gs = R.groups.filter(g => g.num != null);
   R.overall = gs.length ? Math.min(5, Math.floor(gs.reduce((t, g) => t + g.num, 0) / gs.length + (1 - C.overallRoundAt))) : 0;
   R.overallScaled = gs.length ? Math.min(5, Math.floor(gs.reduce((t, g) => t + Math.min(5, g.scaled), 0) / gs.length + (1 - C.overallRoundAt))) : 0;
@@ -310,6 +312,48 @@ function rankState() {
   RK_CACHE = { sig, R };
   return R;
 }
+/* ---------- Discipline (consistency) ---------- */
+const rkPartName = p => p === "disc" ? "Discipline" : RKC().parts[p].name;
+// one week's sessions: planned (from the schedule, after moves) and done (days with a logged gym session or run)
+function rkWeekSessions(mon, td) {
+  let plan = 0, done = 0;
+  for (let i = 0; i < 7; i++) {
+    const k = rkAdd(mon, i), l = S.logs[k], p = typeof planFor === "function" ? planFor(parseYmd(k)) : null;
+    if (p && p.type !== "rest") plan++;
+    if (k <= td && l && (l.type === "gym" || l.type === "run")) done++;
+  }
+  return { plan, done: Math.min(done, plan), need: Math.ceil(plan * RKC().discipline.hitPct) };
+}
+// on-target weeks in the window ending with the week of `d` (the week in progress counts only once it's on target)
+function rkDiscAt(d, first) {
+  const C = RKC().discipline, cur = rkMon(d), weeks = []; let w = cur, n = 0;
+  while (weeks.length < C.weeks && w >= first) {
+    let fz = 0; for (let i = 0; i < 7; i++) if (rkFrozenOn(RK_PAUSE, rkAdd(w, i))) fz++;
+    const s = rkWeekSessions(w, d), hit = s.plan > 0 && s.done >= s.need;
+    if (fz < 4 && s.plan > 0 && (w < cur || hit)) { weeks.push({ w, hit, ...s }); if (hit) n++ }
+    w = rkAdd(w, -7);
+  }
+  const th = C.th; let rank = 0; while (rank < 5 && n >= th[rank]) rank++;
+  const lo = rank ? th[rank - 1] : 0, prog = rank >= 5 ? 1 : Math.max(0, Math.min(0.999, (n - lo) / (th[rank] - lo)));
+  return { n, rank, prog, num: rank + prog, weeks: weeks.reverse(), next: rank < 5 ? th[rank] : null };
+}
+function rkDiscipline(R) {
+  const keys = Object.keys(S.logs).filter(k => k <= R.td && S.logs[k] && (S.logs[k].type === "gym" || S.logs[k].type === "run")).sort();
+  let first = keys.length ? rkMon(keys[0]) : rkMon(R.td);
+  if (typeof CUSTOM !== "undefined" && CUSTOM && CUSTOM.su.firstDay && rkMon(CUSTOM.su.firstDay) < first) first = rkMon(CUSTOM.su.firstDay);
+  // rank changes week by week, for the rank-up moment and alerts
+  let prev = 0;
+  for (let w = first; w < rkMon(R.td); w = rkAdd(w, 7)) {
+    const r = rkDiscAt(rkAdd(w, 6), first).rank;
+    if (r !== prev) R.events.push({ id: `disc|${w}|${r}`, t: r > prev ? "up" : "down", p: "disc", d: rkAdd(w, 6), to: r, from: prev });
+    prev = r;
+  }
+  const D = rkDiscAt(R.td, first);
+  if (D.rank > prev) R.events.push({ id: `disc|${rkMon(R.td)}|${D.rank}`, t: "up", p: "disc", d: R.td, to: D.rank, from: prev });
+  D.week = rkWeekSessions(rkMon(R.td), R.td);
+  return D;
+}
+
 // Gate status for a part on day d (before = use yesterday's value, so a Gate set can't unlock its own Gate)
 function rkGateStatus(R, p, d, before) {
   const C = RKC(), s = R.st[p], maxR = rkPartCap(p) != null ? rkPartCap(p) : 5;
@@ -317,9 +361,7 @@ function rkGateStatus(R, p, d, before) {
   if (rkExcl(p).some(x => x.from <= d && d <= x.to)) return { open: false, why: "excluded" };
   const v = rkValue(R, p, before ? rkAdd(d, -1) : d, "raw").v;
   if (v < s.rank + 1) return { open: false, why: "bar", need: s.rank + 1 - v };
-  const cons = rkConsistency(R, p, d).n;
-  if (cons < C.gateWeeks) return { open: false, why: "consistency", cons };
-  if (s.lastFail) { const wait = cons >= C.fastRetryWeeks ? C.fastRetryDays : C.retryDays, left = wait - rkDays(s.lastFail, d); if (left > 0) return { open: false, why: "cooldown", left } }
+  if (s.lastFail) { const left = C.retryDays - rkDays(s.lastFail, d); if (left > 0) return { open: false, why: "cooldown", left } }
   return { open: true, to: s.rank + 1 };
 }
 
@@ -387,7 +429,7 @@ function rkGateText(p, P) {
   const g = P.gate; if (!g) return "";
   if (g.open) return `<div class="rk-gate open"><b>Gate open: reach ${rkLetter(g.to)}</b><span class="small">${RKC().parts[p].run ? "Tick “Count as a Gate attempt” when you log the run, or log a time trial below." : "In a workout, tap a set's number until it shows <b>G</b>, then lift one of these for 1–5 reps:"}</span>
     ${rkGateOptions(p, g.to).map(o => `<div class="rk-opt"><span>${esc(o.name)}${o.basic ? ' <span class="muted small">(basic lift)</span>' : ""}</span><span class="num">${esc(o.txt)}</span></div>`).join("")}</div>`;
-  const W = { bar: "Fill the bar to unlock the next Gate.", consistency: `Gate needs training in ${RKC().gateWeeks} of the last ${RKC().consistencyWeeks} weeks (now ${g.cons}).`, cooldown: `Gate failed. Retry in ${g.left} day${g.left > 1 ? "s" : ""}.`, excluded: "Excluded for injury. Fading and demotion are paused.", milecap: "The mile counts up to B. A and S come from the 400 m.", top: "Top rank reached.", placement: "Ranks are set after placement week." };
+  const W = { bar: "Fill the bar to unlock the next Gate.", cooldown: `Gate failed. Retry in ${g.left} day${g.left > 1 ? "s" : ""}.`, excluded: "Excluded for injury. Fading and demotion are paused.", milecap: "The mile counts up to B. A and S come from the 400 m.", top: "Top rank reached.", placement: "Ranks are set after placement week." };
   return W[g.why] && g.why !== "bar" ? `<div class="small muted">${W[g.why]}</div>` : "";
 }
 function rkPartRow(p, R) {
@@ -410,6 +452,18 @@ function rkGroupCard(g, R) {
   if (open) { h += `<div class="stack" style="gap:10px">${Object.keys(g.parts).map(p => rkPartRow(p, R)).join("")}</div>`; if (g.id === "speed" || g.id === "endur") h += rkTrialBlock() }
   return h + `</div>`;
 }
+function rkDiscCard(R) {
+  const D = R.disc, C = RKC().discipline, open = rkOpen === "disc", wk = D.week;
+  const sq = D.weeks.map(x => `<i class="${x.hit ? "on" : ""}" title="Week of ${fmtShort(parseYmd(x.w))}: ${x.done} of ${x.plan}"></i>`).join("");
+  let h = `<div class="card rk-group"><button type="button" class="rk-head" data-rkgroup="disc" aria-expanded="${open}">${rkBadge(D.num, true)}<span style="flex:1;min-width:0;text-align:left"><span class="row between"><b class="rk-name">Discipline</b><span class="small muted">${open ? "Hide" : "Details"} ›</span></span>
+    ${rkBar(D.rank >= 5 ? 1 : D.prog, RK_COL[Math.min(5, D.rank + 1)])}
+    <span class="small muted">${D.n} of the last ${C.weeks} weeks on target${D.next ? ` · ${rkLetter(D.rank + 1)} at ${D.next}` : ""}</span></span></button>`;
+  if (open) h += `<div class="rk-part"><div class="small">A week is on target when you log ${Math.round(C.hitPct * 100)}% of its planned sessions. Discipline rises with on-target weeks in your last ${C.weeks} and needs no Gates. Miss weeks and it slips on its own.</div>
+    <div class="rk-cons rk-disc" aria-label="${D.n} of the last ${D.weeks.length} weeks on target">${sq || '<span class="small muted">Your first week counts once it\'s on target.</span>'}</div>
+    <div class="row between small"><span class="muted">This week</span><span class="num"><b>${wk.done}</b> of ${wk.plan} sessions${wk.plan ? (wk.done >= wk.need ? " · on target" : ` · ${wk.need - wk.done} more for on target`) : ""}</span></div>
+    <div class="small muted">Ranks: ${C.th.map((t, i) => `${rkLetter(i + 1)} ${t}`).join(" · ")} on-target weeks. Pausing skips those weeks.</div></div>`;
+  return h + `</div>`;
+}
 function rkTrialBlock() {
   const T = (rkData().trials || []).slice().sort((a, b) => a.d < b.d ? 1 : -1).slice(0, 6);
   let h = `<div class="rk-trials"><div class="row between"><b>Time trials</b>${rkTrialOpen ? "" : '<button type="button" class="btn ghost sm" data-rktrial="1">+ Log a time trial</button>'}</div>`;
@@ -427,14 +481,14 @@ function rkAlerts(R) {
   const C = RKC(), out = [];
   R.flagged.slice(-5).forEach(e => out.push(`<div class="rk-alert"><div><b>Check this entry:</b> ${e.run ? esc(e.src) + " " + rkFmtSec(e.m) : `${esc(rkExName(e.ex))} ${e.kind === "hold" ? e.set.r + " s" : (e.set.w ? toU(e.set.w) + " " + uL() + " × " : "") + e.set.r}`} on ${fmtShort(parseYmd(e.d))} — ${esc(e.flag)}. It won't count until you confirm it. If it's a typo, fix it in that day's log.</div><button type="button" class="btn sm" data-rkconf="${esc(e.key)}">It's right</button></div>`));
   R.parts.forEach(p => { const P = R.part[p]; if (P.gate.open) out.push(`<div class="rk-alert gate"><b>Gate open:</b> ${esc(C.parts[p].name)} → ${rkLetter(P.gate.to)}<button type="button" class="link small" data-rkgo="${p}">See how</button></div>`); if (P.warn) out.push(`<div class="rk-alert warn"><b>${esc(C.parts[p].name)}</b> drops from ${rkLetter(P.rank)} in ${P.warn} day${P.warn > 1 ? "s" : ""}.</div>`) });
-  R.events.filter(e => (e.t === "down" || e.t === "reclaim") && rkDays(e.d, R.td) <= 7).forEach(e => out.push(`<div class="rk-alert ${e.t === "down" ? "warn" : ""}"><b>${esc(C.parts[e.p].name)}</b> ${e.t === "down" ? "dropped" : "reclaimed"} to ${rkLetter(e.to)} on ${fmtShort(parseYmd(e.d))}.</div>`));
+  R.events.filter(e => (e.t === "down" || e.t === "reclaim") && rkDays(e.d, R.td) <= 7 && e.p !== "disc").forEach(e => out.push(`<div class="rk-alert ${e.t === "down" ? "warn" : ""}"><b>${esc(rkPartName(e.p))}</b> ${e.t === "down" ? "dropped" : "reclaimed"} to ${rkLetter(e.to)} on ${fmtShort(parseYmd(e.d))}.</div>`));
   Object.entries(rkData().excl || {}).forEach(([p, list]) => { const x = (list || []).find(y => y && !y.to); if (x && rkDays(x.ask || x.from, R.td) >= C.excludeAskDays) out.push(`<div class="rk-alert"><div><b>Still injured?</b> ${esc(C.parts[p].name)} has been excluded for 12 weeks.</div><div class="row"><button type="button" class="btn sm" data-rkkeep="${p}">Keep excluded</button><button type="button" class="btn ghost sm" data-rkexcl="${p}">Include again</button></div></div>`) });
   return out.join("");
 }
 function rkPauseCard(R) {
   const C = RKC(), P = rkPauses(), open = P.find(x => x.open), used = P.filter(x => rkDays(x.to, R.td) < 365).reduce((t, x) => t + rkDays(x.from, x.to) + 1, 0), left = Math.max(0, C.pauseDaysPerYear - used);
   return `<div class="card"><div class="row between"><h2>Pause</h2><span class="small muted num">${left} of ${C.pauseDaysPerYear} days left this year</span></div>
-    <p class="small muted">Going away or ill? Pausing freezes fading and demotion. Turn it on before or during the break — it can't be added afterwards.</p>
+    <p class="small muted">Going away or ill? Pausing freezes fading, demotion and Discipline. Turn it on before or during the break — it can't be added afterwards.</p>
     ${open ? `<div class="row between"><b>Paused since ${fmtShort(parseYmd(open.from))}</b><button type="button" class="btn sm" id="rkPauseEnd">End pause</button></div>` : `<button type="button" class="btn ghost sm" id="rkPause" ${left ? "" : "disabled"} style="align-self:flex-start">Pause from today</button>`}</div>`;
 }
 function rkUnrated() {
@@ -446,12 +500,12 @@ function viewRanks() {
   const R = rankState(), C = RKC(), sc = rkMode === "scaled", su = rkSu();
   let h = `<div class="card rk-top"><div class="row between" style="align-items:center"><div><div class="eyebrow">Overall rank</div><h2 style="margin:0">${sc ? "For your size" : "Your ranks"}</h2></div>${rkBadge(sc ? R.overallScaled : R.overall, true)}</div>
     <div class="seg two" role="tablist" aria-label="Rank view"><button role="tab" data-rkmode="raw" class="${!sc ? "on" : ""}" aria-selected="${!sc}">Raw</button><button role="tab" data-rkmode="scaled" class="${sc ? "on" : ""}" aria-selected="${sc}">For your size</button></div>
-    <p class="small muted">${sc ? "What your lifts are worth at your body weight. Gates and rank-ups always use raw ranks." : "Ranks come from your best recent lifts and runs. Each rank-up needs a Gate."}</p>`;
+    <p class="small muted">${sc ? "What your lifts are worth at your body weight. Gates and rank-ups always use raw ranks." : "Strength and speed ranks come from your best recent lifts and runs, and each rank-up needs a Gate. Discipline comes from showing up week after week."}</p>`;
   if (R.place && R.place.pending) h += `<div class="rk-alert"><b>Placement week.</b> Your starting ranks are set on ${fmtShort(parseYmd(R.place.ready))}, after a week of training. Bars below are a preview.</div>`;
   else if (R.place) h += `<p class="small muted">Placed ${fmtShort(parseYmd(R.place.at))} from your training ${fmtShort(parseYmd(R.place.from))}–${fmtShort(parseYmd(R.place.to))} (placement caps at B).</p>`;
   h += `</div>`;
   const al = rkAlerts(R); if (al) h += `<div class="stack" style="gap:8px">${al}</div>`;
-  R.groups.forEach(g => h += rkGroupCard(g, R));
+  R.groups.forEach(g => h += g.disc ? rkDiscCard(R) : rkGroupCard(g, R));
   const un = rkUnrated();
   if (un.length) h += `<div class="card"><h2>Unrated exercises</h2><p class="small muted">Pick a similar exercise so these count. They count up to B and can't be Gates.</p>${un.map(([id, L]) => `<div class="row between" style="align-items:center"><span>${esc(L.name)}</span><select data-rkmap="${esc(id)}"><option value="">Counts like…</option>${Object.keys(C.conv).map(x => `<option value="${x}">${esc(rkExName(x))}</option>`).join("")}</select></div>`).join("")}</div>`;
   h += rkPauseCard(R);
@@ -496,12 +550,12 @@ function rankNotify() {
     D.seen = [...seen, ...fresh.map(e => e.id)].slice(-400); saveProfile();
     const up = recent.filter(e => e.t === "up" || e.t === "reclaim"), fail = recent.filter(e => e.t === "fail");
     if (up.length) rkCelebrate(up[up.length - 1], up.length);
-    else if (fail.length) { const f = fail[fail.length - 1]; toast(f.why === "reps" ? "Gate set didn't count: weighted Gate sets must be 1–5 reps" : f.why === "capped" ? "That exercise can't be a Gate" : `Gate not passed. Retry ${RKC().parts[f.p].name} in ${rkConsistency(R, f.p, R.td).n >= RKC().fastRetryWeeks ? RKC().fastRetryDays : RKC().retryDays} days`) }
+    else if (fail.length) { const f = fail[fail.length - 1]; toast(f.why === "reps" ? "Gate set didn't count: weighted Gate sets must be 1–5 reps" : f.why === "capped" ? "That exercise can't be a Gate" : `Gate not passed. Retry ${RKC().parts[f.p].name} in ${RKC().retryDays} days`) }
   } catch (e) { try { console.warn("ranks", e) } catch (_) {} }
 }
 function rkCelebrate(ev, n) {
   const C = RKC(), el = document.createElement("div"); el.className = "rk-up"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Rank up");
-  el.innerHTML = `<div class="rk-up-in"><div class="eyebrow">${ev.t === "reclaim" ? "Rank reclaimed" : "Gate cleared"}</div>${rkBadge(ev.to, true)}<h2>${esc(C.parts[ev.p].name)} → ${rkLetter(ev.to)}</h2>${n > 1 ? `<p class="small">+${n - 1} more</p>` : ""}<button type="button" class="btn">Continue</button></div>`;
+  el.innerHTML = `<div class="rk-up-in"><div class="eyebrow">${ev.t === "reclaim" ? "Rank reclaimed" : ev.p === "disc" ? "Discipline up" : "Gate cleared"}</div>${rkBadge(ev.to, true)}<h2>${esc(rkPartName(ev.p))} → ${rkLetter(ev.to)}</h2>${n > 1 ? `<p class="small">+${n - 1} more</p>` : ""}<button type="button" class="btn">Continue</button></div>`;
   document.body.appendChild(el); const close = () => el.remove(); el.onclick = close; setTimeout(() => el.classList.add("on"), 20);
 }
 
@@ -515,7 +569,7 @@ function rkCelebrate(ev, n) {
 .rk-head{all:unset;display:flex;gap:12px;align-items:center;cursor:pointer;width:100%;box-sizing:border-box}.rk-head:focus-visible{outline:2px solid var(--gym);outline-offset:4px;border-radius:8px}
 .rk-name{font:800 21px/1.1 var(--display);letter-spacing:-.02em}
 .rk-part{border:0;border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;background:var(--surface-2)}.rk-part.excl{opacity:.6}
-.rk-cons{display:inline-flex;gap:3px;flex:none}.rk-cons i{width:8px;height:8px;border-radius:2px;background:var(--line)}.rk-cons i.on{background:var(--food)}
+.rk-cons{display:inline-flex;gap:3px;flex:none}.rk-disc{flex-wrap:wrap;gap:4px}.rk-disc i{width:14px;height:14px;border-radius:4px}.rk-cons i{width:8px;height:8px;border-radius:2px;background:var(--line)}.rk-cons i.on{background:var(--food)}
 .rk-gate{border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:6px}.rk-gate.open{background:var(--coach-soft);border:1px solid var(--coach)}
 .rk-opt{display:flex;justify-content:space-between;gap:10px;font-size:14px;flex-wrap:wrap}.rk-opt .num{text-align:right}
 .rk-alert{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px}
