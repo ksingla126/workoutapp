@@ -15,6 +15,7 @@ progress charts, standings, outlook, and an AI coach (Claude).
 | `api/barcode.js` | Barcode lookup: USDA branded foods, Open Food Facts, products other users entered, then UPCitemdb |
 | `public/custom.js` | Exercise library, routine builder, food database, meal builder and food diary |
 | `public/ranks.js` | Rank system (E–S): scoring, placement, Gates, demotion, the Ranks screen |
+| `public/formcheck.js` | Form check: tracks the body in a video on the phone (MediaPipe, files in `public/pose/`) and checks each rep. No uploads, no AI calls |
 | `public/rank-config.js` | Every rank number: ladders, conversion rates, age factors, timers. Tune here, not in code |
 | `supabase/schema.sql` | Database tables and the rules that keep each user's data private |
 

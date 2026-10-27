@@ -261,10 +261,11 @@ function loggedPlan(d){ const k=ymd(d), l=S.logs[k]; if(!l) return null; const w
 let SH=null; // {kind, ...state}
 function sheetEl(){ let el=document.getElementById("xsheet"); if(!el){ el=document.createElement("div"); el.id="xsheet"; el.hidden=true; el.innerHTML=`<div class="xs-back" data-xs="close"></div><div class="xs-panel" role="dialog" aria-modal="true"><div class="xs-in"></div></div>`; document.body.appendChild(el) } return el }
 function openSheet(state){ SH=state; const el=sheetEl(); el.hidden=false; document.body.classList.add("xs-open"); paintSheet(true) }
-function xsClose(){ stopScan(); SH=null; const el=document.getElementById("xsheet"); if(el) el.hidden=true; document.body.classList.remove("xs-open") }
+function xsClose(){ stopScan(); if(SH&&SH.kind==="form"&&SH.track) URL.revokeObjectURL(SH.track.url); SH=null; const el=document.getElementById("xsheet"); if(el) el.hidden=true; document.body.classList.remove("xs-open") }
 function paintSheet(scrollTop){ if(!SH) return; const el=sheetEl(), inn=el.querySelector(".xs-in"); const focusSel=document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.xsFocus;
   inn.innerHTML=sheetHtml();
   if(scrollTop) el.querySelector(".xs-panel").scrollTop=0;
+  if(SH.kind==="form") formMountReplay();
   if(focusSel){ const f=inn.querySelector(`[data-xs-focus="${focusSel}"]`); if(f){ f.focus(); try{const v=f.value; f.setSelectionRange(v.length,v.length)}catch(e){} } } }
 const commitPlan=()=>{ saveProfile(); onProfile(); render() };
 // Repaint only part of the sheet, so the input being typed in (and the iPhone keyboard) stays put.
@@ -436,88 +437,72 @@ function cfoodHtml(){ const d=SH.d;
    <p class="small muted">Per serving, from the nutrition label.${d.code?` Linked to barcode ${esc(d.code)} and shared so others who scan it get it too.`:""}</p><p class="note" data-xs-err hidden></p>
    <div class="row"><button type="button" class="btn" data-xs="cfsave">Save food</button>${SH.isNew?"":`<button type="button" class="btn ghost" data-xs="cfdel">${SH.delConfirm?"Tap again to delete":"Delete"}</button>`}</div>`;
 }
-/* ======================= Form check (video → coach feedback) =======================
-   The video never leaves the phone: the app pulls still frames from it, shrinks them, and sends those to the
-   coach with the exercise and the person's recent numbers. Results are kept (text only) so the coach chat and
-   later checks can refer back to them. */
-const FORM_FRAMES=8, FORM_MAX_SEC=30, FORM_PX=768;
+/* ======================= Form check (on the phone; see formcheck.js) ======================= */
 const FORM_ICON=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="4" width="9.5" height="8" rx="1.8"/><path d="M11 7l3.5-2v6L11 9"/></svg>`;
-function formBtn(ex){ if(!ex||ex.fixed||ex.unit==="sec") return ""; return `<button type="button" class="swapb" data-formcheck="${esc(ex.id)}" aria-label="Form check: ${esc(ex.name)}" title="Check my form">${FORM_ICON}</button>` }
-function formExercises(){ const seen=new Map(); try{ Object.values(curPhase()).forEach(d=>(d.ex||[]).forEach(e=>{ if(!e.fixed&&e.unit!=="sec"&&!seen.has(e.id)) seen.set(e.id,e.name) })) }catch(e){}
+function formPattern(id){ const L=typeof libEx==="function"&&libEx(id); return window.FC? FC.patternFor(id,L&&L.muscle) : "basic" }
+function formBtn(ex){ if(!ex||ex.fixed||!window.FC||formPattern(ex.id)==="none") return ""; return `<button type="button" class="swapb" data-formcheck="${esc(ex.id)}" aria-label="Form check: ${esc(ex.name)}" title="Check my form">${FORM_ICON}</button>` }
+function formExercises(){ const seen=new Map(); try{ Object.values(curPhase()).forEach(d=>(d.ex||[]).forEach(e=>{ if(!e.fixed&&!seen.has(e.id)&&formPattern(e.id)!=="none") seen.set(e.id,e.name) })) }catch(e){}
   return [...seen.entries()] }
-function formLast(id){ const ks=Object.keys(S.logs).filter(k=>S.logs[k]&&S.logs[k].ex&&S.logs[k].ex[id]).sort(); const k=ks[ks.length-1]; if(!k) return "";
-  const sets=(S.logs[k].ex[id]||[]).filter(s=>s&&(s.w||s.r)); return sets.length? `${fmtDate(parseYmd(k))}: ${sets.map(s=>`${s.w?toU(s.w)+" "+uL()+" × ":""}${s.r}`).join(", ")}` : "" }
 function formChecks(){ return (S.profile.formChecks||[]) }
-async function extractFrames(file,n){
-  const url=URL.createObjectURL(file), v=document.createElement("video"); v.muted=true; v.playsInline=true; v.setAttribute("playsinline",""); v.preload="auto"; v.src=url;
-  try{
-    await new Promise((ok,no)=>{ v.onloadeddata=ok; v.onerror=()=>no(new Error("decode")); setTimeout(()=>no(new Error("timeout")),20000); v.load() });
-    try{ await v.play(); v.pause() }catch(e){} // iPhone Safari draws frames only after playback has started once
-    const dur=v.duration; if(!isFinite(dur)||dur<=0||!v.videoWidth) throw new Error("decode");
-    const span=Math.min(dur,FORM_MAX_SEC), W=v.videoWidth, H=v.videoHeight, s=Math.min(1,FORM_PX/Math.max(W,H));
-    const cv=document.createElement("canvas"); cv.width=Math.round(W*s); cv.height=Math.round(H*s); const cx=cv.getContext("2d"), out=[];
-    for(let i=0;i<n;i++){ const t=Math.min(dur-0.05,span*(i+0.5)/n);
-      await new Promise((ok,no)=>{ const done=()=>{ v.removeEventListener("seeked",done); ok() }; v.addEventListener("seeked",done); setTimeout(()=>{ v.removeEventListener("seeked",done); ok() },4000); v.currentTime=Math.max(0,t) });
-      cx.drawImage(v,0,0,cv.width,cv.height);
-      const blob=await new Promise(ok=>cv.toBlob(ok,"image/jpeg",0.82)); if(blob) out.push({blob,url:URL.createObjectURL(blob),t}) }
-    return {frames:out,dur,span,cut:dur>FORM_MAX_SEC} }
-  finally{ URL.revokeObjectURL(url) } }
-function formPrompt(W){ const su=CUSTOM&&CUSTOM.su, n=W.frames.length, gap=W.span/n;
-  return `You are a strength coach reviewing a lifter's form. The ${n} images are frames in order (frame 1 first) from a video of: ${W.name}.
-They are about ${gap.toFixed(1)} seconds apart and cover ${W.span.toFixed(0)} seconds${W.cut?" (the first 30 s of a longer clip)":""}.
-${formLast(W.ex)?`Their most recent sets of this lift: ${formLast(W.ex)}.`:""}${su?` Lifting experience: ${{new:"new to lifting",some:"under a year",exp:"1+ years"}[su.exp]||"unknown"}.`:""}${W.note?`\nWhat they asked: "${String(W.note).slice(0,300)}"`:""}
-Judge only what the frames show. Still frames can't show bar speed or tempo, so don't guess at those. If the camera angle hides something important (like squat depth from the front), say which angle would show it.
-Reply with JSON only:
-{"verdict":"good|minor|fix|unclear","summary":"1–2 sentences","good":["what they're doing well"],"fixes":[{"issue":"","why":"why it matters","cue":"a short cue to think about mid-rep","frame":3}],"safety":"only if something risks injury, else empty","drill":"one drill or setup tweak for next session, or empty","angle":"a tip for filming next time, or empty"}
-Give at most 3 fixes, most important first, and point each one at the clearest frame. If the frames don't show a person doing this exercise, use verdict "unclear" and say why in the summary.` }
+const FORM_VERDICT={good:["Looks solid","good"],minor:["One thing to fix","minor"],fix:["A few things to fix","fix"],unclear:["Couldn't tell","unclear"]};
+const FORM_TIPS={squat:"Side view, phone at hip height, whole body in frame. Film from the front another time to check your knees.",hinge:"Side view, phone at hip height, with the bar and your whole body in frame.",bridge:"Side view, level with the bench.",lunge:"Side view, whole body in frame.",
+  hpress:"Side view at bench height, so your arm and the bar are clear.",dip:"Side view, whole body in frame.",vpress:"Side view, whole body and the weight overhead in frame.",row:"Side view, phone at hip height.",vpull:"Side or front view, with the bar and your whole body in frame.",
+  curl:"Side view, whole body in frame.",tri:"Side view, your arm clearly visible.",raise:"Front view for lateral raises, side view for front raises.",legraise:"Side view, whole body in frame.",hold:"Side view at floor level.",basic:"Whole body in frame, from the side if you can."};
 function formOpen(id){ const list=formExercises(), ex=id||(list[0]&&list[0][0])||"", name=(list.find(x=>x[0]===ex)||[])[1]||(typeof libEx==="function"&&libEx(ex)?libEx(ex).name:"");
-  openSheet({kind:"form",step:"pick",ex,name,note:""}) }
+  openSheet({kind:"form",step:"pick",ex,name}); if(window.FC) FC.load().catch(()=>{}) }
 async function formPick(file){ const W=SH; if(!W||W.kind!=="form"||!file) return;
   if(!/^video\//.test(file.type||"")&&!/\.(mov|mp4|m4v|webm|3gp)$/i.test(file.name||"")){ W.err="That isn't a video file."; paintSheet(); return }
-  W.err=""; W.step="reading"; paintSheet(true);
-  try{ const r=await extractFrames(file,FORM_FRAMES); if(SH!==W) return; if(r.frames.length<3) throw new Error("decode");
-    Object.assign(W,r); W.step="frames"; paintSheet(true) }
-  catch(e){ if(SH!==W) return; W.step="pick"; W.err= e.message==="timeout"? "That video took too long to open. Try a shorter clip (10–20 seconds is plenty)." : "Couldn't read that video on this device. Try another clip, or on iPhone set Camera → Formats → Most Compatible."; paintSheet(true) } }
-async function formRun(){ const W=SH; if(!sampleFn){ W.err="Form checks need a connection to your coach. Check that you're online."; paintSheet(); return }
-  W.step="busy"; W.err=""; paintSheet(true);
-  try{ const r=await sampleFn.json(formPrompt(W),{cache:false,images:W.frames.map(f=>f.blob)}); if(SH!==W) return;
-    const arr=x=>Array.isArray(x)?x.map(s=>String(s).slice(0,240)).filter(Boolean).slice(0,4):[];
-    const res={id:"fc"+Date.now().toString(36),d:ymd(today),ex:W.ex,name:W.name,verdict:["good","minor","fix","unclear"].includes(r.verdict)?r.verdict:"minor",summary:String(r.summary||"").slice(0,400),good:arr(r.good),
-      fixes:(Array.isArray(r.fixes)?r.fixes:[]).slice(0,3).map(f=>({issue:String(f.issue||"").slice(0,160),why:String(f.why||"").slice(0,240),cue:String(f.cue||"").slice(0,120),frame:Math.max(1,Math.min(W.frames.length,Math.round(Number(f.frame)||1)))})).filter(f=>f.issue),
-      safety:String(r.safety||"").slice(0,300),drill:String(r.drill||"").slice(0,300),angle:String(r.angle||"").slice(0,240)};
-    W.res=res; W.step="result";
-    S.profile.formChecks=[...formChecks(),res].slice(-30); saveProfile();
-    // so the coach chat knows what it said
-    S.chat.push({role:"user",content:`Form check: ${W.name} (video, ${W.frames.length} frames)${W.note?` — ${W.note}`:""}`,t:Date.now()});
-    S.chat.push({role:"assistant",content:formText(res),t:Date.now()}); saveChat();
+  W.err=""; W.step="reading"; W.prog={step:"Opening your video…",p:0}; paintSheet(true);
+  try{ const tr=await FC.track(file,pr=>{ if(SH!==W) return; W.prog=pr; const b=document.querySelector("[data-fc-prog]"), s=document.querySelector("[data-fc-step]"); if(b) b.style.width=Math.round(pr.p*100)+"%"; if(s) s.textContent=pr.step });
+    if(SH!==W){ URL.revokeObjectURL(tr.url); return }
+    const L=typeof libEx==="function"&&libEx(W.ex), res=FC.analyze(tr.frames,{pattern:formPattern(W.ex),id:W.ex,height:tr.H});
+    W.track=tr; W.res=res; W.step="result";
+    const rec={id:"fc"+Date.now().toString(36),d:ymd(today),ex:W.ex,name:W.name,verdict:res.verdict,reps:res.reps.length,hold:res.hold||null,view:res.view||"",findings:res.findings.map(f=>({level:f.level,text:f.text,cue:f.cue}))};
+    S.profile.formChecks=[...formChecks(),rec].slice(-40); saveProfile();
+    S.chat.push({role:"user",content:`Form check (tracked on my phone): ${W.name}`,t:Date.now()}); S.chat.push({role:"assistant",content:formText(rec),t:Date.now()}); saveChat();
     paintSheet(true) }
-  catch(e){ if(SH!==W) return; W.step="frames"; W.err= e&&e.code==="rate_limited"? "You've hit today's coach limit. Try again tomorrow." : "Couldn't get feedback this time. Try again."; paintSheet(true) } }
-const FORM_VERDICT={good:["Looks solid","good"],minor:["Small tweaks","minor"],fix:["Worth fixing","fix"],unclear:["Couldn't tell","unclear"]};
-function formText(r){ return [`**${FORM_VERDICT[r.verdict][0]}.** ${r.summary}`, r.good.length?`Good: ${r.good.join("; ")}.`:"", ...r.fixes.map((f,i)=>`${i+1}. ${f.issue}. ${f.why} Cue: "${f.cue}"`), r.safety?`Safety: ${r.safety}`:"", r.drill?`Try: ${r.drill}`:"", r.angle?`Filming: ${r.angle}`:""].filter(Boolean).join("\n") }
-function formResultHtml(r,frames){
-  const th=n=>frames&&frames[n-1]? `<img class="fc-thumb" src="${frames[n-1].url}" alt="Frame ${n}">` : "";
-  return `<div class="fc-verdict ${FORM_VERDICT[r.verdict][1]}">${FORM_VERDICT[r.verdict][0]}</div><p>${esc(r.summary)}</p>
-    ${r.safety?`<div class="note fc-safety"><b>Safety:</b> ${esc(r.safety)}</div>`:""}
-    ${r.good.length?`<h3>What's working</h3><ul class="fc-good">${r.good.map(g=>`<li>${esc(g)}</li>`).join("")}</ul>`:""}
-    ${r.fixes.length?`<h3>To fix</h3>${r.fixes.map((f,i)=>`<div class="fc-fix">${th(f.frame)}<div><b>${i+1}. ${esc(f.issue)}</b><div class="small muted">${esc(f.why)}</div>${f.cue?`<div class="fc-cue">Cue: “${esc(f.cue)}”</div>`:""}${frames?`<div class="small muted">Frame ${f.frame}</div>`:""}</div></div>`).join("")}`:""}
-    ${r.drill?`<p><b>Next session:</b> ${esc(r.drill)}</p>`:""}${r.angle?`<p class="small muted"><b>Filming tip:</b> ${esc(r.angle)}</p>`:""}` }
-function formHtml(){ const W=SH, list=formExercises();
+  catch(e){ if(SH!==W) return; W.step="pick"; const c=e&&e.code;
+    W.err= c==="timeout"? "That video took too long to open. Try a shorter clip (10–20 seconds is plenty)." : c==="decode"? "Couldn't read that video on this device. Try another clip, or on iPhone set Settings → Camera → Formats → Most Compatible." : "The body tracker couldn't start. Check your connection the first time you use it, then try again."; paintSheet(true) } }
+function formText(r){ return [`**${FORM_VERDICT[r.verdict][0]}.** ${r.reps?`${r.reps} reps tracked.`:r.hold?`Held about ${r.hold.sec} s.`:""}`, ...r.findings.filter(f=>f.level!=="good"||true).map(f=>`${f.level==="fix"?"Fix":f.level==="tip"?"Tip":"Good"}: ${f.text}${f.cue?` ${f.cue}`:""}`)].join("\n") }
+function formChart(res){ const se=res.series; if(!se||!se.s||se.s.length<3) return "";
+  const W=320,H=90, t=se.t, s=se.s, tmax=t[t.length-1]||1, lo=Math.min(...s.filter(v=>v!=null)), hi=Math.max(...s.filter(v=>v!=null)), r=(hi-lo)||1, up=/Y$/.test(se.key);
+  const y=v=>20+(H-28)*(up? (v-lo)/r : 1-(v-lo)/r), x=tt=>8+(W-16)*tt/tmax;
+  const d=s.map((v,i)=>v==null?"":`${i&&s[i-1]!=null?"L":"M"}${x(t[i]).toFixed(1)},${y(v).toFixed(1)}`).join("");
+  return `<svg class="fc-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Movement over the set"><path d="${d}" fill="none" stroke="var(--gym)" stroke-width="2.2" stroke-linejoin="round"/>${res.reps.map(rp=>`<g data-xs-fseek="${rp.tt}"><circle cx="${x(rp.tt).toFixed(1)}" cy="${y(s[rp.it]).toFixed(1)}" r="9" fill="transparent"/><circle cx="${x(rp.tt).toFixed(1)}" cy="${y(s[rp.it]).toFixed(1)}" r="4.5" fill="${rp.flags.length?"var(--warn)":"var(--good)"}"/><text x="${x(rp.tt).toFixed(1)}" y="11" text-anchor="middle">${rp.n}</text></g>`).join("")}</svg>` }
+function formResultHtml(res,live){
+  const ord={fix:0,tip:1,good:2}, fx=res.findings.map((f,i)=>({f,i})).sort((a,b)=>(a.i===0&&a.f.level==="good"?-1:b.i===0&&b.f.level==="good"?1:(ord[a.f.level]-ord[b.f.level])||a.i-b.i)).map(x=>x.f), lvl={fix:"Fix",tip:"Tip",good:"Good"};
+  const rows=res.reps&&res.reps.length? `<div class="tablewrap"><table class="fc-reps"><thead><tr><th>Rep</th><th>Time</th>${res.reps[0].conc!=null?"<th>Up</th>":""}<th>Notes</th></tr></thead><tbody>${res.reps.map(r=>`<tr data-xs-fseek="${r.tt}"><td>${r.n}</td><td class="num">${r.total.toFixed(1)} s</td>${r.conc!=null?`<td class="num">${r.conc.toFixed(1)} s</td>`:""}<td>${r.flags.length?r.flags.map(esc).join(", "):'<span class="muted">✓</span>'}</td></tr>`).join("")}</tbody></table></div>` : "";
+  return `<div class="fc-verdict ${FORM_VERDICT[res.verdict][1]}">${FORM_VERDICT[res.verdict][0]}</div>
+    <div class="fc-finds">${fx.map(f=>`<div class="fc-find ${f.level}" ${live&&f.t!=null?`data-xs-fseek="${f.t}"`:""}><span class="fc-lvl">${lvl[f.level]}</span><div><b>${esc(f.text)}</b>${f.cue?`<div class="small">${esc(f.cue)}</div>`:""}${live&&f.t!=null?`<div class="small muted">Tap to see it</div>`:""}</div></div>`).join("")}</div>
+    ${live?formChart(res)+rows:""}` }
+function formHtml(){ const W=SH, list=formExercises(), pat=formPattern(W.ex);
   const head=`<div class="xs-head"><h2>Form check</h2><button type="button" class="btn ghost sm" data-xs="close">${W.step==="result"?"Done":"Cancel"}</button></div>`;
   const err=W.err?`<p class="note">${esc(W.err)}</p>`:"";
-  if(W.step==="reading") return head+`<div class="gen-busy"><div class="gen-spin" aria-hidden="true"></div><b>Reading your video…</b><p class="small muted">Pulling ${FORM_FRAMES} frames. The video stays on your phone.</p></div>`;
-  if(W.step==="busy") return head+`<div class="fc-strip">${W.frames.map(f=>`<img src="${f.url}" alt="">`).join("")}</div><div class="gen-busy"><div class="gen-spin" aria-hidden="true"></div><b>Your coach is watching…</b><p class="small muted">Usually 10–20 seconds.</p></div>`;
-  if(W.step==="result") return head+`<p class="small muted">${esc(W.name)} · ${fmtDate(today)}</p>`+formResultHtml(W.res,W.frames)+
-    `<div class="row" style="margin-top:12px"><button type="button" class="btn" data-xs="formchat">Ask a follow-up</button><button type="button" class="btn ghost" data-xs="formagain">Check another video</button></div>`;
-  if(W.step==="frames") return head+`<p class="small"><b>${esc(W.name)}</b> · ${W.frames.length} frames from ${W.span.toFixed(0)} s${W.cut?" (first 30 s)":""}</p>
-    <div class="fc-strip">${W.frames.map((f,i)=>`<figure><img src="${f.url}" alt="Frame ${i+1}"><figcaption>${i+1}</figcaption></figure>`).join("")}</div>
-    <div class="field"><label>Anything to look at? <span class="muted">(optional)</span></label><input data-xs-fnote="1" value="${esc(W.note||"")}" placeholder="e.g. my lower back on the way up" data-xs-focus="fnote"></div>${err}
-    <div class="row"><button type="button" class="btn" data-xs="formrun">Get feedback</button><button type="button" class="btn ghost" data-xs="formagain">Use another video</button></div>
-    <p class="small muted">Your coach sees these still frames, not the full video. Uses one coach request.</p>`;
+  if(W.step==="reading") return head+`<div class="gen-busy"><div class="gen-spin" aria-hidden="true"></div><b data-fc-step>${esc(W.prog&&W.prog.step||"Working…")}</b><p class="small muted">This runs on your phone. The video isn't uploaded anywhere.</p><div class="rk-bar"><i data-fc-prog style="width:${Math.round((W.prog&&W.prog.p||0)*100)}%;background:var(--gym)"></i></div></div>`;
+  if(W.step==="result"){ const R=W.res, tr=W.track;
+    return head+`<p class="small muted">${[esc(W.name),R.reps.length?`${R.reps.length} reps`:R.hold?`${R.hold.sec} s hold`:"",tr.cut?"first 30 s":"",R.view?`${R.view} view`:""].filter(Boolean).join(" · ")}</p>
+      <div class="fc-replay"><video playsinline muted controls preload="auto" src="${tr.url}"></video><canvas aria-hidden="true"></canvas></div>
+      <p class="small muted">Play it back with your skeleton drawn on. Tap a rep or a note to jump to it.</p>`+formResultHtml(R,true)+
+      `<div class="row" style="margin-top:12px"><button type="button" class="btn ghost" data-xs="formagain">Check another video</button><button type="button" class="link small" data-xs="formchat">Ask your coach about it</button></div>
+      <p class="small muted">Measured from a single camera, so treat it as a guide. Sharp pain means stop and get it looked at.</p>` }
   const past=formChecks().filter(x=>x.ex===W.ex).slice(-3).reverse();
   return head+`<div class="field"><label>Exercise</label><select data-xs-fex="1">${list.map(([id,n])=>`<option value="${esc(id)}" ${id===W.ex?"selected":""}>${esc(n)}</option>`).join("")}</select></div>
     <label class="btn fc-pick">${FORM_ICON} Record or choose a video<input type="file" accept="video/*" data-xs-fvid="1" hidden></label>${err}
-    <ul class="fc-tips small"><li><b>Side view</b> for squats, deadlifts, presses and rows; <b>front</b> to check knees or bar level.</li><li>Whole body and the weight in frame, phone at hip height.</li><li>One set of 2–5 reps is plenty. Clips over 30 s use the first 30.</li></ul>
-    ${past.length?`<h3>Past checks</h3>${past.map(x=>`<details class="logger"><summary>${fmtShort(parseYmd(x.d))} · ${FORM_VERDICT[x.verdict][0]}</summary>${formResultHtml(x,null)}</details>`).join("")}`:""}` }
+    <ul class="fc-tips small"><li><b>Filming:</b> ${esc(FORM_TIPS[pat]||FORM_TIPS.basic)}</li><li>One set of 2–5 reps is plenty. Clips over 30 s use the first 30.</li><li>Everything runs on your phone: free, private, and it works offline.</li></ul>
+    ${pat==="basic"?`<p class="small muted">For this exercise you'll get reps, tempo and range of motion. Detailed technique checks cover squats, deadlifts and RDLs, lunges, presses, rows, pull-ups, curls, triceps, raises and planks.</p>`:""}
+    ${past.length?`<h3>Past checks</h3>${past.map(x=>`<details class="logger"><summary>${fmtShort(parseYmd(x.d))} · ${FORM_VERDICT[x.verdict][0]}</summary>${formResultHtml({...x,reps:[]},false)}</details>`).join("")}`:""}` }
+document.addEventListener("click",e=>{ const el=e.target.closest&&e.target.closest("[data-xs-fseek]"); if(el&&SH&&SH.kind==="form"&&SH.seek) SH.seek(Number(el.dataset.xsFseek)) });
+// replay: draw the tracked skeleton over the video as it plays
+function formMountReplay(){ const W=SH; if(!W||W.kind!=="form"||W.step!=="result") return;
+  const box=document.querySelector("#xsheet .fc-replay"); if(!box||box.dataset.on) return; box.dataset.on="1";
+  const v=box.querySelector("video"), cv=box.querySelector("canvas"), ctx=cv.getContext("2d"), tr=W.track, fr=tr.frames;
+  const draw=()=>{ const w=v.clientWidth, h=v.clientHeight; if(!w) return; const dpr=window.devicePixelRatio||1; if(cv.width!==Math.round(w*dpr)){ cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr) }
+    ctx.clearRect(0,0,cv.width,cv.height); const s=Math.min(w/tr.W,h/tr.H)*dpr, ox=(cv.width-tr.W*s)/2, oy=(cv.height-tr.H*s)/2;
+    const i=Math.max(0,Math.min(fr.length-1,Math.round(v.currentTime*FC.FPS))); ctx.save(); ctx.translate(ox,oy); FC.drawSkeleton(ctx,fr[i]&&fr[i].lm,s,W.res.side,"#7DE3FF"); ctx.restore() };
+  let raf=0; const loop=()=>{ draw(); if(!v.paused&&!v.ended) raf=requestAnimationFrame(loop) };
+  v.addEventListener("play",()=>{ cancelAnimationFrame(raf); loop() }); ["seeked","loadeddata","pause"].forEach(ev=>v.addEventListener(ev,draw)); window.addEventListener("resize",draw);
+  W.seek=t=>{ v.pause(); v.currentTime=Math.max(0,t); box.scrollIntoView({block:"nearest",behavior:"smooth"}) };
+  setTimeout(draw,60) }
 
 /* ======================= Auto-generated food plan =======================
    The person gives calories, protein, what they want the food to be like, what to leave out and a weekly budget.
@@ -1476,8 +1461,7 @@ document.addEventListener("click",e=>{
   if(d.xsSsrm!=null){ SH.cycle.splice(+d.xsSsrm,1); SH.pos=Math.min(SH.pos,SH.cycle.length-1); paintSheet(); return }
   if(d.xs==="sssave"){ const W=SH, K=kitchen(), nd=nextShopDay({day:W.day}); K.shop.day=W.day; K.shop.cycle=[...W.cycle]; K.shop.start=ymd(addDays(nd,-7*W.pos)); saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Schedule saved"); return }
   if(SH.kind==="form"){
-    if(d.xs==="formrun"){ formRun(); return }
-    if(d.xs==="formagain"){ SH.step="pick"; SH.err=""; SH.frames=null; SH.res=null; paintSheet(true); return }
+    if(d.xs==="formagain"){ if(SH.track) URL.revokeObjectURL(SH.track.url); SH.step="pick"; SH.err=""; SH.track=null; SH.res=null; paintSheet(true); return }
     if(d.xs==="formchat"){ xsClose(); tab="advice"; advView="advice"; lastRenderKey=""; render(); setTimeout(()=>{ const ta=document.getElementById("chatIn"); if(ta){ ta.value="About that form check: "; ta.focus(); ta.scrollIntoView({block:"center"}) } },60); return } }
   if(SH.kind==="autogen"){ const f=SH.f;
     if(d.xsGstyle){ const k=d.xsGstyle; f.styles=f.styles.includes(k)? f.styles.filter(x=>x!==k) : [...f.styles,k]; paintSheet(); return }
@@ -1544,7 +1528,6 @@ document.addEventListener("input",e=>{ const t=e.target, d=t.dataset||{};
   if(d.xsNf){ SH.d[d.xsNf]=t.value; return }
   if(d.xsSi&&SH&&SH.kind==="shopItem"){ SH[d.xsSi]=t.value; return }
   if(d.xsSl&&SH&&SH.kind==="shopList"){ SH[d.xsSl]=t.value; return }
-  if(d.xsFnote&&SH&&SH.kind==="form"){ SH.note=t.value; return }
   if(d.xsGf&&SH&&SH.kind==="autogen"){ const k=d.xsGf; SH.f[k]= k==="desc"? t.value : String(t.value).replace(/[^\d.]/g,"")===""? "" : Number(String(t.value).replace(/[^\d.]/g,"")); return }
   if(d.xsGn!=null&&SH&&SH.kind==="gscan"){ SH.pname=t.value; return }
   if(d.xsGq!=null&&SH&&SH.kind==="gscan"){ SH.eq=t.value; paintPart(".gplan"); return }
