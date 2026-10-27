@@ -2,7 +2,7 @@
  * rates can be tuned without touching scoring code. Spec: "Fitness Rank System — Design Spec v2" (Oct 24, 2026).
  * Weights are one-rep maxes in lb, times are seconds. Ladders list the minimum for D, C, B, A, S (E is anything below D). */
 window.RANK_CFG = {
-  version: 1,
+  version: 2,
   letters: ["E", "D", "C", "B", "A", "S"],
   refBW: { male: 200, female: 170 },          // raw ladders are written for these body weights
   scaleExp: 0.67,                             // scaled mode: target × (bodyweight ÷ reference)^0.67
@@ -53,6 +53,10 @@ window.RANK_CFG = {
     { id: "speed", name: "Speed",      parts: { mile: 1, m400: 1 }, best: true },
     { id: "endur", name: "Endurance",  parts: { endur: 1 } }
   ],
+  // Discipline: the 6th category, from consistency rather than strength. A week is "on target" when you
+  // log at least hitPct of its planned sessions; the rank comes from on-target weeks in the last \`weeks\`.
+  // No Gates: it rises and falls on its own. th = on-target weeks needed for D, C, B, A, S.
+  discipline: { weeks: 16, hitPct: 0.75, th: [2, 4, 7, 10, 14] },
   overallRoundAt: 0.7, // the Overall moves up a rank once the average is 70% of the way there
 
   // How each exercise counts. p = part, r = conversion rate (exercise ≈ r × reference lift),
@@ -106,8 +110,10 @@ window.RANK_CFG = {
   maxReps: 12,              // sets above this are left out of one-rep-max estimates (rep ladders have no limit)
   gateReps: [1, 5],         // a weighted Gate set must be 1–5 reps
   placementDays: 7, placementCap: 3,   // placement uses one week of training and can't go above B
-  consistencyWeeks: 8, consistencySets: 3, gateWeeks: 5, momentumWeeks: 6, fastRetryWeeks: 8,
-  retryDays: 7, fastRetryDays: 4,
+  // Gates are strength-only: any open bar can be attempted. Consistency feeds Discipline, and training a part
+  // in momentumWeeks of the last consistencyWeeks still stops its lifts from fading.
+  consistencyWeeks: 8, consistencySets: 3, momentumWeeks: 6,
+  retryDays: 7,
   fade: { graceDays: 30, perMonth: 0.05, maxDays: 180 },
   demotion: { days: 30, warnDay: 23 }, reclaimDays: 90,
   pauseDaysPerYear: 56, excludeAskDays: 84,
