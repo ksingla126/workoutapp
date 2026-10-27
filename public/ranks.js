@@ -306,8 +306,13 @@ function rankState() {
   R.disc = rkDiscipline(R);
   R.groups.push({ id: "disc", name: "Discipline", parts: {}, disc: true, num: R.disc.num, scaled: R.disc.num });
   const gs = R.groups.filter(g => g.num != null);
-  R.overall = gs.length ? Math.min(5, Math.floor(gs.reduce((t, g) => t + g.num, 0) / gs.length + (1 - C.overallRoundAt))) : 0;
-  R.overallScaled = gs.length ? Math.min(5, Math.floor(gs.reduce((t, g) => t + Math.min(5, g.scaled), 0) / gs.length + (1 - C.overallRoundAt))) : 0;
+  // Discipline is a fixed share of the Overall; the other categories split the rest equally
+  const dw = C.discipline.overallWeight, others = gs.filter(g => !g.disc).length;
+  const wOf = g => g.disc ? (others ? dw : 1) : (1 - (gs.some(x => x.disc) ? dw : 0)) / others;
+  const avg = f => gs.reduce((t, g) => t + wOf(g) * f(g), 0);
+  R.overallAvg = gs.length ? avg(g => g.num) : 0;
+  R.overall = gs.length ? Math.min(5, Math.floor(R.overallAvg + (1 - C.overallRoundAt))) : 0;
+  R.overallScaled = gs.length ? Math.min(5, Math.floor(avg(g => Math.min(5, g.scaled)) + (1 - C.overallRoundAt))) : 0;
   R.flagged = E.filter(e => e.flag);
   RK_CACHE = { sig, R };
   return R;
