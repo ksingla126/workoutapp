@@ -2714,12 +2714,13 @@ function suggestKcal(s){ const lb=fromU(Number(s.weight))||0; if(!lb) return "";
   const k= s.goal==="muscle"? lb*15 : s.goal==="race"? lb*13 : lb*11;
   return Math.round(Math.min(fem?2800:3400,Math.max(fem?1300:1500,k))/50)*50 }
 function suggestProtein(s){ const lb=fromU(Number(s.weight))||0; if(!lb) return ""; return Math.round(Math.min(lb,s.goal==="muscle"?lb:lb*0.85)*(s.goal==="muscle"?1:0.9)/5)*5 }
+const GOAL_RUNS={lose:2,muscle:0,race:3};
 function weekFor(split,runN){ const x=splitToSetup(split); const wk=[...x.week]; defaultRunDays(wk,runN).forEach(d=>wk[d]="run"); return wk }
 function suRoutines(s){ return s.split==="keep"? (S.profile.setup.routines||[]) : splitToSetup(s.split).routines }
 function defaultSUW(){
   const su=S.profile&&S.profile.setup;
-  if(su){ const n=normalizeSetup(su); return {...n,weight:n.weight?toU(n.weight):"",split:"keep",week:[...n.week],kcal:(n.food&&n.food.kcal)||n.kcal,protein:(n.food&&n.food.protein)||"",kcalTouched:true,proteinTouched:!!(n.food&&n.food.protein)} }
-  return {name:"",sex:"",age:"",birth:"",weight:"",goal:"lose",race:"half",goalDate:ymd(addDays(mondayOf(today),7*10+4)),split:"abc3",week:weekFor("abc3",2),runLevel:"new",exp:"new",kcal:"",protein:"",kcalTouched:false,proteinTouched:false};
+  if(su){ const n=normalizeSetup(su); return {...n,weight:n.weight?toU(n.weight):"",split:"keep",week:[...n.week],weekTouched:true,kcal:(n.food&&n.food.kcal)||n.kcal,protein:(n.food&&n.food.protein)||"",kcalTouched:true,proteinTouched:!!(n.food&&n.food.protein)} }
+  return {name:"",sex:"",age:"",birth:"",weight:"",goal:"lose",race:"half",goalDate:ymd(addDays(mondayOf(today),7*10+4)),split:"abc3",week:weekFor("abc3",GOAL_RUNS.lose),runLevel:"new",exp:"new",kcal:"",protein:"",kcalTouched:false,proteinTouched:false};
 }
 function gateView(fromStore){
   if(!window.__platform) return false;
@@ -2748,14 +2749,15 @@ function viewSetup(){
     <div class="suopts">${opt("goal","lose","Lose fat & get fitter")}${opt("goal","muscle","Build strength & muscle")}${opt("goal","race","Train for a race")}</div>
     ${s.goal==="race"?`<div class="suopts three">${opt("race","5k","5K")}${opt("race","10k","10K")}${opt("race","half","Half marathon")}</div>`:""}
     <div class="field"><label for="suDate">${s.goal==="race"?"Race date":"Goal date"}</label><input id="suDate" type="date" value="${esc(s.goalDate)}" min="${ymd(addDays(today,28))}" max="${ymd(addDays(today,26*7))}"></div>
-    <p class="small muted">${wk>0?`A ${wk}-week plan. `:""}Pick 4 to 26 weeks out.</p></div>
+    <p class="small muted">${wk>0?`${/^(8|11|18)$/.test(String(wk))?"An":"A"} ${wk}-week plan. `:""}Pick 4 to 26 weeks out.</p></div>
   <div class="card"><h2>Your split</h2>
     <div class="suopts">${splitOpts.map(([k,n,sub])=>opt("split",k,n,sub)).join("")}</div>
     <p class="small"><b>Weekly schedule</b> <span class="muted">· pick a workout, a run, or rest for each day</span></p>
+    ${s.goal==="muscle"&&!s.week.includes("run")?`<p class="small muted" style="margin-top:-4px">No runs for a strength goal, so all your recovery goes to lifting. Set any rest day to Run if you want cardio.</p>`:""}
     <div class="sched">${DOW.map((d,i)=>`<label><span>${d}</span><select data-su-wk="${i}">${[["rest","Rest"],["run","Run"],...rs.map(r=>[r.id,r.name])].map(([id,n])=>`<option value="${esc(id)}" ${s.week[i]===id?"selected":""}>${esc(n)}</option>`).join("")}</select></label>`).join("")}</div>
     <p class="small muted">After setup you can add, remove and reorder exercises and change sets, reps and rest in Plan.</p></div>
-  <div class="card"><h2>Running right now</h2>
-    <div class="suopts">${opt("runLevel","new","I can't run a mile without walking","Run/walk plan")}${opt("runLevel","some","I can jog 20–30 minutes")}${opt("runLevel","regular","I run regularly")}</div></div>
+  ${s.week.includes("run")||s.goal==="race"?`<div class="card"><h2>Running right now</h2>
+    <div class="suopts">${opt("runLevel","new","I can't run a mile without walking","Run/walk plan")}${opt("runLevel","some","I can jog 20–30 minutes")}${opt("runLevel","regular","I run regularly")}</div></div>`:""}
   <div class="card"><h2>Lifting experience</h2>
     <div class="suopts three">${opt("exp","new","New")}${opt("exp","some","Under a year")}${opt("exp","exp","1+ years")}</div></div>
   <div class="card"><h2>Food goals</h2>
@@ -2778,9 +2780,11 @@ function bindSetup(){
   $("#suProt").addEventListener("input",e=>{s.proteinTouched=true; s.protein=e.target.value.trim()});
   const rerender=()=>{ sync(); const y=window.scrollY; $("#view").innerHTML=viewSetup(); bindSetup(); window.scrollTo(0,y) };
   document.querySelectorAll("[data-su-opt]").forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.suOpt.split("|"); const was=s[k]; s[k]=v;
-    if(k==="split"&&v!==was){ const runN=s.week.filter(w=>w==="run").length; s.week= v==="keep"? [...normalizeSetup(S.profile.setup).week] : weekFor(v,runN) }
+    if(k==="split"&&v!==was){ const runN=s.weekTouched? s.week.filter(w=>w==="run").length : GOAL_RUNS[s.goal]; s.week= v==="keep"? [...normalizeSetup(S.profile.setup).week] : weekFor(v,runN) }
+    // a new goal sets the run days, unless the schedule was picked by hand or the routines are being kept
+    if(k==="goal"&&v!==was&&!s.weekTouched&&s.split!=="keep") s.week=weekFor(s.split,GOAL_RUNS[v]);
     rerender()});
-  document.querySelectorAll("[data-su-wk]").forEach(sl=>sl.onchange=()=>{ s.week[Number(sl.dataset.suWk)]=sl.value });
+  document.querySelectorAll("[data-su-wk]").forEach(sl=>sl.onchange=()=>{ const had=s.week.includes("run"); s.week[Number(sl.dataset.suWk)]=sl.value; s.weekTouched=true; if(had!==s.week.includes("run")) rerender() });
   $("#suCancel")?.addEventListener("click",()=>{setupOpen=false; SUW=null; render()});
   $("#suSave").onclick=()=>{
     sync(); const err=t=>{const e=$("#suErr"); e.textContent=t; e.hidden=false; e.scrollIntoView({block:"center",behavior:"smooth"})};

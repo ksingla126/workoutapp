@@ -91,10 +91,10 @@ const SPLITS={
   fb2:{name:"Full body · 2 days",days:[0,3],routines:[
     {name:"Full Body A",ex:[E("legpress45",3,8,12,150),E("bench",3,6,10,150),E("pulldown",3,8,12,90),E("legcurl",3,10,15,75),E("lateral",3,12,15,60),E("pushdown",2,10,15,60),E("plank",3,30,60,45)]},
     {name:"Full Body B",ex:[E("rdl",3,8,10,120),E("incline",3,8,12,120),E("cablerow",3,8,12,90),E("legext",3,10,15,60),E("facepull",3,12,15,60),E("curl",2,10,15,60),E("calfraise",3,10,15,60)]}]},
-  abc3:{name:"A / B / C · 3 days",days:[0,2,4],routines:[
-    {name:"Bench & Leg Press",ex:[E("bench",4,6,8,150),E("legpress45",4,8,12,150),E("pulldown",3,8,12,90),E("rdl",3,8,10,120),E("backext",3,10,15,75),E("fly",3,12,15,60),E("revfly",2,12,15,60),E("lateral",3,12,15,60)]},
-    {name:"Press & Deadlift",ex:[E("ohp",3,6,10,120),E("tbdl",3,5,8,150),E("cablerow",3,8,12,90),E("legcurl",3,10,15,75),E("legext1",2,10,15,60),E("facepull",3,12,15,60),E("ohtri",2,10,15,60),E("calfraise",3,10,15,60)]},
-    {name:"Incline & Glutes",ex:[E("incline",4,8,12,120),E("dbrow",3,8,12,90),E("hipthrust",3,8,12,120),E("legcurl",3,10,15,75),E("ezcurl",2,10,15,60),E("pushdown",2,10,15,60),E("hammer",2,10,15,60),E("calfraise",2,10,15,60)]}]},
+  abc3:{name:"Full body · 3 days",days:[0,2,4],routines:[
+    {name:"Full Body A",ex:[E("bench",4,6,8,150),E("legpress45",4,8,12,150),E("pulldown",3,8,12,90),E("rdl",3,8,10,120),E("backext",3,10,15,75),E("fly",3,12,15,60),E("revfly",2,12,15,60),E("lateral",3,12,15,60)]},
+    {name:"Full Body B",ex:[E("ohp",3,6,10,120),E("tbdl",3,5,8,150),E("cablerow",3,8,12,90),E("legcurl",3,10,15,75),E("legext1",2,10,15,60),E("facepull",3,12,15,60),E("ohtri",2,10,15,60),E("calfraise",3,10,15,60)]},
+    {name:"Full Body C",ex:[E("incline",4,8,12,120),E("dbrow",3,8,12,90),E("hipthrust",3,8,12,120),E("legcurl",3,10,15,75),E("ezcurl",2,10,15,60),E("pushdown",2,10,15,60),E("hammer",2,10,15,60),E("calfraise",2,10,15,60)]}]},
   ppl3:{name:"Push / Pull / Legs · 3 days",days:[0,2,4],routines:[
     {name:"Push",ex:[E("bench",4,6,8,150),E("dbpress",3,8,12,120),E("incline",3,8,12,90),E("lateral",3,12,15,60),E("pushdown",3,10,15,60),E("ohtri",2,10,15,60)]},
     {name:"Pull",ex:[E("pulldown",4,8,12,90),E("cablerow",3,8,12,90),E("onearmrow",3,8,12,90),E("facepull",3,12,15,60),E("ezcurl",3,10,15,60),E("hammer",2,10,15,60)]},
