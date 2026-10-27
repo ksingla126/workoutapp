@@ -6,7 +6,7 @@ const KEY = () => process.env.USDA_API_KEY || "DEMO_KEY";
 const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 
 const ENERGY = new Set(["208", "957", "958"]), PROT = "203", CARB = "205", FAT = "204";
-function nutr(list, num, ids) {
+export function nutr(list, num, ids) {
   for (const n of list || []) {
     const no = String(n.nutrientNumber || (n.nutrient && n.nutrient.number) || "");
     const id = Number(n.nutrientId || (n.nutrient && n.nutrient.id));
@@ -14,7 +14,7 @@ function nutr(list, num, ids) {
   }
   return null;
 }
-function energy(list) {
+export function energy(list) {
   let best = null;
   for (const n of list || []) {
     const no = String(n.nutrientNumber || (n.nutrient && n.nutrient.number) || "");
@@ -23,7 +23,7 @@ function energy(list) {
   }
   return best;
 }
-const title = (s) => (s === s.toUpperCase() ? s.toLowerCase().replace(/\b([a-z])/g, (m) => m.toUpperCase()) : s);
+export const title = (s) => (s === s.toUpperCase() ? s.toLowerCase().replace(/\b([a-z])/g, (m) => m.toUpperCase()) : s);
 
 export default async function handler(req) {
   const url = new URL(req.url);
