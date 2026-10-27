@@ -258,7 +258,7 @@
       res = await fetch("/api/coach", {
         method: "POST",
         headers: { "content-type": "application/json", authorization: "Bearer " + data.session.access_token },
-        body: JSON.stringify({ messages, images, json: !!asJson }),
+        body: JSON.stringify({ messages, images, json: !!asJson, ...(opts.maxTokens ? { maxTokens: opts.maxTokens } : {}) }),
         signal: opts.signal,
       });
     } catch (e) {
@@ -296,7 +296,7 @@
   }
   function makeSample() {
     const sample = (input, opts) => callCoach(input, opts, false);
-    sample.json = async (input, opts) => parseJson((await callCoach(input, { ...(opts || {}), onText: undefined }, true)).text);
+    sample.json = async (input, opts) => { const r = await callCoach(input, { ...(opts || {}), onText: opts && opts.onProgress }, true); if (r.truncated) throw sErr("truncated", { text: r.text }); return parseJson(r.text); };
     sample.limits = async () => ({ images: { maxCount: 5 } });
     return sample;
   }

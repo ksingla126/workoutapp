@@ -71,6 +71,8 @@ export default async function handler(req) {
       ],
     };
   }
+  // longer JSON jobs (like a week of recipes) can ask for more room, up to a cap
+  const maxTokens = body.json && Number(body.maxTokens) > MAX_TOKENS ? Math.min(12000, Math.round(Number(body.maxTokens))) : MAX_TOKENS;
   const system = body.json
     ? "Reply with only valid JSON exactly as requested: no code fences, no text before or after."
     : undefined;
@@ -85,7 +87,7 @@ export default async function handler(req) {
       "anthropic-version": "2023-06-01",
       "content-type": "application/json",
     },
-    body: JSON.stringify({ model: MODEL, max_tokens: MAX_TOKENS, stream: true, messages: apiMsgs, ...(system ? { system } : {}) }),
+    body: JSON.stringify({ model: MODEL, max_tokens: maxTokens, stream: true, messages: apiMsgs, ...(system ? { system } : {}) }),
     signal: req.signal,
   });
   if (!upstream.ok || !upstream.body) {
