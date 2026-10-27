@@ -268,7 +268,7 @@ function paintSheet(scrollTop){ if(!SH) return; const el=sheetEl(), inn=el.query
   if(focusSel){ const f=inn.querySelector(`[data-xs-focus="${focusSel}"]`); if(f){ f.focus(); try{const v=f.value; f.setSelectionRange(v.length,v.length)}catch(e){} } } }
 const commitPlan=()=>{ saveProfile(); onProfile(); render() };
 // Repaint only part of the sheet, so the input being typed in (and the iPhone keyboard) stays put.
-function sheetHtml(){ return SH.kind==="shopItem"? shopItemHtml() : SH.kind==="shopList"? shopListHtml() : SH.kind==="shopSched"? shopSchedHtml() : SH.kind==="gscan"? gscanHtml() : SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
+function sheetHtml(){ return SH.kind==="autogen"? autogenHtml() : SH.kind==="shopItem"? shopItemHtml() : SH.kind==="shopList"? shopListHtml() : SH.kind==="shopSched"? shopSchedHtml() : SH.kind==="gscan"? gscanHtml() : SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
 function paintPart(sel){ if(!SH) return; const el=document.querySelector("#xsheet .xs-in"); const dst=el&&el.querySelector(sel); if(!dst){ paintSheet(); return }
   const tmp=document.createElement("div"); tmp.innerHTML=sheetHtml(); const src=tmp.querySelector(sel); if(src) dst.innerHTML=src.innerHTML; else paintSheet() }
 function estMin(ex){ const sec=(ex||[]).reduce((t,e)=>t+(e.sets||3)*((e.rest||90)+(e.bw?(e.hi||45):40)),0); return Math.max(10,Math.round(sec/60/5)*5) }
@@ -436,27 +436,149 @@ function cfoodHtml(){ const d=SH.d;
    <p class="small muted">Per serving, from the nutrition label.${d.code?` Linked to barcode ${esc(d.code)} and shared so others who scan it get it too.`:""}</p><p class="note" data-xs-err hidden></p>
    <div class="row"><button type="button" class="btn" data-xs="cfsave">Save food</button>${SH.isNew?"":`<button type="button" class="btn ghost" data-xs="cfdel">${SH.delConfirm?"Tap again to delete":"Delete"}</button>`}</div>`;
 }
-// Ready-made meal prep for new users: the same three batch recipes, with plan-neutral wording
-const STARTER_WHEN={rcBur:"about 45 min · makes 14",rcPes:"about 40 min · makes 7",rcBol:"about 50 min, mostly simmering · makes 14"};
-function addStarterMeals(){ const K=kitchen();
-  BATCH3.foods.forEach(f=>{ if(!K.foods.some(x=>x.id===f.id)) K.foods.push({...f}) });
-  BATCH3.recipes.forEach(r=>{ if(K.recipes.some(x=>x.id===r.id)) return; const c=JSON.parse(JSON.stringify(r)); c.when=STARTER_WHEN[r.id]||""; c.method=(c.method||"").replace(/ on Sunday/g," on prep day"); c.store=(c.store||"").replace(" for Thu–Sat",""); K.recipes.push(c) });
-  ["b","l","d"].forEach((sk,i)=>{ const id=["rcBur","rcPes","rcBol"][i]; K.plan[sk]=K.plan[sk]||[]; if(!K.plan[sk].some(e=>e.t==="r"&&e.id===id)) K.plan[sk].push({t:"r",id,qty:1}) });
-  K.starter=Date.now(); commitPlan(); toast("Added 3 meal-prep recipes to your plan") }
-function starterCard(K){
-  if(K.recipes.length||K.starterHide||SLOTS.some(([sk])=>(K.plan[sk]||[]).length)) return "";
-  const extra=BATCH3.foods.filter(f=>!K.foods.some(x=>x.id===f.id)); K.foods.push(...extra); // so the preview counts the pasta
-  let names; try{ names=BATCH3.recipes.map(r=>{ const T=recipeTotals(r); return `<li><b>${esc(r.name.replace(/ \(batch\)$/,""))}</b> <span class="small muted num">· ${fmtN(T.per.kcal)} kcal, ${Math.round(T.per.p)} g protein each · ${esc(STARTER_WHEN[r.id]||"")}</span></li>` }).join("") } finally { K.foods=K.foods.filter(f=>!extra.includes(f)) }
-  return `<div class="card starter"><div class="eyebrow">Get started</div><h2>Three meals, cooked in batches</h2>
-    <p class="small">A high-protein breakfast, lunch and dinner you cook once or twice a week. Full recipes, macros and a shopping list come with them, and you can change anything.</p>
-    <ul class="starter-list">${names}</ul>
-    <div class="row"><button type="button" class="btn sm" data-c-starter="1">Use these meals</button><button type="button" class="btn ghost sm" data-c-starterhide="1">I'll build my own</button></div></div>` }
+/* ======================= Auto-generated food plan =======================
+   The person gives calories, protein, what they want the food to be like, what to leave out and a weekly budget.
+   Claude writes the recipes using only foods from the built-in database (so every macro is computed here, not
+   guessed), plus a priced shopping list. The app checks every ingredient, enforces allergies, and scales portions
+   to the calorie goal before anything is saved. */
+const AVOID_GROUPS=[
+  {g:"Protein sources",items:[["chicken","Chicken"],["turkey","Turkey"],["beef","Beef"],["pork","Pork"],["fish","Fish"],["shellfish","Shellfish"],["eggs","Eggs"],["dairy","Milk & dairy"],["soy","Tofu & soy"],["beans","Beans & lentils"],["whey","Protein powder"]]},
+  {g:"Common allergens",items:[["dairy","Milk"],["eggs","Eggs"],["peanuts","Peanuts"],["treenuts","Tree nuts"],["gluten","Wheat & gluten"],["soy","Soy"],["fish","Fish"],["shellfish","Shellfish"],["sesame","Sesame"]]},
+  {g:"Other",items:[["mushrooms","Mushrooms"],["onion","Onion & garlic"],["spicy","Spicy food"]]}];
+const AVOID_FOODS={chicken:["chkbr","chkbrc","chkth","rotis"],turkey:["turk93","turkdeli"],beef:["beef90","beef80","sirloin"],pork:["porkten","bacon","ham"],
+  fish:["salmon","tuna","tilapia","cod"],shellfish:["shrimp"],eggs:["egg","eggwh","mayo","mayol","ranch"],
+  dairy:["whey","gyog0","gyog2","cott1","milk2","milkw","milks","cheddar","mozz","parm","feta","butter","crmchs","pesto","ranch","pizza","darkchoc","protbar"],
+  soy:["tofu","tempeh","soy","protbar"],beans:["blkbean","chickpea","lentil","kidney","hummus"],whey:["whey","protbar"],peanuts:["pb","peanut","protbar"],
+  treenuts:["almmilk","almbut","almond","walnut","cashew","pesto"],gluten:["pastad","pastac","breadww","breadw","bagel","bun","tortf","cous","granola","cereal","oats","pizza","beer","soy","protbar"],
+  sesame:["hummus"],mushrooms:["mushroom"],onion:["onion","garlic"],spicy:["hotsauce","salsa"]};
+// words that give an allergen away in a recipe name or method, even when it isn't a listed ingredient
+const AVOID_WORDS={chicken:/chicken/i,turkey:/turkey/i,beef:/\bbeef|steak|sirloin/i,pork:/\bpork|bacon|\bham\b|sausage/i,fish:/\bfish|salmon|tuna|tilapia|\bcod\b|anchov/i,shellfish:/shrimp|prawn|crab|lobster|scallop|clam|mussel|oyster/i,
+  eggs:/\beggs?\b|mayo|aioli/i,dairy:/\bmilk|cheese|yogh?urt|butter|cream|parmesan|whey|ghee/i,soy:/\bsoy|tofu|tempeh|edamame|miso|tamari/i,beans:/\bbeans?\b|lentil|chickpea|hummus/i,whey:/whey|protein powder/i,
+  peanuts:/peanut/i,treenuts:/almond|walnut|cashew|pecan|pistachio|hazelnut|pine nut|macadamia|pesto/i,gluten:/wheat|flour|bread|pasta|noodle|tortilla|couscous|barley|\brye\b|soy sauce|bagel|\bbun\b|panko|breadcrumb/i,
+  sesame:/sesame|tahini/i,mushrooms:/mushroom/i,onion:/onion|garlic|shallot|scallion|leek/i,spicy:/spicy|chili|chilli|jalape|cayenne|sriracha|hot sauce|red pepper flakes/i};
+const GEN_STYLES=[["taste","Taste-focused"],["easy","Easy to cook"],["quick","Quick, under 30 min"],["batch","Meal prep in batches"],["cheap","Budget-friendly"],["variety","Lots of variety"],["few","Few ingredients"],["comfort","Comfort food"],["light","Fresh & light"]];
+const GEN_SLOT_NAMES={b:"Breakfast",l:"Lunch",d:"Dinner",s:"Snacks"};
+function genDefaults(){ const K=kitchen(), g=foodGoals(), p=K.genPrefs||{};
+  return {kcal:g.kcal,protein:g.p,desc:p.desc||"",styles:p.styles||["easy","batch"],cook:p.cook||"batch",budget:p.budget||"",avoid:{...(p.avoid||{})},slots:p.slots||{b:1,l:1,d:1,s:1}} }
+function genAvoidIds(avoid){ const ids=new Set(); Object.keys(avoid||{}).forEach(k=>(AVOID_FOODS[k]||[]).forEach(id=>ids.add(id))); return ids }
+function genCatalog(avoid){ const bad=genAvoidIds(avoid);
+  return FOOD_RAW.filter(([id])=>!bad.has(id)&&!["beer","cola","gator","pizza","fries","coffee"].includes(id)).map(([id,n,k,p,c,f,sv])=>`${id} | ${n} | ${k} kcal, ${p} P, ${c} C, ${f} F per 100 g | units: g, oz, lb${(sv||[]).map(s=>", "+s[0]).join("")}`).join("\n") }
+function genLabel(k){ for(const G of AVOID_GROUPS){ const x=G.items.find(i=>i[0]===k); if(x) return x[1] } return k }
+function genPrompt(f){
+  const slots=Object.keys(GEN_SLOT_NAMES).filter(s=>f.slots[s]).map(s=>GEN_SLOT_NAMES[s]).join(", ");
+  const allergic=Object.entries(f.avoid).filter(([,v])=>v==="allergy").map(([k])=>genLabel(k)), avoid=Object.entries(f.avoid).filter(([,v])=>v==="avoid").map(([k])=>genLabel(k));
+  const styles=f.styles.map(s=>(GEN_STYLES.find(x=>x[0]===s)||[])[1]).filter(Boolean);
+  return `Task: generate a weekly food plan for a fitness app user.
+Targets per day: ${f.kcal} kcal and at least ${f.protein} g protein (land within 5% of the calories).
+Meals to cover: ${slots}.
+What they want: ${styles.join(", ")||"no preference"}.${f.desc?` In their words: "${String(f.desc).slice(0,400)}"`:""}
+Cooking: ${f.cook==="daily"?"they cook most days, so smaller recipes (2–4 servings) and more variety":"they batch cook once or twice a week, so big recipes that keep in the fridge or freezer"}.
+${f.budget?`Weekly grocery budget: $${f.budget} (US prices). Stay within it; if that's impossible for these targets, get as close as you can and say so in the summary.`:"No set budget; keep it reasonable."}
+${allergic.length?`ALLERGIES (strict, including hidden sources like sauces, pesto, breading, seasonings and anything in the method): ${allergic.join(", ")}.`:""}
+${avoid.length?`Don't use (dislikes or choices): ${avoid.join(", ")}.`:""}
+Use ONLY these foods for ingredients (id | name | macros | units). Herbs, spices, salt, pepper, vinegar, lemon juice and cooking spray can appear in methods without being listed, as long as they don't break the allergies.
+${genCatalog(f.avoid)}
+
+Reply with JSON only, in exactly this shape:
+{"summary":"1–2 sentences on the plan","recipes":[{"name":"","slot":"b|l|d|s","servings":7,"perDay":1,"when":"about 40 min · makes 7","items":[{"f":"chkbr","amt":4,"unit":"lb"}],"method":"one step per line, with temperatures and times","store":"how to store and reheat","costPerBatch":12.5}],"shopping":[{"name":"Chicken breast","amt":4,"unit":"lb","price":12.0}],"weeklyCost":78}
+Rules:
+- 3 to 6 recipes. servings = portions one batch makes; perDay = portions eaten per day (0.5 steps). A week needs perDay × 7 portions, so size batches for that.
+- Each item's unit must be g, oz, lb, or one of that food's listed units, written exactly.
+- Work out the macros from the per-100 g numbers so the day (sum of perDay × one portion of each recipe) hits the targets.
+- shopping = one week of groceries in store package sizes, units from: oz, lb, g, kg, fl oz, ml, l, count. price = typical US price in dollars. weeklyCost = the total.`;
+}
+const genRound=(v,u)=>u==="g"?Math.max(5,Math.round(v/5)*5):u==="lb"?Math.max(0.25,Math.round(v*4)/4):Math.max(0.5,Math.round(v*2)/2);
+function genUnit(food,unit){ const units=unitsOf(food).map(x=>x[0]); unit=String(unit||"").trim(); if(units.includes(unit)) return unit;
+  const lo=unit.toLowerCase(), hit=units.find(u=>u.toLowerCase()===lo||u.toLowerCase().replace(/^1 /,"")===lo.replace(/^1 /,"")); return hit||null }
+// Check, clean and fit Claude's plan. Returns everything the preview and "Use this plan" need.
+function genBuild(res,f){
+  const bad=genAvoidIds(f.avoid), allergy=Object.keys(f.avoid).filter(k=>f.avoid[k]==="allergy"), warn=[], recipes=[];
+  (Array.isArray(res&&res.recipes)?res.recipes:[]).slice(0,8).forEach(r=>{
+    const name=String(r&&r.name||"").trim().slice(0,80); if(!name) return;
+    const text=name+" "+String(r.method||"");
+    const hit=allergy.find(k=>AVOID_WORDS[k]&&AVOID_WORDS[k].test(text)); if(hit){ warn.push(`Left out "${name}": it mentions ${genLabel(hit).toLowerCase()}.`); return }
+    const items=[]; (Array.isArray(r.items)?r.items:[]).forEach(it=>{ const food=FOOD_RAW.find(x=>x[0]===it.f); const amt=Number(it.amt);
+      if(!food||!(amt>0)){ return } if(bad.has(it.f)){ warn.push(`Took ${food[1].toLowerCase()} out of "${name}".`); return }
+      const F=foodById(it.f), u=genUnit(F,it.unit); if(!u){ warn.push(`Skipped an ingredient in "${name}" with an unknown amount.`); return }
+      items.push({f:it.f,amt:+amt.toFixed(2),unit:u}) });
+    if(!items.length) return;
+    const soft=Object.keys(f.avoid).filter(k=>f.avoid[k]==="avoid").find(k=>AVOID_WORDS[k]&&AVOID_WORDS[k].test(text)); if(soft) warn.push(`"${name}" mentions ${genLabel(soft).toLowerCase()}: check the method.`);
+    const slot=GEN_SLOT_NAMES[r.slot]? r.slot : "l";
+    recipes.push({name,slot,servings:Math.max(1,Math.min(30,Math.round(Number(r.servings)||1))),perDay:Math.max(0.5,Math.min(4,Math.round((Number(r.perDay)||1)*2)/2)),
+      when:String(r.when||"").slice(0,60),method:String(r.method||"").slice(0,3000),store:String(r.store||"").slice(0,600),cost:Number(r.costPerBatch)>0?+Number(r.costPerBatch).toFixed(2):null,items}) });
+  const dayOf=()=>recipes.reduce((t,r)=>{ const T=recipeTotals(r,true).per; return {kcal:t.kcal+T.kcal*r.perDay,p:t.p+T.p*r.perDay,c:t.c+T.c*r.perDay,f:t.f+T.f*r.perDay} },{kcal:0,p:0,c:0,f:0});
+  let day=dayOf(), scale=1;
+  // fit portions to the calorie goal when Claude's maths is off by more than 7%
+  if(recipes.length&&day.kcal>0&&Math.abs(f.kcal/day.kcal-1)>0.07){ scale=Math.max(0.6,Math.min(1.8,f.kcal/day.kcal));
+    recipes.forEach(r=>r.items.forEach(it=>{ it.amt=genRound(it.amt*scale,it.unit) })); day=dayOf();
+    warn.push(`Portions ${scale>1?"scaled up":"scaled down"} ${Math.round(Math.abs(scale-1)*100)}% to fit your calories. Go by the ingredient amounts listed; the method may still show the old ones.`) }
+  const shop=[]; (Array.isArray(res&&res.shopping)?res.shopping:[]).slice(0,60).forEach(x=>{ const n=String(x&&x.name||"").trim().slice(0,80); if(!n) return;
+    const unit=G_UNITS.includes(x.unit)?x.unit:"", amt=Number(x.amt)>0? (scale!==1&&unit&&unit!=="count"? genRound(Number(x.amt)*scale,unit==="lb"?"lb":"x") : Number(x.amt)) : null;
+    const price=Number(x.price)>0? +(Number(x.price)*(scale!==1&&unit&&unit!=="count"?scale:1)).toFixed(2) : null;
+    if(allergy.some(k=>AVOID_WORDS[k]&&AVOID_WORDS[k].test(n))){ warn.push(`Removed "${n}" from the shopping list.`); return }
+    shop.push({name:n,amt,unit:amt?unit:"",price}) });
+  const cost=shop.reduce((t,x)=>t+(x.price||0),0);
+  if(f.budget&&cost>Number(f.budget)*1.02) warn.push(`Estimated $${Math.round(cost)} a week, over your $${f.budget} budget.`);
+  if(recipes.length&&day.p<f.protein*0.9) warn.push(`About ${Math.round(day.p)} g protein a day, below your ${f.protein} g goal.`);
+  return {summary:String(res&&res.summary||"").slice(0,400),recipes,shop,day,cost,scale,warn} }
+function genStart(){ openSheet({kind:"autogen",step:"form",f:genDefaults()}) }
+async function genRun(){ const W=SH, f=W.f;
+  if(!(f.kcal>=1200&&f.kcal<=5000)){ toast("Enter daily calories between 1,200 and 5,000"); return } if(!(f.protein>=30&&f.protein<=400)){ toast("Enter a protein goal in grams"); return }
+  if(!Object.values(f.slots).some(Boolean)){ toast("Pick at least one meal"); return }
+  if(!sampleFn){ W.step="error"; W.err="The planner needs a connection to your coach. Check that you're online and signed in."; paintSheet(true); return }
+  const K=kitchen(); K.genPrefs={desc:f.desc,styles:f.styles,cook:f.cook,budget:f.budget,avoid:f.avoid,slots:f.slots}; saveProfile();
+  W.step="busy"; W.prog=0; paintSheet(true);
+  try{ const res=await sampleFn.json(genPrompt(f),{cache:false,maxTokens:9000,onProgress:({text})=>{ if(SH!==W) return; W.prog=Math.min(97,Math.round(text.length/70)); const el=document.querySelector("[data-gen-prog]"); if(el) el.style.width=W.prog+"%" }});
+    if(SH!==W) return; const B=genBuild(res,f); if(!B.recipes.length) throw Object.assign(new Error("empty"),{code:"empty"});
+    W.res=B; W.step="result"; paintSheet(true) }
+  catch(e){ if(SH!==W) return; W.step="error"; W.err= e&&e.code==="rate_limited"? "You've hit today's coach limit. Try again tomorrow." : e&&e.code==="truncated"? "The plan came back too long. Try again, maybe with fewer meals." : "Couldn't make a plan this time. Try again."; paintSheet(true) } }
+function genApply(mode){ const W=SH, B=W.res, f=W.f, K=kitchen(), stamp=Date.now();
+  if(mode==="replace"){ const old=new Set(K.recipes.filter(r=>r.gen).map(r=>r.id)); K.recipes=K.recipes.filter(r=>!old.has(r.id)); SLOTS.forEach(([sk])=>K.plan[sk]=[]) }
+  B.recipes.forEach(r=>{ const id=newId("rc"); K.recipes.push({id,name:r.name,servings:r.servings,items:r.items,method:r.method,store:r.store,when:r.when,gen:stamp});
+    (K.plan[r.slot]=K.plan[r.slot]||[]).push({t:"r",id,qty:r.perDay}) });
+  if(B.shop.length){ const lid=newId("l"), list={id:lid,name:"Weekly groceries",gen:stamp,items:B.shop.map(x=>({id:newId("i"),name:x.name,amt:x.amt,unit:x.unit,note:x.price?`≈ $${x.price.toFixed(2)}`:""})),steps:[]};
+    if(!K.shop||!K.shop.lists||!K.shop.lists.length) K.shop={day:0,start:ymd(nextShopDay({day:0})),cycle:[lid],lists:[list]};
+    else { const gone=new Set(K.shop.lists.filter(l=>l.gen).map(l=>l.id)); K.shop.lists=[...K.shop.lists.filter(l=>!gone.has(l.id)),list];
+      K.shop.cycle=(K.shop.cycle||[]).map(id=>gone.has(id)?lid:id); if(!K.shop.cycle.includes(lid)&&!K.shop.cycle.length) K.shop.cycle=[lid] } }
+  K.genHide=1; const su=S.profile.setup; su.food={...(su.food||{}),kcal:Math.round(f.kcal),protein:Math.round(f.protein)}; su.kcal=Math.round(f.kcal); su.at=Date.now();
+  xsClose(); commitPlan(); toast(mode==="replace"?"Your new food plan is ready":"Meals added to your plan") }
+function autogenHtml(){ const W=SH, f=W.f;
+  const head=`<div class="xs-head"><h2>Auto-generate food plan</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>`;
+  if(W.step==="busy") return head+`<div class="gen-busy"><div class="gen-spin" aria-hidden="true"></div><b>Planning your week…</b><p class="small muted">Picking recipes, working out portions for ${fmtN(f.kcal)} kcal and ${f.protein} g protein, and pricing the groceries. About 30–60 seconds.</p><div class="rk-bar"><i data-gen-prog style="width:${W.prog||0}%;background:var(--food)"></i></div></div>`;
+  if(W.step==="error") return head+`<p class="note">${esc(W.err||"Something went wrong.")}</p><div class="row"><button type="button" class="btn" data-xs="genrun">Try again</button><button type="button" class="btn ghost" data-xs="genform">Change my answers</button></div>`;
+  if(W.step==="result"){ const B=W.res, has=kitchen().recipes.length||SLOTS.some(([sk])=>(kitchen().plan[sk]||[]).length);
+    const bySlot=Object.keys(GEN_SLOT_NAMES).map(s=>B.recipes.filter(r=>r.slot===s).map(r=>{ const T=recipeTotals(r,true).per; return `<div class="gen-rec"><span class="eyebrow">${GEN_SLOT_NAMES[s]}${r.perDay!==1?` · ${fmtQ(r.perDay)} servings a day`:""}</span><b>${esc(r.name)}</b><span class="small muted num">${fmtN(T.kcal)} kcal · ${Math.round(T.p)} g protein a serving · ${/makes/i.test(r.when)?"":`makes ${r.servings}`}${r.when?`${/makes/i.test(r.when)?"":" · "}${esc(r.when)}`:""}</span></div>` }).join("")).join("");
+    return head+(B.summary?`<p class="small">${esc(B.summary)}</p>`:"")+
+      `<div class="gen-tot num"><div><b>${fmtN(B.day.kcal)}</b><span>of ${fmtN(f.kcal)} kcal</span></div><div><b>${Math.round(B.day.p)} g</b><span>of ${f.protein} g protein</span></div><div><b>${B.cost?`$${Math.round(B.cost)}`:"–"}</b><span>${f.budget?`of $${f.budget} a week`:"a week, est."}</span></div></div>`+
+      `<div class="stack" style="gap:8px">${bySlot}</div>`+
+      (B.warn.length?`<div class="note gen-warn">${B.warn.map(w=>`<div>${esc(w)}</div>`).join("")}</div>`:"")+
+      `<p class="small muted">${B.shop.length} items on the shopping list. Prices are estimates, and every recipe and amount can be edited after.</p>`+
+      `<div class="row">${has?`<button type="button" class="btn" data-xs="genuse" data-mode="replace">Replace my meal plan</button><button type="button" class="btn ghost" data-xs="genuse" data-mode="add">Add to my plan</button>`:`<button type="button" class="btn" data-xs="genuse" data-mode="replace">Use this plan</button>`}</div>
+      <div class="row"><button type="button" class="link small" data-xs="genrun">Make a different one</button><button type="button" class="link small" data-xs="genform">Change my answers</button></div>` }
+  const chip=(k,l)=>{ const v=f.avoid[k]; return `<button type="button" class="gen-chip ${v||""}" data-xs-gavoid="${k}" aria-pressed="${!!v}">${esc(l)}${v==="allergy"?" · allergic":v==="avoid"?" · no":""}</button>` };
+  return head+`<p class="small muted">Tell it what you're after and it writes the recipes, portions and a priced shopping list. You can edit everything after.</p>
+    <div class="row"><div class="field"><label>Calories a day</label><input inputmode="numeric" data-xs-gf="kcal" value="${esc(f.kcal)}" data-xs-focus="gkcal"></div><div class="field"><label>Protein (g)</label><input inputmode="numeric" data-xs-gf="protein" value="${esc(f.protein)}" data-xs-focus="gprot"></div></div>
+    <h3>What should it be like?</h3><div class="gen-chips">${GEN_STYLES.map(([k,l])=>`<button type="button" class="gen-chip ${f.styles.includes(k)?"on":""}" data-xs-gstyle="${k}" aria-pressed="${f.styles.includes(k)}">${esc(l)}</button>`).join("")}</div>
+    <div class="field"><label>Anything else? <span class="muted">(optional)</span></label><textarea data-xs-gf="desc" rows="2" placeholder="e.g. I love Mexican and Asian flavors, hate soggy food, want something sweet after dinner" data-xs-focus="gdesc">${esc(f.desc)}</textarea></div>
+    <h3>Cooking</h3><div class="seg two"><button type="button" class="${f.cook==="batch"?"on":""}" data-xs-gcook="batch">Batch cook 1–2× a week</button><button type="button" class="${f.cook==="daily"?"on":""}" data-xs-gcook="daily">Cook most days</button></div>
+    <h3>Meals to plan</h3><div class="gen-chips">${Object.entries(GEN_SLOT_NAMES).map(([k,l])=>`<button type="button" class="gen-chip ${f.slots[k]?"on":""}" data-xs-gslot="${k}" aria-pressed="${!!f.slots[k]}">${l}</button>`).join("")}</div>
+    <h3>Leave out</h3><p class="small muted">Tap once for <b>don't want</b> (dislikes or choices), twice for <b>allergic</b> (also kept out of sauces and seasonings), three times to clear.</p>
+    ${AVOID_GROUPS.map(G=>`<div class="eyebrow" style="margin-top:6px">${esc(G.g)}</div><div class="gen-chips">${G.items.map(([k,l])=>chip(k,l)).join("")}</div>`).join("")}
+    <h3>Weekly grocery budget <span class="muted small">(optional)</span></h3><div class="row" style="align-items:center;gap:8px;flex-wrap:nowrap"><span style="font-weight:700">$</span><input class="xs-search" inputmode="numeric" data-xs-gf="budget" value="${esc(f.budget)}" placeholder="e.g. 80" data-xs-focus="gbud" style="max-width:140px"><span class="small muted">a week</span></div>
+    <p class="small muted">Not medical or dietary advice. With a serious allergy, always check labels.</p>
+    <button type="button" class="btn" data-xs="genrun" style="width:100%;margin-top:6px">Generate my plan</button>` }
+function genCard(K){
+  if(K.genHide||K.recipes.length||SLOTS.some(([sk])=>(K.plan[sk]||[]).length)) return "";
+  return `<div class="card gen-card"><div class="eyebrow">Get started</div><h2>Your food plan</h2>
+    <p class="small">Set your goals and what you like, and get a week of recipes, portions and a priced shopping list made for you. Or build it yourself below.</p>
+    <div class="row"><button type="button" class="btn" data-c-autogen="1">Auto-generate food plan</button><button type="button" class="link small" data-c-genhide="1">I'll set it up myself</button></div></div>` }
+
 function customFoodView(){
   const K=kitchen(), g=foodGoals(), su=CUSTOM.su;
-  let h=starterCard(K)+`<div class="card"><h2>Daily goals</h2><div class="row">${[["kcal","Calories",g.kcal],["protein","Protein g",g.p],["carbs","Carbs g",g.c],["fat","Fat g",g.f]].map(([k,l,v])=>`<div class="field"><label>${l}</label><input inputmode="numeric" data-c-goal="${k}" value="${v}"></div>`).join("")}</div>
+  let h=genCard(K)+`<div class="card"><h2>Daily goals</h2><div class="row">${[["kcal","Calories",g.kcal],["protein","Protein g",g.p],["carbs","Carbs g",g.c],["fat","Fat g",g.f]].map(([k,l,v])=>`<div class="field"><label>${l}</label><input inputmode="numeric" data-c-goal="${k}" value="${v}"></div>`).join("")}</div>
    <p class="small muted">Carbs fill whatever calories protein and fat leave, unless you set them.</p></div>`;
   // My meals
-  h+=`<div class="card"><div class="row between"><h2>My meals</h2><button type="button" class="btn sm" data-c-rec="">+ New meal</button></div>`;
+  h+=`<div class="card"><div class="row between"><h2>My meals</h2><span class="row" style="gap:6px;flex-wrap:nowrap"><button type="button" class="btn ghost sm" data-c-autogen="1">Auto-generate</button><button type="button" class="btn sm" data-c-rec="">+ New meal</button></span></div>`;
   h+= K.recipes.length? K.recipes.map(r=>{const T=recipeTotals(r); return `<div class="recwrap"><button type="button" class="dayline rec" data-c-rec="${r.id}"><span class="txt"><b>${esc(r.name)}</b><br><span class="small muted num">${T.n} serving${T.n===1?"":"s"} · ${fmtN(T.per.kcal)} kcal · ${Math.round(T.per.p)} g P · ${Math.round(T.per.c)} g C · ${Math.round(T.per.f)} g F each</span>${recipeScales(r).length?`<span class="chip food adjchip">Adjusted to your packages</span>`:""}</span></button>${recipeMethod(r)}</div>`}).join("")
      : `<p class="small muted">Build your meal prep: add every ingredient in the batch and how many servings it makes. The app works out macros per serving.</p>`;
   h+=`</div>`;
@@ -1209,8 +1331,8 @@ document.addEventListener("click",e=>{
   if(d.cCf!=null){ const f=d.cCf? kitchen().foods.find(x=>x.id===d.cCf) : null; openSheet({kind:"cfood",isNew:!f,d:f?{...f}:{id:newId("cf"),n:"",serving:"1 serving",k:"",p:"",c:"",f:""}}); return }
   if(d.cGroclr){ S.profile.grocery={}; saveProfile(); render(); return }
   if(d.cShopfromplan){ shopFromPlan(); return }
-  if(d.cStarter){ addStarterMeals(); return }
-  if(d.cStarterhide){ kitchen().starterHide=1; commitPlan(); return }
+  if(d.cAutogen){ genStart(); return }
+  if(d.cGenhide){ kitchen().genHide=1; commitPlan(); return }
   if(d.cShopedit!=null){ shopEdit=d.cShopedit||null; lastRenderKey=""; render(); return }
   if(d.cShopclr){ const g={...(S.profile.grocery||{})}; Object.keys(g).forEach(k=>{ if(k.startsWith(d.cShopclr+"-")) delete g[k] }); S.profile.grocery=g; saveProfile(); lastRenderKey=""; render(); return }
   if(d.cShopitem!=null){ const [lid,iid]=d.cShopitem.split("|"), l=shopOf().lists.find(x=>x.id===lid), it=iid&&l&&l.items.find(x=>x.id===iid);
@@ -1269,6 +1391,14 @@ document.addEventListener("click",e=>{
   if(d.xs==="ssadd"){ SH.cycle.push(shopOf().lists[0].id); paintSheet(); return }
   if(d.xsSsrm!=null){ SH.cycle.splice(+d.xsSsrm,1); SH.pos=Math.min(SH.pos,SH.cycle.length-1); paintSheet(); return }
   if(d.xs==="sssave"){ const W=SH, K=kitchen(), nd=nextShopDay({day:W.day}); K.shop.day=W.day; K.shop.cycle=[...W.cycle]; K.shop.start=ymd(addDays(nd,-7*W.pos)); saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Schedule saved"); return }
+  if(SH.kind==="autogen"){ const f=SH.f;
+    if(d.xsGstyle){ const k=d.xsGstyle; f.styles=f.styles.includes(k)? f.styles.filter(x=>x!==k) : [...f.styles,k]; paintSheet(); return }
+    if(d.xsGcook){ f.cook=d.xsGcook; paintSheet(); return }
+    if(d.xsGslot){ f.slots={...f.slots,[d.xsGslot]:f.slots[d.xsGslot]?0:1}; paintSheet(); return }
+    if(d.xsGavoid){ const k=d.xsGavoid, v=f.avoid[k], nx= !v? "avoid" : v==="avoid"? "allergy" : null; f.avoid={...f.avoid}; if(nx) f.avoid[k]=nx; else delete f.avoid[k]; paintSheet(); return }
+    if(d.xs==="genrun"){ genRun(); return }
+    if(d.xs==="genform"){ SH.step="form"; paintSheet(true); return }
+    if(d.xs==="genuse"){ genApply(t.dataset.mode||"replace"); return } }
   if(d.xs==="glookup"){ stopScan(); const inp=document.querySelector("[data-xs-code]"); gLookup(inp?inp.value:SH.code); return }
   if(d.xs==="gmanual"){ stopScan(); gEditFrom(null); paintSheet(true); return }
   if(d.xs==="gscanagain"){ SH.view="scan"; SH.scanErr=""; SH.lookErr=""; paintSheet(true); startScanG(); return }
@@ -1326,6 +1456,7 @@ document.addEventListener("input",e=>{ const t=e.target, d=t.dataset||{};
   if(d.xsNf){ SH.d[d.xsNf]=t.value; return }
   if(d.xsSi&&SH&&SH.kind==="shopItem"){ SH[d.xsSi]=t.value; return }
   if(d.xsSl&&SH&&SH.kind==="shopList"){ SH[d.xsSl]=t.value; return }
+  if(d.xsGf&&SH&&SH.kind==="autogen"){ const k=d.xsGf; SH.f[k]= k==="desc"? t.value : String(t.value).replace(/[^\d.]/g,"")===""? "" : Number(String(t.value).replace(/[^\d.]/g,"")); return }
   if(d.xsGn!=null&&SH&&SH.kind==="gscan"){ SH.pname=t.value; return }
   if(d.xsGq!=null&&SH&&SH.kind==="gscan"){ SH.eq=t.value; paintPart(".gplan"); return }
   if(d.xsRf){ SH.r[d.xsRf]=t.value; if(d.xsRf==="servings") paintPart(".rtot"); return }
