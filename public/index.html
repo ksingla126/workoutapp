@@ -627,6 +627,32 @@ nav.tabs button.on{background:var(--ink);color:var(--bg)}
 nav.tabs .badge{top:3px;right:calc(50% - 20px);box-shadow:0 0 0 2px var(--surface)}
 .wrap{padding-bottom:120px}
 
+/* live workout bar: floats above the tab bar in the same style */
+.timerbar{left:50%;right:auto;transform:translateX(-50%);width:min(616px,calc(100% - 20px));box-sizing:border-box;padding:9px 10px 10px 14px;border-radius:20px;border:1px solid var(--edge);
+  background:color-mix(in srgb,var(--surface) 90%,transparent);-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);color:var(--ink);box-shadow:0 10px 30px rgba(14,22,38,.16);overflow:hidden;transition:background .2s,border-color .2s}
+.timerbar .tb-row{max-width:none;gap:12px;flex-wrap:nowrap;padding:0}
+.timerbar .tb-dot{width:8px;height:8px;border-radius:50%;background:var(--gym);box-shadow:0 0 0 4px color-mix(in srgb,var(--gym) 22%,transparent);flex:none}
+.timerbar .tb-blk{gap:2px;min-width:0}
+.timerbar .tb-l{font-size:11px;font-weight:600;color:var(--muted);opacity:1}
+.timerbar .tb-v{font-size:22px;letter-spacing:-.02em;line-height:1}
+.timerbar .tb-btns{gap:4px;flex:none}
+.timerbar .tb-btns button{border:none;background:var(--surface-2);color:var(--ink);border-radius:12px;padding:8px 9px;font-size:12.5px;font-weight:650;opacity:1;font-variant-numeric:tabular-nums}
+.timerbar .tb-btns button:active{transform:scale(.96)}
+.timerbar #tmSkip{background:transparent;color:var(--muted)}
+.timerbar[data-state="idle"] #tmSkip{display:none}
+.timerbar .tb-prog{position:absolute;left:0;right:0;bottom:0;max-width:none;height:3px;border-radius:0;background:transparent}
+.timerbar .tb-prog i{background:var(--gym)}
+.timerbar[data-state="idle"] .rest .tb-v{color:var(--muted)}
+.timerbar[data-state="rest"] .rest .tb-v{color:var(--gym)}
+.timerbar[data-state="go"]{background:color-mix(in srgb,var(--food) 16%,var(--surface));border-color:color-mix(in srgb,var(--food) 45%,transparent)}
+.timerbar[data-state="go"] .rest .tb-v{color:var(--food)}
+.timerbar[data-state="go"] .tb-prog i{background:var(--food)}
+.timerbar[data-state="go"] .tb-dot{background:var(--food);box-shadow:0 0 0 4px color-mix(in srgb,var(--food) 25%,transparent)}
+@media (prefers-reduced-motion:no-preference){.timerbar .tb-dot{animation:tbpulse 2s ease-in-out infinite}@keyframes tbpulse{50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--gym) 0%,transparent)}}}
+@media (max-width:379px){.timerbar{padding-left:12px}.timerbar .tb-dot{display:none}.timerbar .tb-row{gap:9px}.timerbar .tb-btns button{padding:8px 6px;font-size:12px}}
+body.timing .wrap{padding-bottom:180px}
+body.timing .toast{bottom:calc(170px + env(safe-area-inset-bottom,0px))}
+
 /* header rank chip */
 .top-name.brand{display:inline-flex;align-items:center;gap:8px;font:800 20px/1 var(--display);color:var(--ink);letter-spacing:-.01em}.brandmark{width:22px;height:24px;flex:none}
 .rk-chip{position:absolute;top:2px;right:44px;display:flex;align-items:center;gap:6px;padding:0 10px 0 4px;height:34px;border-radius:999px;border:1px solid var(--edge);background:var(--surface);color:var(--ink);font:650 13px var(--body);cursor:pointer;z-index:2}
@@ -692,6 +718,7 @@ svg.inl{width:15px;height:15px;vertical-align:-3px}
 <div class="live" id="live" hidden role="dialog" aria-label="Live workout"><div class="in" id="liveIn"></div></div>
 <div class="timerbar" id="timerBar" hidden data-state="idle" role="timer" aria-live="off">
   <div class="tb-row">
+    <span class="tb-dot" aria-hidden="true"></span>
     <div class="tb-blk"><span class="tb-l">Workout</span><span class="tb-v num" id="tmWork">0:00</span></div>
     <div class="tb-blk rest"><span class="tb-l">Rest</span><span class="tb-v num" id="tmRest">–</span></div>
     <div class="tb-btns"><button type="button" data-rest="60">1:00</button><button type="button" data-rest="90">1:30</button><button type="button" data-rest="150">2:30</button><button type="button" id="tmSkip">Skip</button></div>
@@ -1575,7 +1602,7 @@ function tick(){
   const bar=$("#timerBar"); if(!bar) return;
   if(!TM.start){bar.hidden=true; document.body.classList.remove("timing"); if(liveOpen){liveOpen=false; renderLive()} return}
   if(liveOpen) liveTick();
-  const nav=document.querySelector("nav.tabs"); if(nav) bar.style.bottom=nav.offsetHeight+"px";
+  const nav=document.querySelector("nav.tabs"); if(nav&&nav.offsetHeight) bar.style.bottom=Math.max(0,Math.round(window.innerHeight-nav.getBoundingClientRect().top+8))+"px";
   bar.hidden=liveOpen; document.body.classList.add("timing");
   const el=Date.now()-TM.start; $("#tmWork").textContent=fmtClock(el); const w2=$("#tmWork2"); if(w2) w2.textContent=fmtClock(el);
   const left=TM.restEnd-Date.now(), rest=$("#tmRest"), fill=$("#tmRestFill");
