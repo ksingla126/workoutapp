@@ -627,6 +627,18 @@ nav.tabs button.on{background:var(--ink);color:var(--bg)}
 nav.tabs .badge{top:3px;right:calc(50% - 20px);box-shadow:0 0 0 2px var(--surface)}
 .wrap{padding-bottom:120px}
 
+/* new-user food, Strava, outlook and rest days */
+.starter{border:1px solid color-mix(in srgb,var(--food) 40%,var(--edge))}.starter-list{margin:4px 0 10px;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+details.card.needs summary{cursor:pointer;list-style:none}details.card.needs summary::-webkit-details-marker{display:none}details.card.needs[open] summary{margin-bottom:8px}
+.strava-cta{display:flex;gap:12px;align-items:flex-start;border:1px solid color-mix(in srgb,#FC4C02 35%,var(--edge));background:color-mix(in srgb,#FC4C02 7%,var(--surface));border-radius:14px;padding:12px 14px;margin:10px 0}
+.sv-mark{width:26px;height:26px;flex:none;margin-top:2px}
+.needs-list{list-style:none;margin:0 0 6px;padding:0;display:flex;flex-direction:column;gap:12px}.needs-list li{display:flex;gap:12px;align-items:flex-start}.needs-list li>span:last-child{display:flex;flex-direction:column;gap:2px}
+.nl-dot{width:22px;height:22px;border-radius:50%;flex:none;border:2px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff}.needs-list li.done .nl-dot{background:var(--good);border-color:var(--good)}.needs-list li.done b{text-decoration:line-through;color:var(--muted)}
+.rest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}.rest-item{background:var(--surface-2);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+@media (max-width:520px){.rest-grid{grid-template-columns:1fr}}
+.mob-list{margin:8px 0;padding-left:20px;display:flex;flex-direction:column;gap:6px}.mob-list li span:first-child{margin-right:8px}
+.rest-next{display:flex;flex-direction:column;gap:3px;border-top:1px solid var(--line);padding-top:10px;margin-top:10px}
+
 /* live workout bar: floats above the tab bar in the same style */
 .timerbar{left:50%;right:auto;transform:translateX(-50%);width:min(616px,calc(100% - 20px));box-sizing:border-box;padding:9px 10px 10px 14px;border-radius:20px;border:1px solid var(--edge);
   background:color-mix(in srgb,var(--surface) 90%,transparent);-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);color:var(--ink);box-shadow:0 10px 30px rgba(14,22,38,.16);overflow:hidden;transition:background .2s,border-color .2s}
@@ -1126,7 +1138,7 @@ function viewHome(openLogger){
   return h;
 }
 function trainingCard(p,k,log,openLogger){
-  if(p.type==="rest") return `<div class="card"><div class="row between"><h2>Rest day</h2><span class="chip">Recovery</span></div><p>Walk 20–30 minutes if you feel like it, stretch hips and calves. A good day to shop and prep food for the week (Plan → Food).</p>${dayMenu(p,k,log)}${stravaChooser(k,log)}${extraRunsBlock(k,log)}${weekResetBtn(k)}${mondayWeighIn()}</div>`;
+  if(p.type==="rest") return `<div class="card"><div class="row between"><h2>Rest day</h2><span class="chip">Recovery</span></div>${restDayHtml(sel,k)}${dayMenu(p,k,log)}${stravaChooser(k,log)}${extraRunsBlock(k,log)}${weekResetBtn(k)}${mondayWeighIn()}</div>`;
   if(p.type==="gym"&&!(p.ex&&p.ex.length)) return `<div class="card"><div class="eyebrow">Gym</div><h2>${esc(p.name)}</h2><p>This routine has no exercises yet.</p><button type="button" class="btn sm" data-c-gotoplan="1">Add exercises</button></div>`;
   if(p.type==="gym"){
     let h=`<div class="card gymcard"><div class="row between"><div><div class="eyebrow">Gym · ~${CUSTOM?estMin(p.ex):"55–60"} min</div><h2>${esc(p.name)}</h2></div>${log?`<span class="chip gym">Logged ✓${log.durMin?` · ${Math.round(log.durMin)} min`:""}${log.prs&&log.prs.length?` · ${log.prs.length} PR${log.prs.length>1?"s":""}`:""}</span>`:""}</div>`;
@@ -1153,7 +1165,7 @@ function trainingCard(p,k,log,openLogger){
   const goal = p.key==="tue"? (/bpm/.test(p.d)? `Keep your heart rate between ${HR_LO} and ${HR_HI}: jog slowly until it reaches ${HR_HI}, walk until it drops to ${HR_LO}, repeat. Pace doesn't matter.${/strides/.test(p.d)?" Finish with the strides: 15–20 s fast and relaxed (about 85%), walking 60–90 s between each.":""}` : /strides/.test(p.d)? "Keep the run/walk easy and conversational, then do the strides: 15–20 s smooth and fast (about 85%, not all-out), walk 60–90 s back between each." : "Cover a little more ground than last week in the same time.") : p.key==="thu"? "Hold each run segment a touch quicker than last week; keep the walks easy." : "Finish the distance. Pace doesn't matter; time on feet does.";
   return `<div class="card"><div class="row between"><div><div class="eyebrow">Run</div><h2>${esc(p.t)}</h2></div>${log?'<span class="chip run">Logged ✓</span>':""}</div>
     <div class="plan-box"><div style="font-weight:700">${esc(p.d)}</div><div class="small muted">${goal}</div></div>
-    ${stravaChooser(k,log)}${timerBox(k)}${dayMenu(p,k,log)}
+    ${stravaChooser(k,log)}${log?"":stravaPrompt("home")}${timerBox(k)}${dayMenu(p,k,log)}
     ${prevTxt?`<div class="small num" style="color:var(--run);font-weight:600">${esc(prevTxt)}</div>`:""}
     <details class="logger" id="trainLog" ${openLogger?"open":""}><summary>${hasDraft(k,TRAIN_RE)?"Unsaved entries · tap to finish":log?`Logged: ${log.mi} mi · ${fmtMin(log.min)} · ${fmtMin(log.min/log.mi)}/mi`:"Log this run"}</summary><div class="stack" style="gap:10px;margin-top:12px">
     ${importerHtml(k)}
@@ -1196,6 +1208,34 @@ function exerciseBlock(ex,k,log){
 }
 // weight placeholder: the last weight you logged, or a round number
 function wtHint(){ const ws=(S.profile.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1), last=ws[ws.length-1]; return last? `e.g. ${toU(last.lb)}` : UNIT()==="kg"? "e.g. 80.5" : "e.g. 180.5" }
+/* ----- Rest days: recover on purpose ----- */
+const MOBILITY={
+  lower:{t:"Hips and legs",moves:[["90/90 hip switches","1 min"],["Couch stretch","45 s each side"],["Lying hamstring floss","10 each side"],["Deep squat hold","1 min"],["Calf stretch on a step","45 s each side"]]},
+  upper:{t:"Shoulders and upper back",moves:[["Open books (lying on your side)","8 each side"],["Doorway chest stretch","45 s each side"],["Wall slides","12 slow reps"],["Child's pose with side reach","45 s each side"],["Cross-body shoulder stretch","30 s each side"]]},
+  run:{t:"Runner's reset",moves:[["Leg swings, front and side","10 each"],["Couch stretch","45 s each side"],["Calf stretch on a step","45 s each side"],["Glute bridge hold","3 × 20 s"],["Ankle circles","10 each way"]]},
+  full:{t:"Full body",moves:[["Cat–cow","10 slow reps"],["World's greatest stretch","5 each side"],["Open books (lying on your side)","8 each side"],["Deep squat hold","1 min"],["Child's pose","1 min"]]}};
+const LOWER_MUS=new Set(["Quads","Hamstrings","Glutes","Calves"]), UPPER_MUS=new Set(["Chest","Back","Shoulders","Biceps","Triceps"]);
+// what to loosen up: whatever the last two days worked
+function mobilityFocus(d){ let lo=0, up=0, run=false;
+  for(let i=1;i<=2;i++){ const l=S.logs[ymd(addDays(d,-i))]; if(!l) continue; if(l.type==="run") run=true;
+    if(l.type==="gym"&&l.ex) Object.keys(l.ex).forEach(id=>{ const L=typeof libEx==="function"&&libEx(id), m=L&&L.muscle; if(LOWER_MUS.has(m)) lo++; else if(UPPER_MUS.has(m)) up++ }) }
+  return lo&&up? (lo>=up*2?"lower":up>=lo*2?"upper":"full") : lo? "lower" : up? "upper" : run? "run" : "full" }
+function restDayHtml(d,k){
+  const f=MOBILITY[mobilityFocus(d)], tom=addDays(d,1), tp=planFor(tom), pt=dayProtein(d);
+  const mon=monOf(weekOf(d)); let wp=0, wd=0; for(let i=0;i<7;i++){ const x=addDays(mon,i), q=planFor(x); if(q&&q.type!=="rest"){ wp++; if(S.logs[ymd(x)]) wd++ } }
+  const K=CUSTOM&&typeof kitchen==="function"? kitchen() : null, shopDay=K&&K.shop&&K.shop.lists&&K.shop.lists.length&&(K.shop.day||0)===d.getDay();
+  const tomTxt=!tp?"":tp.type==="rest"?"Another rest day":tp.type==="gym"?`${tp.name} · ${tp.ex.length} exercises`:`${tp.t} · ${tp.d}`;
+  const tomEx=tp&&tp.type==="gym"? tp.ex.slice(0,3).map(e=>e.name).join(", ")+(tp.ex.length>3?"…":"") : "";
+  return `<p class="small">Muscle grows back between sessions, so today counts too.</p>
+    <div class="rest-grid">
+      <div class="rest-item"><b>Easy walk</b><span class="small muted">20–30 min, at a pace you could talk at. It speeds up recovery more than lying still.</span></div>
+      <div class="rest-item"><b>${fmtN(pt)} g protein</b><span class="small muted">Same goal as a training day: today is when muscle rebuilds.</span></div>
+      <div class="rest-item"><b>7–9 hours of sleep</b><span class="small muted">The biggest recovery lever there is.</span></div>
+    </div>
+    <details class="logger mob"><summary>10-minute mobility · ${esc(f.t)}</summary><ol class="mob-list">${f.moves.map(([n,a])=>`<li><span>${esc(n)}</span><span class="small muted num">${esc(a)}</span></li>`).join("")}</ol><p class="small muted">Slow and easy, no pain. Breathe out as you sink into each stretch.</p></details>
+    ${shopDay?`<p class="note">It's your shopping day. Your list is in Plan → Food.</p>`:""}
+    ${tp?`<div class="rest-next"><span class="eyebrow">Tomorrow · ${DOW[dowOf(tom)]}</span><b>${esc(tomTxt)}</b>${tomEx?`<span class="small muted">${esc(tomEx)}</span>`:""}</div>`:""}
+    ${wp?`<p class="small muted num">This week: ${wd} of ${wp} sessions done.</p>`:""}` }
 function mondayWeighIn(){
   const k=ymd(sel); if(dowOf(sel)!==0 || k!==ymd(today)) return "";
   const done=(S.profile.weights||[]).some(w=>w.d===k);
@@ -1970,8 +2010,24 @@ function project(full){
 }
 const chip=p=>p==null?`<span class="small muted">–</span>`:`<span class="tchip" style="background:${tierColor(p)}">${tier(p)}</span>`;
 function nowToProj(n,p){ return `<div class="ntp">${chip(n)}<span class="arrow">→</span>${chip(p)}</div>` }
+// what the Outlook needs before it can project anything
+function outlookNeeds(P){
+  const logs=Object.values(S.logs), ex=new Set(); logs.forEach(l=>{ if(l&&l.type==="gym"&&l.ex) Object.keys(l.ex).forEach(id=>ex.add(id)) });
+  const reg=key=>[...ex].some(id=>{ const mm=EX_MUSCLES[id]; return mm&&REGIONS[key].muscles.some(([m])=>mm[m]) });
+  const ws=(S.profile.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1), wOK=ws.length>=2&&(parseYmd(ws[ws.length-1].d)-parseYmd(ws[0].d))/DAYMS>=7;
+  const runsPlanned=!CUSTOM||CUSTOM.su.runDays.length>0;
+  return [
+    {done:!!(P.upperN&&P.upperN.pct!=null)||reg("upper"),t:"Log a workout with upper-body lifts",s:"Sets your upper-body starting point."},
+    {done:!!(P.lowerN&&P.lowerN.pct!=null)||reg("lower"),t:"Log a workout with lower-body lifts",s:"Sets your lower-body starting point."},
+    {done:!!P.vo2N,t:"Log a run with heart rate",s:"From Strava or a GPX file. It estimates your fitness and race times.",opt:!runsPlanned,strava:true},
+    {done:wOK,t:"Weigh in twice, a week apart",s:"So the projections follow your real body-weight trend."}] }
 function viewOutlook(){
   const P=project(), hz=P.hz, a=P.adh;
+  if(P.overallN==null&&P.overallP==null){ const N=outlookNeeds(P);
+    return `<div class="card"><div class="eyebrow">If you keep going like this</div><h2>Outlook</h2>
+      <p class="small">Outlook projects your strength, fitness and race times 4 weeks, 3 months and 6 months out if you keep hitting your sessions. At first it uses typical rates for your training level. After a few weeks it uses your own rate of progress.</p></div>
+      <div class="card"><h2>Unlock your outlook</h2><ol class="needs-list">${N.map(n=>`<li class="${n.done?"done":""}"><span class="nl-dot" aria-hidden="true">${n.done?"✓":""}</span><span><b>${esc(n.t)}</b>${n.opt?' <span class="small muted">(optional)</span>':""}<span class="small muted">${esc(n.s)}</span></span></li>`).join("")}</ol>
+      ${stravaPrompt("outlook")}<p class="small muted">Projections appear as soon as one of these is done.</p></div>` }
   let h=`<div class="card"><div><div class="eyebrow">If you keep going like this</div><h2>Outlook</h2></div>
     <div class="seg three" role="tablist" aria-label="Time frame">${[["4w","4 weeks"],["3m","3 months"],["6m","6 months"]].map(([k,l])=>`<button role="tab" data-outh="${k}" class="${outH===k?"on":""}" aria-selected="${outH===k}">${l}</button>`).join("")}</div>
     <p class="small muted">If you hit every session from here.</p></div>`;
@@ -2247,7 +2303,7 @@ function viewRuns(){ return runSel&&S.logs[runSel]&&S.logs[runSel].type==="run"?
 function runsIndex(){
   const L=runList();
   let h=`<div class="card"><div><div class="eyebrow">Every run you've logged · tap one for the full breakdown</div><h2>Runs</h2></div>`;
-  if(!L.length) return h+`<p class="small muted">No runs yet. Log one from the Home tab on a run day${CUSTOM&&CUSTOM.su.runDays.length?` (${CUSTOM.su.runDays.map(i=>DOW[i]).join(", ")})`:""}, or import from Strava for maps and splits, and it'll show up here.</p></div>`;
+  if(!L.length) return h+`<p class="small muted">No runs yet. Log one from the Home tab on a run day${CUSTOM&&CUSTOM.su.runDays.length?` (${CUSTOM.su.runDays.map(i=>DOW[i]).join(", ")})`:""}, or import from Strava for maps and splits, and it'll show up here.</p>${stravaPrompt("runs")}</div>`;
   const tot=L.reduce((a,[k,l])=>a+(Number(l.mi)||0),0), longest=Math.max(...L.map(([k,l])=>Number(l.mi)||0)), best=Math.min(...L.filter(([k,l])=>l.mi&&l.min).map(([k,l])=>l.min/l.mi));
   h+=`<div class="kpis"><div class="kpi"><div class="v num">${L.length}</div><div class="l">runs</div></div><div class="kpi"><div class="v num">${tot.toFixed(1)}</div><div class="l">total miles</div></div><div class="kpi"><div class="v num">${longest.toFixed(1)}</div><div class="l">longest (mi)</div></div></div>`;
   if(isFinite(best)) h+=`<p class="small muted">Fastest average pace so far: <b class="num" style="color:var(--ink)">${fmtMin(best)}/mi</b></p>`;

@@ -436,9 +436,24 @@ function cfoodHtml(){ const d=SH.d;
    <p class="small muted">Per serving, from the nutrition label.${d.code?` Linked to barcode ${esc(d.code)} and shared so others who scan it get it too.`:""}</p><p class="note" data-xs-err hidden></p>
    <div class="row"><button type="button" class="btn" data-xs="cfsave">Save food</button>${SH.isNew?"":`<button type="button" class="btn ghost" data-xs="cfdel">${SH.delConfirm?"Tap again to delete":"Delete"}</button>`}</div>`;
 }
+// Ready-made meal prep for new users: the same three batch recipes, with plan-neutral wording
+const STARTER_WHEN={rcBur:"about 45 min · makes 14",rcPes:"about 40 min · makes 7",rcBol:"about 50 min, mostly simmering · makes 14"};
+function addStarterMeals(){ const K=kitchen();
+  BATCH3.foods.forEach(f=>{ if(!K.foods.some(x=>x.id===f.id)) K.foods.push({...f}) });
+  BATCH3.recipes.forEach(r=>{ if(K.recipes.some(x=>x.id===r.id)) return; const c=JSON.parse(JSON.stringify(r)); c.when=STARTER_WHEN[r.id]||""; c.method=(c.method||"").replace(/ on Sunday/g," on prep day"); c.store=(c.store||"").replace(" for Thu–Sat",""); K.recipes.push(c) });
+  ["b","l","d"].forEach((sk,i)=>{ const id=["rcBur","rcPes","rcBol"][i]; K.plan[sk]=K.plan[sk]||[]; if(!K.plan[sk].some(e=>e.t==="r"&&e.id===id)) K.plan[sk].push({t:"r",id,qty:1}) });
+  K.starter=Date.now(); commitPlan(); toast("Added 3 meal-prep recipes to your plan") }
+function starterCard(K){
+  if(K.recipes.length||K.starterHide||SLOTS.some(([sk])=>(K.plan[sk]||[]).length)) return "";
+  const extra=BATCH3.foods.filter(f=>!K.foods.some(x=>x.id===f.id)); K.foods.push(...extra); // so the preview counts the pasta
+  let names; try{ names=BATCH3.recipes.map(r=>{ const T=recipeTotals(r); return `<li><b>${esc(r.name.replace(/ \(batch\)$/,""))}</b> <span class="small muted num">· ${fmtN(T.per.kcal)} kcal, ${Math.round(T.per.p)} g protein each · ${esc(STARTER_WHEN[r.id]||"")}</span></li>` }).join("") } finally { K.foods=K.foods.filter(f=>!extra.includes(f)) }
+  return `<div class="card starter"><div class="eyebrow">Get started</div><h2>Three meals, cooked in batches</h2>
+    <p class="small">A high-protein breakfast, lunch and dinner you cook once or twice a week. Full recipes, macros and a shopping list come with them, and you can change anything.</p>
+    <ul class="starter-list">${names}</ul>
+    <div class="row"><button type="button" class="btn sm" data-c-starter="1">Use these meals</button><button type="button" class="btn ghost sm" data-c-starterhide="1">I'll build my own</button></div></div>` }
 function customFoodView(){
   const K=kitchen(), g=foodGoals(), su=CUSTOM.su;
-  let h=`<div class="card"><h2>Daily goals</h2><div class="row">${[["kcal","Calories",g.kcal],["protein","Protein g",g.p],["carbs","Carbs g",g.c],["fat","Fat g",g.f]].map(([k,l,v])=>`<div class="field"><label>${l}</label><input inputmode="numeric" data-c-goal="${k}" value="${v}"></div>`).join("")}</div>
+  let h=starterCard(K)+`<div class="card"><h2>Daily goals</h2><div class="row">${[["kcal","Calories",g.kcal],["protein","Protein g",g.p],["carbs","Carbs g",g.c],["fat","Fat g",g.f]].map(([k,l,v])=>`<div class="field"><label>${l}</label><input inputmode="numeric" data-c-goal="${k}" value="${v}"></div>`).join("")}</div>
    <p class="small muted">Carbs fill whatever calories protein and fat leave, unless you set them.</p></div>`;
   // My meals
   h+=`<div class="card"><div class="row between"><h2>My meals</h2><button type="button" class="btn sm" data-c-rec="">+ New meal</button></div>`;
@@ -452,14 +467,18 @@ function customFoodView(){
     h+=`<div class="slot"><div class="row between"><b>${sn}</b><button type="button" class="link small" data-c-padd="${sk}">+ Add</button></div>`;
     its.forEach((e,i)=>{const M=entryMacros(e); if(!M) return; day=addM(day,M.m); h+=`<div class="extra"><span>${esc(M.name)} <span class="muted small num">· ${esc(M.amount)} · ${fmtN(M.m.kcal)} kcal</span></span><button type="button" data-c-prm="${sk}|${i}" aria-label="Remove">×</button></div>`});
     h+=`</div>`});
-  h+=`<div class="note num"><b>Planned per day:</b> ${fmtN(day.kcal)} of ${fmtN(g.kcal)} kcal · ${Math.round(day.p)} of ${g.p} g protein · ${Math.round(day.c)} g carbs · ${Math.round(day.f)} g fat</div></div>`;
-  h+=shopCard(K);
-  // Grocery list
-  const gl=groceryList(), chk=S.profile.grocery||{};
-  h+=`<div class="card"><div class="row between"><h2>${K.shop?"Meal plan needs":"Grocery list"}</h2><span class="chip">7 days</span></div>${K.shop?`<p class="small muted">What your meal plan uses in an average week, for checking your lists.</p>`:""}`;
-  h+= gl.length? (K.shop?"":storeBar())+gl.map(x=>shopRow("f:"+x.id,x.id,x.n,x.qty,{q:x.gr,u:"g"})).join("")+`<button type="button" class="link small" data-c-groclr="1">Uncheck all</button>`
-     : `<p class="small muted">Add meals to your plan and the shopping list fills in.</p>`;
-  h+=`</div>`;
+  const gap=g.kcal-day.kcal, short=day.kcal>0&&gap>g.kcal*0.15;
+  h+=`<div class="note num"><b>Planned per day:</b> ${fmtN(day.kcal)} of ${fmtN(g.kcal)} kcal · ${Math.round(day.p)} of ${g.p} g protein · ${Math.round(day.c)} g carbs · ${Math.round(day.f)} g fat${short?`<br><span class="small">About ${fmtN(Math.round(gap/50)*50)} kcal short of your goal: add a snack or an extra serving with + Add.</span>`:""}</div></div>`;
+  const gl=groceryList(), hasLists=!!(K.shop&&K.shop.lists&&K.shop.lists.length);
+  if(hasLists){ h+=shopCard(K);
+    if(gl.length) h+=`<details class="card needs"><summary><b>What your meal plan uses</b> <span class="small muted">· 7 days, for checking your lists</span></summary>${gl.map(x=>shopRow("f:"+x.id,x.id,x.n,x.qty,{q:x.gr,u:"g"})).join("")}</details>` }
+  else { // one Shopping card: the list your meal plan makes, and the option to keep your own lists
+    h+=`<div class="card shop"><div class="row between"><h2>Shopping</h2>${gl.length?'<span class="chip">7 days</span>':""}</div>`;
+    h+= gl.length? `<p class="small muted">Everything your meal plan uses in a week.</p>${storeBar()}${gl.map(x=>shopRow("f:"+x.id,x.id,x.n,x.qty,{q:x.gr,u:"g"})).join("")}<button type="button" class="link small" data-c-groclr="1">Uncheck all</button>
+      <p class="small muted" style="margin-top:10px">Want to add other things, or shop on a rotation (like a big shop one week and a quick one the next)? Save it as your own list.</p>
+      <div class="row"><button type="button" class="btn sm" data-c-shopfromplan="1">Save as my list</button><button type="button" class="btn ghost sm" data-c-shoplist="">+ New list</button></div>`
+      : `<p class="small muted">Add meals to your plan and your shopping list fills in by itself. Or make your own lists and put them on a weekly rotation.</p><div class="row"><button type="button" class="btn ghost sm" data-c-shoplist="">+ New list</button></div>`;
+    h+=`</div>` }
   // Custom foods
   h+=`<div class="card"><div class="row between"><h2>My foods</h2><button type="button" class="btn ghost sm" data-c-cf="">+ New food</button></div>`;
   h+= K.foods.length? K.foods.map(f=>`<button type="button" class="dayline" data-c-cf="${f.id}"><span class="txt"><b>${esc(f.n)}</b> <span class="small muted num">${esc(f.serving)} · ${fmtN(f.k)} kcal · ${f.p} g P</span></span></button>`).join("") : `<p class="small muted">Add packaged foods from their nutrition label.</p>`;
@@ -1112,6 +1131,14 @@ function stravaRows(){ if(!(window.appConfig&&appConfig().strava)) return ""; co
   if(ss.pending&&Date.now()-ss.pending<30*60000) return `<h3>Strava</h3><div class="setrow"><span><b>Finishing on Strava…</b><span class="small muted">Approve on the Strava screen, then come back here.</span></span><button type="button" class="btn sm" data-acct-scheck="1">Check</button></div><button type="button" class="link small" data-acct-sconn="1">Start over</button>${err}`;
   return `<h3>Strava</h3><button type="button" class="setlink" data-acct-sconn="1" ${SH&&SH.connecting?"disabled":""}>${SH&&SH.connecting?"Opening Strava…":"Connect Strava"}<span>›</span></button><p class="small muted">Runs you record on Strava import by themselves, with pace, splits and heart rate.</p>${err}` }
 
+// Strava where runs happen, not only in the account sheet
+const STRAVA_MARK=`<svg viewBox="0 0 24 24" aria-hidden="true" class="sv-mark"><path fill="#FC4C02" d="M10.1 1 4.3 12.4h3.5l2.3-4.5 2.2 4.5h3.5z"/><path fill="#FC4C02" opacity=".6" d="m15.8 12.4-1.7 3.4-1.8-3.4H9.8l4.3 8.4 4.2-8.4z"/></svg>`;
+function stravaPrompt(where){
+  if(!(window.appConfig&&appConfig().strava)) return ""; const ss=stravaState();
+  if(ss.connected||(ss.pending&&Date.now()-ss.pending<30*60000)) return "";
+  if(where==="home"&&userPrefs().stravaHide) return "";
+  return `<div class="strava-cta">${STRAVA_MARK}<div style="flex:1;min-width:0"><b>Record runs on Strava?</b><div class="small muted">Connect it once and your runs import by themselves, with the route, splits and heart rate.</div>
+    <div class="row" style="margin-top:8px;gap:10px;align-items:center"><button type="button" class="btn sm" data-strava-go="1">Connect Strava</button>${where==="home"?'<button type="button" class="link small" data-strava-hide="1">Not now</button>':""}</div></div></div>` }
 function exportData(){ const data={exportedAt:new Date().toISOString(),profile:S.profile,logs:S.logs,meals:S.meals,photos:S.photos,chat:S.chat,advice:S.advice};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}), url=URL.createObjectURL(blob), a=document.createElement("a");
   a.href=url; a.download=`training-data-${ymd(today)}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000) }
@@ -1149,7 +1176,8 @@ document.addEventListener("click",e=>{
   if(d.acctPal){ setPref({palette:d.acctPal}); paintSheet(); return }
   if(d.acctEdit){ xsClose(); setupOpen=true; SUW=null; render(); window.scrollTo(0,0); return }
   if(d.acctExport){ exportData(); return }
-  if(d.acctSconn){ stravaConnect(); return }
+  if(d.acctSconn||d.stravaGo){ stravaConnect(); return }
+  if(d.stravaHide){ setPref({stravaHide:Date.now()}); lastRenderKey=""; render(); toast("Hidden. You can connect any time from your account."); return }
   if(d.acctSsync){ stravaSync(true); return }
   if(d.acctSdisc){ stravaDisconnect(); return }
   if(d.acctScheck){ stravaCheck(true); return }
@@ -1181,6 +1209,8 @@ document.addEventListener("click",e=>{
   if(d.cCf!=null){ const f=d.cCf? kitchen().foods.find(x=>x.id===d.cCf) : null; openSheet({kind:"cfood",isNew:!f,d:f?{...f}:{id:newId("cf"),n:"",serving:"1 serving",k:"",p:"",c:"",f:""}}); return }
   if(d.cGroclr){ S.profile.grocery={}; saveProfile(); render(); return }
   if(d.cShopfromplan){ shopFromPlan(); return }
+  if(d.cStarter){ addStarterMeals(); return }
+  if(d.cStarterhide){ kitchen().starterHide=1; commitPlan(); return }
   if(d.cShopedit!=null){ shopEdit=d.cShopedit||null; lastRenderKey=""; render(); return }
   if(d.cShopclr){ const g={...(S.profile.grocery||{})}; Object.keys(g).forEach(k=>{ if(k.startsWith(d.cShopclr+"-")) delete g[k] }); S.profile.grocery=g; saveProfile(); lastRenderKey=""; render(); return }
   if(d.cShopitem!=null){ const [lid,iid]=d.cShopitem.split("|"), l=shopOf().lists.find(x=>x.id===lid), it=iid&&l&&l.items.find(x=>x.id===iid);
