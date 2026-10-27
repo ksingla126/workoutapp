@@ -411,7 +411,8 @@ const rkBadge = (n, big) => { const i = Math.max(0, Math.min(5, Math.floor(n)));
 // Overall rank in the header: taps through to the Ranks screen
 function rankChip() {
   try { if (!(S.profile && (S.profile.setup || Object.keys(S.logs).length))) return ""; const R = rankState(), n = rkAlertCount();
-    return `<button type="button" class="rk-chip" data-tab-go="ranks" aria-label="Overall rank ${rkLetter(R.overall)}. Open Ranks">${rkBadge(R.overall)}<span>Rank</span>${n ? `<i class="rk-dot" aria-hidden="true"></i>` : ""}</button>` } catch (e) { return "" }
+    const un = !R.place || R.place.pending;
+    return `<button type="button" class="rk-chip" data-tab-go="ranks" aria-label="${un ? "Unranked" : "Overall rank " + rkLetter(R.overall)}. Open Ranks">${un ? '<span class="rk-l rk-q" style="--rc:#5B6378;font-size:15px" role="img" aria-label="Unranked">?</span>' : rkBadge(R.overall)}<span>Rank</span>${n ? `<i class="rk-dot" aria-hidden="true"></i>` : ""}</button>` } catch (e) { return "" }
 }
 document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-tab-go]"); if (!b) return; tab = b.dataset.tabGo; try { localStorage.setItem("rd25-tab", tab) } catch (_) {} lastRenderKey = ""; render(); window.scrollTo(0, 0) });
 const rkBar = (prog, col) => `<div class="rk-bar"><i style="width:${Math.round(Math.max(0, Math.min(1, prog)) * 100)}%;background:${col || "var(--gym)"}"></i></div>`;
@@ -532,23 +533,36 @@ function rkRadar(R, sc) {
 }
 function rkHud(R, sc, su) {
   const ov = sc ? R.overallScaled : R.overall, avg = sc ? R.overallAvgScaled : R.overallAvg, prog = rkOverallProg(avg, ov);
+  const fresh = !Object.values(S.logs).some(l => l && (l.type === "gym" || l.type === "run")) && !(rkData().trials || []).length, pend = !fresh && R.place && R.place.pending;
+  const C = RKC(), pDay = pend ? Math.min(C.placementDays, rkDays(R.place.first, R.td) + 1) : 0;
+  const ovHtml = fresh || pend
+    ? `<div class="rk-ov"><span class="rk-l big rk-q" style="--rc:#5B6378" role="img" aria-label="Unranked">?</span><div style="flex:1;min-width:0"><div class="rk-ov-l">Overall rank</div><div class="rk-ov-v">Unranked</div>
+      <div class="rk-xp"><i style="width:${Math.round(pDay / C.placementDays * 100)}%"></i></div><div class="rk-ov-s">${fresh ? "Log your first workout to start placement week." : `Placement week: day ${pDay} of ${C.placementDays}. Ranks set ${fmtShort(parseYmd(R.place.ready))}.`}</div></div></div>`
+    : `<div class="rk-ov">${rkBadge(ov, true)}<div style="flex:1;min-width:0"><div class="rk-ov-l">Overall rank</div><div class="rk-ov-v">${rkLetter(ov)}-Rank</div>
+      <div class="rk-xp"><i style="width:${Math.round(prog * 100)}%"></i></div><div class="rk-ov-s">${ov >= 5 ? "Max rank" : `${Math.round(prog * 100)}% to ${rkLetter(ov + 1)}-Rank`}</div></div></div>`;
+  const how = fresh || pend ? `<div class="rk-how"><div class="rk-how-t">${fresh ? "How you rank up" : "While you place"}</div>
+    <ol>
+      <li class="${pend ? "on" : ""}"><b>Placement week.</b> Train normally for ${C.placementDays} days. Your lifts and runs set your starting rank in each category, up to B.</li>
+      <li><b>Fill the bar, clear the Gate.</b> Beat your numbers until a bar fills, then hit one heavy Gate set (1–5 reps) to rank up. Runs use a fast run or time trial.</li>
+      <li><b>Show up.</b> Discipline rises with every week you hit ${Math.round(C.discipline.hitPct * 100)}% of your planned sessions.</li>
+    </ol>
+    ${fresh ? `<button type="button" class="rk-cta" data-tab-go="home">Start today's training</button>` : ""}</div>` : "";
   const tiles = R.groups.map(g => { const v = g.num == null ? null : Math.min(5, sc ? g.scaled : g.num), f = v == null ? 0 : v >= 5 ? 1 : v - Math.floor(v);
     return `<button type="button" class="rk-tile" data-rkjump="${g.id}"><span class="rk-tname">${esc(RK_SHORT[g.id] || g.name)}</span><span class="rk-tile-row">${v == null ? '<span class="rk-l sm" style="--rc:#5B6378">–</span>' : rkBadge(v).replace('class="rk-l', 'class="rk-l sm')}<span class="rk-tcol">
       <span class="rk-tbar"><i style="width:${Math.round(f * 100)}%;background:${RK_COL[Math.min(5, Math.floor(v || 0) + 1)]}"></i></span><span class="rk-tsub">${v == null ? "Excluded" : v >= 5 ? "Max" : `${Math.round(f * 100)}%<span class="rk-tnext"> → ${rkLetter(Math.floor(v) + 1)}</span>`}</span></span></span></button>` }).join("");
   return `<div class="rk-hud"><i class="rk-c tl"></i><i class="rk-c tr"></i><i class="rk-c bl"></i><i class="rk-c br"></i>
     <div class="rk-hud-head"><span class="rk-sys">Status</span><span class="rk-name-h">${esc((su && su.name) || "Hunter")}</span></div>
-    <div class="rk-ov">${rkBadge(ov, true)}<div style="flex:1;min-width:0"><div class="rk-ov-l">Overall rank</div><div class="rk-ov-v">${rkLetter(ov)}-Rank</div>
-      <div class="rk-xp"><i style="width:${Math.round(prog * 100)}%"></i></div><div class="rk-ov-s">${ov >= 5 ? "Max rank" : `${Math.round(prog * 100)}% to ${rkLetter(ov + 1)}-Rank`}</div></div></div>
+    ${ovHtml}
     ${rkRadar(R, sc)}
-    <div class="rk-tiles">${tiles}</div>
-    <div class="seg two rk-seg" role="tablist" aria-label="Rank view"><button role="tab" data-rkmode="raw" class="${!sc ? "on" : ""}" aria-selected="${!sc}">Raw</button><button role="tab" data-rkmode="scaled" class="${sc ? "on" : ""}" aria-selected="${sc}">For your size</button></div>
-    <p class="rk-hud-note">${sc ? "What your lifts are worth at your body weight. Gates and rank-ups always use raw ranks." : "Strength and speed come from your best recent lifts and runs, and each rank-up needs a Gate. Discipline comes from showing up week after week."}</p></div>`;
+    ${how}
+    ${fresh ? "" : `<div class="rk-tiles">${tiles}</div>`}
+    ${fresh ? "" : `<div class="seg two rk-seg" role="tablist" aria-label="Rank view"><button role="tab" data-rkmode="raw" class="${!sc ? "on" : ""}" aria-selected="${!sc}">Raw</button><button role="tab" data-rkmode="scaled" class="${sc ? "on" : ""}" aria-selected="${sc}">For your size</button></div>`}
+    ${fresh ? "" : `<p class="rk-hud-note">${sc ? "What your lifts are worth at your body weight. Gates and rank-ups always use raw ranks." : "Strength and speed come from your best recent lifts and runs, and each rank-up needs a Gate. Discipline comes from showing up week after week."}</p>`}</div>`;
 }
 function viewRanks() {
   const R = rankState(), C = RKC(), sc = rkMode === "scaled", su = rkSu();
   let h = rkHud(R, sc, su);
-  if (R.place && R.place.pending) h += `<div class="rk-alert"><b>Placement week.</b> Your starting ranks are set on ${fmtShort(parseYmd(R.place.ready))}, after a week of training. The chart is a preview.</div>`;
-  else if (R.place) h += `<p class="small muted" style="margin:0 4px">Placed ${fmtShort(parseYmd(R.place.at))} from your training ${fmtShort(parseYmd(R.place.from))}–${fmtShort(parseYmd(R.place.to))} (placement caps at B).</p>`;
+  if (R.place && !R.place.pending) h += `<p class="small muted" style="margin:0 4px">Placed ${fmtShort(parseYmd(R.place.at))} from your training ${fmtShort(parseYmd(R.place.from))}–${fmtShort(parseYmd(R.place.to))} (placement caps at B).</p>`;
   const al = rkAlerts(R); if (al) h += `<div class="stack" style="gap:8px">${al}</div>`;
   R.groups.forEach(g => h += g.disc ? rkDiscCard(R) : rkGroupCard(g, R));
   const un = rkUnrated();
@@ -658,6 +672,14 @@ function rkCelebrate(ev, n) {
 .rk-tbar{height:4px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}.rk-tbar i{display:block;height:100%;border-radius:99px}
 .rk-tsub{font-size:11px;color:#93A3C9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rk-hud .rk-seg{background:rgba(255,255,255,.07)!important;border:0}.rk-hud .rk-seg button{color:#B8C5E8}.rk-hud .rk-seg button.on{background:#E6ECFF;color:#0B1024}
+.rk-l.rk-q{background:linear-gradient(155deg,#8A93AD,#5B6378 50%,#3B4257);font-size:28px}
+.rk-how{border-radius:16px;padding:12px 14px;background:rgba(120,150,255,.08);border:1px solid rgba(140,170,255,.2);display:flex;flex-direction:column;gap:8px}
+.rk-how-t{font:800 12px/1 var(--display);letter-spacing:.2em;text-transform:uppercase;color:#9FC2FF}
+.rk-how ol{margin:0;padding:0;list-style:none;counter-reset:rkh;display:flex;flex-direction:column;gap:8px}
+.rk-how li{counter-increment:rkh;position:relative;padding-left:30px;font-size:13.5px;line-height:1.4;color:#C9D5F5}.rk-how li b{color:#fff}
+.rk-how li::before{content:counter(rkh);position:absolute;left:0;top:0;width:21px;height:21px;border-radius:7px;display:grid;place-items:center;font:800 12px/1 var(--display);background:rgba(140,170,255,.18);color:#BFD3FF}
+.rk-how li.on::before{background:linear-gradient(135deg,#6A5CFF,#7DE3FF);color:#0B1024;box-shadow:0 0 10px rgba(125,227,255,.6)}
+.rk-cta{all:unset;cursor:pointer;text-align:center;padding:11px 14px;border-radius:12px;font-weight:700;font-size:14.5px;color:#0B1024;background:linear-gradient(90deg,#8F8BFF,#7DE3FF);box-shadow:0 0 18px rgba(125,227,255,.35)}
 .rk-hud-note{font-size:12.5px;color:#93A3C9;margin:0;padding:0 4px}
 @media (max-width:359px){.rk-tiles{grid-template-columns:repeat(2,1fr)}}@media (max-width:419px) and (min-width:360px){.rk-tnext{display:none}}
 .setno.g{background:var(--coach);color:#fff;border-color:var(--coach)}`;
