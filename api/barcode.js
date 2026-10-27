@@ -38,7 +38,7 @@ function packOf(p) {
 
 async function offLookup(code) {
   const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,brands,nutriments,serving_quantity,serving_size,quantity,product_quantity,product_quantity_unit`, {
-    headers: { "user-agent": "WorkoutApp/1.0 (personal fitness app)" },
+    headers: { "user-agent": "RankUp/1.0 (fitness app)" },
   });
   if (!r.ok && r.status !== 404) throw new Error("lookup_error");
   const d = await r.json().catch(() => ({}));

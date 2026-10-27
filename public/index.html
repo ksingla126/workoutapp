@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Road to Dec 25</title>
+<title>RankUp</title>
 <meta name="theme-color" content="#EDF0F4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Dec 25">
+<meta name="apple-mobile-web-app-title" content="RankUp">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="icon" href="/icon-192.png">
@@ -628,6 +628,7 @@ nav.tabs .badge{top:3px;right:calc(50% - 20px);box-shadow:0 0 0 2px var(--surfac
 .wrap{padding-bottom:120px}
 
 /* header rank chip */
+.top-name.brand{display:inline-flex;align-items:center;gap:8px;font:800 20px/1 var(--display);color:var(--ink);letter-spacing:-.01em}.brandmark{width:22px;height:24px;flex:none}
 .rk-chip{position:absolute;top:2px;right:44px;display:flex;align-items:center;gap:6px;padding:0 10px 0 4px;height:34px;border-radius:999px;border:1px solid var(--edge);background:var(--surface);color:var(--ink);font:650 13px var(--body);cursor:pointer;z-index:2}
 .rk-chip .rk-l{width:24px;height:27px;font-size:13px}
 .acct{border:1px solid var(--edge);font:800 15px var(--display)}
@@ -1037,11 +1038,11 @@ function renderTop(){
   const left=Math.max(0,Math.round((GOAL-today)/DAYMS));
   const plannedSoFar=countPlanned(today), done=Object.keys(S.logs).filter(k=>parseYmd(k)<=today&&parseYmd(k)>=countStart()).length;
   const pct=Math.min(100,Math.max(0,dayNum(today)/(dayNum(GOAL)+1)*100));
-  if(document.title!==progName()) document.title=progName();
-  $("#top").innerHTML=`<div class="top-row"><span class="top-name">${esc(progName())}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}${accountBtn()}</span></div>
+  if(document.title!==APP_NAME) document.title=APP_NAME;
+  $("#top").innerHTML=`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}${accountBtn()}</span></div>
    <h1 class="top-week">Week ${w} <span class="muted">of ${WEEKS}</span></h1>
    <div class="bar" role="progressbar" aria-label="Plan progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div>
-   <div class="top-meta"><span><b class="num">${left}</b> ${left===1?"day":"days"} to go</span><span><b class="num">${done}</b> of ${plannedSoFar} sessions done</span></div>`;
+   <div class="top-meta"><span><b class="num">${left}</b> ${left===1?"day":"days"} to ${fmtShort(GOAL)}</span><span><b class="num">${done}</b> of ${plannedSoFar} sessions done</span></div>`;
 }
 function countStart(){ if(!CUSTOM||!CUSTOM.su.firstDay) return START; let k=CUSTOM.su.firstDay; Object.keys(S.logs).forEach(x=>{if(x<k) k=x}); const d=parseYmd(k); return d>START?d:START }
 function countPlanned(upTo){let n=0;for(let d=new Date(countStart());d<=upTo&&d<=GOAL;d=addDays(d,1)){const p=planFor(d); if(p&&p.type!=="rest") n++}return n}
@@ -1423,7 +1424,7 @@ function coachContext(){
   const wts=(S.profile.weights||[]).slice(-6).map(x=>`${x.d}: ${x.lb} lb`).join(", ")||"none";
   const food=[...Array(7)].map((_,n)=>{const d=addDays(today,-n); if(!inProgram(d)) return null; const e=dayEaten(ymd(d)); return e.any?`${ymd(d)}: ${fmtN(e.kcal)}/${fmtN(dayTarget(d))} kcal, ${Math.round(e.p)} g protein`:`${ymd(d)}: not logged`}).filter(Boolean).join("\n");
   const wf=weekFood(w);
-  const intro = CUSTOM? customCoachIntro(w) : `You are the personal trainer and nutrition coach inside "Road to Dec 25", an 11-week training app (Oct 12 – Dec 25, 2026).
+  const intro = CUSTOM? customCoachIntro(w) : `You are the personal trainer and nutrition coach inside ${APP_NAME}, a training app with an E-to-S rank system. This user is on an 11-week plan (Oct 12 – Dec 25, 2026).
 Be direct, encouraging and practical. Keep replies under ~150 words unless asked for a full plan. Plain text with short lines; **bold** is fine, no tables.
 TEMPORARY CORE BLOCK Oct 19–Nov 8: he asked to drop deadlift patterns because his core is too weak to support his lower back; Romanian deadlift → weighted decline crunch (holding a plate; switched from cable crunch Oct 19), trap-bar deadlift → Pallof press. After Nov 8, deadlifts return at reduced weight. Program v2 from Oct 20 (he approved it; built from his logs: pressing weakest, pulling and legs stronger, grip limits pulls, he dislikes split squats): gym Mon/Wed/Fri ~1 hr. Through Nov 8: Day A bench 4×6–8 / angled leg press 4×8–12 / lat pulldown / 45° back extension / weighted decline crunch / chest fly 3×12–15 + reverse pec deck 2×12–15 for rear delts (paired) / lateral raise 3×12–15 on its own; Day B overhead press / cable row (straps) / leg curl / single-leg leg extension 2×10–15 / face pull 3 sets + overhead triceps ext (paired) / Pallof + tilt-seat calf raise (paired; standing calf raise before Oct 21); Day C incline DB press 4×8–12 / chest-supported DB row / hip thrust 3×8–12 / leg curl / EZ curl + pushdown (paired) / hammer curl + standing calf raise 2 sets (paired). From Nov 9: RDL replaces decline crunch (Day A); trap-bar deadlift replaces Pallof (Day B), restarting ~135 lb with straps. Uses double progression (beat reps; at top of range on every set, add weight; 10% deload after two stalled sessions). Runs Tue easy run/walk, from week 2 heart-rate based (jog until 150 bpm, walk until 130 bpm, target zone 130–150) (plus 4–6 strides of 15–20 s at ~85% from week 4; no all-out sprinting, chosen over sprint intervals to limit injury risk), Thu intervals, Sat long run building to 11 mi in week 10, lighter weeks 4 and 8, taper week 11.
 Meal plan (~1,505 kcal / 139 g protein base; +2 eggs Tue/Thu = 1,645; +eggs and banana Sat = 1,750): yogurt-oat-berry bowl, pesto chicken breast rice bowl, turkey bolognese pasta, cottage cheese + berries. Batch pesto + bolognese. Groceries ≈$79/week, cap $100. He chose this low intake; it's an aggressive deficit for his size and training, so watch for under-fueling (stalled lifts, fast weight loss, hard easy runs) and recommend adding 200–300 kcal when you see it.
@@ -2669,6 +2670,9 @@ function onProfile(){
   if(st===appliedStamp) return; appliedStamp=st;
   if(su) applySetup(su);
 }
+const APP_NAME="RankUp";
+const BRAND_MARK=`<svg class="brandmark" viewBox="0 0 24 26" aria-hidden="true"><defs><linearGradient id="bmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8F8BFF"/><stop offset=".55" stop-color="#4B48E8"/><stop offset="1" stop-color="#2F2CB8"/></linearGradient></defs><path d="M12 0l12 6.3v13.4L12 26 0 19.7V6.3z" fill="url(#bmg)"/><path d="M7 15.5l5-5 5 5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+// the plan's own name (its goal date), used in the coach's context; the app itself is RankUp
 function progName(){ return CUSTOM? `Road to ${fmtShort(GOAL)}` : "Road to Dec 25" }
 function perWeek(kind,w){ let n=0; const mon=monOf(w); for(let i=0;i<7;i++){ const p=basePlan(addDays(mon,i)); if(p&&p.type===kind) n++ } return n }
 function personLine(){
@@ -2681,7 +2685,7 @@ function customCoachIntro(w){
   const sched=su.week.map((x,i)=>`${DOW[i]}: ${x==="run"?"run":x==="rest"?"rest":(CUSTOM.gym[x]||{}).name||"rest"}`).join(", ");
   const routines=su.routines.map(r=>`${r.name}: ${r.ex.map(e=>{const L=libEx(e.id); return `${L?L.name:e.id} ${e.sets}×${e.lo}-${e.hi}`}).join("; ")||"(empty)"}`).join("\n");
   const meals=K.recipes.map(r=>{const T=recipeTotals(r).per; return `${r.name} (${Math.round(T.kcal)} kcal, ${Math.round(T.p)} g P per serving)`}).join("; ")||"none saved yet";
-  return `You are the personal trainer and nutrition coach inside "${progName()}", a ${WEEKS}-week training app (${fmtShort(START)} – ${fmtShort(GOAL)}).
+  return `You are the personal trainer and nutrition coach inside ${APP_NAME}, a training app with an E-to-S rank system. This user's plan is ${WEEKS} weeks (${fmtShort(START)} – ${fmtShort(GOAL)}).
 Be direct, encouraging and practical. Keep replies under ~150 words unless asked for a full plan. Plain text with short lines; **bold** is fine, no tables.
 ${personLine()} Lifting experience: ${{new:"new to lifting",some:"under a year",exp:"1+ years"}[su.exp]||"unknown"}. Running now: ${{new:"can't run a mile without walking",some:"can jog 20–30 minutes",regular:"runs regularly"}[su.runLevel]}.
 Weekly schedule (they built it): ${sched}.

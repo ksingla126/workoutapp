@@ -1,4 +1,4 @@
-# Road to Dec 25
+# RankUp
 
 A training app: gym and run plans with progressive overload, live workout timer, meal prep, Strava imports,
 progress charts, standings, outlook, and an AI coach (Claude).

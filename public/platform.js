@@ -16,9 +16,9 @@
       el.id = "authGate";
       el.innerHTML = `
         <form class="ag-card" autocomplete="on">
-          <div class="ag-mark">25</div>
-          <h1>Road to Dec 25</h1>
-          <p class="ag-sub">Sign in to sync your training across devices.</p>
+          <div class="ag-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30"><path d="M5 15.5l7-7 7 7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h1>RankUp</h1>
+          <p class="ag-sub">Log your training and rank up from E to S.</p>
           <label>Email<input name="email" type="email" autocomplete="email" required></label>
           <label>Password<input name="password" type="password" autocomplete="current-password" minlength="6" required></label>
           <button type="submit" data-act="in">Sign in</button>
