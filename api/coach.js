@@ -6,7 +6,7 @@ const MODEL = process.env.CLAUDE_MODEL || "claude-sonnet-5-5";
 const DAILY_LIMIT = Number(process.env.COACH_DAILY_LIMIT || 60);
 const MAX_TOKENS = 4096;
 const MAX_TEXT = 200_000; // characters across all turns
-const MAX_IMAGES = 8; // form checks send 8 small video frames
+const MAX_IMAGES = 5;
 
 const json = (status, body) =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
