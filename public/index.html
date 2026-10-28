@@ -2455,13 +2455,23 @@ function trackFromPoints(pts,name){
   pts=pts.filter(p=>isFinite(p.t)).sort((a,b)=>a.t-b.t);
   if(pts.length<10) throw new Error("No timed GPS points in that file. Try screenshots instead.");
   const useD=pts.every(p=>p.d!=null); let cum=0;
-  pts.forEach((p,i)=>{ if(useD) cum=p.d; else if(i&&p.lat!=null&&pts[i-1].lat!=null) cum+=hav(pts[i-1],p); p.c=cum });
+  // Raw GPS wobbles a few metres either side of your real path every second, and adding up that zigzag
+  // overstates distance (about 3% on a run/walk). Average each point with its neighbours (±2 s) first, the way
+  // Strava does, then measure. Files that carry the watch's own distance (TCX, Strava streams) use that instead.
+  const sm= useD? null : pts.map((p,i)=>{ if(p.lat==null) return p; let la=0,lo=0,n=0;
+    for(let j=Math.max(0,i-2);j<=Math.min(pts.length-1,i+2);j++){ const q=pts[j]; if(q.lat==null||Math.abs(q.t-p.t)>5000) continue; la+=q.lat; lo+=q.lon; n++ }
+    return {lat:la/n,lon:lo/n} });
+  pts.forEach((p,i)=>{ if(useD) cum=p.d; else if(i&&sm[i].lat!=null&&sm[i-1].lat!=null&&p.t-pts[i-1].t<=60000) cum+=hav(sm[i-1],sm[i]); p.c=cum });
   const first=pts[0], last=pts[pts.length-1], distM=last.c;
   if(distM<150) throw new Error("That activity has almost no distance. Was it a treadmill run? Use screenshots or type it in.");
   let moving=0, runS=0, walkS=0, j=0; const vs=[];
+  let a5=0, b5=0;
   for(let i=1;i<pts.length;i++){
-    const dt=(pts[i].t-pts[i-1].t)/1000, dd=pts[i].c-pts[i-1].c; if(dt<=0) continue;
-    if(dt<=60 && dd/dt>=0.5) moving+=dt;
+    const dt=(pts[i].t-pts[i-1].t)/1000; if(dt<=0) continue;
+    // moving = covering at least 0.5 m/s over the surrounding 10 s, so one jittery second doesn't count as a stop
+    while(pts[i].t-pts[a5].t>5000) a5++; if(b5<i) b5=i; while(b5+1<pts.length&&pts[b5+1].t-pts[i].t<=5000) b5++;
+    const win=(pts[b5].t-pts[a5].t)/1000, v5=win>0?(pts[b5].c-pts[a5].c)/win:0;
+    if(dt<=60 && v5>=0.5) moving+=dt;
     if(dt>60) continue;
     while(j<i && pts[i].t-pts[j].t>20000) j++;
     const span=(pts[i].t-pts[j].t)/1000; vs.push({v:span>0?(pts[i].c-pts[j].c)/span:0,dt});
