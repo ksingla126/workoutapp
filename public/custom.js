@@ -1359,7 +1359,7 @@ document.addEventListener("click",e=>{
   // --- workout screen
   if(d.unitflip){ setUnit(UNIT()==="kg"?"lb":"kg"); return }
   if(d.plates){ const [id,w]=d.plates.split("|"), p=planFor(sel), ex=(p&&p.ex&&p.ex.find(e=>e.id===id))||{id}; openSheet({kind:"plates",ex,w:w||""}); return }
-  if(d.settype){ const [id,i]=d.settype.split("|"), k=ymd(sel), key=dkey(k,`st-${id}-${i}`), cur=setTypeK(k,id,i); drafts[key]=cur===""?"w":cur==="w"?"d":cur==="d"&&typeof rkGateFor==="function"&&rkGateFor(id)?"g":""; if(drafts[key]==="g") toast("Gate set: lift it for 1–5 reps (max reps for bodyweight moves)"); persistDrafts(); lastRenderKey=""; render(); return }
+  if(d.settype){ const [id,i]=d.settype.split("|"), k=ymd(sel), key=dkey(k,`st-${id}-${i}`), cur=setTypeK(k,id,i); drafts[key]=cur===""?"w":cur==="w"?"d":""; /* Gate sets are recognised automatically now */ persistDrafts(); lastRenderKey=""; render(); return }
   if(d.addset){ const k=ymd(sel), key=dkey(k,`xs-${d.addset}`); drafts[key]=(Number(drafts[key])||0)+1; persistDrafts(); lastRenderKey=""; render(); return }
   if(d.rmset){ const k=ymd(sel), key=dkey(k,`xs-${d.rmset}`), n=Number(drafts[key])||0; if(n>0){ const ex=(planFor(sel).ex||[]).find(e=>e.id===d.rmset), last=ex?setCount(ex,k)-1:-1; ["w","r","c","st"].forEach(f=>delete drafts[dkey(k,`${f}-${d.rmset}-${last}`)]); drafts[key]=n-1; if(!drafts[key]) delete drafts[key]; persistDrafts(); lastRenderKey=""; render() } return }
   if(d.addex){ openSheet({kind:"swap",adding:true,k:d.addex,q:"",mu:""}); return }
