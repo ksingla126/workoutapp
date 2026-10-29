@@ -68,6 +68,7 @@ function rkExName(id) { const L = typeof libEx === "function" && libEx(id); if (
 // one set → entries (one per part it counts for)
 function rkSetEntries(k, l, id, s, i) {
   const out = [], cv = rkConv(id, l); if (!cv || !s || s.t === "w" || s.t === "d") return out;
+  if (typeof logFmt === "function" && typeof fmtRanks === "function" && !fmtRanks(id, logFmt(id, l))) return out; // logged in a format this exercise isn't ranked in
   const B = rkBW(k), r = Number(s.r) || 0, w = Number(s.w) || 0, C = RKC();
   cv.list.forEach(c => {
     const lad = c.ladder || c.p, LK = C.ladders[lad].kind, rate = c.r || 1; let m = null, kind = c.k || "load";
@@ -399,10 +400,10 @@ function rkGateOptions(p, rankTo) {
   return (C.parts[p].basic || []).map(id => { const c = (C.conv[id] || []).find(x => x.p === p); return c ? { id, name: rkExName(id), basic: true, ...rkExTarget(p, id, c, rankTo) } : null }).filter(Boolean);
 }
 // Would this set clear a Gate? (lights up the workout card and the live view). Returns the part and rank, or null.
-function rkSetGate(id, w, r, k) {
+function rkSetGate(id, w, r, k, fmt) {
   try {
     const R = rankState(); if (!R.place || R.place.pending) return null;
-    k = k || ymd(today); const l = { ex: {}, db: { [id]: typeof dbNow === "function" ? !!dbNow(id) : false } };
+    k = k || ymd(today); const l = { ex: {}, db: { [id]: typeof dbNow === "function" ? !!dbNow(id) : false }, ...(fmt ? { fmt: { [id]: fmt } } : {}) };
     let best = null;
     rkSetEntries(k, l, id, { w: Number(w) || 0, r: Number(r) || 0 }, 0).forEach(e => {
       const P = R.part[e.p], cap = rkPartCap(e.p); if (!P || P.excl || !e.gateable || P.rank >= (cap != null ? cap : 5)) return;

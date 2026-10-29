@@ -484,7 +484,22 @@ body.xs-open{overflow:hidden}
 .cnote .tgt{margin-left:auto;font:700 13px var(--body);color:var(--gym);letter-spacing:0;text-transform:none}
 details.tip summary{font-size:12px;color:var(--muted);cursor:pointer}
 .setno{width:28px;height:28px;border-radius:7px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:700 13px var(--body);padding:0;cursor:pointer;flex-shrink:0}
-.setno.w{background:var(--coach-soft);color:var(--coach);border-color:var(--coach)}.setno.d{background:var(--run-soft);color:var(--run);border-color:var(--run)}
+.setno.w{background:var(--coach-soft);color:var(--coach);border-color:var(--coach)}.setno.d{background:var(--run-soft);color:var(--run);border-color:var(--run)}.setno.f{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad);border-color:var(--bad)}
+.exmeta-l{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.fmt-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:650 12.5px var(--body);border-radius:999px;padding:4px 9px 4px 10px;cursor:pointer;white-space:nowrap}
+.fmt-chip svg{width:9px;height:6px;opacity:.6}.fmt-chip:active{transform:scale(.97)}
+.fmt-list{display:flex;flex-direction:column;gap:8px}
+.fmt-opt{display:flex;align-items:center;gap:12px;text-align:left;width:100%;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;padding:10px 12px;font:inherit;cursor:pointer}
+.fmt-opt.on{border-color:var(--gym);background:var(--gym-soft)}
+.fmt-eg{flex:0 0 92px;text-align:center;font-weight:700;font-size:13px;background:var(--surface-2);border-radius:9px;padding:8px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fmt-opt.on .fmt-eg{background:var(--surface);color:var(--gym)}
+.fmt-tx{display:flex;flex-direction:column;gap:2px;min-width:0}.fmt-tx b{font-size:14.5px}
+.fmt-def{font:600 10.5px var(--body);color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 6px;margin-left:4px;vertical-align:1px}
+.fmt-tag{font:600 10.5px var(--body);color:var(--gym);background:var(--gym-soft);border-radius:999px;padding:1px 6px;margin-left:4px}
+.st-menu{position:fixed;z-index:950;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(10,16,30,.22);padding:6px;display:flex;flex-direction:column;gap:2px}
+.st-menu button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;background:none;color:var(--ink);font:inherit;padding:8px;border-radius:10px;cursor:pointer}
+.st-menu button.on{background:var(--surface-2)}.st-menu button>span:last-child{display:flex;flex-direction:column;gap:1px;min-width:0}.st-menu b{font-size:14px}
+.st-menu .setno{pointer-events:none;display:inline-flex;align-items:center;justify-content:center}
 .setbtns{gap:14px;margin-top:4px}
 .rex.inss{border-left:3px solid var(--gym);padding-left:8px}
 .rex-act button.on{background:var(--gym);color:#fff;border-color:var(--gym)}
@@ -953,7 +968,8 @@ const fmtDate=d=>d.toLocaleDateString("en-US",{weekday:"short",month:"short",day
 const fmtShort=d=>d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
 const fmtN=n=>Math.round(n).toLocaleString("en-US");
 // Schedule changes live in profile.moves: {"YYYY-MM-DD": "rest" | "<date whose session happens on this day>"}
-function planFor(d){
+function planFor(d){ const p=planFor0(d); return p&&p.ex? {...p,ex:p.ex.map(e=>withFmt(e,ymd(d)))} : p }
+function planFor0(d){
   if(!inProgram(d)) return null;
   if(CUSTOM){ const lp=loggedPlan(d); if(lp) return lp }
   const mv=(typeof S!=="undefined"&&S.profile&&S.profile.moves)||{}, k=ymd(d);
@@ -1049,32 +1065,89 @@ async function boot(){
 }
 
 /* ---------- Progressive overload ---------- */
-function exHistory(exId, beforeKey){
-  return Object.entries(S.logs).filter(([k,l])=>l.type==="gym" && k<beforeKey && l.ex && WS(l.ex[exId]).length)
+function exHistory(exId, beforeKey, fmt){
+  return Object.entries(S.logs).filter(([k,l])=>l.type==="gym" && k<beforeKey && l.ex && WS(l.ex[exId]).length && (!fmt||logFmt(exId,l)===fmt))
     .sort((a,b)=>a[0]<b[0]?1:-1).map(([k,l])=>({k,sets:WS(l.ex[exId])}));
 }
-// timed holds: bodyweight ones (bw) log seconds only; weighted ones (unit "sec" without bw) log weight × seconds
-const isSec=e=>!!(e&&(e.bw||e.unit==="sec"));
+/* ---------- Set formats: how an exercise is logged (like Hevy's exercise types) ----------
+   Sets store w (weight), r (reps, or seconds for timed formats) and m (metres). A format picked on the card applies
+   to that exercise from then on; every saved workout records the format it was logged in, so old sessions keep meaning. */
+const FMT={
+  wr:{name:"Weight × reps",short:"Weight × reps",eg:"Bench press, rows, curls",w:"req",b:"reps"},
+  wbr:{name:"Weighted bodyweight",short:"+ Weight × reps",eg:"Pull-ups or dips, with added weight or none",w:"add",b:"reps"},
+  br:{name:"Bodyweight reps",short:"Bodyweight reps",eg:"Push-ups, pull-ups, air squats",w:null,b:"reps"},
+  abr:{name:"Assisted bodyweight",short:"Assisted reps",eg:"Assisted pull-up or dip machine",w:"assist",b:"reps"},
+  wt:{name:"Weight × time",short:"Weight × time",eg:"Weighted plank, Pallof hold, farmer's hold",w:"req",b:"sec"},
+  bt:{name:"Bodyweight for time",short:"Hold for time",eg:"Plank, dead hang, wall sit",w:null,b:"sec"},
+  wd:{name:"Weight × distance",short:"Weight × distance",eg:"Farmer's carry, sled push",w:"req",b:"m"},
+  dt:{name:"Distance & time",short:"Distance & time",eg:"Rower, bike, ski erg",w:null,b:"m",time:true}};
+const FMT_ORDER=["wr","wbr","br","abr","wt","bt","wd","dt"];
+const FMT_RANGE={reps:[8,12],sec:[30,60],wt:[20,40],m:[20,40],dt:[500,500]};
+// the format an exercise definition implies on its own
+function natFmt(ex){ if(!ex) return "wr"; if(ex.fmt0) return ex.fmt0; if(ex.bw&&ex.unit==="sec") return "bt"; if(ex.unit==="sec") return "wt"; if(ex.optW) return "wbr"; return "wr" }
+const _baseFmt={};
+function baseFmtId(id){ if(_baseFmt[id]) return _baseFmt[id]; let f="wr";
+  try{ if(id==="plank"||id==="rope") f="bt";
+    else if(typeof libEx==="function"&&libEx(id)&&typeof toPlanEx==="function") f=natFmt(toPlanEx({id}));
+    else { const x=(typeof X!=="undefined"&&X[id])||ALLEX.find(e=>e.id===id); if(x) f=natFmt(x) } }catch(e){}
+  return (_baseFmt[id]=f) }
+const fmtPref=id=>((S.profile&&S.profile.exFmt)||{})[id];
+function logFmt(id,l){ return (l&&l.fmt&&l.fmt[id])||baseFmtId(id) }
+const fmtOf=ex=>(ex&&ex.fmt)||natFmt(ex);
+const hasW=ex=>!!FMT[fmtOf(ex)].w;
+const isSec=e=>!!(e&&e.unit==="sec");
+const isDist=e=>FMT[fmtOf(e)].b==="m";
+// apply the chosen format to an exercise from the plan (a saved workout keeps the format it was logged in)
+function withFmt(ex,k){
+  if(!ex||!ex.id||ex.fixed) return ex;
+  const l=k&&S.logs&&S.logs[k], logged=l&&l.type==="gym"&&l.ex&&l.ex[ex.id];
+  const n=natFmt(ex), f= logged? logFmt(ex.id,l) : (fmtPref(ex.id)||n);
+  if(!FMT[f]||f===n) return ex.fmt===n? ex : {...ex,fmt:n};
+  const o={...ex,fmt:f,fmt0:n}; delete o.bw; delete o.optW; delete o.unit;
+  const F=FMT[f]; if(F.w==="add"||F.w==="assist") o.optW=true; if(!F.w) o.bw=true; if(F.b==="sec") o.unit="sec";
+  if(F.b!==FMT[n].b){ const r=f==="dt"?FMT_RANGE.dt:f==="wt"?FMT_RANGE.wt:FMT_RANGE[F.b]; o.lo=r[0]; o.hi=r[1] }
+  if(!F.w) o.inc=0; else if(!o.inc) o.inc=5;
+  return o }
+// what goes in the second box: reps, seconds or metres
+const valOf=(f,s)=> FMT[f].b==="m"? Number(s&&s.m)||0 : Number(s&&s.r)||0;
+const unitOf=f=> FMT[f].b==="m"? "m" : FMT[f].b==="sec"? "s" : "";
+// durations for Distance & time: "7:30", "7.5" (minutes) or "450s"
+function parseDur(v){ v=String(v==null?"":v).trim(); if(!v) return 0; const m=v.match(/^(\d+):(\d{1,2})(?::(\d{1,2}))?$/); if(m) return m[3]!=null? (+m[1])*3600+(+m[2])*60+(+m[3]) : (+m[1])*60+(+m[2]); if(/s$/i.test(v)) return Math.round(parseFloat(v))||0; const n=parseFloat(v); return isFinite(n)&&n>0? Math.round(n*60) : 0 }
+const fmtDur=s=>{ s=Math.round(Number(s)||0); return s>=3600? `${Math.floor(s/3600)}:${pad(Math.floor(s%3600/60))}:${pad(s%60)}` : `${Math.floor(s/60)}:${pad(s%60)}` };
+// one set as text, e.g. "135 × 8", "+25 × 6", "−40 × 8", "45 s", "40 × 30 s", "50 × 30 m", "500 m · 1:52"
+function setTxt(f,s,db){ const w=Number(s.w)||0, wt=`${toU(w)}${db?"/DB":""}`;
+  switch(f){ case "br": return `${s.r}`; case "bt": return `${s.r} s`; case "wbr": return w? `+${wt} × ${s.r}` : `BW × ${s.r}`;
+    case "abr": return w? `−${wt} × ${s.r}` : `BW × ${s.r}`; case "wt": return `${wt} × ${s.r} s`; case "wd": return `${wt} × ${s.m} m`;
+    case "dt": return `${s.m} m · ${fmtDur(s.r)}`; default: return `${wt} × ${s.r}` } }
+// is a set complete enough to save?
+function setOk(f,v){ const F=FMT[f]; if(F.w==="req"&&!(v.w>0)) return false; if(F.b==="m") return v.m>0&&(!F.time||v.r>0); return v.r>0 }
+function setObj(f,v,ty){ const F=FMT[f], o={}; if(F.w) o.w=v.w||0; if(F.b==="m") o.m=v.m; if(F.b!=="m"||F.time) o.r=v.r; if(ty) o.t=ty; return o }
+// sets that count as weight × reps (estimated maxes, volume, standings)
+const repFmt=f=>f==="wr"||f==="wbr";
+const repSets=(id,l)=> l&&l.ex&&repFmt(logFmt(id,l))? WS(l.ex[id]) : []; // working sets logged as weight × reps
 function targetFor(ex, key){
   if(ex.fixed) return {w:null,reps:Array(ex.sets).fill(ex.lo),msg:`${ex.sets} rounds × ${ex.lo>=60?ex.lo/60+" min":ex.lo+" s"}, ${ex.rest} s rest. Format steps up every 2 weeks.`};
-  const h=exHistory(ex.id,key);
-  if(!h.length) return {first:true,msg: ex.bw? `Start: hold ${ex.lo}s × ${ex.sets}` : isSec(ex)? `First session: pick a weight you can hold ${ex.lo} s with good form. Log it.` : `First session: pick a weight you can lift ${ex.lo}× with ~2 reps left. Log it.`, w:null, reps:Array(ex.sets).fill(ex.lo)};
-  const last=h[0].sets, w=Number(last[0].w)||0;
-  const lastTxt = ex.bw? last.map(s=>s.r+"s").join(", ") : `${w} × ${last.map(s=>s.r+(isSec(ex)?"s":"")).join(", ")}`;
-  if(ex.bw){
-    const reps=Array.from({length:ex.sets},(_,i)=>Math.min(ex.hi,(Number(last[i]?.r)||ex.lo)+5));
-    const maxed=last.length>=ex.sets && last.every(s=>Number(s.r)>=ex.hi);
-    return {w:null,reps,last:lastTxt,msg: maxed? "Maxed at 60s: add a plate on your back or go to a harder variation" : "+5 s per set"};
-  }
-  const allTop = last.length>=ex.sets && last.slice(0,ex.sets).every(s=>Number(s.r)>=ex.hi);
-  if(allTop) return {w:w+incU(ex.inc),reps:Array(ex.sets).fill(ex.lo),last:lastTxt,msg:`Add ${incTxt(ex.inc)} — you ${isSec(ex)?`held ${ex.hi} s`:`hit ${ex.hi}`} on every set`};
-  if(isSec(ex)){ const reps=Array.from({length:ex.sets},(_,i)=>Math.min(ex.hi,(Number(last[i]?.r)||ex.lo)+5)); return {w,reps,last:lastTxt,msg:"Same weight, hold 5 s longer"} }
+  const f=fmtOf(ex), N=ex.sets, fill=v=>Array(N).fill(v), h=exHistory(ex.id,key,f);
+  if(!h.length){ const msg={wr:`First session: pick a weight you can lift ${ex.lo}× with ~2 reps left. Log it.`, wt:`First session: pick a weight you can hold ${ex.lo} s with good form. Log it.`,
+      bt:`Start: hold ${ex.lo}s × ${N}`, br:`First session: do ${ex.lo}–${ex.hi} clean reps per set. Log them.`,
+      wbr:`Start with bodyweight (leave weight blank). Add weight once you hit ${ex.hi} on every set.`, abr:`First session: pick the assistance that lets you do ${ex.lo} clean reps. Log it.`,
+      wd:`First session: pick a weight you can carry ${ex.lo} m with good posture. Log it.`, dt:`First session: go ${ex.lo} m at a hard, steady effort. Log the distance and time.`}[f];
+    return {first:true,msg,w:null,reps:fill(ex.lo)} }
+  const last=h[0].sets, w=Number(last[0].w)||0, db=logDb(ex.id,S.logs[h[0].k]), lastTxt=last.map(s=>setTxt(f,s,db)).join(", ");
+  const v=(s)=>valOf(f,s), allTop=last.length>=N && last.slice(0,N).every(s=>v(s)>=ex.hi), step=(d,cap=ex.hi)=>Array.from({length:N},(_,i)=>Math.min(cap,(v(last[i])||ex.lo)+d));
+  if(f==="bt") return {w:null,reps:step(5),last:lastTxt,msg: allTop? `Maxed at ${ex.hi}s: switch to Weight × time and add a plate` : "+5 s per set"};
+  if(f==="br") return {w:null,reps:step(1),last:lastTxt,msg: allTop? `You hit ${ex.hi} on every set: switch to Weighted bodyweight to keep progressing` : "Beat last time by a rep"};
+  if(f==="dt"){ const d=v(last[0])||ex.lo, best=Math.min(...last.filter(s=>v(s)===d).map(s=>Number(s.r)||1e9)); return {w:null,reps:fill(d),time:best<1e9?best:null,last:lastTxt,msg:best<1e9?`Same distance, beat ${fmtDur(best)}`:"Same distance, a little faster"} }
+  if(f==="abr"){ if(allTop){ const nw=Math.max(0,w-incU(ex.inc||5)); return {w:nw,reps:fill(ex.lo),last:lastTxt,msg: nw>0? `Use ${incTxt(ex.inc||5)} less assistance — you hit ${ex.hi} on every set` : "Try it with no assistance (log 0)"} }
+    return {w,reps:step(1),last:lastTxt,msg:"Same assistance, beat last time by a rep"} }
+  if(allTop) return {w:w+incU(ex.inc),reps:fill(ex.lo),last:lastTxt,msg:`Add ${incTxt(ex.inc)} — you ${f==="wt"?`held ${ex.hi} s`:f==="wd"?`carried ${ex.hi} m`:`hit ${ex.hi}`} on every set`};
+  if(f==="wt") return {w,reps:step(5),last:lastTxt,msg:"Same weight, hold 5 s longer"};
+  if(f==="wd") return {w,reps:step(5),last:lastTxt,msg:"Same weight, carry it 5 m further"};
   if(h[1]){
     const prev=h[1].sets, pw=Number(prev[0].w)||0, sum=a=>a.reduce((t,s)=>t+(Number(s.r)||0),0);
-    if(pw===w && sum(last)<=sum(prev)) return {w:deloadW(ex,w),reps:Array(ex.sets).fill(ex.lo),last:lastTxt,stall:true,msg:"Stalled twice: drop ~10% and build back up"};
+    if(pw===w && w>0 && sum(last)<=sum(prev)) return {w:deloadW(ex,w),reps:fill(ex.lo),last:lastTxt,stall:true,msg:"Stalled twice: drop ~10% and build back up"};
   }
-  const reps=Array.from({length:ex.sets},(_,i)=>Math.min(ex.hi,(Number(last[i]?.r)||ex.lo)+1));
-  return {w,reps,last:lastTxt,msg:"Same weight, beat last time by a rep"};
+  return {w,reps:step(1),last:lastTxt,msg:"Same weight, beat last time by a rep"};
 }
 const e1rm=(w,r)=>w*(1+r/30);
 const WS=a=>(a||[]).filter(x=>x&&x.t!=="w"); // working sets: warm-ups never count toward progress, PRs or standings
@@ -1221,13 +1294,29 @@ function setCount(ex,k){ const l=S.logs[k], cur=l&&l.ex&&l.ex[ex.id]; return Mat
 function setTypeK(k,id,i){ const v=drafts[dkey(k,`st-${id}-${i}`)]; if(v!==undefined) return v||""; const l=S.logs[k], c=l&&l.ex&&l.ex[id]&&l.ex[id][i]; return (c&&c.t)||"" }
 // Gates clear on their own: the card turns into a Gate card when the Gate is open, today's target reaches it,
 // or a set you've entered is Gate level
-function setVals(ex,k,i,cur){ const w=drafts[dkey(k,`w-${ex.id}-${i}`)] ?? (cur&&cur[i]?toU(cur[i].w):""), r=drafts[dkey(k,`r-${ex.id}-${i}`)] ?? (cur&&cur[i]?cur[i].r:""); return {w:fromU(Number(w)||0),r:Number(r)||0} }
+function setVals(ex,k,i,cur){ const c=cur&&cur[i], f=fmtOf(ex), w=drafts[dkey(k,`w-${ex.id}-${i}`)] ?? (c?toU(c.w):""), r=drafts[dkey(k,`r-${ex.id}-${i}`)] ?? (c?(f==="dt"?fmtDur(c.r):c.r):""), m=drafts[dkey(k,`m-${ex.id}-${i}`)] ?? (c?c.m:"");
+  return {w:fromU(Number(w)||0),r:f==="dt"?parseDur(r):Number(r)||0,m:Number(m)||0} }
+// read a set's boxes straight from the screen
+function setValsDom(ex,i){ const g=p=>{const el=document.getElementById(`${p}-${ex.id}-${i}`); return el?el.value:""}, f=fmtOf(ex);
+  return {w:fromU(Number(g("w"))||0),r:f==="dt"?parseDur(g("r")):Number(g("r"))||0,m:Number(g("m"))||0} }
+// the input boxes for one set, in the exercise's format
+const SET_TYPES={w:{l:"W",name:"warm-up",d:"Doesn't count toward progress, PRs or ranks"},d:{l:"D",name:"drop set",d:"Lighter set straight after a working set"},f:{l:"F",name:"failure",d:"Taken to failure. Counts as a working set"},g:{l:"G",name:"Gate set",d:""}};
+function fmtRanks(id,f){ const b=baseFmtId(id); return f===b||(f==="br"&&b==="wbr")||(f==="wbr"&&b==="br") }
+const FMT_EG={wr:"135 × 8",wbr:"+25 × 6",br:"12 reps",abr:"−40 × 8",wt:"50 × 30 s",bt:"45 s",wd:"70 × 30 m",dt:"500 m · 1:52"};
+const FMT_NEED={wr:"Enter the weight and reps you did",wbr:"Enter the reps you did",br:"Enter the reps you did",abr:"Enter the reps you did",wt:"Enter the weight and seconds you held",bt:"Enter the seconds you held",wd:"Enter the weight and distance",dt:"Enter the distance and time"};
+function fmtChip(ex,k,log){ if(ex.fixed) return ""; const f=fmtOf(ex);
+  return `<button type="button" class="fmt-chip" data-fmt="${esc(ex.id)}" aria-label="Logging format: ${esc(FMT[f].name)}. Tap to change">${esc(FMT[f].short)}<svg viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>` }
+function setBoxes(ex,i,vals,ph,db){ const f=fmtOf(ex), F=FMT[f], nm=esc(ex.name), n=i+1, out=[];
+  if(F.w) out.push(`<input id="w-${ex.id}-${i}" inputmode="decimal" aria-label="${nm} set ${n} ${F.w==="assist"?"assistance":F.w==="add"?"added weight":"weight"}" value="${esc(vals.w)}" placeholder="${F.w==="add"?"+"+uL():F.w==="assist"?"−"+uL():db?uL()+"/DB":uL()}">`,`<span>×</span>`);
+  if(F.b==="m") out.push(`<input id="m-${ex.id}-${i}" inputmode="decimal" aria-label="${nm} set ${n} metres" value="${esc(vals.m)}" placeholder="${esc(ph.m)}"><span>m</span>`);
+  if(F.b!=="m"||F.time) out.push(`<input id="r-${ex.id}-${i}" inputmode="${F.time?"decimal":"numeric"}" aria-label="${nm} set ${n} ${F.time?"time":F.b==="sec"?"seconds":"reps"}" value="${esc(vals.r)}" placeholder="${esc(ph.r)}">${F.b==="sec"?"<span>sec</span>":F.time?"<span>min</span>":!F.w?"<span>reps</span>":""}`);
+  return out.join("") }
 function gateState(ex,k,t,cur){
-  if(ex.fixed||ex.bw||typeof rkSetGate!=="function") return null;
-  const hits=[]; for(let i=0;i<setCount(ex,k);i++){ const ty=setTypeK(k,ex.id,i); if(ty==="w"||ty==="d") continue; const v=setVals(ex,k,i,cur); if(v.r>0&&(v.w>0||ex.optW)){ const g=rkSetGate(ex.id,v.w,v.r,k); if(g&&g.heavy) hits.push({i,...g}) } }
+  if(ex.fixed||typeof rkSetGate!=="function"||!fmtRanks(ex.id,fmtOf(ex))||FMT[fmtOf(ex)].b!=="reps") return null;
+  const hits=[]; for(let i=0;i<setCount(ex,k);i++){ const ty=setTypeK(k,ex.id,i); if(ty==="w"||ty==="d") continue; const v=setVals(ex,k,i,cur); if(v.r>0&&(v.w>0||ex.optW||!hasW(ex))){ const g=rkSetGate(ex.id,v.w,v.r,k,fmtOf(ex)); if(g&&g.heavy) hits.push({i,...g}) } }
   if(hits.length) return {kind:"hit",...hits[0],hits:hits.map(x=>x.i)};
   if(k<ymd(today)) return null;
-  const tg= t&&!t.first&&t.w!=null? rkSetGate(ex.id,t.w,t.reps[0],k) : null;
+  const tg= t&&!t.first&&(t.w!=null||!hasW(ex))? rkSetGate(ex.id,t.w||0,t.reps[0],k,fmtOf(ex)) : null;
   if(tg) return {kind:tg.heavy?"target":"near",...tg,hits:[]};
   const gi=rkGateInfo(ex.id); return gi? {kind:"open",...gi,hits:[]} : null }
 function gateBanner(G,t,db){ const L=rkLetter(G.to);
@@ -1240,8 +1329,8 @@ function exerciseBlock(ex,k,log){
   const t=finalTarget(ex,k), cur=log&&log.ex&&log.ex[ex.id], db=dbNow(ex.id,log), n=setCount(ex,k), extra=Number(drafts[dkey(k,`xs-${ex.id}`)])||0;
   const G=gateState(ex,k,t,cur), gc=G? RK_COL[Math.min(5,G.to)] : "";
   let h=`<div class="ex${G?" gate":""}" ${G?`style="--gc:${gc}" data-gate="${G.kind}"`:""} data-exblock="${esc(ex.id)}"><div class="exhead"><button type="button" class="exname" data-exhist="${esc(ex.id)}">${esc(ex.name)}</button>${swapBtn(ex,log)}${formBtn(ex)}${ex.added&&!log?`<span class="swapped">added<button type="button" data-addrm="${esc(ex.id)}">remove</button></span>`:""}</div>
-    <div class="row between exmeta"><span class="small muted num">${ex.sets} × ${ex.lo===ex.hi?ex.lo:ex.lo+"–"+ex.hi}${isSec(ex)?" s":""} · rest ${fmtClock(restFor(ex.id)*1000)}</span>${DBCFG[ex.id]?`<label class="dbt ${db?"on":""}"><input type="checkbox" data-db="${ex.id}" ${db?"checked":""}>Dumbbells</label>`:""}</div>`;
-  if(db) h+=`<div class="dbnote" id="dbn-${ex.id}"></div>`;
+    <div class="row between exmeta"><div class="exmeta-l">${fmtChip(ex,k,log)}<span class="small muted num">${ex.sets} × ${ex.lo===ex.hi?ex.lo:ex.lo+"–"+ex.hi}${unitOf(fmtOf(ex))?" "+unitOf(fmtOf(ex)):""} · rest ${fmtClock(restFor(ex.id)*1000)}</span></div>${DBCFG[ex.id]&&hasW(ex)?`<label class="dbt ${db?"on":""}"><input type="checkbox" data-db="${ex.id}" ${db?"checked":""}>Dumbbells</label>`:""}</div>`;
+  if(db&&hasW(ex)) h+=`<div class="dbnote" id="dbn-${ex.id}"></div>`;
   h+=prevLine(ex,k);
   if(G) h+=gateBanner(G,t,db);
   if(!ex.fixed) h+= t.first? `<div class="target first">${esc(t.msg)}</div>`
@@ -1249,14 +1338,14 @@ function exerciseBlock(ex,k,log){
   if(ex.alt) h+=`<details class="tip"><summary>Form tip</summary><div class="small muted">${esc(ex.alt)}</div></details>`;
   h+=`<div class="sets">`;
   for(let i=0;i<n;i++){
-    const sw=cur&&cur[i]?toU(cur[i].w):(t.w!=null?toU(t.w):""), sr=cur&&cur[i]?cur[i].r:(t.first?"":(t.reps[i]??""));
+    const c=cur&&cur[i], f=fmtOf(ex), sw=c?(c.w||f==="wr"||f==="wt"||f==="wd"?toU(c.w):""):(t.w?toU(t.w):""), sr=c?(f==="dt"?fmtDur(c.r):c.r):(t.first||f==="dt"||isDist(ex)?"":(t.reps[i]??"")), sm=c?c.m:(t.first||!isDist(ex)?"":(t.reps[i]??""));
+    const ph={r: f==="dt"? (t.time?fmtDur(t.time):"min") : (t.reps[i]??ex.lo), m: t.reps[i]??ex.lo};
     const dk=draftKey(`c-${ex.id}-${i}`), done=(dk in drafts)? !!drafts[dk] : !!(cur&&cur[i]), ty=setTypeK(k,ex.id,i);
-    const lab=ty==="w"?"W":ty==="d"?"D":ty==="g"?"G":String(i+1);
-    const num=`<button type="button" class="setno ${ty}" data-settype="${ex.id}|${i}" aria-label="Set ${i+1} type: ${ty==="w"?"warm-up":ty==="d"?"drop set":ty==="g"?"Gate set":"normal"}. Tap to change">${lab}</button>`;
+    const lab=SET_TYPES[ty]?SET_TYPES[ty].l:String(i+1);
+    const num=`<button type="button" class="setno ${ty}" data-settype="${ex.id}|${i}" aria-haspopup="menu" aria-label="Set ${i+1} type: ${SET_TYPES[ty]?SET_TYPES[ty].name:"normal"}. Tap to change">${lab}</button>`;
     const chk=`<button type="button" class="chk ${done?"on":""}" data-chk="${ex.id}|${i}" aria-pressed="${done}" aria-label="Mark ${esc(ex.name)} set ${i+1} done">✓</button>`;
     const hit=G&&G.hits.includes(i)?" gate-hit":"";
-    h+=ex.bw? `<div class="set ${done?"done":""}" id="set-${ex.id}-${i}">${num}<input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} seconds" value="${esc(sr)}" placeholder="${t.reps[i]??ex.lo}"><span>sec</span>${chk}</div>`
-      : `<div class="set ${done?"done":""}${hit}" id="set-${ex.id}-${i}">${num}<input id="w-${ex.id}-${i}" inputmode="decimal" aria-label="${esc(ex.name)} set ${i+1} weight" value="${esc(sw)}" placeholder="${ex.optW?"+"+uL():db?uL()+"/DB":uL()}"><span>×</span><input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} ${isSec(ex)?"seconds":"reps"}" value="${esc(sr)}" placeholder="${t.reps[i]??ex.lo}">${isSec(ex)?"<span>sec</span>":""}${chk}</div>`;
+    h+=`<div class="set ${done?"done":""}${hit}" id="set-${ex.id}-${i}">${num}${setBoxes(ex,i,{w:sw,r:sr,m:sm},ph,db)}${chk}</div>`;
   }
   h+=`</div>`;
   const pl=plateable(ex,db);
@@ -1400,8 +1489,8 @@ function lineChart(pts,color,fmt,invert){
   return s+`</svg>`;
 }
 function liftSeries(id){
-  return Object.entries(S.logs).filter(([k,l])=>l.type==="gym"&&l.ex&&WS(l.ex[id]).length).sort((a,b)=>a[0]<b[0]?-1:1)
-    .map(([k,l])=>{const best=Math.max(...WS(l.ex[id]).map(s=>e1rm(loadW(id,l,s.w),Number(s.r)||0)));const top=WS(l.ex[id]).reduce((m,s)=>loadW(id,l,s.w)>m?loadW(id,l,s.w):m,0);return {x:fmtShort(parseYmd(k)),y:best,top,k}}).filter(p=>p.y>0);
+  return Object.entries(S.logs).filter(([k,l])=>l.type==="gym"&&repSets(id,l).length).sort((a,b)=>a[0]<b[0]?-1:1)
+    .map(([k,l])=>{const best=Math.max(...repSets(id,l).map(s=>e1rm(loadW(id,l,s.w),Number(s.r)||0)));const top=repSets(id,l).reduce((m,s)=>loadW(id,l,s.w)>m?loadW(id,l,s.w):m,0);return {x:fmtShort(parseYmd(k)),y:best,top,k}}).filter(p=>p.y>0);
 }
 
 /* ----- Progress ----- */
@@ -1413,7 +1502,7 @@ function viewProgress(){
   for(let w=1;w<=cw;w++){
     const mon=monOf(w); let gym=0,runs=0,mi=0,long=null,easy=null,vol=0;
     for(let i=0;i<7;i++){const k=ymd(addDays(mon,i)),l=S.logs[k]; if(!l) continue;
-      if(l.type==="gym"){gym++; Object.entries(l.ex||{}).forEach(([id,sets])=>WS(sets).forEach(s=>vol+=loadW(id,l,s.w)*(Number(s.r)||0)))}
+      if(l.type==="gym"){gym++; Object.keys(l.ex||{}).forEach(id=>repSets(id,l).forEach(s=>vol+=loadW(id,l,s.w)*(Number(s.r)||0)))}
       (l.extraRuns||[]).forEach(x=>mi+=Number(x.mi)||0);
       if(l.type==="run"){runs++; mi+=Number(l.mi)||0; if(l.key==="sat") long=Number(l.mi)||null; if(l.key==="tue"&&l.mi&&l.min) easy=l.min/l.mi}}
     const f=weekFood(w);
@@ -1546,7 +1635,7 @@ function signals(){
 /* ---------- Coach context ---------- */
 function logLine(k,l){
   const d=parseYmd(k), tag=`${k} ${DOW[dowOf(d)]}`;
-  if(l.type==="gym") return `${tag} ${l.plan&&l.plan.name?l.plan.name:"Gym "+l.day}${l.durMin?` (${Math.round(l.durMin)} min)`:""}: `+Object.entries(l.ex||{}).map(([id,sets])=>{const e=ALLEX.find(x=>x.id===id)||{name:id}; return `${e.name}${logDb(id,l)?" (lb per dumbbell)":""} ${sets.map(s=>s.w?`${s.w}×${s.r}`:`${s.r}s`).join(", ")}`}).join("; ")+(l.notes?` | notes: ${l.notes}`:"");
+  if(l.type==="gym") return `${tag} ${l.plan&&l.plan.name?l.plan.name:"Gym "+l.day}${l.durMin?` (${Math.round(l.durMin)} min)`:""}: `+Object.entries(l.ex||{}).map(([id,sets])=>{const e=ALLEX.find(x=>x.id===id)||{name:id}; const f=logFmt(id,l); return `${e.name}${logDb(id,l)&&FMT[f].w?" (lb per dumbbell)":""}${f!=="wr"?` [${FMT[f].name}]`:""} ${sets.map(s=>setTxt(f,s,false)).join(", ")}`}).join("; ")+(l.notes?` | notes: ${l.notes}`:"");
   const st=l.st, stTxt=st?` | Strava: ${st.elevFt!=null?`+${st.elevFt} ft, `:""}${st.avgHr?`avg HR ${st.avgHr}${st.maxHr?`/max ${st.maxHr}`:""}, `:""}${st.cad?`cadence ${st.cad} spm, `:""}${st.runMin!=null?`~${Math.round(st.runMin)} min running / ${Math.round(st.walkMin)} min walking, `:""}splits ${(st.splits||[]).map(x=>fmtMin(x.pace)+(x.hr?`@${x.hr}`:"")).join(" ")||"n/a"}`:"";
   return `${tag} ${l.key} run: ${l.mi} mi in ${fmtMin(l.min)} (${l.mi?fmtMin(l.min/l.mi):"–"}/mi)${l.rpe?`, effort ${l.rpe}/10`:""}${stTxt}${l.notes?` | notes: ${l.notes}`:""}`;
 }
@@ -1676,7 +1765,7 @@ function clearDrafts(dateKey,re){Object.keys(drafts).forEach(k=>{const i=k.index
 const viewEl=document.getElementById("view");
 viewEl.addEventListener("input",e=>{const el=e.target; if(!el.id||el.type==="checkbox"||el.type==="file"||NO_DRAFT.has(el.id)) return; drafts[draftKey(el.id)]=el.value; persistDrafts()});
 viewEl.addEventListener("toggle",e=>{const d=e.target; if(d.tagName==="DETAILS"&&d.id){drafts[draftKey("open-"+d.id)]=d.open; persistDrafts()}},true);
-const TRAIN_RE=/^(w-|r-|c-|xs-|st-|gnotes$|rmi$|rtime$|rrpe$|rnotes$|open-trainLog$|strava$)/;
+const TRAIN_RE=/^(w-|r-|m-|c-|xs-|st-|gnotes$|rmi$|rtime$|rrpe$|rnotes$|open-trainLog$|strava$)/;
 
 /* ---------- Workout + rest timers (survive tab switches and reloads) ---------- */
 let TM={start:0,date:"",restEnd:0,restDur:0};
@@ -1724,10 +1813,11 @@ function gymSteps(k,p){ const out=[], ex=p.ex; let gi=0;
     for(let s2=0;s2<n;s2++) g.forEach((e,j)=>{ if(s2<N[j]) out.push({ex:e,i:s2,t:T[j],n:N[j],done:setDoneK(k,e.id,s2),inSS:g.length>1,ssLast:g.slice(j+1).every((e2,jj)=>s2>=N[j+1+jj])}) });
     gi+=g.length }
   return out }
-function setValsK(k,st){ const l=S.logs[k], cur=l&&l.ex&&l.ex[st.ex.id]&&l.ex[st.ex.id][st.i];
-  const w=drafts[dkey(k,`w-${st.ex.id}-${st.i}`)] ?? (cur?toU(cur.w):(st.t.w!=null?toU(st.t.w):"")); const r=drafts[dkey(k,`r-${st.ex.id}-${st.i}`)] ?? (cur?cur.r:(st.t.first?"":st.t.reps[st.i]));
+function setValsK(k,st){ const l=S.logs[k], cur=l&&l.ex&&l.ex[st.ex.id]&&l.ex[st.ex.id][st.i], f=fmtOf(st.ex), dist=isDist(st.ex);
+  const w=drafts[dkey(k,`w-${st.ex.id}-${st.i}`)] ?? (cur?(cur.w?toU(cur.w):""):(st.t.w?toU(st.t.w):"")); const r=drafts[dkey(k,`r-${st.ex.id}-${st.i}`)] ?? (cur?(f==="dt"?fmtDur(cur.r):cur.r):(st.t.first||dist?"":st.t.reps[st.i]));
+  const m=drafts[dkey(k,`m-${st.ex.id}-${st.i}`)] ?? (cur?cur.m:(st.t.first||!dist?"":st.t.reps[st.i]));
   let ww=w??""; if(ww===""&&st.i>0){ for(let j=st.i-1;j>=0;j--){ const pw=drafts[dkey(k,`w-${st.ex.id}-${j}`)]; if(pw){ww=pw;break} } }
-  return {w:ww,r:r??""} }
+  return {w:ww,r:r??"",m:m??""} }
 function openLive(){ if(!liveCtx()) return; liveOpen=true; unlockAudio(); renderLive(); tick() }
 function closeLive(){ liveOpen=false; renderLive(); tick(); lastRenderKey=""; render() }
 function renderLive(){
@@ -1744,15 +1834,20 @@ function renderLive(){
       main=`<div class="lv-main go"><div class="lv-label">All ${steps.length} sets done</div><div class="lv-ex">Workout complete</div><button class="btn lv-cta" id="lvFinish" style="background:#fff;color:var(--food);border-color:#fff">Review &amp; save</button></div>`;
       next=`<div class="lv-next"><span class="lv-label">Next</span><span>Check your numbers and tap Save. Your workout time is recorded.</span></div>`;
     } else {
-      const db=dbNow(cur.ex.id,S.logs[k]), v=setValsK(k,cur), unit=isSec(cur.ex)?"sec":"reps";
-      const tgt=`${cur.ex.bw?"":(v.w!==""?`${v.w} ${uL()}${db?" per DB":""} × `:"")}${v.r||cur.ex.lo} ${unit}`;
+      const db=dbNow(cur.ex.id,S.logs[k]), v=setValsK(k,cur), f=fmtOf(cur.ex), F=FMT[f], unit=F.b==="sec"?"sec":F.b==="m"?"m":"reps";
+      const wTxt=F.w&&v.w!==""&&!(F.w!=="req"&&!Number(v.w))? `${F.w==="add"?"+":F.w==="assist"?"−":""}${v.w} ${uL()}${db?" per DB":""} × ` : "";
+      const tgt= f==="dt"? `${v.m||cur.ex.lo} m${v.r?` in ${v.r}`:cur.t.time?` in ${fmtDur(cur.t.time)}`:""}` : `${wTxt}${(F.b==="m"?v.m:v.r)||cur.ex.lo} ${unit}`;
+      const lvBox=(id,val,ph,lab,mode,aria)=>`<label><input id="${id}" inputmode="${mode}" value="${esc(val)}" placeholder="${esc(ph)}" aria-label="${aria||lab}"><span>${lab}</span></label>`;
+      const lvIns=(F.w? lvBox("lvW",v.w,uL(),F.w==="assist"?`${uL()} assistance`:F.w==="add"?`+ ${uL()} added`:db?uL()+" per dumbbell":uL(),"decimal","Weight")+"<b>×</b>" : "")
+        + (F.b==="m"? lvBox("lvM",v.m,cur.ex.lo,"metres","decimal") : "")
+        + (F.b!=="m"||F.time? lvBox("lvR",v.r,F.time?(cur.t.time?fmtDur(cur.t.time):"min"):cur.ex.lo,F.time?"min":unit,F.time?"decimal":"numeric",F.time?"Time":unit) : "");
       if(resting||justDone){
         main=`<div class="lv-main ${resting?"rest":"go"}"><div class="lv-label">${resting?"Rest":"Rest over"}</div><div class="lv-clock" id="lvRest">${resting?fmtClock(TM.restEnd-now):"Go"}</div><div class="lv-ring"><i id="lvRestFill"></i></div>
           <div class="row lv-btns">${resting?`<button class="btn ghost" id="lvPlus">+30 s</button><button class="btn ghost" id="lvSkip">Skip rest</button>`:`<button class="btn lv-cta" id="lvStart" style="background:#fff;color:var(--food);border-color:#fff">Start set</button>`}</div></div>`;
         next=`<div class="lv-next"><span class="lv-label">Up next</span><span class="nm">${esc(cur.ex.name)}</span><span class="num">Set ${cur.i+1} of ${cur.n} · ${esc(tgt)}</span></div>`;
       } else {
         main=`<div class="lv-main"><div class="lv-label">${cur.inSS?"Superset · ":""}Set ${cur.i+1} of ${cur.n}</div><div class="lv-ex">${esc(cur.ex.name)}</div>
-          <div class="lv-inputs">${cur.ex.bw?"":`<label><input id="lvW" inputmode="decimal" value="${esc(v.w)}" placeholder="${uL()}" aria-label="Weight"><span>${db?uL()+" per dumbbell":uL()}</span></label><b>×</b>`}<label><input id="lvR" inputmode="numeric" value="${esc(v.r)}" placeholder="${cur.ex.lo}" aria-label="${unit}"><span>${unit}</span></label></div>
+          <div class="lv-inputs">${lvIns}</div>
           ${plateable(cur.ex,db)?`<div class="lv-plates" id="lvPlates">${esc(platesText(v.w,cur.ex))}</div>`:""}
           <p class="small lv-note">${esc(cur.t.first?cur.t.msg:(cur.t.coach?"Coach: ":"")+cur.t.msg)}</p>
           <button class="btn lv-cta" id="lvDone">Set done ✓</button></div>`;
@@ -1777,7 +1872,7 @@ function liveTick(){
   const r=document.getElementById("lvRest"), f=document.getElementById("lvRestFill");
   if(r&&TM.restEnd&&TM.restEnd>now){ r.textContent=fmtClock(TM.restEnd-now); if(f) f.style.width=Math.min(100,100-(TM.restEnd-now)/(TM.restDur*1000)*100)+"%" }
   const c=liveCtx(); if(c&&c.p.type==="gym"){ const resting=TM.restEnd&&TM.restEnd>now, justDone=TM.restEnd&&TM.restEnd<=now&&now-TM.restEnd<20000; const idx=gymSteps(c.k,c.p).findIndex(x=>!x.done);
-    const st=`${idx}|${resting?"r":justDone?"g":"x"}`; if(st!==liveState && !(document.activeElement&&/lvW|lvR/.test(document.activeElement.id||""))) renderLive() }
+    const st=`${idx}|${resting?"r":justDone?"g":"x"}`; if(st!==liveState && !(document.activeElement&&/lvW|lvR|lvM/.test(document.activeElement.id||""))) renderLive() }
 }
 function bindLive(k,p){
   const $$=id=>document.getElementById(id);
@@ -1786,13 +1881,16 @@ function bindLive(k,p){
   if($$("lvSkip")) $$("lvSkip").onclick=()=>{TM.restEnd=0; saveTM(); renderLive()};
   if($$("lvStart")) $$("lvStart").onclick=()=>{TM.restEnd=0; saveTM(); renderLive()};
   if($$("lvW")&&$$("lvPlates")){ const st=gymSteps(k,p).find(x=>!x.done); $$("lvW").addEventListener("input",e=>{ $$("lvPlates").textContent=st?platesText(e.target.value,st.ex):"" }) }
-  ["lvW","lvR"].forEach(id=>{ const inp=$$(id); if(!inp) return; inp.addEventListener("focus",()=>{const s=()=>{try{inp.setSelectionRange(0,inp.value.length)}catch(e){}}; s(); setTimeout(s,0); setTimeout(s,60)}) });
+  ["lvW","lvR","lvM"].forEach(id=>{ const inp=$$(id); if(!inp) return; inp.addEventListener("focus",()=>{const s=()=>{try{inp.setSelectionRange(0,inp.value.length)}catch(e){}}; s(); setTimeout(s,0); setTimeout(s,60)}) });
   if($$("lvDone")) $$("lvDone").onclick=()=>{
     const steps=gymSteps(k,p), idx=steps.findIndex(x=>!x.done), cur=steps[idx]; if(!cur) return;
-    const w=$$("lvW")?$$("lvW").value.trim():"", r=$$("lvR").value.trim();
-    if(!(Number(r)>0) || (!cur.ex.bw && !(Number(w)>0) && !cur.ex.optW)){ toast(cur.ex.bw?"Enter the seconds you held":isSec(cur.ex)?"Enter the weight and seconds you held":"Enter the weight and reps you did"); return }
-    if(!cur.ex.bw){ drafts[dkey(k,`w-${cur.ex.id}-${cur.i}`)]=w; gateCheck(cur.ex,k,fromU(Number(w)||0),Number(r)||0,cur.i) }
-    drafts[dkey(k,`r-${cur.ex.id}-${cur.i}`)]=r; drafts[dkey(k,`c-${cur.ex.id}-${cur.i}`)]=true; drafts[dkey(k,"open-trainLog")]=true; persistDrafts();
+    const f=fmtOf(cur.ex), w=$$("lvW")?$$("lvW").value.trim():"", r=$$("lvR")?$$("lvR").value.trim():"", m=$$("lvM")?$$("lvM").value.trim():"";
+    if(!setOk(f,{w:Number(w)||0,r:f==="dt"?parseDur(r):Number(r)||0,m:Number(m)||0})){ toast(FMT_NEED[f]); return }
+    if($$("lvW")) drafts[dkey(k,`w-${cur.ex.id}-${cur.i}`)]=w;
+    if($$("lvM")) drafts[dkey(k,`m-${cur.ex.id}-${cur.i}`)]=m;
+    if($$("lvR")) drafts[dkey(k,`r-${cur.ex.id}-${cur.i}`)]=r;
+    if(FMT[f].b==="reps"&&setTypeK(k,cur.ex.id,cur.i)!=="w") gateCheck(cur.ex,k,fromU(Number(w)||0),Number(r)||0,cur.i);
+    drafts[dkey(k,`c-${cur.ex.id}-${cur.i}`)]=true; drafts[dkey(k,"open-trainLog")]=true; persistDrafts();
     if(idx<steps.length-1&&!(cur.inSS&&!cur.ssLast)) startRest(restFor(cur.ex.id));
     renderLive(); if(tab==="home"&&ymd(sel)===k){ lastRenderKey=""; render() }
   };
@@ -1809,7 +1907,7 @@ document.getElementById("tmSkip").onclick=()=>{TM.restEnd=0; saveTM(); tick()};
 
 // tell them the moment a set reaches a Gate (once per set)
 const gateSeen=new Set();
-function gateCheck(ex,k,w,r,i){ if(typeof rkSetGate!=="function"||!(r>0)) return; const g=rkSetGate(ex.id,w,r,k); if(!g) return;
+function gateCheck(ex,k,w,r,i){ if(typeof rkSetGate!=="function"||!(r>0)||!fmtRanks(ex.id,fmtOf(ex))) return; const g=rkSetGate(ex.id,w,r,k,fmtOf(ex)); if(!g) return;
   const key=`${k}|${ex.id}|${i}|${g.p}|${g.to}|${g.heavy}`; if(gateSeen.has(key)) return; gateSeen.add(key);
   if(g.heavy){ sysNotice(`Gate-level set: ${g.name} → ${rkLetter(g.to)}`,`${ex.name}. Save the workout to clear the Gate.`,g.to);
     if(tab==="home"&&!liveOpen) setTimeout(()=>{ const y=window.scrollY; lastRenderKey=""; render(); window.scrollTo(0,y) },30) }
@@ -1832,9 +1930,9 @@ function bindTimerEnd(){ const e=$("#tmEnd"); if(e) e.onclick=function(){ if(thi
 const MODE_LABEL={add_weight:"+ Weight",add_reps:"+ Reps",hold:"Hold",deload:"Deload",form:"Form focus"};
 const overBusy={}, overTried={};
 function prevLine(ex,k){
-  const h=exHistory(ex.id,k); if(!h.length) return `<div class="prev"><span class="pl">Last time</span><span class="muted">Not done yet</span></div>`;
+  const h=exHistory(ex.id,k,fmtOf(ex)); if(!h.length) return `<div class="prev"><span class="pl">Last time</span><span class="muted">${exHistory(ex.id,k).length?`Not logged as ${esc(FMT[fmtOf(ex)].name.toLowerCase())} yet`:"Not done yet"}</span></div>`;
   const last=h[0], l=S.logs[last.k], db=logDb(ex.id,l);
-  const pills=last.sets.map(s=>`<span class="pill">${ex.bw?`${s.r}s`:`${toU(s.w)}${db?"/DB":""} × ${s.r}${isSec(ex)?"s":""}`}</span>`).join("");
+  const pills=last.sets.map(s=>`<span class="pill">${esc(setTxt(fmtOf(ex),s,db))}</span>`).join("");
   return `<div class="prev"><span class="pl">Last · ${DOW[dowOf(parseYmd(last.k))]} ${fmtShort(parseYmd(last.k))}</span>${pills}${last.sets.length<ex.sets?`<span class="small muted">${last.sets.length} of ${ex.sets} sets</span>`:""}</div>`;
 }
 function lastSessionNote(p,k){
@@ -1843,15 +1941,16 @@ function lastSessionNote(p,k){
   return prev? `<div class="lastnote" style="margin-bottom:10px"><b>Your note from ${fmtShort(parseYmd(prev[0]))}:</b> “${esc(prev[1].notes)}”</div>` : "";
 }
 function overStamp(p,k){
-  return p.ex.filter(e=>!e.fixed).map(e=>{const h=exHistory(e.id,k)[0]; return h? `${e.id}:${h.k}:${S.logs[h.k].savedAt||0}:${dbNow(e.id,S.logs[k])?1:0}`:""}).filter(Boolean).join("|");
+  return p.ex.filter(e=>!e.fixed).map(e=>{const h=exHistory(e.id,k,fmtOf(e))[0]; return h? `${e.id}:${fmtOf(e)}:${h.k}:${S.logs[h.k].savedAt||0}:${dbNow(e.id,S.logs[k])?1:0}`:""}).filter(Boolean).join("|");
 }
+const COACH_FMT=["wr","wbr","wt","bt"]; // formats the AI coach writes targets for
 function finalTarget(ex,k){
   const t=targetFor(ex,k); if(t.first||ex.fixed) return t;
-  const rule={...t, mode: t.stall?"deload": /^Add/.test(t.msg)?"add_weight": ex.bw?"add_reps":"add_reps"};
+  const rule={...t, mode: t.stall?"deload": /^Add/.test(t.msg)?"add_weight": "add_reps"};
   const o=S.over[k], c=o&&o.items&&o.items[ex.id];
-  if(!c) return rule;
-  const lastW=(()=>{ const h=exHistory(ex.id,k); return h.length? Number(h[0].sets[0].w)||null : null })();
-  return {...t, w: ex.bw?null:(c.w==null? t.w : snapW(ex,c.w,lastW)), reps: c.reps&&c.reps.length===ex.sets? c.reps : t.reps, msg:c.note||t.msg, mode:c.mode||rule.mode, coach:true, stall:c.mode==="deload"};
+  if(!c||(c.fmt||baseFmtId(ex.id))!==fmtOf(ex)||!COACH_FMT.includes(fmtOf(ex))) return rule;
+  const lastW=(()=>{ const h=exHistory(ex.id,k,fmtOf(ex)); return h.length? Number(h[0].sets[0].w)||null : null })();
+  return {...t, w: !hasW(ex)?null:(c.w==null? t.w : snapW(ex,c.w,lastW)), reps: c.reps&&c.reps.length===ex.sets? c.reps : t.reps, msg:c.note||t.msg, mode:c.mode||rule.mode, coach:true, stall:c.mode==="deload"};
 }
 // Weights are never rounded to "nice" numbers: a coach suggestion is snapped onto your own ladder (last weight ± whole weight steps),
 // so 121 stays 121, +1 step is 131, a deload is 111.
@@ -1866,9 +1965,9 @@ async function maybeOverload(){
   if(S.over[k]&&S.over[k].stamp===stamp) return;
   if(overBusy[k] || (overTried[k+stamp] && Date.now()-overTried[k+stamp]<120000)) return;
   overBusy[k]=true; overTried[k+stamp]=Date.now(); renderIfIdle();
-  const lines=p.ex.filter(e=>!e.fixed).map(e=>{const h=exHistory(e.id,k).slice(0,2); if(!h.length) return null; const r=targetFor(e,k), db=dbNow(e.id,S.logs[k]);
-    const sess=h.map(x=>{const l=S.logs[x.k]; return `${x.k}: ${x.sets.map(s=>e.bw?`${s.r}s`:`${s.w}×${s.r}${isSec(e)?"s":""}`).join(", ")}${logDb(e.id,l)?" (lb per dumbbell)":""}${l.notes?` | his session note: "${l.notes}"`:""}`}).join("\n    ");
-    return `- id "${e.id}": ${e.name}. Prescribed ${e.sets} sets of ${e.lo}-${e.hi} ${isSec(e)?"seconds":"reps"}${e.bw?"":`, weight step ${e.inc} lb${db?" (he logs weight PER DUMBBELL)":""}`}.
+  const lines=p.ex.filter(e=>!e.fixed&&COACH_FMT.includes(fmtOf(e))).map(e=>{const h=exHistory(e.id,k,fmtOf(e)).slice(0,2); if(!h.length) return null; const r=targetFor(e,k), db=dbNow(e.id,S.logs[k]);
+    const sess=h.map(x=>{const l=S.logs[x.k]; return `${x.k}: ${x.sets.map(s=>!hasW(e)?`${s.r}s`:`${s.w}×${s.r}${isSec(e)?"s":""}`).join(", ")}${logDb(e.id,l)?" (lb per dumbbell)":""}${l.notes?` | his session note: "${l.notes}"`:""}`}).join("\n    ");
+    return `- id "${e.id}": ${e.name}. Prescribed ${e.sets} sets of ${e.lo}-${e.hi} ${isSec(e)?"seconds":"reps"}${!hasW(e)?"":`${fmtOf(e)==="wbr"?" (weight is ADDED to bodyweight, 0 = bodyweight)":""}, weight step ${e.inc} lb${db?" (he logs weight PER DUMBBELL)":""}`}.
     History (newest first):
     ${sess}
     Default progression rule says: ${r.w?`${r.w} lb × ${r.reps.join(",")}`:r.reps.join(",")+"s"} (${r.msg})`}).filter(Boolean).join("\n");
@@ -1882,11 +1981,11 @@ Weight is in the same unit he logs (per dumbbell where noted); use null for time
   try{
     const r=await sampleFn.json(prompt,{modelTier:"default",cache:false});
     const items={};
-    (r&&Array.isArray(r.exercises)?r.exercises:[]).forEach(x=>{const e=p.ex.find(e=>e.id===x.id); if(!e) return; const h=exHistory(e.id,k)[0]; if(!h) return;
+    (r&&Array.isArray(r.exercises)?r.exercises:[]).forEach(x=>{const e=p.ex.find(e=>e.id===x.id); if(!e||!COACH_FMT.includes(fmtOf(e))) return; const h=exHistory(e.id,k,fmtOf(e))[0]; if(!h) return;
       const lastW=Number(h.sets[0].w)||null; const modeOk=["add_weight","add_reps","hold","deload","form"].includes(x.mode)?x.mode:"add_reps";
       let reps=Array.isArray(x.reps)?x.reps.map(n=>Math.round(Number(n))).filter(n=>n>0).slice(0,e.sets):[]; while(reps.length&&reps.length<e.sets) reps.push(reps[reps.length-1]);
       reps=reps.map(n=>Math.max(e.lo,Math.min(e.hi,n)));
-      items[e.id]={mode:modeOk,w:e.bw?null:clampW(e,Number(x.weight),lastW),reps:reps.length?reps:null,note:String(x.note||"").slice(0,260)}});
+      items[e.id]={fmt:fmtOf(e),mode:modeOk,w:!hasW(e)?null:fmtOf(e)==="wbr"&&!(Number(x.weight)>0)?(lastW||null):clampW(e,Number(x.weight),lastW),reps:reps.length?reps:null,note:String(x.note||"").slice(0,260)}});
     if(!Object.keys(items).length) throw {code:"invalid_json"};
     const doc={stamp,at:Date.now(),items}; S.over[k]=doc;
     if(mode==="db") await refs.over.doc(k).set(doc); else saveLocal();
@@ -1924,7 +2023,7 @@ function standingsBW(cut){
   return null;
 }
 function bestLift(ids,cut){ let best=null;
-  Object.entries(S.logs).forEach(([k,l])=>{ if(l.type!=="gym"||(cut&&k>cut)) return; ids.forEach(id=>{ WS(l.ex&&l.ex[id]).forEach(s=>{ const r=Number(s.r)||0; if(r<1||r>15) return; const db=logDb(id,l), load=loadW(id,l,s.w), e=e1rm(load,r);
+  Object.entries(S.logs).forEach(([k,l])=>{ if(l.type!=="gym"||(cut&&k>cut)) return; ids.forEach(id=>{ repSets(id,l).forEach(s=>{ const r=Number(s.r)||0; if(r<1||r>15) return; const db=logDb(id,l), load=loadW(id,l,s.w), e=e1rm(load,r);
     if(!best||e>best.e) best={e,id,k,w:Number(s.w),r,db,load} }) }) }); return best }
 function vdot(meters,min){ const v=meters/min, vo2=-4.6+0.182258*v+0.000104*v*v, pc=0.8+0.1894393*Math.exp(-0.012778*min)+0.2989558*Math.exp(-0.1932605*min); return vo2/pc }
 // Heart-rate method: ACSM running equation for the oxygen cost of each running segment, scaled by % heart-rate reserve
@@ -1964,7 +2063,8 @@ const REGIONS={
 const exName=id=>{const e=[...ALLEX,...Object.values(GYM).flatMap(d=>d.ex)].find(x=>x.id===id); return e?e.name:id};
 function exStanding(id,cut,bw){
   const std=STD[id]; if(!std) return null; let best=null;
-  Object.entries(S.logs).forEach(([k,l])=>{ if(l.type!=="gym"||(cut&&k>cut)||!l.ex||!l.ex[id]) return; const db=logDb(id,l);
+  Object.entries(S.logs).forEach(([k,l])=>{ if(l.type!=="gym"||(cut&&k>cut)||!l.ex||!l.ex[id]) return; const db=logDb(id,l), f=logFmt(id,l);
+    if(std.sec? f!=="bt" : !repFmt(f)) return;
     WS(l.ex[id]).forEach(s=>{ const r=Number(s.r)||0, w=Number(s.w)||0; let kind,val;
       if(std.sec){ if(!r) return; kind="sec"; val=r }
       else { if(r<1||r>20||!w) return; const one=w*(1+r/30); if(std.add){kind="add"; val=one/bw} else if(db&&std.db){kind="db"; val=one/bw} else if(std.bb){kind="bb"; val=(db?loadW(id,l,w)*(1+r/30):one)/bw} else {kind="db"; val=one/bw} }
@@ -2007,8 +2107,8 @@ function adherence(){ let gp=0,gd=0,rp=0,rd=0; const t=ymd(today);
   return {gp,gd,rp,rd,gym:gp?gd/gp:1,run:rp?rd/rp:1} }
 const COMPOUND=new Set(["bench","incline","ohp","pulldown","cablerow","dbrow","legpress45","legpress","hipthrust","rdl","tbdl"]);
 function exRate(id){
-  const pts=Object.entries(S.logs).filter(([k,l])=>l.type==="gym"&&l.ex&&WS(l.ex[id]).length).sort((a,b)=>a[0]<b[0]?-1:1)
-    .map(([k,l])=>[k,Math.max(...WS(l.ex[id]).map(s=>(Number(s.w)||0)*(1+(Number(s.r)||0)/30)||Number(s.r)||0))]).filter(p=>p[1]>0);
+  const all=Object.entries(S.logs).filter(([k,l])=>l.type==="gym"&&l.ex&&WS(l.ex[id]).length).sort((a,b)=>a[0]<b[0]?-1:1), fl=all.length? logFmt(id,all[all.length-1][1]) : "wr"; // compare like with like
+  const pts=all.filter(([k,l])=>logFmt(id,l)===fl).map(([k,l])=>[k,Math.max(...WS(l.ex[id]).map(s=>fl==="wd"?(Number(s.w)||0)*(Number(s.m)||0):fl==="dt"?(Number(s.m)||0)/Math.max(1,Number(s.r)||1):(Number(s.w)||0)*(1+(Number(s.r)||0)/30)||Number(s.r)||0))]).filter(p=>p[1]>0);
   // Typical weekly gain by training level: novice ≈ 2% (compound) / 1.2% (isolation); intermediate ≈ 0.75% / 0.5%
   const cmp=COMPOUND.has(id), nov=cmp?0.02:0.012, mid=cmp?0.0075:0.005;
   const firstLog=Object.keys(S.logs).filter(k=>S.logs[k].type==="gym").sort()[0], ageWk=firstLog?(today-parseYmd(firstLog))/DAYMS/7:0;
@@ -2652,7 +2752,7 @@ function bind(){
     const [id,i]=b.dataset.chk.split("|"), dk=draftKey(`c-${id}-${i}`), on=!b.classList.contains("on");
     drafts[dk]=on; persistDrafts(); b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); $(`#set-${id}-${i}`)?.classList.toggle("done",on);
     if(on){
-      const exo=p.ex&&p.ex.find(e=>e.id===id); if(exo&&!exo.bw){ const w=fromU(Number($(`#w-${id}-${i}`)?.value)||0), r=Number($(`#r-${id}-${i}`)?.value)||0; if(setTypeK(k,id,i)!=="w") gateCheck(exo,k,w,r,i) }
+      const exo=p.ex&&p.ex.find(e=>e.id===id); if(exo&&FMT[fmtOf(exo)].b==="reps"){ const v=setValsDom(exo,i); if(setTypeK(k,id,i)!=="w") gateCheck(exo,k,v.w,v.r,i) }
       if(!TM.start && k===ymd(today) && !S.logs[k]){startWorkout(); toast("Workout timer started"); const tb=document.querySelector(".timerbox"); if(tb){tb.outerHTML=timerBox(k); bindTimerEnd()}}
       const steps=gymSteps(k,p), si=steps.findIndex(x=>x.ex.id===id&&x.i===Number(i)), st=steps[si];
       if(si>=0&&si<steps.length-1&&!(st.inSS&&!st.ssLast)) startRest(restFor(id));
@@ -2662,11 +2762,12 @@ function bind(){
   $("#saveGym")?.addEventListener("click",()=>{
     const ex={}, db={}; let anyChecked=false;
     p.ex.forEach(e=>{for(let i=0;i<setCount(e,k);i++){ if($(`#set-${e.id}-${i}`)?.classList.contains("done")) anyChecked=true }});
-    p.ex.forEach(e=>{const sets=[];for(let i=0;i<setCount(e,k);i++){ if(anyChecked && !$(`#set-${e.id}-${i}`)?.classList.contains("done")) continue; const r=Number($(`#r-${e.id}-${i}`).value); const w=e.bw?0:fromU(Number($(`#w-${e.id}-${i}`).value)); const ty=setTypeK(k,e.id,i); if(r>0&&(e.bw||w>0||e.optW)) sets.push(e.bw?{r,...(ty?{t:ty}:{})}:{w,r,...(ty?{t:ty}:{})})} if(sets.length){ex[e.id]=sets; if(DBCFG[e.id]) db[e.id]=dbNow(e.id,log)}});
-    if(!Object.keys(ex).length){toast(anyChecked?"Ticked sets need a weight and reps":"Enter weight and reps for at least one set");return}
+    const fmt={};
+    p.ex.forEach(e=>{const f=fmtOf(e), sets=[];for(let i=0;i<setCount(e,k);i++){ if(anyChecked && !$(`#set-${e.id}-${i}`)?.classList.contains("done")) continue; const v=setValsDom(e,i); if(setOk(f,v)) sets.push(setObj(f,v,setTypeK(k,e.id,i)))} if(sets.length){ex[e.id]=sets; if(!e.fixed) fmt[e.id]=f; if(DBCFG[e.id]&&hasW(e)) db[e.id]=dbNow(e.id,log)}});
+    if(!Object.keys(ex).length){toast(anyChecked?"Ticked sets are missing numbers":"Fill in at least one set");return}
     const durMin = TM.start&&TM.date===k ? (Date.now()-TM.start)/60000 : (log&&log.durMin)||null;
     if(TM.start&&TM.date===k) stopWorkout();
-    const newLog={type:"gym",day:p.day,ex,db,durMin,notes:$("#gnotes").value.trim(),savedAt:Date.now()}; const prs=findPRs(k,newLog); if(prs.length) newLog.prs=prs;
+    const newLog={type:"gym",day:p.day,ex,db,fmt,durMin,notes:$("#gnotes").value.trim(),savedAt:Date.now()}; const prs=findPRs(k,newLog); if(prs.length) newLog.prs=prs;
     clearDrafts(k,TRAIN_RE); saveLog(k,newLog).then(()=>{toast(prs.length?`New PR: ${prs.map(id=>(p.ex.find(e=>e.id===id)||{name:id}).name).join(", ")} 🎉`:"Session saved"); lastRenderKey=""; render(); setTimeout(maybeAutoAdvice,1500)});
   });
   const upd=()=>{const mi=Number($("#rmi").value), m=parseTime($("#rtime").value); $("#pace").textContent = mi>0&&m>0? fmtMin(m/mi)+" /mi":"–"};
