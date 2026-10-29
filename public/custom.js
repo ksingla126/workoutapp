@@ -62,7 +62,7 @@ const EXLIB_RAW = [
   ["plank","Plank","Core","Bodyweight","t"],["sideplank","Side Plank","Core","Bodyweight","t"],
   ["declinecrunch","Decline Crunch (Weighted)","Core","Bodyweight","bw"],["cablecrunch","Cable Crunch","Core","Cable","w"],
   ["crunch","Crunch","Core","Bodyweight","bw"],["hangleg","Hanging Leg Raise","Core","Bodyweight","bw"],
-  ["legraise","Lying Leg Raise","Core","Bodyweight","bw"],["pallof","Pallof Press (Cable)","Core","Cable","w"],
+  ["legraise","Lying Leg Raise","Core","Bodyweight","bw"],["pallof","Pallof Press (Cable)","Core","Cable","w"],["pallofhold","Pallof Hold (Cable)","Core","Cable","tw"],
   ["abwheel","Ab Wheel Rollout","Core","Bodyweight","bw"],["russian","Russian Twist","Core","Bodyweight","bw"],
   ["deadbug","Dead Bug","Core","Bodyweight","bw"],["woodchop","Cable Woodchop","Core","Cable","w"],
   // Forearms & conditioning
@@ -79,10 +79,11 @@ function libEx(id){ return exLib().find(e=>e.id===id) }
 const LIB_MUSCLE_MAP={Chest:{chest:1},Back:{back:1},Shoulders:{shoulders:1},Biceps:{arms:1},Triceps:{arms:1},Quads:{quads:1},Hamstrings:{hamstrings:1},Glutes:{glutes:1},Calves:{calves:1},Core:{core:1},Forearms:{arms:1}};
 function toPlanEx(r){ // routine entry -> exercise object the logger understands
   const L=libEx(r.id)||{id:r.id,name:r.name||r.id,muscle:"",equip:"Other",type:"w"};
-  const timed=L.type==="t", inc= timed?0 : L.id==="legpress45"||L.id==="legpress"||L.id==="hack"? 20 : L.type==="bw"? 5 : L.equip==="Machine"? 10 : 5;
+  // "t" = timed bodyweight hold (seconds only); "tw" = timed hold with a weight (weight × seconds)
+  const timed=L.type==="t", heldW=L.type==="tw", inc= timed?0 : L.id==="legpress45"||L.id==="legpress"||L.id==="hack"? 20 : L.type==="bw"? 5 : L.equip==="Machine"? 10 : 5;
   const note= L.type==="bw"? "Bodyweight: leave weight blank, or enter added weight." : L.equip==="Dumbbell"? (L.uni?"Weight = the one dumbbell.":"Weight = each dumbbell.") : "";
-  return {id:L.id,name:L.name,sets:r.sets||3,lo:r.lo||(timed?30:8),hi:r.hi||(timed?60:12),inc,rest:r.rest||90,
-    ...(timed?{bw:true,unit:"sec"}:{}),...(L.type==="bw"?{optW:true}:{}),...(r.ss?{ss:r.ss}:{}),...(r.note||note?{alt:[note,r.note].filter(Boolean).join(" ")}:{}),muscle:L.muscle,equip:L.equip,uni:L.uni};
+  return {id:L.id,name:L.name,sets:r.sets||3,lo:r.lo||(timed?30:heldW?20:8),hi:r.hi||(timed?60:heldW?30:12),inc,rest:r.rest||90,
+    ...(timed?{bw:true,unit:"sec"}:heldW?{unit:"sec"}:{}),...(L.type==="bw"?{optW:true}:{}),...(r.ss?{ss:r.ss}:{}),...(r.note||note?{alt:[note,r.note].filter(Boolean).join(" ")}:{}),muscle:L.muscle,equip:L.equip,uni:L.uni};
 }
 
 /* ----- Starter splits ----- */
@@ -272,7 +273,7 @@ const commitPlan=()=>{ saveProfile(); onProfile(); render() };
 function sheetHtml(){ return SH.kind==="form"? formHtml() : SH.kind==="autogen"? autogenHtml() : SH.kind==="shopItem"? shopItemHtml() : SH.kind==="shopList"? shopListHtml() : SH.kind==="shopSched"? shopSchedHtml() : SH.kind==="gscan"? gscanHtml() : SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
 function paintPart(sel){ if(!SH) return; const el=document.querySelector("#xsheet .xs-in"); const dst=el&&el.querySelector(sel); if(!dst){ paintSheet(); return }
   const tmp=document.createElement("div"); tmp.innerHTML=sheetHtml(); const src=tmp.querySelector(sel); if(src) dst.innerHTML=src.innerHTML; else paintSheet() }
-function estMin(ex){ const sec=(ex||[]).reduce((t,e)=>t+(e.sets||3)*((e.rest||90)+(e.bw?(e.hi||45):40)),0); return Math.max(10,Math.round(sec/60/5)*5) }
+function estMin(ex){ const sec=(ex||[]).reduce((t,e)=>t+(e.sets||3)*((e.rest||90)+(isSec(e)?(e.hi||45):40)),0); return Math.max(10,Math.round(sec/60/5)*5) }
 
 /* ======================= Routine editor (Plan → Training) ======================= */
 function routinesEditor(){
@@ -999,6 +1000,13 @@ function legacyToSetup(){
     legacyRuns:true,rope:true,fromLegacy:ymd(today),at:Date.now(),
     coachNotes:"Core block Oct 19–Nov 8: deadlift patterns were swapped for weighted core work because his core couldn't support his lower back; from Nov 9 the RDL and trap-bar deadlift return at reduced weight (trap bar around 135 lb with straps). Pressing is his weakest area, grip limits his pulls (use straps), and he dislikes split squats. Runs: Tuesday easy by heart rate (jog to 150 bpm, walk to 130), Thursday intervals, Saturday long run building to 11 mi, then cycling with a lighter week every 4th week. Jump-rope rounds finish each gym day as prep for a Muay Thai camp right after Dec 25. He chose an aggressive calorie deficit, so watch for under-fueling. No race on the calendar: the plan is ongoing, focused on getting steadily stronger and healthier."};
 }
+// Oct 28: his Pallof press becomes a Pallof hold (weight × seconds), in his plan only
+function maybePallofHold(){
+  const su=S.profile&&S.profile.setup; if(!su||!su.fromLegacy||su.pallofHold) return false;
+  const NOTE="Stand side-on to the cable, arms locked straight out at chest height, and don't let it twist you. Seconds are per side.";
+  (su.routines||[]).forEach(r=>(r.ex||[]).forEach(e=>{ if(e.id==="pallof"){ e.id="pallofhold"; e.lo=20; e.hi=30; e.rest=60; e.note=NOTE } }));
+  const sw=S.profile.swaps; if(sw&&sw.routine) sw.routine.forEach(r=>{ if(r.from==="pallof") r.from="pallofhold"; if(r.to==="pallof") r.to="pallofhold" });
+  su.pallofHold=1; su.at=Date.now(); saveProfile(); return true }
 function maybeMigrateLegacy(){
   if(!window.__platform||!loaded.profile||S.profile.setup||!S.profile.about||S.profile.legacyKept) return false;
   S.profile.setup=legacyToSetup(); saveProfile(); return true;
@@ -1122,20 +1130,22 @@ function moveHtml(){ const k=SH.k, mode=SH.mode||"move", src=srcOf(k), past=k<ym
 
 /* ======================= Exercise history & PRs ======================= */
 function sessBest(id,l){ const sets=WS(l&&l.ex&&l.ex[id]); if(!sets.length) return 0; const L=libEx(id)||{}, timed=L.type==="t"||(sets[0].w==null&&sets[0].r);
+  if(L.type==="tw") return Math.max(...sets.map(x=>(loadW(id,l,x.w)+1)*(Number(x.r)||0))); // weighted hold: weight × seconds
   return timed&&!sets.some(x=>x.w)? Math.max(...sets.map(x=>Number(x.r)||0)) : Math.max(...sets.map(x=>e1rm(loadW(id,l,x.w),Number(x.r)||0))) }
 function priorBest(id,k){ let b=0; Object.entries(S.logs).forEach(([kk,l])=>{ if(kk<k&&l.type==="gym") b=Math.max(b,sessBest(id,l)) }); return b }
 function findPRs(k,log){ return Object.keys(log.ex||{}).filter(id=>{ const now=sessBest(id,log), before=priorBest(id,k); return before>0&&now>before+0.01 }) }
 function historyHtml(){ const id=SH.id, L=libEx(id)||(typeof X!=="undefined"&&X[id])||{name:SH.name||id};
   const rows=Object.entries(S.logs).filter(([k,l])=>l.type==="gym"&&l.ex&&l.ex[id]&&l.ex[id].length).sort((a,b)=>a[0]<b[0]?1:-1);
-  const timed=L.type==="t"||(typeof X!=="undefined"&&X[id]&&X[id].bw);
+  const timed=L.type==="t"||(typeof X!=="undefined"&&X[id]&&X[id].bw), heldW=L.type==="tw";
   let best=null, heavy=null; rows.forEach(([k,l])=>{ const b=sessBest(id,l); if(!best||b>best.v) best={v:b,k}; WS(l.ex[id]).forEach(x=>{ const w=loadW(id,l,x.w); if(!timed&&(!heavy||w>heavy.w||(w===heavy.w&&x.r>heavy.r))) heavy={w,r:x.r,k,db:logDb(id,l),raw:x.w} }) });
   const series=liftSeries(id);
   let h=`<div class="xs-head"><h2>${esc(L.name)}</h2><button type="button" class="btn ghost sm" data-xs="close">Close</button></div>`;
   if(!rows.length) return h+`<p class="small muted">No sessions logged yet. Your history, best sets and PRs show up here.</p>`;
-  h+=`<div class="statrow"><div><b class="num">${timed?Math.round(best.v)+" s":fmtN(toUd(best.v))+" "+uL()}</b><span>${timed?"Longest hold":"Best est. 1-rep max"}</span></div>${heavy?`<div><b class="num">${heavy.db?toU(heavy.raw)+"/DB":toU(heavy.w)} × ${heavy.r}</b><span>Heaviest set</span></div>`:""}<div><b class="num">${rows.length}</b><span>Sessions</span></div></div>`;
-  if(series.length>1&&!timed) h+=`<div class="eyebrow">Estimated 1-rep max</div>${lineChart(series.map(x=>({...x,y:toUd(x.y)})),"var(--gym)",v=>Math.round(v),false)}`;
+  const bestSet= heldW? (()=>{ let b=null; rows.forEach(([k,l])=>WS(l.ex[id]).forEach(x=>{ const v=(loadW(id,l,x.w)+1)*(Number(x.r)||0); if(!b||v>b.v) b={v,w:x.w,r:x.r} })); return b })() : null;
+  h+=`<div class="statrow"><div><b class="num">${heldW&&bestSet?`${toU(bestSet.w||0)} ${uL()} × ${bestSet.r} s`:timed?Math.round(best.v)+" s":fmtN(toUd(best.v))+" "+uL()}</b><span>${heldW?"Best hold":timed?"Longest hold":"Best est. 1-rep max"}</span></div>${heavy&&!heldW?`<div><b class="num">${heavy.db?toU(heavy.raw)+"/DB":toU(heavy.w)} × ${heavy.r}</b><span>Heaviest set</span></div>`:""}<div><b class="num">${rows.length}</b><span>Sessions</span></div></div>`;
+  if(series.length>1&&!timed&&!heldW) h+=`<div class="eyebrow">Estimated 1-rep max</div>${lineChart(series.map(x=>({...x,y:toUd(x.y)})),"var(--gym)",v=>Math.round(v),false)}`;
   h+=`<div class="eyebrow" style="margin-top:6px">History</div><div class="xs-list">${rows.map(([k,l])=>{ const pr=(l.prs||[]).includes(id), db=logDb(id,l);
-    return `<div class="histrow"><div class="row between"><b>${fmtDate(parseYmd(k))}</b>${pr?`<span class="prbadge">PR</span>`:""}</div><div class="small num muted">${l.ex[id].map(x=>`${x.t==="w"?"W ":x.t==="d"?"D ":x.t==="g"?"G ":""}${x.w!=null&&!timed?`${toU(x.w)}${db?"/DB":""}×${x.r}`:`${x.r}s`}`).join(" · ")}</div></div>` }).join("")}</div>`;
+    return `<div class="histrow"><div class="row between"><b>${fmtDate(parseYmd(k))}</b>${pr?`<span class="prbadge">PR</span>`:""}</div><div class="small num muted">${l.ex[id].map(x=>`${x.t==="w"?"W ":x.t==="d"?"D ":x.t==="g"?"G ":""}${x.w!=null&&!timed?`${toU(x.w)}${db?"/DB":""}×${x.r}${heldW?"s":""}`:`${x.r}s`}`).join(" · ")}</div></div>` }).join("")}</div>`;
   return h;
 }
 
@@ -1349,7 +1359,7 @@ document.addEventListener("click",e=>{
   // --- workout screen
   if(d.unitflip){ setUnit(UNIT()==="kg"?"lb":"kg"); return }
   if(d.plates){ const [id,w]=d.plates.split("|"), p=planFor(sel), ex=(p&&p.ex&&p.ex.find(e=>e.id===id))||{id}; openSheet({kind:"plates",ex,w:w||""}); return }
-  if(d.settype){ const [id,i]=d.settype.split("|"), k=ymd(sel), key=dkey(k,`st-${id}-${i}`), cur=setTypeK(k,id,i); drafts[key]=cur===""?"w":cur==="w"?"d":cur==="d"&&typeof rkGateFor==="function"&&rkGateFor(id)?"g":""; if(drafts[key]==="g") toast("Gate set: lift it for 1–5 reps (max reps for bodyweight moves)"); persistDrafts(); lastRenderKey=""; render(); return }
+  if(d.settype){ const [id,i]=d.settype.split("|"), k=ymd(sel), key=dkey(k,`st-${id}-${i}`), cur=setTypeK(k,id,i); drafts[key]=cur===""?"w":cur==="w"?"d":""; /* Gate sets are recognised automatically now */ persistDrafts(); lastRenderKey=""; render(); return }
   if(d.addset){ const k=ymd(sel), key=dkey(k,`xs-${d.addset}`); drafts[key]=(Number(drafts[key])||0)+1; persistDrafts(); lastRenderKey=""; render(); return }
   if(d.rmset){ const k=ymd(sel), key=dkey(k,`xs-${d.rmset}`), n=Number(drafts[key])||0; if(n>0){ const ex=(planFor(sel).ex||[]).find(e=>e.id===d.rmset), last=ex?setCount(ex,k)-1:-1; ["w","r","c","st"].forEach(f=>delete drafts[dkey(k,`${f}-${d.rmset}-${last}`)]); drafts[key]=n-1; if(!drafts[key]) delete drafts[key]; persistDrafts(); lastRenderKey=""; render() } return }
   if(d.addex){ openSheet({kind:"swap",adding:true,k:d.addex,q:"",mu:""}); return }

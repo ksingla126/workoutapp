@@ -265,13 +265,17 @@ function rankState() {
   if (place && !place.pending) {
     if (!rkData().placement && typeof saveProfile === "function" && typeof loaded !== "undefined" && loaded.logs && loaded.profile && (S.profile.setup || typeof isLegacy !== "function" || isLegacy())) { rkData().placement = { at: place.at, from: place.from, to: place.to }; saveProfile() }
     parts.forEach(p => { const v = rkValue(R, p, place.to, "raw", { from: place.from, noFade: true }).v; R.st[p].rank = Math.min(C.placementCap, Math.floor(v)); R.st[p].placedAt = place.at });
-    const attempts = E.filter(e => e.g && e.d >= place.at && !e.flag);
+    // Gates clear on their own: any heavy set (1–5 reps) of a rated exercise, or any whole run or time trial,
+    // that reaches the next rank while that part's Gate is open. Sets marked "G" by hand (older logs) still count, and can fail.
+    const attempts = E.filter(e => e.d >= place.at && !e.flag && (e.g || (e.gateable && e.gateReps && (!e.run || e.whole))));
     for (let d = place.at; d <= td; d = rkAdd(d, 1)) {
       attempts.filter(a => a.d === d).forEach(a => {
-        const s = R.st[a.p], g = rkGateStatus(R, a.p, d, true);
+        const s = R.st[a.p], auto = !a.g, g = rkGateStatus(R, a.p, d, !auto);
         if (!g.open) return;
         const L = rkLadder(a.lad, d, "raw"), v = rkCap(rkCap(rkVal(a.m, L), a.cap), rkPartCap(a.p)), to = s.rank + 1;
+        if (auto && s.lost && to <= s.lost.rank && rkDays(s.lost.at, d) <= C.reclaimDays) return; // a lost rank comes back as a reclaim below
         const pass = a.gateable && a.gateReps && v >= to;
+        if (!pass && auto) return; // an ordinary set that falls short isn't a failed Gate
         R.events.push({ id: a.key + "|" + a.p + "|" + to, t: pass ? "up" : "fail", p: a.p, d, to, from: s.rank, ex: a.ex, why: !a.gateable ? "capped" : !a.gateReps ? "reps" : "" });
         if (pass) { s.rank = to; s.below = 0; s.lost = null } else s.lastFail = d;
       });
@@ -394,7 +398,27 @@ function rkGateOptions(p, rankTo) {
   if (opt.length) return opt;
   return (C.parts[p].basic || []).map(id => { const c = (C.conv[id] || []).find(x => x.p === p); return c ? { id, name: rkExName(id), basic: true, ...rkExTarget(p, id, c, rankTo) } : null }).filter(Boolean);
 }
-// can this exercise's set be marked as a Gate set today? (used by the set-type button)
+// Would this set clear a Gate? (lights up the workout card and the live view). Returns the part and rank, or null.
+function rkSetGate(id, w, r, k) {
+  try {
+    const R = rankState(); if (!R.place || R.place.pending) return null;
+    k = k || ymd(today); const l = { ex: {}, db: { [id]: typeof dbNow === "function" ? !!dbNow(id) : false } };
+    let best = null;
+    rkSetEntries(k, l, id, { w: Number(w) || 0, r: Number(r) || 0 }, 0).forEach(e => {
+      const P = R.part[e.p], cap = rkPartCap(e.p); if (!P || P.excl || !e.gateable || P.rank >= (cap != null ? cap : 5)) return;
+      const v = rkCap(rkCap(rkVal(e.m, rkLadder(e.lad, k, "raw")), e.cap), cap);
+      if (v >= P.rank + 1) { const g = { p: e.p, to: P.rank + 1, heavy: !!e.gateReps, name: RKC().parts[e.p].name }; if (!best || (g.heavy && !best.heavy)) best = g; }
+    });
+    return best;
+  } catch (e) { return null }
+}
+// an open Gate this exercise can clear, with the target for it
+function rkGateInfo(id) {
+  try { const R = rankState(), C = RKC();
+    for (const c of (C.conv[id] || [])) { if (c.cap != null) continue; const P = R.part[c.p]; if (P && P.gate.open && !P.excl) return { p: c.p, to: P.gate.to, name: C.parts[c.p].name, txt: rkExTarget(c.p, id, c, P.gate.to).txt }; }
+  } catch (e) {} return null;
+}
+// can this exercise clear an open Gate today?
 function rkGateFor(id) {
   try { const R = rankState(), C = RKC(); return (C.conv[id] || []).some(c => c.cap == null && R.part[c.p] && R.part[c.p].gate.open) } catch (e) { return false }
 }
@@ -434,7 +458,7 @@ function rkNextText(p, P) {
 }
 function rkGateText(p, P) {
   const g = P.gate; if (!g) return "";
-  if (g.open) return `<div class="rk-gate open"><b>Gate open: reach ${rkLetter(g.to)}</b><span class="small">${RKC().parts[p].run ? "Tick “Count as a Gate attempt” when you log the run, or log a time trial below." : "In a workout, tap a set's number until it shows <b>G</b>, then lift one of these for 1–5 reps:"}</span>
+  if (g.open) return `<div class="rk-gate open"><b>Gate open: reach ${rkLetter(g.to)}</b><span class="small">${RKC().parts[p].run ? "Any run or time trial at this pace clears it automatically." : "Just lift one of these in a workout. Any set of 1–5 reps at this level clears it automatically:"}</span>
     ${rkGateOptions(p, g.to).map(o => `<div class="rk-opt"><span>${esc(o.name)}${o.basic ? ' <span class="muted small">(basic lift)</span>' : ""}</span><span class="num">${esc(o.txt)}</span></div>`).join("")}</div>`;
   const W = { bar: "Fill the bar to unlock the next Gate.", cooldown: `Gate failed. Retry in ${g.left} day${g.left > 1 ? "s" : ""}.`, excluded: "Excluded for injury. Fading and demotion are paused.", milecap: "The mile counts up to B. A and S come from the 400 m.", top: "Top rank reached.", placement: "Ranks are set after placement week." };
   return W[g.why] && g.why !== "bar" ? `<div class="small muted">${W[g.why]}</div>` : "";
@@ -478,7 +502,6 @@ function rkTrialBlock() {
     <div class="field"><label for="rkTt">Time (m:ss)</label><input id="rkTt" inputmode="numeric" placeholder="1:45"></div></div>
     <div class="row"><div class="field"><label for="rkTdate">Date</label><input id="rkTdate" type="date" value="${ymd(today)}" max="${ymd(today)}"></div><div class="field"><label for="rkTs">Surface</label><select id="rkTs"><option value="track">Track</option><option value="road">Road</option><option value="treadmill">Treadmill</option></select></div></div>
     <label class="rk-check"><input type="checkbox" id="rkTinc"> Treadmill set to 1% incline or more</label>
-    <label class="rk-check"><input type="checkbox" id="rkTg" ${rkRunGateOpen() ? "" : "disabled"}> Count as a Gate attempt${rkRunGateOpen() ? "" : " (no Gate open)"}</label>
     <p class="small muted">Before an all-out 400 m: 5–10 min easy jog, leg swings and skips, then 2–3 build-up runs. All-out sprints are when hamstrings get pulled.</p>
     <div class="row"><button type="button" class="btn sm" id="rkTsave">Save time trial</button><button type="button" class="btn ghost sm" data-rktrial="0">Cancel</button></div></div>`;
   if (T.length) h += T.map(t => `<div class="rk-opt"><span>${t.dist === "400" ? "400 m" : t.dist === "mile" ? "Mile" : "5K"} · ${fmtShort(parseYmd(t.d))}${t.surface ? " · " + t.surface : ""}${t.gate ? " · Gate" : ""}</span><span class="num">${rkFmtSec(t.sec)} <button type="button" class="link small" data-rktdel="${t.id}">Delete</button></span></div>`).join("");
@@ -586,7 +609,7 @@ function bindRanks() {
   document.querySelectorAll("[data-rktrial]").forEach(b => b.onclick = () => { rkTrialOpen = b.dataset.rktrial === "1"; redo() });
   document.querySelectorAll("[data-rktdel]").forEach(b => b.onclick = function () { if (!this.dataset.armed) { this.dataset.armed = "1"; this.textContent = "Tap again"; return } rkData().trials = (rkData().trials || []).filter(t => t.id !== b.dataset.rktdel); saveProfile(); redo() });
   $("#rkTsave")?.addEventListener("click", () => {
-    const dist = $("#rkTd").value, m = parseTime($("#rkTt").value), d = $("#rkTdate").value || ymd(today), surface = $("#rkTs").value, incline = $("#rkTinc").checked, gate = $("#rkTg").checked;
+    const dist = $("#rkTd").value, m = parseTime($("#rkTt").value), d = $("#rkTdate").value || ymd(today), surface = $("#rkTs").value, incline = $("#rkTinc").checked, gate = false;
     if (!(m > 0)) { toast("Enter the time, like 1:45 or 7:30"); return }
     if (d > ymd(today)) { toast("That date is in the future"); return }
     if (surface === "treadmill" && !incline) { toast("Treadmill time trials count at 1% incline or more"); return }
@@ -612,6 +635,17 @@ function rankNotify() {
     if (up.length) rkCelebrate(up[up.length - 1], up.length);
     else if (fail.length) { const f = fail[fail.length - 1]; toast(f.why === "reps" ? "Gate set didn't count: weighted Gate sets must be 1–5 reps" : f.why === "capped" ? "That exercise can't be a Gate" : `Gate not passed. Retry ${RKC().parts[f.p].name} in ${RKC().retryDays} days`) }
   } catch (e) { try { console.warn("ranks", e) } catch (_) {} }
+}
+// a System message that slides in from the top
+function sysNotice(title, body, rank) {
+  try {
+    document.querySelectorAll(".sys-note").forEach(e => e.remove());
+    const el = document.createElement("div"); el.className = "sys-note"; el.setAttribute("role", "status");
+    el.innerHTML = `${rank != null ? rkBadge(rank) : ""}<div style="flex:1;min-width:0"><div class="sn-sys">[SYSTEM]</div><b>${esc(title)}</b>${body ? `<span class="small">${esc(body)}</span>` : ""}</div>`;
+    document.body.appendChild(el); setTimeout(() => el.classList.add("on"), 20);
+    try { navigator.vibrate && navigator.vibrate([60, 40, 60]) } catch (e) {}
+    const close = () => { el.classList.remove("on"); setTimeout(() => el.remove(), 400) }; el.onclick = close; setTimeout(close, 6000);
+  } catch (e) {}
 }
 function rkCelebrate(ev, n) {
   const C = RKC(), el = document.createElement("div"); el.className = "rk-up"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Rank up");
@@ -682,6 +716,14 @@ function rkCelebrate(ev, n) {
 .rk-cta{all:unset;cursor:pointer;text-align:center;padding:11px 14px;border-radius:12px;font-weight:700;font-size:14.5px;color:#0B1024;background:linear-gradient(90deg,#8F8BFF,#7DE3FF);box-shadow:0 0 18px rgba(125,227,255,.35)}
 .rk-hud-note{font-size:12.5px;color:#93A3C9;margin:0;padding:0 4px}
 @media (max-width:359px){.rk-tiles{grid-template-columns:repeat(2,1fr)}}@media (max-width:419px) and (min-width:360px){.rk-tnext{display:none}}
+.ex.gate{position:relative;border-color:transparent!important;background:radial-gradient(120% 90% at 50% 0%,color-mix(in srgb,var(--gc) 26%,var(--surface)) 0%,var(--surface) 70%)!important;box-shadow:0 0 0 1.5px color-mix(in srgb,var(--gc) 70%,transparent),0 0 26px color-mix(in srgb,var(--gc) 35%,transparent)}
+.gate-banner{display:flex;gap:10px;align-items:flex-start;border-radius:12px;padding:10px 12px;margin:8px 0;background:linear-gradient(135deg,#141B46,#0B1024);color:#E6ECFF;border:1px solid color-mix(in srgb,var(--gc) 60%,transparent)}
+.gate-banner .rk-l{flex:none}.gate-banner b{color:#fff}.gate-banner .gb-sys{display:block;font:800 11px/1.2 var(--display);letter-spacing:.2em;color:#9FC2FF;margin-bottom:2px}
+.set.gate-hit{border-radius:10px;box-shadow:0 0 0 2px var(--gc),0 0 14px color-mix(in srgb,var(--gc) 50%,transparent)}
+.lv-main.gate{background:radial-gradient(120% 90% at 50% 0%,color-mix(in srgb,var(--gc) 40%,#141B46) 0%,#0B1024 80%)!important;color:#fff}
+.sys-note{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translate(-50%,-140%);z-index:60;width:min(560px,calc(100% - 24px));box-sizing:border-box;padding:12px 14px;border-radius:16px;display:flex;gap:12px;align-items:center;
+  background:linear-gradient(135deg,#1B2670,#0B1024);color:#E6ECFF;border:1px solid rgba(143,180,255,.55);box-shadow:0 0 30px rgba(90,130,255,.45),0 10px 30px rgba(0,0,0,.35);transition:transform .35s cubic-bezier(.2,1.2,.4,1)}
+.sys-note.on{transform:translate(-50%,0)}.sys-note .sn-sys{font:800 11px/1.2 var(--display);letter-spacing:.24em;color:#9FC2FF}.sys-note b{display:block;color:#fff;font-size:15px}.sys-note span.small{color:#C9D5F5}
 .setno.g{background:var(--coach);color:#fff;border-color:var(--coach)}`;
   const s = document.createElement("style"); s.id = "rankStyles"; s.textContent = css; (document.head || document.documentElement).appendChild(s);
 })();

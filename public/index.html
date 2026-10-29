@@ -1053,19 +1053,22 @@ function exHistory(exId, beforeKey){
   return Object.entries(S.logs).filter(([k,l])=>l.type==="gym" && k<beforeKey && l.ex && WS(l.ex[exId]).length)
     .sort((a,b)=>a[0]<b[0]?1:-1).map(([k,l])=>({k,sets:WS(l.ex[exId])}));
 }
+// timed holds: bodyweight ones (bw) log seconds only; weighted ones (unit "sec" without bw) log weight × seconds
+const isSec=e=>!!(e&&(e.bw||e.unit==="sec"));
 function targetFor(ex, key){
   if(ex.fixed) return {w:null,reps:Array(ex.sets).fill(ex.lo),msg:`${ex.sets} rounds × ${ex.lo>=60?ex.lo/60+" min":ex.lo+" s"}, ${ex.rest} s rest. Format steps up every 2 weeks.`};
   const h=exHistory(ex.id,key);
-  if(!h.length) return {first:true,msg: ex.bw? `Start: hold ${ex.lo}s × ${ex.sets}` : `First session: pick a weight you can lift ${ex.lo}× with ~2 reps left. Log it.`, w:null, reps:Array(ex.sets).fill(ex.lo)};
+  if(!h.length) return {first:true,msg: ex.bw? `Start: hold ${ex.lo}s × ${ex.sets}` : isSec(ex)? `First session: pick a weight you can hold ${ex.lo} s with good form. Log it.` : `First session: pick a weight you can lift ${ex.lo}× with ~2 reps left. Log it.`, w:null, reps:Array(ex.sets).fill(ex.lo)};
   const last=h[0].sets, w=Number(last[0].w)||0;
-  const lastTxt = ex.bw? last.map(s=>s.r+"s").join(", ") : `${w} × ${last.map(s=>s.r).join(", ")}`;
+  const lastTxt = ex.bw? last.map(s=>s.r+"s").join(", ") : `${w} × ${last.map(s=>s.r+(isSec(ex)?"s":"")).join(", ")}`;
   if(ex.bw){
     const reps=Array.from({length:ex.sets},(_,i)=>Math.min(ex.hi,(Number(last[i]?.r)||ex.lo)+5));
     const maxed=last.length>=ex.sets && last.every(s=>Number(s.r)>=ex.hi);
     return {w:null,reps,last:lastTxt,msg: maxed? "Maxed at 60s: add a plate on your back or go to a harder variation" : "+5 s per set"};
   }
   const allTop = last.length>=ex.sets && last.slice(0,ex.sets).every(s=>Number(s.r)>=ex.hi);
-  if(allTop) return {w:w+incU(ex.inc),reps:Array(ex.sets).fill(ex.lo),last:lastTxt,msg:`Add ${incTxt(ex.inc)} — you hit ${ex.hi} on every set`};
+  if(allTop) return {w:w+incU(ex.inc),reps:Array(ex.sets).fill(ex.lo),last:lastTxt,msg:`Add ${incTxt(ex.inc)} — you ${isSec(ex)?`held ${ex.hi} s`:`hit ${ex.hi}`} on every set`};
+  if(isSec(ex)){ const reps=Array.from({length:ex.sets},(_,i)=>Math.min(ex.hi,(Number(last[i]?.r)||ex.lo)+5)); return {w,reps,last:lastTxt,msg:"Same weight, hold 5 s longer"} }
   if(h[1]){
     const prev=h[1].sets, pw=Number(prev[0].w)||0, sum=a=>a.reduce((t,s)=>t+(Number(s.r)||0),0);
     if(pw===w && sum(last)<=sum(prev)) return {w:deloadW(ex,w),reps:Array(ex.sets).fill(ex.lo),last:lastTxt,stall:true,msg:"Stalled twice: drop ~10% and build back up"};
@@ -1211,17 +1214,36 @@ function trainingCard(p,k,log,openLogger){
     </div>
     <div class="row between"><div><div class="eyebrow">Pace</div><div class="pace num" id="pace">–</div></div>${TM.start&&TM.date===k?'<button class="btn ghost sm" id="fillTime">Use timer time</button>':""}</div>
     <div class="field"><label for="rnotes">Notes</label><textarea id="rnotes" placeholder="Weather, legs, anything hurt…">${esc(log?.notes||"")}</textarea></div>
-    <div class="stack" style="gap:6px"><label class="rk-check"><input type="checkbox" id="rrace" ${log&&log.race?"checked":""}> This was a race</label>${(log&&log.gate)||rkRunGateOpen()?`<label class="rk-check"><input type="checkbox" id="rgate" ${log&&log.gate?"checked":""}> Count as a Gate attempt (Speed or Endurance)</label>`:""}</div>
+    <div class="stack" style="gap:6px"><label class="rk-check"><input type="checkbox" id="rrace" ${log&&log.race?"checked":""}> This was a race</label></div>
     <div class="row"><button class="btn" id="saveRun">${log?"Update run":"Save run"}</button>${log?'<button class="btn ghost" id="delLog">Clear log</button>':""}</div></div></details>${log&&log.st?ranBlock(k,log):""}${extraRunsBlock(k,log)}${log?`<button class="btn ghost sm" data-openrun="${k}" style="align-self:flex-start">Full breakdown ›</button>`:""}</div>`;
 }
 function setCount(ex,k){ const l=S.logs[k], cur=l&&l.ex&&l.ex[ex.id]; return Math.max(ex.sets, cur?cur.length:0)+(Number(drafts[dkey(k,`xs-${ex.id}`)])||0) }
 function setTypeK(k,id,i){ const v=drafts[dkey(k,`st-${id}-${i}`)]; if(v!==undefined) return v||""; const l=S.logs[k], c=l&&l.ex&&l.ex[id]&&l.ex[id][i]; return (c&&c.t)||"" }
+// Gates clear on their own: the card turns into a Gate card when the Gate is open, today's target reaches it,
+// or a set you've entered is Gate level
+function setVals(ex,k,i,cur){ const w=drafts[dkey(k,`w-${ex.id}-${i}`)] ?? (cur&&cur[i]?toU(cur[i].w):""), r=drafts[dkey(k,`r-${ex.id}-${i}`)] ?? (cur&&cur[i]?cur[i].r:""); return {w:fromU(Number(w)||0),r:Number(r)||0} }
+function gateState(ex,k,t,cur){
+  if(ex.fixed||ex.bw||typeof rkSetGate!=="function") return null;
+  const hits=[]; for(let i=0;i<setCount(ex,k);i++){ const ty=setTypeK(k,ex.id,i); if(ty==="w"||ty==="d") continue; const v=setVals(ex,k,i,cur); if(v.r>0&&(v.w>0||ex.optW)){ const g=rkSetGate(ex.id,v.w,v.r,k); if(g&&g.heavy) hits.push({i,...g}) } }
+  if(hits.length) return {kind:"hit",...hits[0],hits:hits.map(x=>x.i)};
+  if(k<ymd(today)) return null;
+  const tg= t&&!t.first&&t.w!=null? rkSetGate(ex.id,t.w,t.reps[0],k) : null;
+  if(tg) return {kind:tg.heavy?"target":"near",...tg,hits:[]};
+  const gi=rkGateInfo(ex.id); return gi? {kind:"open",...gi,hits:[]} : null }
+function gateBanner(G,t,db){ const L=rkLetter(G.to);
+  const msg= G.kind==="hit"? `<b>Gate-level set: ${esc(G.name)} → ${L}.</b> Save this workout to clear the Gate.`
+    : G.kind==="target"? `<b>Gate · ${esc(G.name)} → ${L}.</b> Today's target clears it: ${toU(t.w)} ${uL()}${db?"/DB":""} × ${t.reps[0]}.`
+    : G.kind==="near"? `<b>Gate · ${esc(G.name)} → ${L}.</b> You're strong enough. One set of 1–5 reps at this level clears it.`
+    : `<b>Gate open · ${esc(G.name)} → ${L}.</b> Clear it with ${esc(G.txt)}. Any set of 1–5 reps at that level counts.`;
+  return `<div class="gate-banner">${rkBadge(G.to)}<div><span class="gb-sys">[SYSTEM] GATE</span>${msg}</div></div>` }
 function exerciseBlock(ex,k,log){
   const t=finalTarget(ex,k), cur=log&&log.ex&&log.ex[ex.id], db=dbNow(ex.id,log), n=setCount(ex,k), extra=Number(drafts[dkey(k,`xs-${ex.id}`)])||0;
-  let h=`<div class="ex"><div class="exhead"><button type="button" class="exname" data-exhist="${esc(ex.id)}">${esc(ex.name)}</button>${swapBtn(ex,log)}${formBtn(ex)}${ex.added&&!log?`<span class="swapped">added<button type="button" data-addrm="${esc(ex.id)}">remove</button></span>`:""}</div>
-    <div class="row between exmeta"><span class="small muted num">${ex.sets} × ${ex.lo===ex.hi?ex.lo:ex.lo+"–"+ex.hi}${ex.bw?" s":""} · rest ${fmtClock(restFor(ex.id)*1000)}</span>${DBCFG[ex.id]?`<label class="dbt ${db?"on":""}"><input type="checkbox" data-db="${ex.id}" ${db?"checked":""}>Dumbbells</label>`:""}</div>`;
+  const G=gateState(ex,k,t,cur), gc=G? RK_COL[Math.min(5,G.to)] : "";
+  let h=`<div class="ex${G?" gate":""}" ${G?`style="--gc:${gc}" data-gate="${G.kind}"`:""} data-exblock="${esc(ex.id)}"><div class="exhead"><button type="button" class="exname" data-exhist="${esc(ex.id)}">${esc(ex.name)}</button>${swapBtn(ex,log)}${formBtn(ex)}${ex.added&&!log?`<span class="swapped">added<button type="button" data-addrm="${esc(ex.id)}">remove</button></span>`:""}</div>
+    <div class="row between exmeta"><span class="small muted num">${ex.sets} × ${ex.lo===ex.hi?ex.lo:ex.lo+"–"+ex.hi}${isSec(ex)?" s":""} · rest ${fmtClock(restFor(ex.id)*1000)}</span>${DBCFG[ex.id]?`<label class="dbt ${db?"on":""}"><input type="checkbox" data-db="${ex.id}" ${db?"checked":""}>Dumbbells</label>`:""}</div>`;
   if(db) h+=`<div class="dbnote" id="dbn-${ex.id}"></div>`;
   h+=prevLine(ex,k);
+  if(G) h+=gateBanner(G,t,db);
   if(!ex.fixed) h+= t.first? `<div class="target first">${esc(t.msg)}</div>`
     : `<div class="cnote ${t.coach?"":"rule"}"><div class="ch"><span class="who">${t.coach?"Coach":"Target"}</span>${t.mode?`<span class="mode ${t.mode}">${MODE_LABEL[t.mode]||""}</span>`:""}<span class="tgt num">${t.w?`${toU(t.w)} ${uL()}${db?"/DB":""} × ${t.reps.join(", ")}`:t.reps.map(r=>r+"s").join(", ")}</span></div><span>${esc(t.msg)}</span></div>`;
   if(ex.alt) h+=`<details class="tip"><summary>Form tip</summary><div class="small muted">${esc(ex.alt)}</div></details>`;
@@ -1232,8 +1254,9 @@ function exerciseBlock(ex,k,log){
     const lab=ty==="w"?"W":ty==="d"?"D":ty==="g"?"G":String(i+1);
     const num=`<button type="button" class="setno ${ty}" data-settype="${ex.id}|${i}" aria-label="Set ${i+1} type: ${ty==="w"?"warm-up":ty==="d"?"drop set":ty==="g"?"Gate set":"normal"}. Tap to change">${lab}</button>`;
     const chk=`<button type="button" class="chk ${done?"on":""}" data-chk="${ex.id}|${i}" aria-pressed="${done}" aria-label="Mark ${esc(ex.name)} set ${i+1} done">✓</button>`;
+    const hit=G&&G.hits.includes(i)?" gate-hit":"";
     h+=ex.bw? `<div class="set ${done?"done":""}" id="set-${ex.id}-${i}">${num}<input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} seconds" value="${esc(sr)}" placeholder="${t.reps[i]??ex.lo}"><span>sec</span>${chk}</div>`
-      : `<div class="set ${done?"done":""}" id="set-${ex.id}-${i}">${num}<input id="w-${ex.id}-${i}" inputmode="decimal" aria-label="${esc(ex.name)} set ${i+1} weight" value="${esc(sw)}" placeholder="${ex.optW?"+"+uL():db?uL()+"/DB":uL()}"><span>×</span><input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} reps" value="${esc(sr)}" placeholder="${t.reps[i]??ex.lo}">${chk}</div>`;
+      : `<div class="set ${done?"done":""}${hit}" id="set-${ex.id}-${i}">${num}<input id="w-${ex.id}-${i}" inputmode="decimal" aria-label="${esc(ex.name)} set ${i+1} weight" value="${esc(sw)}" placeholder="${ex.optW?"+"+uL():db?uL()+"/DB":uL()}"><span>×</span><input id="r-${ex.id}-${i}" inputmode="numeric" aria-label="${esc(ex.name)} set ${i+1} ${isSec(ex)?"seconds":"reps"}" value="${esc(sr)}" placeholder="${t.reps[i]??ex.lo}">${isSec(ex)?"<span>sec</span>":""}${chk}</div>`;
   }
   h+=`</div>`;
   const pl=plateable(ex,db);
@@ -1332,7 +1355,7 @@ function viewPlan(){
   if(!CUSTOM) h+=`<p class="note"><b>Core block, ${fmtShort(parseYmd(CORE_SWAP.from))}–${fmtShort(parseYmd(CORE_SWAP.to))}:</b> deadlifts are paused for core work. They return Nov 9.</p>`;
   const ph=curPhase();
   h+=`<p class="small muted">Paired exercises are done back-to-back, then rest.</p>`;
-  Object.values(ph).forEach(d=>{h+=`<div><h3>${esc(d.name)}</h3><div class="small num">${d.ex.map(e=>`${esc(e.name)} <span class="muted">${e.sets}×${e.lo}–${e.hi}${e.bw?"s":""}${e.inc?` · +${e.inc} lb`:""}</span>`).join("<br>")}</div></div>`});
+  Object.values(ph).forEach(d=>{h+=`<div><h3>${esc(d.name)}</h3><div class="small num">${d.ex.map(e=>`${esc(e.name)} <span class="muted">${e.sets}×${e.lo}–${e.hi}${isSec(e)?"s":""}${e.inc?` · +${e.inc} lb`:""}</span>`).join("<br>")}</div></div>`});
   h+=`</div>`;
   }
   const wFirst=planPast?1:Math.max(1,cw-1), wLast=Math.min(WEEKS,Math.max(1,cw)+3+planMore);
@@ -1721,7 +1744,7 @@ function renderLive(){
       main=`<div class="lv-main go"><div class="lv-label">All ${steps.length} sets done</div><div class="lv-ex">Workout complete</div><button class="btn lv-cta" id="lvFinish" style="background:#fff;color:var(--food);border-color:#fff">Review &amp; save</button></div>`;
       next=`<div class="lv-next"><span class="lv-label">Next</span><span>Check your numbers and tap Save. Your workout time is recorded.</span></div>`;
     } else {
-      const db=dbNow(cur.ex.id,S.logs[k]), v=setValsK(k,cur), unit=cur.ex.bw?"sec":"reps";
+      const db=dbNow(cur.ex.id,S.logs[k]), v=setValsK(k,cur), unit=isSec(cur.ex)?"sec":"reps";
       const tgt=`${cur.ex.bw?"":(v.w!==""?`${v.w} ${uL()}${db?" per DB":""} × `:"")}${v.r||cur.ex.lo} ${unit}`;
       if(resting||justDone){
         main=`<div class="lv-main ${resting?"rest":"go"}"><div class="lv-label">${resting?"Rest":"Rest over"}</div><div class="lv-clock" id="lvRest">${resting?fmtClock(TM.restEnd-now):"Go"}</div><div class="lv-ring"><i id="lvRestFill"></i></div>
@@ -1767,8 +1790,8 @@ function bindLive(k,p){
   if($$("lvDone")) $$("lvDone").onclick=()=>{
     const steps=gymSteps(k,p), idx=steps.findIndex(x=>!x.done), cur=steps[idx]; if(!cur) return;
     const w=$$("lvW")?$$("lvW").value.trim():"", r=$$("lvR").value.trim();
-    if(!(Number(r)>0) || (!cur.ex.bw && !(Number(w)>0) && !cur.ex.optW)){ toast(cur.ex.bw?"Enter the seconds you held":"Enter the weight and reps you did"); return }
-    if(!cur.ex.bw) drafts[dkey(k,`w-${cur.ex.id}-${cur.i}`)]=w;
+    if(!(Number(r)>0) || (!cur.ex.bw && !(Number(w)>0) && !cur.ex.optW)){ toast(cur.ex.bw?"Enter the seconds you held":isSec(cur.ex)?"Enter the weight and seconds you held":"Enter the weight and reps you did"); return }
+    if(!cur.ex.bw){ drafts[dkey(k,`w-${cur.ex.id}-${cur.i}`)]=w; gateCheck(cur.ex,k,fromU(Number(w)||0),Number(r)||0,cur.i) }
     drafts[dkey(k,`r-${cur.ex.id}-${cur.i}`)]=r; drafts[dkey(k,`c-${cur.ex.id}-${cur.i}`)]=true; drafts[dkey(k,"open-trainLog")]=true; persistDrafts();
     if(idx<steps.length-1&&!(cur.inSS&&!cur.ssLast)) startRest(restFor(cur.ex.id));
     renderLive(); if(tab==="home"&&ymd(sel)===k){ lastRenderKey=""; render() }
@@ -1783,6 +1806,14 @@ document.getElementById("timerBar").addEventListener("click",e=>{ if(e.target.cl
 setInterval(tick,500);
 document.querySelectorAll("#timerBar [data-rest]").forEach(b=>b.onclick=()=>startRest(Number(b.dataset.rest)));
 document.getElementById("tmSkip").onclick=()=>{TM.restEnd=0; saveTM(); tick()};
+
+// tell them the moment a set reaches a Gate (once per set)
+const gateSeen=new Set();
+function gateCheck(ex,k,w,r,i){ if(typeof rkSetGate!=="function"||!(r>0)) return; const g=rkSetGate(ex.id,w,r,k); if(!g) return;
+  const key=`${k}|${ex.id}|${i}|${g.p}|${g.to}|${g.heavy}`; if(gateSeen.has(key)) return; gateSeen.add(key);
+  if(g.heavy){ sysNotice(`Gate-level set: ${g.name} → ${rkLetter(g.to)}`,`${ex.name}. Save the workout to clear the Gate.`,g.to);
+    if(tab==="home"&&!liveOpen) setTimeout(()=>{ const y=window.scrollY; lastRenderKey=""; render(); window.scrollTo(0,y) },30) }
+  else sysNotice(`Gate-level strength: ${g.name}`,`That's ${rkLetter(g.to)}-level. Do one set of 1–5 reps at this level to clear the Gate.`,g.to) }
 
 /* ---------- Number boxes: tap selects everything so typing replaces it ---------- */
 const isNumBox=el=>el&&el.tagName==="INPUT"&&/numeric|decimal/.test(el.getAttribute("inputmode")||"");
@@ -1803,7 +1834,7 @@ const overBusy={}, overTried={};
 function prevLine(ex,k){
   const h=exHistory(ex.id,k); if(!h.length) return `<div class="prev"><span class="pl">Last time</span><span class="muted">Not done yet</span></div>`;
   const last=h[0], l=S.logs[last.k], db=logDb(ex.id,l);
-  const pills=last.sets.map(s=>`<span class="pill">${ex.bw?`${s.r}s`:`${toU(s.w)}${db?"/DB":""} × ${s.r}`}</span>`).join("");
+  const pills=last.sets.map(s=>`<span class="pill">${ex.bw?`${s.r}s`:`${toU(s.w)}${db?"/DB":""} × ${s.r}${isSec(ex)?"s":""}`}</span>`).join("");
   return `<div class="prev"><span class="pl">Last · ${DOW[dowOf(parseYmd(last.k))]} ${fmtShort(parseYmd(last.k))}</span>${pills}${last.sets.length<ex.sets?`<span class="small muted">${last.sets.length} of ${ex.sets} sets</span>`:""}</div>`;
 }
 function lastSessionNote(p,k){
@@ -1836,8 +1867,8 @@ async function maybeOverload(){
   if(overBusy[k] || (overTried[k+stamp] && Date.now()-overTried[k+stamp]<120000)) return;
   overBusy[k]=true; overTried[k+stamp]=Date.now(); renderIfIdle();
   const lines=p.ex.filter(e=>!e.fixed).map(e=>{const h=exHistory(e.id,k).slice(0,2); if(!h.length) return null; const r=targetFor(e,k), db=dbNow(e.id,S.logs[k]);
-    const sess=h.map(x=>{const l=S.logs[x.k]; return `${x.k}: ${x.sets.map(s=>e.bw?`${s.r}s`:`${s.w}×${s.r}`).join(", ")}${logDb(e.id,l)?" (lb per dumbbell)":""}${l.notes?` | his session note: "${l.notes}"`:""}`}).join("\n    ");
-    return `- id "${e.id}": ${e.name}. Prescribed ${e.sets} sets of ${e.lo}-${e.hi} ${e.bw?"seconds":"reps"}${e.bw?"":`, weight step ${e.inc} lb${db?" (he logs weight PER DUMBBELL)":""}`}.
+    const sess=h.map(x=>{const l=S.logs[x.k]; return `${x.k}: ${x.sets.map(s=>e.bw?`${s.r}s`:`${s.w}×${s.r}${isSec(e)?"s":""}`).join(", ")}${logDb(e.id,l)?" (lb per dumbbell)":""}${l.notes?` | his session note: "${l.notes}"`:""}`}).join("\n    ");
+    return `- id "${e.id}": ${e.name}. Prescribed ${e.sets} sets of ${e.lo}-${e.hi} ${isSec(e)?"seconds":"reps"}${e.bw?"":`, weight step ${e.inc} lb${db?" (he logs weight PER DUMBBELL)":""}`}.
     History (newest first):
     ${sess}
     Default progression rule says: ${r.w?`${r.w} lb × ${r.reps.join(",")}`:r.reps.join(",")+"s"} (${r.msg})`}).filter(Boolean).join("\n");
@@ -2621,6 +2652,7 @@ function bind(){
     const [id,i]=b.dataset.chk.split("|"), dk=draftKey(`c-${id}-${i}`), on=!b.classList.contains("on");
     drafts[dk]=on; persistDrafts(); b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); $(`#set-${id}-${i}`)?.classList.toggle("done",on);
     if(on){
+      const exo=p.ex&&p.ex.find(e=>e.id===id); if(exo&&!exo.bw){ const w=fromU(Number($(`#w-${id}-${i}`)?.value)||0), r=Number($(`#r-${id}-${i}`)?.value)||0; if(setTypeK(k,id,i)!=="w") gateCheck(exo,k,w,r,i) }
       if(!TM.start && k===ymd(today) && !S.logs[k]){startWorkout(); toast("Workout timer started"); const tb=document.querySelector(".timerbox"); if(tb){tb.outerHTML=timerBox(k); bindTimerEnd()}}
       const steps=gymSteps(k,p), si=steps.findIndex(x=>x.ex.id===id&&x.i===Number(i)), st=steps[si];
       if(si>=0&&si<steps.length-1&&!(st.inSS&&!st.ssLast)) startRest(restFor(id));
@@ -2808,7 +2840,7 @@ function maybeOngoing(){
   saveProfile(); return true;
 }
 function onProfile(){
-  syncPrefs(); initStdAliases(); maybeMigrateLegacy(); maybeOngoing(); maybeMealsV3(); maybeStravaInit();
+  syncPrefs(); initStdAliases(); maybeMigrateLegacy(); maybePallofHold(); maybeOngoing(); maybeMealsV3(); maybeStravaInit();
   let su=S.profile&&S.profile.setup;
   if(su&&!(su.routines&&su.week)){ su=S.profile.setup=normalizeSetup(su); saveProfile() }
   const st=su?JSON.stringify(su)+JSON.stringify((S.profile.setup||{}).customEx||[]):"";
