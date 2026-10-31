@@ -80,10 +80,10 @@ const LIB_MUSCLE_MAP={Chest:{chest:1},Back:{back:1},Shoulders:{shoulders:1},Bice
 function toPlanEx(r){ // routine entry -> exercise object the logger understands
   const L=libEx(r.id)||{id:r.id,name:r.name||r.id,muscle:"",equip:"Other",type:"w"};
   // "t" = timed bodyweight hold (seconds only); "tw" = timed hold with a weight (weight × seconds)
-  const timed=L.type==="t", heldW=L.type==="tw", inc= timed?0 : L.id==="legpress45"||L.id==="legpress"||L.id==="hack"? 20 : L.type==="bw"? 5 : L.equip==="Machine"? 10 : 5;
+  const timed=L.type==="t", heldW=L.type==="tw", reps0=L.type==="br", inc= timed||reps0?0 : L.id==="legpress45"||L.id==="legpress"||L.id==="hack"? 20 : L.type==="bw"? 5 : L.equip==="Machine"? 10 : 5;
   const note= L.type==="bw"? "Bodyweight: leave weight blank, or enter added weight." : L.equip==="Dumbbell"? (L.uni?"Weight = the one dumbbell.":"Weight = each dumbbell.") : "";
   return {id:L.id,name:L.name,sets:r.sets||3,lo:r.lo||(timed?30:heldW?20:8),hi:r.hi||(timed?60:heldW?30:12),inc,rest:r.rest||90,
-    ...(timed?{bw:true,unit:"sec"}:heldW?{unit:"sec"}:{}),...(L.type==="bw"?{optW:true}:{}),...(r.ss?{ss:r.ss}:{}),...(r.note||note?{alt:[note,r.note].filter(Boolean).join(" ")}:{}),muscle:L.muscle,equip:L.equip,uni:L.uni};
+    ...(timed?{bw:true,unit:"sec"}:heldW?{unit:"sec"}:reps0?{bw:true}:{}),...(L.type==="bw"?{optW:true}:{}),...(r.ss?{ss:r.ss}:{}),...(r.note||note?{alt:[note,r.note].filter(Boolean).join(" ")}:{}),muscle:L.muscle,equip:L.equip,uni:L.uni};
 }
 
 /* ----- Starter splits ----- */
@@ -1012,7 +1012,7 @@ function maybeMigrateLegacy(){
   S.profile.setup=legacyToSetup(); saveProfile(); return true;
 }
 const SWAP_ICON=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h9.5M10 2.5 12.5 5 10 7.5"/><path d="M13 11H3.5M6 8.5 3.5 11 6 13.5"/></svg>`;
-function swapBtn(ex,log){ if(ex.fixed) return "";
+function swapBtn(ex,log){ if(ex.fixed||ex.travel) return "";
   if(log) return `<button type="button" class="swapb" data-swap="${esc(ex.id)}" aria-label="Logged the wrong exercise? Change ${esc(ex.name)}" title="Logged the wrong exercise? Change it">${SWAP_ICON}</button>`;
   const undo= ex.once? `<span class="swapped">today only<button type="button" data-swapundo="${esc(ex.id)}">undo</button></span>` : "";
   return `<button type="button" class="swapb" data-swap="${esc(ex.id)}" aria-label="Swap ${esc(ex.name)}">${SWAP_ICON}</button>${undo}` }

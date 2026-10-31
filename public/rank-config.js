@@ -97,6 +97,8 @@ window.RANK_CFG = {
     goodmorning: [{ p: "hams", r: 0.55, cap: 3 }], hipthrust: [{ p: "hams", r: 1.4, cap: 3 }], machthrust: [{ p: "hams", r: 1.4, cap: 3 }],
     legcurl: [{ p: "hams", r: 0.45, cap: 3 }], lyingcurl: [{ p: "hams", r: 0.45, cap: 3 }],
 
+    dbfloor: [{ p: "chest", r: 0.7, cap: 3 }], heelgoblet: [{ p: "quads", r: 0.35, cap: 3 }], dbslrdl: [{ p: "hams", r: 0.3, cap: 3 }], dbthrust: [{ p: "hams", r: 0.7, cap: 3 }],
+    dbslcalf: [{ p: "calves", r: 0.5, cap: 3 }],
     calfraise: [{ p: "calves", r: 1 }], tiltcalf: [{ p: "calves", r: 1 }], seatedcalf: [{ p: "calves", r: 0.8 }], legpresscalf: [{ p: "calves", r: 1.3 }],
 
     hangleg: [{ p: "core", k: "bw", r: 1 }], abwheel: [{ p: "core", k: "bw", r: 1 }], cablecrunch: [{ p: "core", r: 1, ladder: "cablecrunch" }],
