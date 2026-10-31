@@ -150,14 +150,16 @@ function qOffer(ids, src) {
 }
 const qPathObjRaw = id => PATHS[id].ramp ? PATHS[id].obj.replace("{n}", PATHS[id].ramp[0]) : PATHS[id].auto === "protein" ? "Hit your protein goal daily" : PATHS[id].obj;
 // look at anything new you've written: coach chat, About me, workout and run notes
+// only saves when there was something new to read, so it never adds writes to an ordinary render
 function qScan() {
-  const Q = qState(), now = Date.now(); let ids = [];
-  if (!Q.scanAt) { Q.scanAt = now; saveProfile() }
-  (S.chat || []).forEach(m => { if (m.role === "user" && (m.t || 0) > Q.scanAt) ids.push(...qDetect(m.content)) });
-  Object.values(S.logs || {}).forEach(l => { if (l && l.notes && (l.savedAt || 0) > Q.scanAt) ids.push(...qDetect(l.notes)) });
-  const ab = String(S.profile.about || ""), h = String(qHash(ab)); if (ab && Q.aboutSeen !== h) { ids.push(...qDetect(ab)); Q.aboutSeen = h }
-  Q.scanAt = now;
-  if (ids.length) qOffer([...new Set(ids)], "chat"); else saveProfile();
+  const Q = qState(); let ids = [], hi = Q.scanAt || 0, changed = false;
+  if (!Q.scanAt) { Q.scanAt = hi = Date.now(); changed = true }
+  (S.chat || []).forEach(m => { const t = m.t || 0; if (m.role === "user" && t > Q.scanAt) { ids.push(...qDetect(m.content)); hi = Math.max(hi, t) } });
+  Object.values(S.logs || {}).forEach(l => { const t = (l && l.savedAt) || 0; if (l && l.notes && t > Q.scanAt) { ids.push(...qDetect(l.notes)); hi = Math.max(hi, t) } });
+  const ab = String(S.profile.about || ""), h = String(qHash(ab)); if (ab && Q.aboutSeen !== h) { ids.push(...qDetect(ab)); Q.aboutSeen = h; changed = true }
+  if (hi > Q.scanAt) { Q.scanAt = hi; changed = true }
+  if (ids.length) qOffer([...new Set(ids)], "chat");
+  if (changed) saveProfile();
 }
 
 /* ---------- Path actions ---------- */
