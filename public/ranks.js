@@ -589,6 +589,7 @@ function viewRanks() {
   if (R.place && !R.place.pending) h += `<p class="small muted" style="margin:0 4px">Placed ${fmtShort(parseYmd(R.place.at))} from your training ${fmtShort(parseYmd(R.place.from))}–${fmtShort(parseYmd(R.place.to))} (placement caps at B).</p>`;
   const al = rkAlerts(R); if (al) h += `<div class="stack" style="gap:8px">${al}</div>`;
   R.groups.forEach(g => h += g.disc ? rkDiscCard(R) : rkGroupCard(g, R));
+  if (R.place && typeof questLog === "function") h += questLog();
   const un = rkUnrated();
   if (un.length) h += `<div class="card"><h2>Unrated exercises</h2><p class="small muted">Pick a similar exercise so these count. They count up to B and can't be Gates.</p>${un.map(([id, L]) => `<div class="row between" style="align-items:center"><span>${esc(L.name)}</span><select data-rkmap="${esc(id)}"><option value="">Counts like…</option>${Object.keys(C.conv).map(x => `<option value="${x}">${esc(rkExName(x))}</option>`).join("")}</select></div>`).join("")}</div>`;
   h += rkPauseCard(R);

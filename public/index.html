@@ -791,6 +791,7 @@ svg.inl{width:15px;height:15px;vertical-align:-3px}
 <script src="/custom.js"></script>
 <script src="/rank-config.js"></script>
 <script src="/ranks.js"></script>
+<script src="/quests.js"></script>
 <script>
 /* ---------- Program definition ---------- */
 let CUSTOM = null; // set when the user built their own plan in setup
@@ -1185,7 +1186,7 @@ function render(fromStore){
   v.innerHTML = tab==="home"?viewHome(openLogger): tab==="plan"?planSwitch()+(planView==="food"?viewFood():viewPlan()): tab==="progress"?viewProgress(): tab==="ranks"?viewRanks(): advSwitch()+(advView==="outlook"?viewOutlook():viewAdvice());
   applyDrafts();
   bind(); if(tab==="ranks") bindRanks();
-  setTimeout(maybeOverload,0); setTimeout(rankNotify,0);
+  setTimeout(maybeOverload,0); setTimeout(rankNotify,0); if(typeof questNotify==="function") setTimeout(questNotify,0);
 }
 function renderTop(){
   const w=Math.max(1,weekOf(today)), mon=monOf(w);
@@ -1232,6 +1233,7 @@ function viewHome(openLogger){
   let h=weekStrip();
   if(mode==="local" && userReady && !window.__platform) h+=`<p class="note">Entries stay in this browser only.</p>`;
   if(!p){return h+`<div class="card"><h2>Your plan starts ${fmtDate(START)}</h2><p>Check back then for your first session.</p></div>`}
+  if(isToday&&typeof questCard==="function") h+=questCard();
   // glance
   const e=dayEaten(k), tgt=dayTarget(sel), ptg=dayProtein(sel), wf=weekFood(p.w);
   const pctW=Math.min(100,wf.target?wf.eaten/wf.target*100:0);
@@ -1717,7 +1719,7 @@ let sending=false, ctl=null;
 async function sendChat(text){
   text=text.trim(); if(!text||sending) return;
   if(!sampleFn){toast("Your coach is unavailable right now");return}
-  sending=true; S.chat.push({role:"user",content:text,t:Date.now()}); renderChatList(); $("#sugg")?.remove();
+  sending=true; S.chat.push({role:"user",content:text,t:Date.now()}); renderChatList(); $("#sugg")?.remove(); if(typeof qScan==="function") setTimeout(qScan,0);
   const list=$("#chatList"); const bubble=document.createElement("div"); bubble.className="msg assistant"; bubble.textContent="Thinking…"; list.appendChild(bubble); bubble.scrollIntoView({block:"end",behavior:"smooth"});
   $("#chatSend").hidden=true; $("#chatStop").hidden=false;
   const turns=[{role:"user",content:coachContext()},...S.chat.slice(-16).map(m=>({role:m.role,content:m.content}))];
