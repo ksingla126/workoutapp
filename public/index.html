@@ -792,6 +792,7 @@ svg.inl{width:15px;height:15px;vertical-align:-3px}
 <script src="/rank-config.js"></script>
 <script src="/ranks.js"></script>
 <script src="/quests.js"></script>
+<script src="/travel.js"></script>
 <script>
 /* ---------- Program definition ---------- */
 let CUSTOM = null; // set when the user built their own plan in setup
@@ -895,7 +896,7 @@ const ALLEX = (()=>{const m={}; [...Object.values(GYM).flatMap(d=>d.ex), ...Obje
 let KEYLIFTS = ["legpress45","bench","tbdl","ohp"];
 // rest between sets (seconds)
 const REST = {revfly:60,fly:60,backext:75,lateral:60,legext1:60,calfraise:60,tiltcalf:60,hipthrust:120,legpress45:150,declinecrunch:60,cablecrunch:60,pallof:60,squat:150,bench:150,tbdl:150,rdl:120,ohp:120,legpress:120,plank:45,facepull:60,conc:60,ohtri:60,ezcurl:60,pushdown:60,hammer:60};
-const restFor = id => id==="rope"? ropeFor(sel).rest : ((CUSTOM&&CUSTOM.rest[id]) || SWAP_REST[id] || REST[id] || 90);
+const restFor = id => id==="rope"? ropeFor(sel).rest : ((typeof tvRest==="function"&&tvRest(ymd(sel),id)) || (CUSTOM&&CUSTOM.rest[id]) || SWAP_REST[id] || REST[id] || 90);
 // dumbbell option: weight is logged per dumbbell; m = dumbbells counted toward total load
 const DBCFG = {revfly:{def:false,m:2},fly:{def:false,m:2},lateral:{def:true,m:2},calfraise:{def:false,m:2},bench:{def:false,m:2},rdl:{def:false,m:2},ohp:{def:false,m:2},split:{def:true,m:2},incline:{def:true,m:2},dbrow:{def:true,m:2},hammer:{def:true,m:2},conc:{def:true,m:1},ohtri:{def:false,m:1}};
 function logDb(id,l){ if(!DBCFG[id]) return false; return l&&l.db&&(id in l.db)? !!l.db[id] : DBCFG[id].def }
@@ -969,7 +970,7 @@ const fmtDate=d=>d.toLocaleDateString("en-US",{weekday:"short",month:"short",day
 const fmtShort=d=>d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
 const fmtN=n=>Math.round(n).toLocaleString("en-US");
 // Schedule changes live in profile.moves: {"YYYY-MM-DD": "rest" | "<date whose session happens on this day>"}
-function planFor(d){ const p=planFor0(d); return p&&p.ex? {...p,ex:p.ex.map(e=>withFmt(e,ymd(d)))} : p }
+function planFor(d){ let p=planFor0(d); if(p&&p.type==="gym"&&typeof travelPlan==="function") p=travelPlan(p,ymd(d)); return p&&p.ex? {...p,ex:p.ex.map(e=>withFmt(e,ymd(d)))} : p }
 function planFor0(d){
   if(!inProgram(d)) return null;
   if(CUSTOM){ const lp=loggedPlan(d); if(lp) return lp }
@@ -1085,7 +1086,7 @@ const FMT={
 const FMT_ORDER=["wr","wbr","br","abr","wt","bt","wd","dt"];
 const FMT_RANGE={reps:[8,12],sec:[30,60],wt:[20,40],m:[20,40],dt:[500,500]};
 // the format an exercise definition implies on its own
-function natFmt(ex){ if(!ex) return "wr"; if(ex.fmt0) return ex.fmt0; if(ex.bw&&ex.unit==="sec") return "bt"; if(ex.unit==="sec") return "wt"; if(ex.optW) return "wbr"; return "wr" }
+function natFmt(ex){ if(!ex) return "wr"; if(ex.fmt0) return ex.fmt0; if(ex.bw&&ex.unit==="sec") return "bt"; if(ex.bw) return "br"; if(ex.unit==="sec") return "wt"; if(ex.optW) return "wbr"; return "wr" }
 const _baseFmt={};
 function baseFmtId(id){ if(_baseFmt[id]) return _baseFmt[id]; let f="wr";
   try{ if(id==="plank"||id==="rope") f="bt";
@@ -1129,6 +1130,7 @@ const repSets=(id,l)=> l&&l.ex&&repFmt(logFmt(id,l))? WS(l.ex[id]) : []; // work
 function targetFor(ex, key){
   if(ex.fixed) return {w:null,reps:Array(ex.sets).fill(ex.lo),msg:`${ex.sets} rounds × ${ex.lo>=60?ex.lo/60+" min":ex.lo+" s"}, ${ex.rest} s rest. Format steps up every 2 weeks.`};
   const f=fmtOf(ex), N=ex.sets, fill=v=>Array(N).fill(v), h=exHistory(ex.id,key,f);
+  if(!h.length&&ex.travel) return {w:ex.sugW||null,reps:fill(ex.lo),msg:ex.travel.msg||(hasW(ex)?`Pick a weight you can do ${ex.lo}–${ex.hi} reps with.`:`Aim for ${ex.lo}–${ex.hi} clean reps.`)};
   if(!h.length){ const msg={wr:`First session: pick a weight you can lift ${ex.lo}× with ~2 reps left. Log it.`, wt:`First session: pick a weight you can hold ${ex.lo} s with good form. Log it.`,
       bt:`Start: hold ${ex.lo}s × ${N}`, br:`First session: do ${ex.lo}–${ex.hi} clean reps per set. Log them.`,
       wbr:`Start with bodyweight (leave weight blank). Add weight once you hit ${ex.hi} on every set.`, abr:`First session: pick the assistance that lets you do ${ex.lo} clean reps. Log it.`,
@@ -1255,7 +1257,7 @@ function trainingCard(p,k,log,openLogger){
   if(p.type==="gym"&&!(p.ex&&p.ex.length)) return `<div class="card"><div class="eyebrow">Gym</div><h2>${esc(p.name)}</h2><p>This routine has no exercises yet.</p><button type="button" class="btn sm" data-c-gotoplan="1">Add exercises</button></div>`;
   if(p.type==="gym"){
     let h=`<div class="card gymcard"><div class="row between"><div><div class="eyebrow">Gym · ~${CUSTOM?estMin(p.ex):"55–60"} min</div><h2>${esc(p.name)}</h2></div>${log?`<span class="chip gym">Logged ✓${log.durMin?` · ${Math.round(log.durMin)} min`:""}${log.prs&&log.prs.length?` · ${log.prs.length} PR${log.prs.length>1?"s":""}`:""}</span>`:""}</div>`;
-    h+=timerBox(k)+dayMenu(p,k,log);
+    h+=(typeof travelBar==="function"?travelBar(p,k,log):"")+timerBox(k)+dayMenu(p,k,log);
     h+=lastSessionNote(p,k);
     if(overBusy[k]) h+=`<p class="small"><span class="pulse"></span> Your coach is reviewing last session to set today's targets…</p>`;
     // exercises, grouped into supersets
@@ -1330,7 +1332,7 @@ function gateBanner(G,t,db){ const L=rkLetter(G.to);
 function exerciseBlock(ex,k,log){
   const t=finalTarget(ex,k), cur=log&&log.ex&&log.ex[ex.id], db=dbNow(ex.id,log), n=setCount(ex,k), extra=Number(drafts[dkey(k,`xs-${ex.id}`)])||0;
   const G=gateState(ex,k,t,cur), gc=G? RK_COL[Math.min(5,G.to)] : "";
-  let h=`<div class="ex${G?" gate":""}" ${G?`style="--gc:${gc}" data-gate="${G.kind}"`:""} data-exblock="${esc(ex.id)}"><div class="exhead"><button type="button" class="exname" data-exhist="${esc(ex.id)}">${esc(ex.name)}</button>${swapBtn(ex,log)}${formBtn(ex)}${ex.added&&!log?`<span class="swapped">added<button type="button" data-addrm="${esc(ex.id)}">remove</button></span>`:""}</div>
+  let h=`<div class="ex${G?" gate":""}" ${G?`style="--gc:${gc}" data-gate="${G.kind}"`:""} data-exblock="${esc(ex.id)}"><div class="exhead"><button type="button" class="exname" data-exhist="${esc(ex.id)}">${esc(ex.name)}</button>${swapBtn(ex,log)}${formBtn(ex)}${ex.added&&!log?`<span class="swapped">added<button type="button" data-addrm="${esc(ex.id)}">remove</button></span>`:""}</div>${typeof travelExLine==="function"?travelExLine(ex):""}
     <div class="row between exmeta"><div class="exmeta-l">${fmtChip(ex,k,log)}<span class="small muted num">${ex.sets} × ${ex.lo===ex.hi?ex.lo:ex.lo+"–"+ex.hi}${unitOf(fmtOf(ex))?" "+unitOf(fmtOf(ex)):""} · rest ${fmtClock(restFor(ex.id)*1000)}</span></div>${DBCFG[ex.id]&&hasW(ex)?`<label class="dbt ${db?"on":""}"><input type="checkbox" data-db="${ex.id}" ${db?"checked":""}>Dumbbells</label>`:""}</div>`;
   if(db&&hasW(ex)) h+=`<div class="dbnote" id="dbn-${ex.id}"></div>`;
   h+=prevLine(ex,k);
