@@ -10,6 +10,7 @@
   const ready = new Promise((r) => (resolveReady = r));
 
   function authScreen(msg) {
+    if (window.hideSplash) window.hideSplash();
     let el = document.getElementById("authGate");
     if (!el) {
       el = document.createElement("div");
