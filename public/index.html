@@ -1878,7 +1878,7 @@ function renderLive(){
     const steps=gymSteps(k,p), idx=steps.findIndex(x=>!x.done), cur=idx>=0?steps[idx]:null, doneN=steps.filter(x=>x.done).length;
     liveState=`${idx}|${resting?"r":justDone?"g":"x"}`;
     if(!cur){
-      main=`<div class="lv-main go"><div class="lv-label">All ${steps.length} sets done</div><div class="lv-ex">Workout complete</div><button class="btn lv-cta" id="lvFinish" style="background:#fff;color:var(--food);border-color:#fff">Review &amp; save</button></div>`;
+      main=`<div class="lv-main go"><div class="lv-label">All ${steps.length} sets done</div><div class="lv-ex">Workout complete</div><button class="btn lv-cta" id="lvFinish" data-go="1">Review &amp; save</button></div>`;
       next=`<div class="lv-next"><span class="lv-label">Next</span><span>Check your numbers and tap Save. Your workout time is recorded.</span></div>`;
     } else {
       const db=dbNow(cur.ex.id,S.logs[k]), v=setValsK(k,cur), f=fmtOf(cur.ex), F=FMT[f], unit=F.b==="sec"?"sec":F.b==="m"?"m":"reps";
@@ -1890,7 +1890,7 @@ function renderLive(){
         + (F.b!=="m"||F.time? lvBox("lvR",v.r,F.time?(cur.t.time?fmtDur(cur.t.time):"min"):cur.ex.lo,F.time?"min":unit,F.time?"decimal":"numeric",F.time?"Time":unit) : "");
       if(resting||justDone){
         main=`<div class="lv-main ${resting?"rest":"go"}"><div class="lv-label">${resting?"Rest":"Rest over"}</div><div class="lv-clock" id="lvRest">${resting?fmtClock(TM.restEnd-now):"Go"}</div><div class="lv-ring"><i id="lvRestFill"></i></div>
-          <div class="row lv-btns">${resting?`<button class="btn ghost" id="lvPlus">+30 s</button><button class="btn ghost" id="lvSkip">Skip rest</button>`:`<button class="btn lv-cta" id="lvStart" style="background:#fff;color:var(--food);border-color:#fff">Start set</button>`}</div></div>`;
+          <div class="row lv-btns">${resting?`<button class="btn ghost" id="lvPlus">+30 s</button><button class="btn ghost" id="lvSkip">Skip rest</button>`:`<button class="btn lv-cta" id="lvStart" data-go="1">Start set</button>`}</div></div>`;
         next=`<div class="lv-next"><span class="lv-label">Up next</span><span class="nm">${esc(cur.ex.name)}</span><span class="num">Set ${cur.i+1} of ${cur.n} · ${esc(tgt)}</span></div>`;
       } else {
         main=`<div class="lv-main"><div class="lv-label">${cur.inSS?"Superset · ":""}Set ${cur.i+1} of ${cur.n}</div><div class="lv-ex">${esc(cur.ex.name)}</div>
@@ -1905,13 +1905,14 @@ function renderLive(){
     }
     list=`<div class="lv-list">${p.ex.map(ex=>{const n=steps.filter(x=>x.ex.id===ex.id&&x.done).length, tot=steps.filter(x=>x.ex.id===ex.id).length; return `<div class="${n===tot?"done":""} ${cur&&cur.ex.id===ex.id?"cur":""}"><span>${esc(ex.name)}</span><span class="num">${n}/${tot}</span></div>`}).join("")}</div>`;
     top=top.replace('<div class="small muted" id="lvProg"></div>',`<div class="small muted" id="lvProg">${doneN}/${steps.length} sets</div>`);
+    top+=`<div class="lv-xp" role="progressbar" aria-label="Workout progress" aria-valuemin="0" aria-valuemax="${steps.length}" aria-valuenow="${doneN}"><i style="width:${steps.length?Math.round(doneN/steps.length*100):0}%"></i></div>`;
   } else {
     liveState="run";
     main=`<div class="lv-main"><div class="lv-label">Time</div><div class="lv-clock" id="lvRunClock">${fmtClock(now-TM.start)}</div><p class="small lv-note">${esc(p.d)}</p>${/bpm/.test(p.d)?`<p class="small lv-note">Jog until your watch shows ${HR_HI}, walk until it drops to ${HR_LO}.</p>`:""}<button class="btn lv-cta" id="lvRunDone">Finish run</button></div>`;
     next=`<div class="lv-next"><span class="lv-label">After</span><span>Your time fills in automatically. Import from Strava on the run card for the full breakdown.</span></div>`;
   }
   box.innerHTML=top+main+next+list;
-  bindLive(k,p); liveTick();
+  bindLive(k,p); liveTick(); if(typeof gameLive==="function") gameLive(box,{k,type:p.type,state:liveState});
 }
 function liveTick(){
   const now=Date.now(); const e=document.getElementById("lvEl"); if(e) e.textContent=fmtClock(now-TM.start);
