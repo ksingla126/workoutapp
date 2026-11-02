@@ -828,6 +828,7 @@ svg.inl{width:15px;height:15px;vertical-align:-3px}
 <script src="/ranks.js"></script>
 <script src="/quests.js"></script>
 <script src="/travel.js"></script>
+<script src="/hub.js"></script>
 <script>
 /* ---------- Program definition ---------- */
 let CUSTOM = null; // set when the user built their own plan in setup
@@ -1042,6 +1043,7 @@ let tab="home";
 let progView="lifts"; try{const v=localStorage.getItem("rd25-pview"); if(v==="runs"||v==="lifts"||v==="body") progView=v}catch(e){}
 let planView="training"; try{const v=localStorage.getItem("rd25-planview"); if(v==="training"||v==="food") planView=v}catch(e){}
 try{const t=localStorage.getItem("rd25-tab"); if(t==="runs"){tab="progress"; progView="runs"} else if(t==="food"){tab="plan"; planView="food"} else if(t==="standings") tab="ranks"; else if(t&&["home","plan","progress","ranks","advice"].includes(t)) tab=t}catch(e){}
+tab="hub"; // the app always opens on the game Home
 
 function loadLocal(){ setTimeout(onProfile,0); if(window.__platform) return; try{S.photos=JSON.parse(localStorage.getItem("rd25-photos")||"{}")||{}}catch(e){} try{const j=JSON.parse(localStorage.getItem("rd25-data")||"null"); if(j){S.logs=j.logs||{};S.meals=j.meals||{};Object.assign(S.profile,j.profile||{});S.chat=j.chat||[];S.over=j.over||{};Object.assign(S.advice,j.advice||{})}}catch(e){}}
 function saveLocal(){try{const {photos,...rest}=S; localStorage.setItem("rd25-data",JSON.stringify(rest))}catch(e){} try{localStorage.setItem("rd25-photos",JSON.stringify(S.photos))}catch(e){}}
@@ -1221,12 +1223,13 @@ function render(fromStore){
   lastRenderKey=key;
   renderTop(); renderTabs();
   const v=$("#view");
-  v.innerHTML = tab==="home"?viewHome(openLogger): tab==="plan"?planSwitch()+(planView==="food"?viewFood():viewPlan()): tab==="progress"?viewProgress(): tab==="ranks"?viewRanks(): advSwitch()+(advView==="outlook"?viewOutlook():viewAdvice());
+  v.innerHTML = tab==="hub"&&typeof viewHub==="function"?viewHub(): tab==="home"?trainSwitch()+viewHome(openLogger): tab==="food"||(tab==="plan"&&planView==="food")?viewFoodTab(): tab==="plan"?trainSwitch()+viewPlan(): tab==="progress"?trainSwitch()+viewProgress(): tab==="ranks"?viewRanks(): advSwitch()+(advView==="outlook"?viewOutlook():viewAdvice());
   applyDrafts();
-  bind(); if(tab==="ranks") bindRanks();
+  bind(); if(tab==="ranks") bindRanks(); if(tab==="hub"&&typeof hubMaybeTour==="function") hubMaybeTour();
   setTimeout(maybeOverload,0); setTimeout(rankNotify,0); if(typeof questNotify==="function") setTimeout(questNotify,0);
 }
 function renderTop(){
+  if(tab==="hub"){ if(document.title!==APP_NAME) document.title=APP_NAME; $("#top").innerHTML=""; $("#top").classList.add("hub-top"); return } $("#top").classList.remove("hub-top");
   const w=Math.max(1,weekOf(today)), mon=monOf(w);
   let wkPlan=0, wkDone=0; for(let i=0;i<7;i++){ const d=addDays(mon,i), p=planFor(d); if(p&&p.type!=="rest"){ wkPlan++; if(S.logs[ymd(d)]) wkDone++ } }
   const plannedSoFar=countPlanned(today), done=Object.keys(S.logs).filter(k=>parseYmd(k)<=today&&parseYmd(k)>=countStart()).length;
@@ -1241,15 +1244,18 @@ function countStart(){ if(!CUSTOM||!CUSTOM.su.firstDay) return START; let k=CUST
 function countPlanned(upTo){let n=0;for(let d=new Date(countStart());d<=upTo;d=addDays(d,1)){const p=planFor(d); if(p&&p.type!=="rest") n++}return n}
 function unseenAdvice(){return S.advice.at>(S.advice.seenAt||0)?(S.advice.items||[]).length:0}
 const TAB_ICON=(()=>{ const sv=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
-  return { home:sv('<path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/>'),
+  return { hub:sv('<path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/>'),
+    home:sv('<path d="M3 10v4M6 7v10M18 7v10M21 10v4M6 12h12"/>'),
+    food:sv('<path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v5M9 3v5M16 21V3c2.5 1 3 4 3 7h-3"/>'),
     plan:sv('<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'),
     progress:sv('<path d="M4 19h16"/><path d="M6 15l4-4 3 3 5-6"/><path d="M15 8h3v3"/>'),
     ranks:sv('<path d="M12 3l7.5 4.3v9.4L12 21l-7.5-4.3V7.3z"/><path d="M9.2 14.5 12 8l2.8 6.5M10.2 12.3h3.6"/>'),
     advice:sv('<path d="M5 18.5V7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H8.5z"/><path d="M9 9.5h6M9 12.5h4"/>') } })();
 function renderTabs(){
-  const T=[["home","Home"],["plan","Plan"],["progress","Progress"],["ranks","Ranks"],["advice","Coach"]];
+  const T=[["hub","Home"],["home","Train"],["food","Food"],["ranks","Ranks"],["advice","System"]];
   const n=unseenAdvice(); let rk=0;
-  $("#tabs").innerHTML=T.map(([id,l])=>`<button data-tab="${id}" class="${tab===id?"on":""}" aria-current="${tab===id}">${TAB_ICON[id]}${l}${id==="advice"&&n&&tab!=="advice"?`<span class="badge">${n}</span>`:""}${id==="ranks"&&tab!=="ranks"&&(rk=rkAlertCount())?`<span class="badge">${rk}</span>`:""}</button>`).join("");
+  const cur= tab==="food"||(tab==="plan"&&planView==="food")? "food" : tab==="plan"||tab==="progress"? "home" : tab;
+  $("#tabs").innerHTML=T.map(([id,l])=>`<button data-tab="${id}" class="${cur===id?"on":""}" aria-current="${cur===id}">${TAB_ICON[id]}${l}${id==="advice"&&n&&tab!=="advice"?`<span class="badge">${n}</span>`:""}${id==="ranks"&&tab!=="ranks"&&(rk=rkAlertCount())?`<span class="badge">${rk}</span>`:""}</button>`).join("");
   document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{if(b.dataset.tab==="progress"&&tab==="progress") runSel=null; tab=b.dataset.tab; try{localStorage.setItem("rd25-tab",tab)}catch(e){} if(tab==="advice"&&S.advice.at>(S.advice.seenAt||0)){S.advice.seenAt=S.advice.at;saveAdvice()} render(); window.scrollTo(0,0)});
 }
 
@@ -1271,22 +1277,22 @@ function viewHome(openLogger){
   let h=weekStrip();
   if(mode==="local" && userReady && !window.__platform) h+=`<p class="note">Entries stay in this browser only.</p>`;
   if(!p){return h+`<div class="card"><h2>Your plan starts ${fmtDate(START)}</h2><p>Check back then for your first session.</p></div>`}
-  if(isToday&&typeof questCard==="function") h+=questCard();
-  // glance
-  const e=dayEaten(k), tgt=dayTarget(sel), ptg=dayProtein(sel), wf=weekFood(p.w);
+  h+=`<div><div class="eyebrow" style="margin-bottom:6px">${isToday?"Today":"Day view"} · ${fmtDate(sel)} · Week ${p.w}${p.moved?(p.src?` · moved from ${DOW[dowOf(parseYmd(p.src))]}`:" · rest day (schedule shifted)"):""}${runWeek(p.w).tag?" · "+esc(runWeek(p.w).tag):""}</div></div>`;
+  if(isToday) h+=missedCard();
+  h+=trainingCard(p,k,log,openLogger);
+  h+=weekSnapshot(p.w);
+  return h;
+}
+// Food tab: today's numbers and diary first, then the meal plan and shopping
+function viewFoodTab(){
+  const d=sel, k=ymd(d), p=planFor(d), e=dayEaten(k), tgt=dayTarget(d), ptg=dayProtein(d), wf=p?weekFood(p.w):{eaten:0,target:0};
   const pctW=Math.min(100,wf.target?wf.eaten/wf.target*100:0);
-  h+=`<div><div class="eyebrow" style="margin-bottom:6px">${isToday?"Today":"Day view"} · ${fmtDate(sel)} · Week ${p.w}${p.moved?(p.src?` · moved from ${DOW[dowOf(parseYmd(p.src))]}`:" · rest day (schedule shifted)"):""}${runWeek(p.w).tag?" · "+esc(runWeek(p.w).tag):""}</div>
-   <div class="glance">
+  let h=`<div><div class="eyebrow" style="margin-bottom:6px">${k===ymd(today)?"Today":fmtDate(d)}</div><div class="glance">
     <div class="g"><div class="l">Calories today</div><div class="v num">${fmtN(e.kcal)}<small> / ${fmtN(tgt)}</small></div><div class="bar food ${e.kcal>tgt?"over":""}"><i style="width:${Math.min(100,e.kcal/tgt*100)}%"></i></div></div>
     <div class="g"><div class="l">Protein today</div><div class="v num">${Math.round(e.p)}<small> / ${ptg} g</small></div><div class="bar food"><i style="width:${Math.min(100,e.p/ptg*100)}%"></i></div></div>
     <div class="g"><div class="l">Calories this week</div><div class="v num">${fmtN(wf.eaten)}<small> / ${fmtN(wf.target)}</small></div><div class="bar food ${wf.eaten>wf.target?"over":""}"><i style="width:${pctW}%"></i></div></div>
    </div></div>`;
-  if(isToday) h+=missedCard();
-  h+=trainingCard(p,k,log,openLogger);
-  h+=mealsCard(sel);
-  h+=advicePreview();
-  h+=weekSnapshot(p.w);
-  return h;
+  return h+mealsCard(d)+viewFood();
 }
 function trainingCard(p,k,log,openLogger){
   if(p.type==="rest") return `<div class="card"><div class="row between"><h2>Rest day</h2><span class="chip">Recovery</span></div>${restDayHtml(sel,k)}${dayMenu(p,k,log)}${stravaChooser(k,log)}${extraRunsBlock(k,log)}${weekResetBtn(k)}${mondayWeighIn()}</div>`;
