@@ -181,6 +181,7 @@ addEventListener("resize", () => { if (HT.i >= 0) hubTourStep(HT.i) });
 .hub-go.ghost{background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
 .hub-go.glow{box-shadow:0 0 0 4px color-mix(in srgb,var(--gym) 45%,transparent),0 0 28px color-mix(in srgb,var(--gym) 55%,transparent)}
 .hub-alt{align-self:center}
+.hub-go>svg{margin-left:-26px;flex-shrink:0} /* the icon hangs left of the words, so the words themselves sit dead center */
 .hub-go.live{background:linear-gradient(180deg,#2FCB7F,#16955A)!important;filter:drop-shadow(0 6px 16px color-mix(in srgb,#2FCB7F 45%,transparent))!important}
 .hub-go svg path[fill="none"]{fill:none}
 .hub-inprog{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin-top:-4px;font-size:13px;font-weight:600;color:var(--good)}
