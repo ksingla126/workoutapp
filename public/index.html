@@ -829,6 +829,7 @@ svg.inl{width:15px;height:15px;vertical-align:-3px}
 <script src="/quests.js"></script>
 <script src="/travel.js"></script>
 <script src="/hub.js"></script>
+<script src="/game.js"></script>
 <script>
 /* ---------- Program definition ---------- */
 let CUSTOM = null; // set when the user built their own plan in setup
@@ -1225,7 +1226,7 @@ function render(fromStore){
   const v=$("#view");
   v.innerHTML = tab==="hub"&&typeof viewHub==="function"?viewHub(): tab==="home"?trainSwitch()+viewHome(openLogger): tab==="food"||(tab==="plan"&&planView==="food")?viewFoodTab(): tab==="plan"?trainSwitch()+viewPlan(): tab==="progress"?trainSwitch()+viewProgress(): tab==="ranks"?viewRanks(): advSwitch()+(advView==="outlook"?viewOutlook():viewAdvice());
   applyDrafts();
-  bind(); if(tab==="ranks") bindRanks(); if(tab==="hub"&&typeof hubMaybeTour==="function") hubMaybeTour();
+  bind(); if(tab==="ranks") bindRanks(); if(tab==="hub"&&typeof hubMaybeTour==="function") hubMaybeTour(); if(typeof gameAfterRender==="function") gameAfterRender();
   setTimeout(maybeOverload,0); setTimeout(rankNotify,0); if(typeof questNotify==="function") setTimeout(questNotify,0);
 }
 function renderTop(){
