@@ -59,6 +59,16 @@ function gameAfterRender() {
   clearTimeout(gameAfterRender.t); gameAfterRender.t = setTimeout(() => v.classList.remove("g-enter"), 1400);
 }
 
+/* ---------- live workout ---------- */
+const gLiveSeen = {};
+function gameLive(box, info) {
+  if (!box || info.type !== "gym") return;
+  if (String(info.state || "").startsWith("-1|") && !gLiveSeen[info.k]) { gLiveSeen[info.k] = 1; gFanfare(); gBuzz([40, 30, 80]); setTimeout(() => { const m = box.querySelector(".lv-main"); if (m) gBurst(m, { n: 26, spread: 110, text: "WORKOUT CLEAR" }) }, 120) }
+}
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("#lvDone"); if (!b) return; const r = b.getBoundingClientRect(), ghost = document.createElement("div");
+  ghost.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;pointer-events:none`; document.body.appendChild(ghost);
+  setTimeout(() => { if (document.querySelector(".lv-main")) { gBurst(ghost, { n: 14, spread: 50, text: "SET CLEAR" }); gBlip(); gBuzz(20) } ghost.remove() }, 20) }, true);
+
 /* ---------- the skin ---------- */
 (() => { const st = document.createElement("style"); st.id = "gameSkin"; st.textContent = `
 :root{--g-glow:color-mix(in srgb,var(--gym) 55%,transparent);--g-edge:color-mix(in srgb,var(--gym) 38%,var(--line));--g-btn1:#6763F5;--g-btn2:#3E3BD3}
@@ -125,6 +135,54 @@ html nav.tabs button.on::after{content:"";position:absolute;bottom:3px;left:50%;
 /* System notices look like the anime's blue windows */
 html .sys-note.g-note{border:1px solid var(--g-edge);box-shadow:0 0 0 1px color-mix(in srgb,var(--gym) 25%,transparent),0 10px 40px -10px var(--g-glow)}
 html .sys-note.g-big{animation:g-shake .45s ease 1}
+/* live workout: the same HUD */
+html .live{background-color:var(--bg);background-image:radial-gradient(120% 50% at 50% -10%,color-mix(in srgb,var(--gym) 20%,transparent),transparent 60%),
+  linear-gradient(color-mix(in srgb,var(--ink) 3.5%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--ink) 3.5%,transparent) 1px,transparent 1px);background-size:100% 100%,28px 28px,28px 28px}
+html .lv-back{width:42px;height:42px;padding:0;display:grid;place-items:center;font-size:26px;border:1px solid var(--g-edge);background:color-mix(in srgb,var(--gym) 10%,var(--surface));clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+html .lv-title .eyebrow{display:inline-flex;align-items:center;gap:6px;font:700 11px var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--gym)}
+html .lv-title .eyebrow::before,html .lv-label::before,html .lv-next .lv-label::before{content:"";width:6px;height:6px;background:currentColor;transform:rotate(45deg);box-shadow:0 0 8px currentColor;flex-shrink:0}
+html .lv-el{color:var(--ink);text-shadow:0 0 14px var(--g-glow)}
+html .lv-xp{position:relative;height:10px;border-radius:5px;background:color-mix(in srgb,var(--ink) 9%,transparent);box-shadow:inset 0 1px 2px rgba(0,0,0,.35);overflow:hidden;margin-top:-4px}
+html .lv-xp i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--g-btn2),var(--gym));box-shadow:0 0 12px var(--g-glow);transition:width .5s cubic-bezier(.2,.8,.3,1)}
+html .lv-xp::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),color-mix(in srgb,var(--bg) 70%,transparent) calc(10% - 1px) 10%)}
+html .lv-main{position:relative;color:var(--ink);border:1px solid var(--g-edge);border-radius:20px;background:linear-gradient(170deg,color-mix(in srgb,var(--gym) 16%,var(--surface)),var(--surface) 70%);
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--gym) 15%,transparent),0 20px 50px -25px var(--g-glow),inset 0 1px 0 color-mix(in srgb,#fff 8%,transparent)}
+html .lv-main::before,html .lv-next::before{content:"";position:absolute;inset:-1px;pointer-events:none;border-radius:inherit;--c:var(--gym);--l:16px;--w:2px;
+  background:linear-gradient(var(--c),var(--c)) top left/var(--l) var(--w),linear-gradient(var(--c),var(--c)) top left/var(--w) var(--l),linear-gradient(var(--c),var(--c)) top right/var(--l) var(--w),linear-gradient(var(--c),var(--c)) top right/var(--w) var(--l),
+  linear-gradient(var(--c),var(--c)) bottom left/var(--l) var(--w),linear-gradient(var(--c),var(--c)) bottom left/var(--w) var(--l),linear-gradient(var(--c),var(--c)) bottom right/var(--l) var(--w),linear-gradient(var(--c),var(--c)) bottom right/var(--w) var(--l);background-repeat:no-repeat;filter:drop-shadow(0 0 4px var(--g-glow))}
+html .lv-next::before{--l:10px;opacity:.7}
+html .lv-label{display:inline-flex;align-items:center;gap:7px;font:700 12px var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--gym);opacity:1;text-shadow:0 0 12px var(--g-glow)}
+html .lv-ex{text-shadow:0 0 26px color-mix(in srgb,var(--gym) 40%,transparent)}
+html .lv-inputs input{border:1px solid var(--g-edge);background:color-mix(in srgb,var(--bg) 60%,var(--surface));border-radius:0;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);box-shadow:inset 0 0 18px -8px var(--g-glow);color:var(--ink)}
+html .lv-inputs input:focus{outline:none;border-color:var(--gym);box-shadow:inset 0 0 22px -6px var(--g-glow)}
+html .lv-inputs label span{letter-spacing:.08em;text-transform:uppercase;font-size:11px}
+html .lv-inputs b{color:var(--gym);text-shadow:0 0 10px var(--g-glow)}
+html .lv-note{color:var(--muted)}
+/* rest: gold countdown that drains */
+html .lv-main.rest{--c2:var(--warn);color:var(--ink);border-color:color-mix(in srgb,var(--warn) 40%,var(--line));background:linear-gradient(170deg,color-mix(in srgb,var(--warn) 12%,var(--surface)),var(--surface) 70%);box-shadow:0 20px 50px -25px color-mix(in srgb,var(--warn) 50%,transparent)}
+html .lv-main.rest::before{--c:var(--warn)}html .lv-main.rest .lv-label{color:var(--warn);text-shadow:0 0 12px color-mix(in srgb,var(--warn) 50%,transparent)}
+html .lv-main.rest .lv-clock{color:var(--warn);text-shadow:0 0 30px color-mix(in srgb,var(--warn) 55%,transparent)}
+html .lv-ring{height:10px;border-radius:5px;background:color-mix(in srgb,var(--ink) 9%,transparent);box-shadow:inset 0 1px 2px rgba(0,0,0,.35)}
+html .lv-ring i{background:linear-gradient(90deg,color-mix(in srgb,var(--warn) 70%,#000),var(--warn));box-shadow:0 0 12px color-mix(in srgb,var(--warn) 60%,transparent);border-radius:5px}
+html .lv-main.rest .btn.ghost{color:var(--ink);border-color:color-mix(in srgb,var(--warn) 40%,var(--line));background:color-mix(in srgb,var(--warn) 8%,transparent)}
+/* go / complete: green */
+html .lv-main.go{color:var(--ink);border-color:color-mix(in srgb,var(--good) 45%,var(--line));background:linear-gradient(170deg,color-mix(in srgb,var(--good) 14%,var(--surface)),var(--surface) 70%);box-shadow:0 20px 50px -25px color-mix(in srgb,var(--good) 55%,transparent)}
+html .lv-main.go::before{--c:var(--good)}html .lv-main.go .lv-label{color:var(--good);text-shadow:0 0 12px color-mix(in srgb,var(--good) 50%,transparent)}
+html .lv-main.go .lv-clock,html .lv-main.go .lv-ex{color:var(--good);text-shadow:0 0 30px color-mix(in srgb,var(--good) 55%,transparent)}
+html .lv-main.go .lv-clock{animation:g-beat 1s ease-in-out infinite}
+html .lv-main [data-go]{background:linear-gradient(180deg,#2FCB7F,#16955A)!important;color:#fff!important;filter:drop-shadow(0 6px 16px color-mix(in srgb,#2FCB7F 45%,transparent))}
+/* up next and the exercise list read like a quest log */
+html .lv-next{position:relative;border-color:var(--g-edge);background:linear-gradient(180deg,color-mix(in srgb,var(--gym) 6%,var(--surface)),var(--surface))}
+html .lv-next .lv-label{display:inline-flex}
+html .lv-list div{border-top-color:color-mix(in srgb,var(--gym) 18%,var(--line));align-items:center}
+html .lv-list div span:first-child{display:inline-flex;align-items:center;gap:9px}
+html .lv-list div span:first-child::before{content:"";width:7px;height:7px;border:1.5px solid currentColor;transform:rotate(45deg);flex-shrink:0;opacity:.7}
+html .lv-list div.done span:first-child::before{background:var(--good);border-color:var(--good);box-shadow:0 0 8px var(--good);opacity:1}
+html .lv-list div.cur{color:var(--ink);text-shadow:0 0 12px var(--g-glow)}html .lv-list div.cur span:first-child::before{background:var(--gym);border-color:var(--gym);box-shadow:0 0 10px var(--gym);opacity:1;animation:g-beat 1.4s ease-in-out infinite}
+html .lv-list div.done span:first-child::after{content:""}
+html .live .lv-main,html .live .lv-next,html .live .lv-list{animation:g-in .35s cubic-bezier(.2,.8,.3,1) both}html .live .lv-next{animation-delay:.05s}html .live .lv-list{animation-delay:.1s}
+@keyframes g-beat{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@media (prefers-reduced-motion:reduce){html .live *{animation:none!important;transition:none!important}}
 /* particles */
 .g-burst{position:fixed;width:0;height:0;z-index:3000;pointer-events:none}
 .g-burst i{position:absolute;left:-3px;top:-3px;width:6px;height:6px;background:var(--gym);transform:rotate(45deg);box-shadow:0 0 8px var(--gym);animation:g-fly .7s cubic-bezier(.2,.7,.3,1) forwards}
