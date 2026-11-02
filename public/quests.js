@@ -292,7 +292,9 @@ function questNotify() {
     if (q.done && !seen.has("all")) { seen.add("all"); msg = ["Daily Quest complete", `${qStreak(k)}-day streak. Resets at 4 a.m.`] }
     else if (fresh.length) msg = ["Quest objective complete", fresh[fresh.length - 1].t];
     Q.seen[k] = [...seen]; saveProfile();
-    if (msg && typeof sysNotice === "function" && !document.querySelector(".rk-up")) setTimeout(() => sysNotice(msg[0], msg[1], null), 400);
+    // a rank-up screen goes first; the quest notice waits until it's closed
+    const show = (n) => { if (document.querySelector(".rk-up") && n < 120) return setTimeout(() => show(n + 1), 500); sysNotice(msg[0], msg[1], null) };
+    if (msg && typeof sysNotice === "function") setTimeout(() => show(0), 400);
   } catch (e) { try { console.warn("quests", e) } catch (_) {} }
 }
 
