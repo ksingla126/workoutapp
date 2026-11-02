@@ -299,10 +299,12 @@ body.live-on{overflow:hidden}
 .lv-next{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:3px}
 .lv-next .nm{font-weight:800;font-size:17px}
 .lv-list{display:flex;flex-direction:column;gap:2px;font-size:14px}
-.lv-list div{display:flex;justify-content:space-between;gap:10px;padding:6px 2px;border-top:1px solid var(--line);color:var(--muted)}
-.lv-list div.cur{color:var(--ink);font-weight:800}
-.lv-list div.done{color:var(--good)}
-.lv-list div.done span:first-child::after{content:" ✓"}
+.lv-list .lv-row{display:flex;justify-content:space-between;gap:10px;padding:10px 2px;min-height:44px;width:100%;border:0;border-top:1px solid var(--line);background:none;font:inherit;font-size:14px;text-align:left;color:var(--muted);cursor:pointer}
+.lv-list .lv-row:disabled{cursor:default}
+.lv-list .lv-row.cur{color:var(--ink);font-weight:800}
+.lv-list .lv-row.done{color:var(--good)}
+.lv-list .lv-row.done span:first-child::after{content:" ✓"}
+.lv-hint{margin:-6px 0 0;text-align:center}
 .lv-hr{font-size:12px;color:var(--muted)}
 body.timing .toast{bottom:calc(150px + env(safe-area-inset-bottom,0px))}
 @media (prefers-reduced-motion:no-preference){.timerbar[data-state="go"] .rest .tb-v{animation:pl .8s ease-in-out infinite}}
@@ -1860,6 +1862,13 @@ function gymSteps(k,p){ const out=[], ex=p.ex; let gi=0;
     for(let s2=0;s2<n;s2++) g.forEach((e,j)=>{ if(s2<N[j]) out.push({ex:e,i:s2,t:T[j],n:N[j],done:setDoneK(k,e.id,s2),inSS:g.length>1,ssLast:g.slice(j+1).every((e2,jj)=>s2>=N[j+1+jj])}) });
     gi+=g.length }
   return out }
+// which set is up: the exercise you jumped to in the list (and its superset), else the first set not done
+function liveIdx(steps){ const f=TM.focus; if(f){ const j=steps.findIndex(x=>!x.done&&(x.ex.id===f.id||(f.ss&&x.ex.ss===f.ss))); if(j>=0) return j }
+  return steps.findIndex(x=>!x.done) }
+// the set after this one: stay on the exercise you jumped to until it's finished, then carry on in order
+function liveNext(steps,idx){ const cur=steps[idx], open=steps.map((x,i)=>i).filter(i=>i!==idx&&!steps[i].done); if(!open.length) return -1;
+  if(TM.focus){ const j=open.find(i=>steps[i].ex.id===cur.ex.id||(cur.ex.ss&&steps[i].ex.ss===cur.ex.ss)); if(j!=null) return j }
+  const a=open.find(i=>i>idx); return a!=null? a : open[0] }
 function setValsK(k,st){ const l=S.logs[k], cur=l&&l.ex&&l.ex[st.ex.id]&&l.ex[st.ex.id][st.i], f=fmtOf(st.ex), dist=isDist(st.ex);
   const w=drafts[dkey(k,`w-${st.ex.id}-${st.i}`)] ?? (cur?(cur.w?toU(cur.w):""):(st.t.w?toU(st.t.w):"")); const r=drafts[dkey(k,`r-${st.ex.id}-${st.i}`)] ?? (cur?(f==="dt"?fmtDur(cur.r):cur.r):(st.t.first||dist?"":st.t.reps[st.i]));
   const m=drafts[dkey(k,`m-${st.ex.id}-${st.i}`)] ?? (cur?cur.m:(st.t.first||!dist?"":st.t.reps[st.i]));
@@ -1875,7 +1884,7 @@ function renderLive(){
   let top=`<div class="lv-top"><button class="lv-back" id="lvBack" aria-label="Back to app">‹</button><div class="lv-title"><span class="eyebrow">${p.type==="gym"?"Live workout":"Live run"}</span><b>${esc(p.type==="gym"?p.name:p.t)}</b></div><div style="text-align:right"><div class="lv-el num" id="lvEl">${fmtClock(now-TM.start)}</div><div class="small muted" id="lvProg"></div></div></div>`;
   let main="", next="", list="";
   if(p.type==="gym"){
-    const steps=gymSteps(k,p), idx=steps.findIndex(x=>!x.done), cur=idx>=0?steps[idx]:null, doneN=steps.filter(x=>x.done).length;
+    const steps=gymSteps(k,p), idx=liveIdx(steps), cur=idx>=0?steps[idx]:null, doneN=steps.filter(x=>x.done).length;
     liveState=`${idx}|${resting?"r":justDone?"g":"x"}`;
     if(!cur){
       main=`<div class="lv-main go"><div class="lv-label">All ${steps.length} sets done</div><div class="lv-ex">Workout complete</div><button class="btn lv-cta" id="lvFinish" data-go="1">Review &amp; save</button></div>`;
@@ -1898,12 +1907,14 @@ function renderLive(){
           ${plateable(cur.ex,db)?`<div class="lv-plates" id="lvPlates">${esc(platesText(v.w,cur.ex))}</div>`:""}
           <p class="small lv-note">${esc(cur.t.first?cur.t.msg:(cur.t.coach?"Coach: ":"")+cur.t.msg)}</p>
           <button class="btn lv-cta" id="lvDone">Set done ✓</button></div>`;
-        const nx=steps[idx+1];
+        const nx=steps[liveNext(steps,idx)];
         next= nx? `<div class="lv-next"><span class="lv-label">Then</span><span class="nm">${cur.inSS&&!cur.ssLast?"No rest, straight to":"Rest "+fmtClock(restFor(cur.ex.id)*1000)}</span><span>→ ${nx.ex.id===cur.ex.id?`${esc(cur.ex.name)}, set ${nx.i+1}`:`${esc(nx.ex.name)}, set 1`}</span></div>`
                 : `<div class="lv-next"><span class="lv-label">Then</span><span class="nm">Last set</span><span>Then review and save your workout.</span></div>`;
       }
     }
-    list=`<div class="lv-list">${p.ex.map(ex=>{const n=steps.filter(x=>x.ex.id===ex.id&&x.done).length, tot=steps.filter(x=>x.ex.id===ex.id).length; return `<div class="${n===tot?"done":""} ${cur&&cur.ex.id===ex.id?"cur":""}"><span>${esc(ex.name)}</span><span class="num">${n}/${tot}</span></div>`}).join("")}</div>`;
+    list=`<div class="lv-list" aria-label="Exercises: tap one to do it next">${p.ex.map(ex=>{const n=steps.filter(x=>x.ex.id===ex.id&&x.done).length, tot=steps.filter(x=>x.ex.id===ex.id).length, on=cur&&cur.ex.id===ex.id;
+      return `<button type="button" class="lv-row ${n===tot?"done":""} ${on?"cur":""}" data-lvjump="${esc(ex.id)}" ${n===tot?"disabled":""} ${on?'aria-current="step"':""} aria-label="${esc(ex.name)}, ${n} of ${tot} sets done${n===tot||on?"":". Tap to do it next"}"><span>${esc(ex.name)}</span><span class="num">${n}/${tot}</span></button>`}).join("")}</div>
+      ${cur?`<p class="small muted lv-hint">Tap an exercise to do it next.</p>`:""}`;
     top=top.replace('<div class="small muted" id="lvProg"></div>',`<div class="small muted" id="lvProg">${doneN}/${steps.length} sets</div>`);
     top+=`<div class="lv-xp" role="progressbar" aria-label="Workout progress" aria-valuemin="0" aria-valuemax="${steps.length}" aria-valuenow="${doneN}"><i style="width:${steps.length?Math.round(doneN/steps.length*100):0}%"></i></div>`;
   } else {
@@ -1919,19 +1930,21 @@ function liveTick(){
   const rc=document.getElementById("lvRunClock"); if(rc) rc.textContent=fmtClock(now-TM.start);
   const r=document.getElementById("lvRest"), f=document.getElementById("lvRestFill");
   if(r&&TM.restEnd&&TM.restEnd>now){ r.textContent=fmtClock(TM.restEnd-now); if(f) f.style.width=Math.min(100,100-(TM.restEnd-now)/(TM.restDur*1000)*100)+"%" }
-  const c=liveCtx(); if(c&&c.p.type==="gym"){ const resting=TM.restEnd&&TM.restEnd>now, justDone=TM.restEnd&&TM.restEnd<=now&&now-TM.restEnd<20000; const idx=gymSteps(c.k,c.p).findIndex(x=>!x.done);
+  const c=liveCtx(); if(c&&c.p.type==="gym"){ const resting=TM.restEnd&&TM.restEnd>now, justDone=TM.restEnd&&TM.restEnd<=now&&now-TM.restEnd<20000; const idx=liveIdx(gymSteps(c.k,c.p));
     const st=`${idx}|${resting?"r":justDone?"g":"x"}`; if(st!==liveState && !(document.activeElement&&/lvW|lvR|lvM/.test(document.activeElement.id||""))) renderLive() }
 }
 function bindLive(k,p){
   const $$=id=>document.getElementById(id);
   $$("lvBack").onclick=closeLive;
+  document.querySelectorAll("[data-lvjump]").forEach(b=>b.onclick=()=>{ const ex=p.ex.find(e=>e.id===b.dataset.lvjump); if(!ex||b.disabled) return;
+    TM.focus={id:ex.id,ss:ex.ss||null}; TM.restEnd=0; saveTM(); renderLive(); const m=document.querySelector(".lv-main"); if(m) m.scrollIntoView({block:"nearest",behavior:"smooth"}) });
   if($$("lvPlus")) $$("lvPlus").onclick=()=>{TM.restEnd+=30000; TM.restDur+=30; saveTM(); liveTick()};
   if($$("lvSkip")) $$("lvSkip").onclick=()=>{TM.restEnd=0; saveTM(); renderLive()};
   if($$("lvStart")) $$("lvStart").onclick=()=>{TM.restEnd=0; saveTM(); renderLive()};
   if($$("lvW")&&$$("lvPlates")){ const st=gymSteps(k,p).find(x=>!x.done); $$("lvW").addEventListener("input",e=>{ $$("lvPlates").textContent=st?platesText(e.target.value,st.ex):"" }) }
   ["lvW","lvR","lvM"].forEach(id=>{ const inp=$$(id); if(!inp) return; inp.addEventListener("focus",()=>{const s=()=>{try{inp.setSelectionRange(0,inp.value.length)}catch(e){}}; s(); setTimeout(s,0); setTimeout(s,60)}) });
   if($$("lvDone")) $$("lvDone").onclick=()=>{
-    const steps=gymSteps(k,p), idx=steps.findIndex(x=>!x.done), cur=steps[idx]; if(!cur) return;
+    const steps=gymSteps(k,p), idx=liveIdx(steps), cur=steps[idx]; if(!cur) return;
     const f=fmtOf(cur.ex), w=$$("lvW")?$$("lvW").value.trim():"", r=$$("lvR")?$$("lvR").value.trim():"", m=$$("lvM")?$$("lvM").value.trim():"";
     if(!setOk(f,{w:Number(w)||0,r:f==="dt"?parseDur(r):Number(r)||0,m:Number(m)||0})){ toast(FMT_NEED[f]); return }
     if($$("lvW")) drafts[dkey(k,`w-${cur.ex.id}-${cur.i}`)]=w;
@@ -1939,7 +1952,7 @@ function bindLive(k,p){
     if($$("lvR")) drafts[dkey(k,`r-${cur.ex.id}-${cur.i}`)]=r;
     if(FMT[f].b==="reps"&&setTypeK(k,cur.ex.id,cur.i)!=="w") gateCheck(cur.ex,k,fromU(Number(w)||0),Number(r)||0,cur.i);
     drafts[dkey(k,`c-${cur.ex.id}-${cur.i}`)]=true; drafts[dkey(k,"open-trainLog")]=true; persistDrafts();
-    if(idx<steps.length-1&&!(cur.inSS&&!cur.ssLast)) startRest(restFor(cur.ex.id));
+    if(liveNext(steps,idx)>=0&&!(cur.inSS&&!cur.ssLast)) startRest(restFor(cur.ex.id));
     renderLive(); if(tab==="home"&&ymd(sel)===k){ lastRenderKey=""; render() }
   };
   const finish=()=>{ liveOpen=false; renderLive(); tab="home"; sel=parseYmd(k); drafts[dkey(k,"open-trainLog")]=true; persistDrafts(); lastRenderKey=""; render();
