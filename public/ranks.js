@@ -73,14 +73,19 @@ function rkSetEntries(k, l, id, s, i) {
   cv.list.forEach(c => {
     // mg: a heavy set done for more than 5 reps still clears a Gate, scored as if it stopped at 5 (it can only be stronger than that)
     const lad = c.ladder || c.p, LK = C.ladders[lad].kind, rate = c.r || 1; let m = null, mg = null, kind = c.k || "load";
+    // rep ladders (pull-ups, push-ups, leg raises) score weighted or assisted work as bodyweight reps. Below your body
+    // weight that's 0 reps, so give partial credit along the E bar from half your body weight up to the 1st rank's reps.
+    // It never reaches D on its own: that still takes the real thing.
+    const repsFrom = x => { const t0 = rkLadder(lad, k, "raw").th[0], full = 30 * (x - 1); if (full >= t0) return full;
+      const part = Math.min(0.999, Math.max(0, (x - 0.5) / (0.5 + t0 / 30))) * t0; return Math.max(full, part) };
     if (kind === "hold") { if (r > 0) m = r / rate }
     else if (kind === "bw" || kind === "assist") {
       if (r < 1) return; const load = kind === "assist" ? Math.max(0, B - w) : B + w;
-      if (LK === "reps") m = Math.max(0, 30 * (load * (1 + r / 30) / rate / B - 1));
+      if (LK === "reps") m = repsFrom(load * (1 + r / 30) / rate / B);
       else { if (r > G5) mg = load * (1 + G5 / 30) / rate; m = r > C.maxReps ? mg : (r <= 1 ? load : load * (1 + r / 30)) / rate }
     } else {
       if (!(w > 0) || r < 1) return; const tot = rkTotal(id, l, w);
-      if (LK === "reps") { if (r > C.maxReps) return; m = Math.max(0, 30 * (tot * (1 + r / 30) / rate / B - 1)) }
+      if (LK === "reps") { if (r > C.maxReps) return; m = repsFrom(tot * (1 + r / 30) / rate / B) }
       else { if (r > G5) mg = tot * (1 + G5 / 30) / rate; m = r > C.maxReps ? mg : (r <= 1 ? tot : tot * (1 + r / 30)) / rate }
     }
     if (m == null || !isFinite(m)) return;
