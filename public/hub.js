@@ -30,7 +30,7 @@ function hubPlayer(H) {
   let barTxt = "";
   if (H.un) { const R = H.R; barTxt = !H.fresh && R && R.place && R.place.first ? `Placement · day ${Math.min(RKC().placementDays, rkDays(R.place.first, R.td) + 1)} of ${RKC().placementDays}` : "Train this week to get your rank" }
   else barTxt = H.ov >= 5 ? "Top rank" : `${Math.round(H.prog * 100)}% to ${rkLetter(H.ov + 1)}`;
-  return `<div class="hub-player"><button type="button" class="hub-hex" data-tab-go="ranks" style="--rc:${col}" aria-label="${H.un ? "Unranked" : "Overall rank " + L}. Open Ranks">${L}</button>
+  return `<div class="hub-player"><span class="hub-hexwrap" style="--rc:${col}"><svg viewBox="0 0 62 68" aria-hidden="true"><path d="M31 1l29 16v34L31 67 2 51V17z"/></svg><button type="button" class="hub-hex" data-tab-go="ranks" style="--rc:${col}" aria-label="${H.un ? "Unranked" : "Overall rank " + L}. Open Ranks">${L}</button></span>
     <div class="hub-who"><div><b>${esc(hubName())}</b><span>${esc(sub)}</span></div><div class="hub-xp" role="progressbar" aria-label="Progress to next rank" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(H.prog * 100)}"><i style="width:${Math.round(H.prog * 100)}%"></i></div><small>${esc(barTxt)}</small></div>
     ${streak ? `<span class="hub-streak" aria-label="${streak}-day streak"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-6 1-9.5z"/></svg>${streak}</span>` : ""}
     ${typeof accountBtn === "function" ? accountBtn() : ""}</div>`;
