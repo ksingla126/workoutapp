@@ -39,7 +39,7 @@ function hubPlayer(H) {
 const hubLive = () => !!(TM && TM.start && TM.date === ymd(today));
 const HUB_PLAY = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg>`, HUB_BACK = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4.5h4.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 function hubBtn(kind, label, first) { const live = hubLive();
-  return `<button type="button" class="hub-go ${first && !live ? "glow" : ""} ${live ? "live" : ""}" data-hub-start="${kind}">${live ? HUB_BACK + "Return to activity" : HUB_PLAY + label}</button>${live ? `<span class="hub-inprog"><i></i>In progress · started ${new Date(TM.start).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>` : ""}` }
+  return `<button type="button" class="hub-go ${first && !live ? "glow" : ""} ${live ? "live" : ""}" data-hub-start="${kind}"><span class="hub-go-in">${live ? HUB_BACK + "Return to activity" : HUB_PLAY + label}</span></button>${live ? `<span class="hub-inprog"><i></i>In progress · started ${new Date(TM.start).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>` : ""}` }
 function hubMain(H) {
   const d = today, k = ymd(d), p = planFor(d), l = S.logs[k];
   if (!p) return `<section class="hub-main"><span class="hub-sys">[SYSTEM] MAIN QUEST</span><h2>Your plan starts ${fmtShort(START)}</h2><p class="hub-sub">Check back then for your first workout.</p></section>`;
@@ -49,13 +49,13 @@ function hubMain(H) {
     const tom = !tp ? "" : tp.type === "rest" ? "Another rest day" : tp.type === "gym" ? `${tp.name} · ${tp.ex.length} exercises` : `${tp.t}`;
     return `<section class="hub-main rest"><span class="hub-sys">[SYSTEM] RECOVERY DAY</span><h2>Rest &amp; recover</h2><p class="hub-sub">Muscle rebuilds today. Light work only.</p>
       <div class="hub-tile"><div><b>10-minute mobility</b><span>${esc(f.t)} · ${f.moves.length} moves</span></div>${done ? `<span class="hub-done">Done ✓</span>` : ""}</div>
-      <button type="button" class="hub-go" data-hub-mob="1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg>${done ? "See the moves" : "Start mobility"}</button>
+      <button type="button" class="hub-go" data-hub-mob="1"><span class="hub-go-in">${HUB_PLAY}${done ? "See the moves" : "Start mobility"}</span></button>
       ${tom ? `<div class="hub-tom"><span>Tomorrow</span><b>${esc(tom)}</b></div>` : ""}</section>`;
   }
   if (l) {
     const t = p.type === "gym" ? p.name : p.t, prs = (l.prs || []).length;
     return `<section class="hub-main clear"><span class="hub-sys">[SYSTEM] MAIN QUEST CLEARED</span><h2>${esc(t)}</h2><p class="hub-sub">${l.durMin ? `${Math.round(l.durMin)} min` : "Logged"}${prs ? ` · ${prs} PR${prs > 1 ? "s" : ""}` : ""}${l.type === "run" && l.mi ? ` · ${l.mi} mi` : ""}</p>
-      <button type="button" class="hub-go ghost" data-hub-train="1">View workout</button></section>`;
+      <button type="button" class="hub-go ghost" data-hub-train="1"><span class="hub-go-in">View workout</span></button></section>`;
   }
   if (p.type === "run") {
     return `<section class="hub-main run"><span class="hub-sys">[SYSTEM] MAIN QUEST</span><h2>${esc(p.t)}</h2><p class="hub-sub">${esc(p.d)}</p>
@@ -181,7 +181,10 @@ addEventListener("resize", () => { if (HT.i >= 0) hubTourStep(HT.i) });
 .hub-go.ghost{background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
 .hub-go.glow{box-shadow:0 0 0 4px color-mix(in srgb,var(--gym) 45%,transparent),0 0 28px color-mix(in srgb,var(--gym) 55%,transparent)}
 .hub-alt{align-self:center}
-.hub-go>svg{margin-left:-26px;flex-shrink:0} /* the icon hangs left of the words, so the words themselves sit dead center */
+/* iPhone Safari won't center content inside a <button>, so the label is its own layer filling the button */
+.hub-go{position:relative;padding:0;box-sizing:border-box;min-height:56px;-webkit-appearance:none;appearance:none}
+.hub-go-in{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;line-height:1;z-index:1}
+.hub-go-in>svg{margin-left:-26px;flex-shrink:0} /* the icon hangs left of the words, so the words themselves sit dead center */
 .hub-go.live{background:linear-gradient(180deg,#2FCB7F,#16955A)!important;filter:drop-shadow(0 6px 16px color-mix(in srgb,#2FCB7F 45%,transparent))!important}
 .hub-go svg path[fill="none"]{fill:none}
 .hub-inprog{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin-top:-4px;font-size:13px;font-weight:600;color:var(--good)}
