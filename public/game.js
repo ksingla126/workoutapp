@@ -174,12 +174,12 @@ html .lv-main [data-go]{background:linear-gradient(180deg,#2FCB7F,#16955A)!impor
 /* up next and the exercise list read like a quest log */
 html .lv-next{position:relative;border-color:var(--g-edge);background:linear-gradient(180deg,color-mix(in srgb,var(--gym) 6%,var(--surface)),var(--surface))}
 html .lv-next .lv-label{display:inline-flex}
-html .lv-list div{border-top-color:color-mix(in srgb,var(--gym) 18%,var(--line));align-items:center}
-html .lv-list div span:first-child{display:inline-flex;align-items:center;gap:9px}
-html .lv-list div span:first-child::before{content:"";width:7px;height:7px;border:1.5px solid currentColor;transform:rotate(45deg);flex-shrink:0;opacity:.7}
-html .lv-list div.done span:first-child::before{background:var(--good);border-color:var(--good);box-shadow:0 0 8px var(--good);opacity:1}
-html .lv-list div.cur{color:var(--ink);text-shadow:0 0 12px var(--g-glow)}html .lv-list div.cur span:first-child::before{background:var(--gym);border-color:var(--gym);box-shadow:0 0 10px var(--gym);opacity:1;animation:g-beat 1.4s ease-in-out infinite}
-html .lv-list div.done span:first-child::after{content:""}
+html .lv-list .lv-row{border-top-color:color-mix(in srgb,var(--gym) 18%,var(--line));align-items:center}
+html .lv-list .lv-row span:first-child{display:inline-flex;align-items:center;gap:9px}
+html .lv-list .lv-row span:first-child::before{content:"";width:7px;height:7px;border:1.5px solid currentColor;transform:rotate(45deg);flex-shrink:0;opacity:.7}
+html .lv-list .lv-row.done span:first-child::before{background:var(--good);border-color:var(--good);box-shadow:0 0 8px var(--good);opacity:1}
+html .lv-list .lv-row.cur{color:var(--ink);text-shadow:0 0 12px var(--g-glow)}html .lv-list .lv-row:not(:disabled):not(.cur):active{background:color-mix(in srgb,var(--gym) 10%,transparent)}html .lv-list .lv-row.cur span:first-child::before{background:var(--gym);border-color:var(--gym);box-shadow:0 0 10px var(--gym);opacity:1;animation:g-beat 1.4s ease-in-out infinite}
+html .lv-list .lv-row.done span:first-child::after{content:""}
 html .live .lv-main,html .live .lv-next,html .live .lv-list{animation:g-in .35s cubic-bezier(.2,.8,.3,1) both}html .live .lv-next{animation-delay:.05s}html .live .lv-list{animation-delay:.1s}
 @keyframes g-beat{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 @media (prefers-reduced-motion:reduce){html .live *{animation:none!important;transition:none!important}}

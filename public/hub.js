@@ -35,6 +35,11 @@ function hubPlayer(H) {
     ${streak ? `<span class="hub-streak" aria-label="${streak}-day streak"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-6 1-9.5z"/></svg>${streak}</span>` : ""}
     ${typeof accountBtn === "function" ? accountBtn() : ""}</div>`;
 }
+// a workout already running today: the Start button becomes "Return to activity"
+const hubLive = () => !!(TM && TM.start && TM.date === ymd(today));
+const HUB_PLAY = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg>`, HUB_BACK = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4.5h4.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+function hubBtn(kind, label, first) { const live = hubLive();
+  return `<button type="button" class="hub-go ${first && !live ? "glow" : ""} ${live ? "live" : ""}" data-hub-start="${kind}">${live ? HUB_BACK + "Return to activity" : HUB_PLAY + label}</button>${live ? `<span class="hub-inprog"><i></i>In progress · started ${new Date(TM.start).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>` : ""}` }
 function hubMain(H) {
   const d = today, k = ymd(d), p = planFor(d), l = S.logs[k];
   if (!p) return `<section class="hub-main"><span class="hub-sys">[SYSTEM] MAIN QUEST</span><h2>Your plan starts ${fmtShort(START)}</h2><p class="hub-sub">Check back then for your first workout.</p></section>`;
@@ -54,7 +59,7 @@ function hubMain(H) {
   }
   if (p.type === "run") {
     return `<section class="hub-main run"><span class="hub-sys">[SYSTEM] MAIN QUEST</span><h2>${esc(p.t)}</h2><p class="hub-sub">${esc(p.d)}</p>
-      <button type="button" class="hub-go" data-hub-start="run"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg>Start run</button>
+      ${hubBtn("run", "Start run")}
       <button type="button" class="link small hub-alt" data-hub-train="1">Log a run you already did</button></section>`;
   }
   const mus = hubMuscles(p), sets = (p.ex || []).reduce((t, e) => t + (e.sets || 0), 0), min = typeof estMin === "function" ? estMin(p.ex) : 50;
@@ -63,7 +68,7 @@ function hubMain(H) {
   return `<section class="hub-main"><div class="hub-row"><span class="hub-sys">[SYSTEM] ${first ? "FIRST QUEST" : "MAIN QUEST"}</span>${gate}</div>
     <h2>${esc(p.name)}</h2><p class="hub-sub">${first ? `${p.ex.length} exercises · ~${min} min · we'll guide every set` : esc(mus.join(" · ") || "Full body")}${tv ? ` · ${tv.mode === "db" ? "dumbbells" : "bodyweight"}` : ""}</p>
     ${first ? "" : `<div class="hub-stats"><div><b>${p.ex.length}</b><span>exercises</span></div><div><b>~${min} min</b><span>long</span></div><div><b>${sets}</b><span>sets</span></div></div>`}
-    <button type="button" class="hub-go ${first ? "glow" : ""}" data-hub-start="gym"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg>${first ? "Start your first workout" : "Start workout"}</button>
+    ${hubBtn("gym", first ? "Start your first workout" : "Start workout", first)}
     ${first ? `<p class="hub-tip">No idea what weight to use? Pick one you could lift about 10 times. The app adjusts from there.</p>` : `<button type="button" class="link small hub-alt" data-hub-travel="1">Not at your gym? Switch to dumbbells or bodyweight</button>`}</section>`;
 }
 function hubQuest() {
@@ -175,7 +180,12 @@ addEventListener("resize", () => { if (HT.i >= 0) hubTourStep(HT.i) });
 .hub-go{height:56px;border:0;border-radius:16px;background:var(--ink);color:var(--bg);font:800 18px var(--body);display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}.hub-go svg{width:18px;height:18px;fill:currentColor}
 .hub-go.ghost{background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
 .hub-go.glow{box-shadow:0 0 0 4px color-mix(in srgb,var(--gym) 45%,transparent),0 0 28px color-mix(in srgb,var(--gym) 55%,transparent)}
-.hub-alt{align-self:center}.hub-tip{margin:0;font-size:13px;line-height:1.4;color:var(--muted);background:var(--surface-2);border-radius:12px;padding:10px 12px}
+.hub-alt{align-self:center}
+.hub-go.live{background:linear-gradient(180deg,#2FCB7F,#16955A)!important;filter:drop-shadow(0 6px 16px color-mix(in srgb,#2FCB7F 45%,transparent))!important}
+.hub-go svg path[fill="none"]{fill:none}
+.hub-inprog{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin-top:-4px;font-size:13px;font-weight:600;color:var(--good)}
+.hub-inprog i{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 8px var(--good);animation:hub-blink 1.4s ease-in-out infinite}
+@keyframes hub-blink{50%{opacity:.35}}.hub-tip{margin:0;font-size:13px;line-height:1.4;color:var(--muted);background:var(--surface-2);border-radius:12px;padding:10px 12px}
 .hub-tile{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface-2);border-radius:14px;padding:12px}.hub-tile>div{display:flex;flex-direction:column;gap:1px}.hub-tile span{font-size:13px;color:var(--muted)}.hub-done{color:var(--good)!important;font-weight:700}
 .hub-tom{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:10px}.hub-tom span{font-size:14px;color:var(--muted)}
 .hub-card{border-radius:18px;background:var(--surface);border:1px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:10px}.hub-n{font:700 14px var(--body);color:var(--muted)}
