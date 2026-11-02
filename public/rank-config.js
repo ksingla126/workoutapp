@@ -110,7 +110,7 @@ window.RANK_CFG = {
   muscleParts: { Chest: "chest", Back: "row", Shoulders: "shoulders", Biceps: "biceps", Triceps: "triceps", Quads: "quads", Hamstrings: "hams", Glutes: "hams", Calves: "calves", Core: "core" },
 
   maxReps: 12,              // sets above this are left out of one-rep-max estimates (rep ladders have no limit)
-  gateReps: [1, 5],         // a weighted Gate set must be 1–5 reps
+  gateReps: [1, 5],         // Gate sets are scored as lifted for 1–5 reps; more reps at a weight count as that weight × 5
   placementDays: 7, placementCap: 3,   // placement uses one week of training and can't go above B
   // Gates are strength-only: any open bar can be attempted. Consistency feeds Discipline, and training a part
   // in momentumWeeks of the last consistencyWeeks still stops its lifts from fading.

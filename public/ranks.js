@@ -69,22 +69,23 @@ function rkExName(id) { const L = typeof libEx === "function" && libEx(id); if (
 function rkSetEntries(k, l, id, s, i) {
   const out = [], cv = rkConv(id, l); if (!cv || !s || s.t === "w" || s.t === "d") return out;
   if (typeof logFmt === "function" && typeof fmtRanks === "function" && !fmtRanks(id, logFmt(id, l))) return out; // logged in a format this exercise isn't ranked in
-  const B = rkBW(k), r = Number(s.r) || 0, w = Number(s.w) || 0, C = RKC();
+  const B = rkBW(k), r = Number(s.r) || 0, w = Number(s.w) || 0, C = RKC(), G5 = C.gateReps[1];
   cv.list.forEach(c => {
-    const lad = c.ladder || c.p, LK = C.ladders[lad].kind, rate = c.r || 1; let m = null, kind = c.k || "load";
+    // mg: a heavy set done for more than 5 reps still clears a Gate, scored as if it stopped at 5 (it can only be stronger than that)
+    const lad = c.ladder || c.p, LK = C.ladders[lad].kind, rate = c.r || 1; let m = null, mg = null, kind = c.k || "load";
     if (kind === "hold") { if (r > 0) m = r / rate }
     else if (kind === "bw" || kind === "assist") {
       if (r < 1) return; const load = kind === "assist" ? Math.max(0, B - w) : B + w;
       if (LK === "reps") m = Math.max(0, 30 * (load * (1 + r / 30) / rate / B - 1));
-      else { if (r > C.maxReps) return; m = (r <= 1 ? load : load * (1 + r / 30)) / rate }
+      else { if (r > G5) mg = load * (1 + G5 / 30) / rate; m = r > C.maxReps ? mg : (r <= 1 ? load : load * (1 + r / 30)) / rate }
     } else {
       if (!(w > 0) || r < 1) return; const tot = rkTotal(id, l, w);
       if (LK === "reps") { if (r > C.maxReps) return; m = Math.max(0, 30 * (tot * (1 + r / 30) / rate / B - 1)) }
-      else { if (r > C.maxReps) return; m = (r <= 1 ? tot : tot * (1 + r / 30)) / rate }
+      else { if (r > G5) mg = tot * (1 + G5 / 30) / rate; m = r > C.maxReps ? mg : (r <= 1 ? tot : tot * (1 + r / 30)) / rate }
     }
     if (m == null || !isFinite(m)) return;
     const gateReps = kind === "hold" ? false : LK === "reps" ? true : (r >= C.gateReps[0] && r <= C.gateReps[1]);
-    out.push({ p: c.p, lad, d: k, m, cap: c.cap, gateable: c.cap == null && !c.custom, gateReps, g: s.t === "g", ex: id, eid: cv.eid, set: { w: s.w, r, db: typeof logDb === "function" && logDb(id, l) }, key: `${k}|${id}|${i}`, bw: B, kind });
+    out.push({ p: c.p, lad, d: k, m, cap: c.cap, gateable: c.cap == null && !c.custom, gateReps, mg, g: s.t === "g", ex: id, eid: cv.eid, set: { w: s.w, r, db: typeof logDb === "function" && logDb(id, l) }, key: `${k}|${id}|${i}`, bw: B, kind });
   });
   return out;
 }
@@ -266,18 +267,19 @@ function rankState() {
   if (place && !place.pending) {
     if (!rkData().placement && typeof saveProfile === "function" && typeof loaded !== "undefined" && loaded.logs && loaded.profile && (S.profile.setup || typeof isLegacy !== "function" || isLegacy())) { rkData().placement = { at: place.at, from: place.from, to: place.to }; saveProfile() }
     parts.forEach(p => { const v = rkValue(R, p, place.to, "raw", { from: place.from, noFade: true }).v; R.st[p].rank = Math.min(C.placementCap, Math.floor(v)); R.st[p].placedAt = place.at });
-    // Gates clear on their own: any heavy set (1–5 reps) of a rated exercise, or any whole run or time trial,
-    // that reaches the next rank while that part's Gate is open. Sets marked "G" by hand (older logs) still count, and can fail.
-    const attempts = E.filter(e => e.d >= place.at && !e.flag && (e.g || (e.gateable && e.gateReps && (!e.run || e.whole))));
+    // Gates clear on their own: any heavy set of a rated exercise, or any whole run or time trial, that reaches the next
+    // rank while that part's Gate is open. 1–5 reps count as lifted; more than 5 at a weight count as that weight × 5.
+    // Sets marked "G" by hand (older logs) still count, and can fail.
+    const attempts = E.filter(e => e.d >= place.at && !e.flag && (e.g || (e.gateable && (e.gateReps || e.mg != null) && (!e.run || e.whole))));
     for (let d = place.at; d <= td; d = rkAdd(d, 1)) {
       attempts.filter(a => a.d === d).forEach(a => {
         const s = R.st[a.p], auto = !a.g, g = rkGateStatus(R, a.p, d, !auto);
         if (!g.open) return;
-        const L = rkLadder(a.lad, d, "raw"), v = rkCap(rkCap(rkVal(a.m, L), a.cap), rkPartCap(a.p)), to = s.rank + 1;
+        const gm = a.gateReps ? a.m : a.mg, L = rkLadder(a.lad, d, "raw"), v = gm == null ? 0 : rkCap(rkCap(rkVal(gm, L), a.cap), rkPartCap(a.p)), to = s.rank + 1;
         if (auto && s.lost && to <= s.lost.rank && rkDays(s.lost.at, d) <= C.reclaimDays) return; // a lost rank comes back as a reclaim below
-        const pass = a.gateable && a.gateReps && v >= to;
+        const pass = a.gateable && gm != null && v >= to;
         if (!pass && auto) return; // an ordinary set that falls short isn't a failed Gate
-        R.events.push({ id: a.key + "|" + a.p + "|" + to, t: pass ? "up" : "fail", p: a.p, d, to, from: s.rank, ex: a.ex, why: !a.gateable ? "capped" : !a.gateReps ? "reps" : "" });
+        R.events.push({ id: a.key + "|" + a.p + "|" + to, t: pass ? "up" : "fail", p: a.p, d, to, from: s.rank, ex: a.ex, why: !a.gateable ? "capped" : gm == null ? "reps" : "" });
         if (pass) { s.rank = to; s.below = 0; s.lost = null } else s.lastFail = d;
       });
       parts.forEach(p => {
@@ -407,8 +409,9 @@ function rkSetGate(id, w, r, k, fmt) {
     let best = null;
     rkSetEntries(k, l, id, { w: Number(w) || 0, r: Number(r) || 0 }, 0).forEach(e => {
       const P = R.part[e.p], cap = rkPartCap(e.p); if (!P || P.excl || !e.gateable || P.rank >= (cap != null ? cap : 5)) return;
-      const v = rkCap(rkCap(rkVal(e.m, rkLadder(e.lad, k, "raw")), e.cap), cap);
-      if (v >= P.rank + 1) { const g = { p: e.p, to: P.rank + 1, heavy: !!e.gateReps, name: RKC().parts[e.p].name }; if (!best || (g.heavy && !best.heavy)) best = g; }
+      const val = m => rkCap(rkCap(rkVal(m, rkLadder(e.lad, k, "raw")), e.cap), cap), gm = e.gateReps ? e.m : e.mg, to = P.rank + 1;
+      const heavy = gm != null && val(gm) >= to; // clears it: 1–5 reps at the level, or that weight for more reps
+      if (heavy || val(e.m) >= to) { const g = { p: e.p, to, heavy, name: RKC().parts[e.p].name }; if (!best || (g.heavy && !best.heavy)) best = g; }
     });
     return best;
   } catch (e) { return null }
@@ -459,7 +462,7 @@ function rkNextText(p, P) {
 }
 function rkGateText(p, P) {
   const g = P.gate; if (!g) return "";
-  if (g.open) return `<div class="rk-gate open"><b>Gate open: reach ${rkLetter(g.to)}</b><span class="small">${RKC().parts[p].run ? "Any run or time trial at this pace clears it automatically." : "Just lift one of these in a workout. Any set of 1–5 reps at this level clears it automatically:"}</span>
+  if (g.open) return `<div class="rk-gate open"><b>Gate open: reach ${rkLetter(g.to)}</b><span class="small">${RKC().parts[p].run ? "Any run or time trial at this pace clears it automatically." : "Just lift one of these in a workout. Hit the weight for the reps shown (or more) and it clears automatically:"}</span>
     ${rkGateOptions(p, g.to).map(o => `<div class="rk-opt"><span>${esc(o.name)}${o.basic ? ' <span class="muted small">(basic lift)</span>' : ""}</span><span class="num">${esc(o.txt)}</span></div>`).join("")}</div>`;
   const W = { bar: "Fill the bar to unlock the next Gate.", cooldown: `Gate failed. Retry in ${g.left} day${g.left > 1 ? "s" : ""}.`, excluded: "Excluded for injury. Fading and demotion are paused.", milecap: "The mile counts up to B. A and S come from the 400 m.", top: "Top rank reached.", placement: "Ranks are set after placement week." };
   return W[g.why] && g.why !== "bar" ? `<div class="small muted">${W[g.why]}</div>` : "";
@@ -567,7 +570,7 @@ function rkHud(R, sc, su) {
   const how = fresh || pend ? `<div class="rk-how"><div class="rk-how-t">${fresh ? "How you rank up" : "While you place"}</div>
     <ol>
       <li class="${pend ? "on" : ""}"><b>Placement week.</b> Train normally for ${C.placementDays} days. Your lifts and runs set your starting rank in each category, up to B.</li>
-      <li><b>Fill the bar, clear the Gate.</b> Beat your numbers until a bar fills, then hit one heavy Gate set (1–5 reps) to rank up. Runs use a fast run or time trial.</li>
+      <li><b>Fill the bar, clear the Gate.</b> Beat your numbers until a bar fills, then hit one heavy Gate set at the target weight (the reps shown, or more) to rank up. Runs use a fast run or time trial.</li>
       <li><b>Show up.</b> Discipline rises with every week you hit ${Math.round(C.discipline.hitPct * 100)}% of your planned sessions.</li>
     </ol>
     ${fresh ? `<button type="button" class="rk-cta" data-tab-go="home">Start today's training</button>` : ""}</div>` : "";
@@ -635,7 +638,7 @@ function rankNotify() {
     D.seen = [...seen, ...fresh.map(e => e.id)].slice(-400); saveProfile();
     const up = recent.filter(e => e.t === "up" || e.t === "reclaim"), fail = recent.filter(e => e.t === "fail");
     if (up.length) rkCelebrate(up[up.length - 1], up.length);
-    else if (fail.length) { const f = fail[fail.length - 1]; toast(f.why === "reps" ? "Gate set didn't count: weighted Gate sets must be 1–5 reps" : f.why === "capped" ? "That exercise can't be a Gate" : `Gate not passed. Retry ${RKC().parts[f.p].name} in ${RKC().retryDays} days`) }
+    else if (fail.length) { const f = fail[fail.length - 1]; toast(f.why === "reps" ? "Gate set didn't count: it needs a weight and reps" : f.why === "capped" ? "That exercise can't be a Gate" : `Gate not passed. Retry ${RKC().parts[f.p].name} in ${RKC().retryDays} days`) }
   } catch (e) { try { console.warn("ranks", e) } catch (_) {} }
 }
 // a System message that slides in from the top
