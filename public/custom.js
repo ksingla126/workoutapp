@@ -212,7 +212,7 @@ function usdaSection(q,localCount){ q=usdaKey(q); if(q.length<3) return localCou
   if(!r||r.loading) return h+`<p class="small muted"><span class="pulse"></span> Searching…</p>`;
   if(r.err) return h+`<p class="small muted">${esc(r.err)}</p>`;
   if(!r.list.length) return h+`<p class="small muted">No USDA matches. Try fewer words, or add it as a custom food.</p>`;
-  return h+`<div class="xs-list">${r.list.map(f=>{const u=f.sv[0]||["100 g",100], m=macrosOf(f,u[1]); return `<button type="button" class="xs-item" data-xs-pickf="${f.id}"><span><b>${esc(f.n)}</b><span class="small muted num">${esc(u[0])} · ${fmtN(m.kcal)} kcal · ${Math.round(m.p)} g P</span></span><span class="xs-plus">+</span></button>`}).join("")}</div>`;
+  return h+`<div class="xs-list">${r.list.map(f=>{const pu=pieceUnit(f), u=pu? [pu,unitGrams(f,pu)] : f.sv[0]||["100 g",100], m=macrosOf(f,u[1]); return `<button type="button" class="xs-item" data-xs-pickf="${f.id}"><span><b>${esc(f.n)}</b><span class="small muted num">${esc(u[0])} · ${fmtN(m.kcal)} kcal · ${Math.round(m.p)} g P</span></span><span class="xs-plus">+</span></button>`}).join("")}</div>`;
 }
 function keepUsda(f){ if(!f||(f.src!=="usda"&&f.src!=="off")) return; const K=kitchen(); K.usda=K.usda||[]; if(!K.usda.some(x=>x.id===f.id)){ K.usda.push({id:f.id,n:f.n,k:f.k,p:f.p,c:f.c,f:f.f,sv:f.sv,src:f.src}); if(K.usda.length>300) K.usda.shift(); saveProfile() } }
 function unitsOf(f){ return f.custom? [[f.serving||"1 serving",100]] : [...(f.sv||[]),["g",1],["oz",28.35],["lb",453.6]] }
@@ -226,7 +226,17 @@ function recipeTotals(r,base){ const ov=!base&&typeof recipeWeek==="function"&&r
 function entryMacros(e){ // plan/diary source: {t:"r",id,qty} or {t:"f",id,amt,unit}
   if(e.t==="r"){ const r=kitchen().recipes.find(x=>x.id===e.id); if(!r) return null; const T=recipeTotals(r).per; return {name:r.name,amount:`${fmtQ(e.qty)} serving${Number(e.qty)===1?"":"s"}`,m:{kcal:T.kcal*e.qty,p:T.p*e.qty,c:T.c*e.qty,f:T.f*e.qty}} }
   const f=foodById(e.id); if(!f) return null; return {name:f.n,amount:fmtAmt(e.amt,e.unit),m:macrosOf(f,gramsOf(f,e.amt,e.unit))} }
-const fmtAmt=(a,u)=>{ const q=fmtQ(a); if(["g","oz","lb"].includes(u)) return `${q} ${u}`; if(/^1 /.test(u)) return Number(a)===1? u : `${q} × ${u.slice(2)}`; return Number(a)===1? u : `${q} × ${u}` };
+// Counting: eggs, tortillas, bananas… read as "3 large eggs", not "3 × large egg" or grams
+const MEASURE_RE=/^1 (cup|tbsp|tsp|oz|fl oz|lb|g|ml|l|scoop|serving|container|packet|portion)\b/i;
+function pieceUnit(f){ if(!f||f.custom) return null; const u=(f.sv||[]).find(([l])=>/^1 /.test(l)&&!MEASURE_RE.test(l)); return u? u[0] : null }
+function pluralW(w){ return /(s|x|ch|sh)$/i.test(w)? w+"es" : /[^aeiou]y$/i.test(w)? w.slice(0,-1)+"ies" : w+"s" }
+function nounN(noun,n){ if(Number(n)===1) return noun; const m=noun.match(/^([^(]*?)(\s*\(.*\))?$/), head=m[1].trim(), tail=m[2]||""; const ws=head.split(" "); ws[ws.length-1]=pluralW(ws[ws.length-1]); return ws.join(" ")+tail }
+function unitOptLabel(u){ return ["g","oz","lb"].includes(u)? u : /^1 /.test(u)? nounN(u.slice(2),2) : u }
+const unitGrams=(f,u)=>{ const x=unitsOf(f).find(z=>z[0]===u); return x? x[1] : 0 };
+// convert an amount to another unit of the same food, keeping the weight; counts round to the half
+function convAmt(f,amt,from,to){ const g=gramsOf(f,amt,from), per=unitGrams(f,to); if(!(per>0)) return amt; const x=g/per;
+  return to==="g"? Math.round(x) : /^1 /.test(to)&&!MEASURE_RE.test(to)? Math.max(0.5,Math.round(x*2)/2) : Math.round(x*100)/100 }
+const fmtAmt=(a,u)=>{ const q=fmtQ(a); if(["g","oz","lb"].includes(u)) return `${q} ${u}`; if(/^1 /.test(u)) return `${q} ${nounN(u.slice(2),a)}`; return Number(a)===1? u : `${q} × ${u}` };
 const fmtQ=n=>{const x=Number(n)||0; return Number.isInteger(x)?String(x):x.toFixed(2).replace(/0+$/,"").replace(/\.$/,"")};
 const SLOTS=[["b","Breakfast"],["l","Lunch"],["d","Dinner"],["s","Snacks"]];
 
@@ -348,7 +358,7 @@ function foodSheetHtml(){ if(SH.view==="scan") return scanHtml();
     if(P.t==="r"){ const r=kitchen().recipes.find(x=>x.id===P.id); const per=recipeTotals(r).per; m={kcal:per.kcal*(+P.qty||0),p:per.p*(+P.qty||0),c:per.c*(+P.qty||0),f:per.f*(+P.qty||0)};
       h+=`<h3>${esc(r.name)}</h3><div class="field"><label>Servings</label><input inputmode="decimal" data-xs-qty="1" value="${esc(P.qty)}" data-xs-focus="qty"></div>` }
     else { const f=foodById(P.id); m=macrosOf(f,gramsOf(f,P.amt,P.unit));
-      h+=`<h3>${esc(f.n)}</h3><div class="row"><div class="field"><label>Amount</label><input inputmode="decimal" data-xs-amt="1" value="${esc(P.amt)}" data-xs-focus="amt"></div><div class="field"><label>Unit</label><select data-xs-unit="1">${unitsOf(f).map(([u])=>`<option ${u===P.unit?"selected":""}>${esc(u)}</option>`).join("")}</select></div></div>` }
+      h+=`<h3>${esc(f.n)}</h3><div class="row"><div class="field"><label>Amount</label><input inputmode="decimal" data-xs-amt="1" value="${esc(P.amt)}" data-xs-focus="amt"></div><div class="field"><label>Unit</label><select data-xs-unit="1">${unitsOf(f).map(([u])=>`<option value="${esc(u)}" ${u===P.unit?"selected":""}>${esc(unitOptLabel(u))}</option>`).join("")}</select></div></div>` }
     h+=`<p class="num macroline"><b>${fmtN(m.kcal)} kcal</b> · ${Math.round(m.p)} g protein · ${Math.round(m.c)} g carbs · ${Math.round(m.f)} g fat</p>
       <div class="row"><button type="button" class="btn" data-xs="fadd">${SH.mode==="plan"?"Add to plan":"Add to diary"}</button><button type="button" class="btn ghost" data-xs="fback">Back</button></div>`;
     return h }
@@ -408,23 +418,29 @@ async function lookupCode(code){ code=String(code||"").replace(/\D/g,""); if(cod
       W.lookAdd={code,name:r.ok&&j.product?j.product.name:""}; paintSheet(); return }
     throw 0 }
   catch(e){ if(SH!==W) return; W.lookErr="Lookup isn't available right now."; W.lookAdd=null; paintSheet() } }
+// one ingredient: amount, unit (count it, weigh it…), Swap for something else, remove
+function ingRow(it,i,opts){ const f=foodById(it.f); if(!f) return ""; opts=opts||{}; const m=macrosOf(f,gramsOf(f,numIn(it.amt),it.unit));
+  return `<div class="ing-row ${opts.cls||""}"><div class="ing-top"><span class="ing-n">${esc(f.n)}${opts.tag||""}</span><span class="small muted num ing-k" data-ing-k="${i}">${fmtN(m.kcal)} kcal</span></div>
+    <div class="ing-ctl"><input inputmode="decimal" aria-label="${esc(f.n)} amount" data-xs-ia="${i}" value="${esc(it.amt)}" data-xs-focus="ia${i}"><select aria-label="${esc(f.n)} unit" data-xs-iu="${i}">${unitsOf(f).map(([u])=>`<option value="${esc(u)}" ${u===it.unit?"selected":""}>${esc(unitOptLabel(u))}</option>`).join("")}</select>
+    <button type="button" class="btn ghost sm" data-xs-ingsw="${i}">Swap</button><button type="button" class="ing-x" ${opts.rm||`data-xs-ingrm="${i}"`} aria-label="Remove ${esc(f.n)}">×</button></div></div>` }
 function recipeHtml(){ const r=SH.r, T=recipeTotals(r,true);
   if(SH.cook&&!SH.adding&&typeof fpCookHtml==="function") return fpCookHtml();
-  let h=`<div class="xs-head"><h2>${SH.cook?"Add an ingredient":SH.isNew?"New recipe":"Edit recipe"}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>`;
+  const swapF=SH.swap!=null&&SH.r.items[SH.swap]? foodById(SH.r.items[SH.swap].f) : null;
+  let h=`<div class="xs-head"><h2>${swapF&&SH.adding?`Swap ${esc(swapF.n.split(",")[0])} for…`:SH.cook?"Add an ingredient":SH.isNew?"New recipe":"Edit recipe"}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>`;
   if(SH.adding){ const q=(SH.q||"").toLowerCase().trim(); const list=foodDb().filter(f=>!q||f.n.toLowerCase().includes(q));
     if(SH.pick){ const P=SH.pick, f=foodById(P.id), m=macrosOf(f,gramsOf(f,P.amt,P.unit));
-      return h+`<h3>${esc(f.n)}</h3><div class="row"><div class="field"><label>Amount</label><input inputmode="decimal" data-xs-amt="1" value="${esc(P.amt)}" data-xs-focus="amt"></div><div class="field"><label>Unit</label><select data-xs-unit="1">${unitsOf(f).map(([u])=>`<option ${u===P.unit?"selected":""}>${esc(u)}</option>`).join("")}</select></div></div>
+      return h+`<h3>${esc(f.n)}</h3><div class="row"><div class="field"><label>Amount</label><input inputmode="decimal" data-xs-amt="1" value="${esc(P.amt)}" data-xs-focus="amt"></div><div class="field"><label>Unit</label><select data-xs-unit="1">${unitsOf(f).map(([u])=>`<option value="${esc(u)}" ${u===P.unit?"selected":""}>${esc(unitOptLabel(u))}</option>`).join("")}</select></div></div>
         <p class="num macroline"><b>${fmtN(m.kcal)} kcal</b> · ${Math.round(m.p)} g P · ${Math.round(m.c)} g C · ${Math.round(m.f)} g F</p>
-        <div class="row"><button type="button" class="btn" data-xs="ingadd">Add ingredient</button><button type="button" class="btn ghost" data-xs="fback">Back</button></div>` }
+        <div class="row"><button type="button" class="btn" data-xs="ingadd">${SH.swap!=null?"Swap it in":"Add ingredient"}</button><button type="button" class="btn ghost" data-xs="fback">Back</button></div>` }
     return h+`<input class="xs-search" type="search" placeholder="Search ingredients" value="${esc(SH.q||"")}" data-xs-q="1" data-xs-focus="q" autocomplete="off">
-      <div class="xs-results"><div class="xs-list">${list.map(f=>`<button type="button" class="xs-item" data-xs-pickf="${f.id}"><span><b>${esc(f.n)}</b><span class="small muted num">${fmtN(f.custom?f.k:f.k)} kcal ${f.custom?"per "+esc(f.serving||"serving"):"/ 100 g"}</span></span><span class="xs-plus">+</span></button>`).join("")}</div>${usdaSection(SH.q,list.length)}</div>
+      <div class="xs-results"><div class="xs-list">${list.map(f=>`<button type="button" class="xs-item" data-xs-pickf="${f.id}"><span><b>${esc(f.n)}</b><span class="small muted num">${(()=>{ const pu=pieceUnit(f); return f.custom? `${fmtN(f.k)} kcal per ${esc(f.serving||"serving")}` : pu? `${fmtN(f.k*unitGrams(f,pu)/100)} kcal per ${esc(pu.slice(2))}` : `${fmtN(f.k)} kcal / 100 g` })()}</span></span><span class="xs-plus">+</span></button>`).join("")}</div>${usdaSection(SH.q,list.length)}</div>
       <button type="button" class="btn ghost" data-xs="ingback" style="margin-top:12px">Back to the recipe</button>` }
-  h+=`<div class="field"><label>Meal name</label><input data-xs-rf="name" value="${esc(r.name)}" placeholder="e.g. Pesto chicken rice bowls" data-xs-focus="rname"></div>
+  h+=`<div class="field"><label>Recipe name</label><input data-xs-rf="name" value="${esc(r.name)}" placeholder="e.g. Pesto chicken rice bowls" data-xs-focus="rname"></div>
     <div class="field" style="max-width:160px"><label>Makes (servings)</label><input inputmode="numeric" data-xs-rf="servings" value="${esc(r.servings)}" data-xs-focus="rserv"></div>
     <h3>Ingredients</h3>`;
   const methodHtml=`<div class="field"><label>Method (one step per line)</label><textarea data-xs-rf="method" rows="7" data-xs-focus="rmethod" placeholder="Brown the turkey…">${esc(r.method||"")}</textarea></div>
     <div class="field"><label>Storing and reheating</label><textarea data-xs-rf="store" rows="3" data-xs-focus="rstore">${esc(r.store||"")}</textarea></div>`;
-  h+= r.items.length? r.items.map((it,i)=>{const f=foodById(it.f); if(!f) return ""; const m=macrosOf(f,gramsOf(f,it.amt,it.unit)); return `<div class="extra"><span>${esc(f.n)} <span class="muted small num">· ${esc(fmtAmt(it.amt,it.unit))} · ${fmtN(m.kcal)} kcal</span></span><button type="button" data-xs-ingrm="${i}" aria-label="Remove">×</button></div>`}).join("") : `<p class="small muted">Add the ingredients for the whole batch.</p>`;
+  h+= r.items.length? `<div class="ing-list">${r.items.map((it,i)=>ingRow(it,i)).join("")}</div>` : `<p class="small muted">Add the ingredients for the whole batch.</p>`;
   h+=`<button type="button" class="btn ghost sm" data-xs="ingnew" style="margin:8px 0">+ Add ingredient</button>
     <div class="note num rtot"><b>Per serving:</b> ${fmtN(T.per.kcal)} kcal · ${Math.round(T.per.p)} g protein · ${Math.round(T.per.c)} g carbs · ${Math.round(T.per.f)} g fat<br><span class="small muted">Whole batch: ${fmtN(T.total.kcal)} kcal · ${Math.round(T.total.p)} g protein</span></div>
     ${methodHtml}<p class="note" data-xs-err hidden></p>
@@ -1533,7 +1549,10 @@ document.addEventListener("click",e=>{
   if(d.xs==="scanadd"){ const A=SH.lookAdd||{}, back=SH; stopScan(); openSheet({kind:"cfood",isNew:true,back,d:{id:newId("cf"),n:A.name||"",serving:"1 serving",k:"",p:"",c:"",f:"",code:A.code}}); return }
   if(d.xs==="lookup"){ stopScan(); const inp=document.querySelector("[data-xs-code]"); lookupCode(inp?inp.value:SH.code); return }
   if(d.xsPickr){ SH.pick={t:"r",id:d.xsPickr,qty:1}; paintSheet(true); return }
-  if(d.xsPickf){ const f=foodById(d.xsPickf); keepUsda(f); SH.pick={t:"f",id:f.id,amt:1,unit:unitsOf(f)[0][0]}; paintSheet(true); return }
+  if(d.xsPickf){ const f=foodById(d.xsPickf); keepUsda(f); let unit=pieceUnit(f)||unitsOf(f)[0][0], amt=1;
+    if(SH.kind==="recipe"&&SH.swap!=null&&SH.r&&SH.r.items[SH.swap]){ const o=SH.r.items[SH.swap], of=foodById(o.f), g=of? gramsOf(of,o.amt,o.unit) : 0;
+      if(!pieceUnit(f)&&["g","oz","lb"].includes(o.unit)) unit=o.unit; const per=unitGrams(f,unit); if(g>0&&per>0) amt=convAmt(f,g,"g",unit) }
+    SH.pick={t:"f",id:f.id,amt,unit}; paintSheet(true); return }
   if(d.xs==="fback"){ SH.pick=null; paintSheet(true); return }
   if(d.xs==="fadd"){ const P=SH.pick, e=P.t==="r"?{t:"r",id:P.id,qty:numIn(P.qty)}:{t:"f",id:P.id,amt:numIn(P.amt),unit:P.unit}; if(!(e.qty>0||e.amt>0)){ toast("Enter an amount above 0"); return }
     if(SH.mode==="plan"){ const K=kitchen(); (K.plan[SH.slot]=K.plan[SH.slot]||[]).push(e); xsClose(); commitPlan(); toast("Added to plan"); return }
@@ -1545,11 +1564,13 @@ document.addEventListener("click",e=>{
     const k=SH.k, m=S.meals[k]||(S.meals[k]={eaten:{},extras:[]}); m.items=m.items||[]; m.items.push({slot:SH.slot,n:name.trim()||"Quick add",amt:"",kcal:Math.round(kc),p:q("p"),c:q("c"),f:q("f")});
     saveMeals(k); xsClose(); lastRenderKey=""; render(); toast("Added"); return }
   // recipe editor
-  if(d.xs==="ingnew"){ SH.adding=true; SH.q=""; SH.pick=null; paintSheet(true); return }
-  if(d.xs==="ingback"){ SH.adding=false; SH.pick=null; paintSheet(true); return }
-  if(d.xs==="ingadd"){ const P=SH.pick; if(!(numIn(P.amt)>0)){ toast("Enter an amount above 0"); return } SH.r.items.push({f:P.id,amt:numIn(P.amt),unit:P.unit}); SH.adding=false; SH.pick=null; paintSheet(true); return }
+  if(d.xs==="ingnew"){ SH.adding=true; SH.swap=null; SH.q=""; SH.pick=null; paintSheet(true); return }
+  if(d.xs==="ingback"){ SH.adding=false; SH.pick=null; SH.swap=null; paintSheet(true); return }
+  if(d.xs==="ingadd"){ const P=SH.pick; if(!(numIn(P.amt)>0)){ toast("Enter an amount above 0"); return } const it={f:P.id,amt:numIn(P.amt),unit:P.unit};
+    if(SH.swap!=null&&SH.r.items[SH.swap]) SH.r.items[SH.swap]=it; else SH.r.items.push(it); SH.swap=null; SH.adding=false; SH.pick=null; paintSheet(true); return }
+  if(d.xsIngsw!=null){ SH.swap=+d.xsIngsw; SH.adding=true; SH.q=""; SH.pick=null; paintSheet(true); return }
   if(d.xsIngrm!=null){ SH.r.items.splice(+d.xsIngrm,1); paintSheet(); return }
-  if(d.xs==="rsave"){ const r=SH.r; r.name=(r.name||"").trim(); r.servings=Math.max(1,Math.round(numIn(r.servings))||1);
+  if(d.xs==="rsave"){ const r=SH.r; r.name=(r.name||"").trim(); r.servings=Math.max(1,Math.round(numIn(r.servings))||1); r.items=(r.items||[]).map(it=>({...it,amt:numIn(it.amt)})).filter(it=>it.amt>0);
     if(!r.name||!r.items.length){ const er=document.querySelector("[data-xs-err]"); er.textContent=!r.name?"Give the meal a name.":"Add at least one ingredient."; er.hidden=false; return }
     const K=kitchen(), i=K.recipes.findIndex(x=>x.id===r.id); if(i>=0) K.recipes[i]=r; else K.recipes.push(r); xsClose(); commitPlan(); toast("Meal saved"); return }
   if(d.xs==="rdel"){ if(!SH.delConfirm){ SH.delConfirm=true; paintSheet(); return } const K=kitchen(), id=SH.r.id; K.recipes=K.recipes.filter(x=>x.id!==id); SLOTS.forEach(([sk])=>K.plan[sk]=(K.plan[sk]||[]).filter(e=>!(e.t==="r"&&e.id===id))); xsClose(); commitPlan(); return }
@@ -1576,9 +1597,11 @@ document.addEventListener("input",e=>{ const t=e.target, d=t.dataset||{};
   if(d.xsGn!=null&&SH&&SH.kind==="gscan"){ SH.pname=t.value; return }
   if(d.xsGq!=null&&SH&&SH.kind==="gscan"){ SH.eq=t.value; paintPart(".gplan"); return }
   if(d.xsRf){ SH.r[d.xsRf]=t.value; if(d.xsRf==="servings") paintPart(".rtot"); return }
+  if(d.xsIa!=null&&SH&&SH.r&&SH.r.items[+d.xsIa]){ const it=SH.r.items[+d.xsIa]; it.amt=t.value; const f=foodById(it.f), k=document.querySelector(`[data-ing-k="${d.xsIa}"]`); if(f&&k) k.textContent=`${fmtN(macrosOf(f,gramsOf(f,numIn(it.amt),it.unit)).kcal)} kcal`; paintPart(SH.cook?".fp-ctot":".rtot"); return }
   if(d.xsCf){ SH.d[d.xsCf]=t.value; return }
 });
 document.addEventListener("change",e=>{ const t=e.target, d=t.dataset||{};
+  if(d.xsIu!=null&&SH&&SH.r&&SH.r.items[+d.xsIu]){ const it=SH.r.items[+d.xsIu], f=foodById(it.f); if(f){ it.amt=convAmt(f,numIn(it.amt),it.unit,t.value); it.unit=t.value } paintSheet(); return }
   if(d.xsFvid&&SH&&SH.kind==="form"){ const f=t.files&&t.files[0]; t.value=""; formPick(f); return }
   if(d.xsFex&&SH&&SH.kind==="form"){ SH.ex=t.value; SH.name=t.options[t.selectedIndex].text; paintSheet(); return }
   if(d.xsSi==="unit"&&SH&&SH.kind==="shopItem"){ SH.unit=t.value; return }
