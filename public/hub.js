@@ -18,7 +18,7 @@ function hubMuscles(p) {
 }
 function hubRank() {
   try { const R = rankState(), un = !R.place || R.place.pending, fresh = !Object.values(S.logs).some(l => l && (l.type === "gym" || l.type === "run"));
-    return { R, un, fresh, ov: R.overall, prog: un ? 0 : rkOverallProg(R.overallAvg, R.overall) } } catch (e) { return { R: null, un: true, fresh: true, ov: 0, prog: 0 } }
+    const V = rkShown(R); return { R, V, un, fresh, ov: V.ov, prog: un ? 0 : rkOverallProg(V.avg, V.ov) } } catch (e) { return { R: null, un: true, fresh: true, ov: 0, prog: 0 } }
 }
 function hubWeek() { const k = ymd(today), d = parseYmd(k), mon = addDays(d, -((d.getDay() + 6) % 7)); let plan = 0, done = 0;
   for (let i = 0; i < 7; i++) { const x = addDays(mon, i), p = planFor(x); if (p && p.type !== "rest") { plan++; if (S.logs[ymd(x)]) done++ } } return { plan, done } }
@@ -88,7 +88,7 @@ function hubQuest() {
 function hubStatus(H) {
   if (!H.R) return "";
   const gs = H.R.groups, w = hubWeek();
-  const tiles = gs.map(g => { const r = g.num == null ? null : Math.floor(Math.min(5, g.num)), L = H.un || r == null ? "?" : rkLetter(r), col = H.un || r == null ? "var(--muted)" : RK_COL[r];
+  const tiles = gs.map(g => { const n = H.V.group(g), r = n == null ? null : Math.floor(Math.min(5, n)), L = H.un || r == null ? "?" : rkLetter(r), col = H.un || r == null ? "var(--muted)" : RK_COL[r];
     return `<button type="button" class="hub-stat" data-hub-rank="${g.id}" aria-label="${esc(g.name)}: ${H.un || r == null ? "unranked" : L}"><b style="color:${col}">${L}</b><span>${esc(HUB_SHORT[g.id] || g.name)}</span></button>` }).join("");
   const bars = w.plan ? Array.from({ length: w.plan }, (_, i) => `<i class="${i < w.done ? "on" : ""}"></i>`).join("") : "";
   return `<section class="hub-block"><div class="hub-row"><span class="hub-sys">STATUS</span><button type="button" class="link small" data-tab-go="ranks">All ranks</button></div>
