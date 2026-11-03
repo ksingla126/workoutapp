@@ -221,7 +221,8 @@ function macrosOf(f,grams){ const m=grams/100; return {kcal:f.k*m,p:f.p*m,c:f.c*
 const addM=(a,b,x=1)=>({kcal:a.kcal+b.kcal*x,p:a.p+b.p*x,c:a.c+b.c*x,f:a.f+b.f*x});
 const ZERO={kcal:0,p:0,c:0,f:0};
 function kitchen(){ S.profile.kitchen=S.profile.kitchen||{foods:[],recipes:[],plan:{b:[],l:[],d:[],s:[]}}; const k=S.profile.kitchen; k.foods=k.foods||[]; k.recipes=k.recipes||[]; k.plan=k.plan||{b:[],l:[],d:[],s:[]}; return k }
-function recipeTotals(r,base){ let t={...ZERO}; (base?(r.items||[]):scaledItems(r)).forEach(it=>{const f=foodById(it.f); if(f) t=addM(t,macrosOf(f,gramsOf(f,it.amt,it.unit)))}); const n=Math.max(1,Number(r.servings)||1); return {total:t,per:{kcal:t.kcal/n,p:t.p/n,c:t.c/n,f:t.f/n},n} }
+function recipeTotals(r,base){ const ov=!base&&typeof recipeWeek==="function"&&r.id&&recipeWeek(r.id); // this week's cooking changes, when there are any
+  let t={...ZERO}; (ov?ov.items:base?(r.items||[]):scaledItems(r)).forEach(it=>{const f=foodById(it.f); if(f) t=addM(t,macrosOf(f,gramsOf(f,it.amt,it.unit)))}); const n=Math.max(1,Number(ov?ov.servings:r.servings)||1); return {total:t,per:{kcal:t.kcal/n,p:t.p/n,c:t.c/n,f:t.f/n},n} }
 function entryMacros(e){ // plan/diary source: {t:"r",id,qty} or {t:"f",id,amt,unit}
   if(e.t==="r"){ const r=kitchen().recipes.find(x=>x.id===e.id); if(!r) return null; const T=recipeTotals(r).per; return {name:r.name,amount:`${fmtQ(e.qty)} serving${Number(e.qty)===1?"":"s"}`,m:{kcal:T.kcal*e.qty,p:T.p*e.qty,c:T.c*e.qty,f:T.f*e.qty}} }
   const f=foodById(e.id); if(!f) return null; return {name:f.n,amount:fmtAmt(e.amt,e.unit),m:macrosOf(f,gramsOf(f,e.amt,e.unit))} }
@@ -270,7 +271,7 @@ function paintSheet(scrollTop){ if(!SH) return; const el=sheetEl(), inn=el.query
   if(focusSel){ const f=inn.querySelector(`[data-xs-focus="${focusSel}"]`); if(f){ f.focus(); try{const v=f.value; f.setSelectionRange(v.length,v.length)}catch(e){} } } }
 const commitPlan=()=>{ saveProfile(); onProfile(); render() };
 // Repaint only part of the sheet, so the input being typed in (and the iPhone keyboard) stays put.
-function sheetHtml(){ return SH.kind==="form"? formHtml() : SH.kind==="autogen"? autogenHtml() : SH.kind==="shopItem"? shopItemHtml() : SH.kind==="shopList"? shopListHtml() : SH.kind==="shopSched"? shopSchedHtml() : SH.kind==="gscan"? gscanHtml() : SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="fmt"? fmtSheetHtml() : SH.kind==="paths"? pathsHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
+function sheetHtml(){ return SH.kind==="form"? formHtml() : SH.kind==="autogen"? autogenHtml() : SH.kind==="shopItem"? shopItemHtml() : SH.kind==="shopList"? shopListHtml() : SH.kind==="shopSched"? shopSchedHtml() : SH.kind==="gscan"? gscanHtml() : SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="fmt"? fmtSheetHtml() : SH.kind==="paths"? pathsHtml() : SH.kind==="fpgoals"? fpGoalsHtml() : SH.kind==="fpsched"? fpSchedHtml() : SH.kind==="fpextra"? fpExtraHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
 function paintPart(sel){ if(!SH) return; const el=document.querySelector("#xsheet .xs-in"); const dst=el&&el.querySelector(sel); if(!dst){ paintSheet(); return }
   const tmp=document.createElement("div"); tmp.innerHTML=sheetHtml(); const src=tmp.querySelector(sel); if(src) dst.innerHTML=src.innerHTML; else paintSheet() }
 function estMin(ex){ const sec=(ex||[]).reduce((t,e)=>t+(e.sets||3)*((e.rest||90)+(isSec(e)?(e.hi||45):40)),0); return Math.max(10,Math.round(sec/60/5)*5) }
@@ -408,7 +409,8 @@ async function lookupCode(code){ code=String(code||"").replace(/\D/g,""); if(cod
     throw 0 }
   catch(e){ if(SH!==W) return; W.lookErr="Lookup isn't available right now."; W.lookAdd=null; paintSheet() } }
 function recipeHtml(){ const r=SH.r, T=recipeTotals(r,true);
-  let h=`<div class="xs-head"><h2>${SH.isNew?"New meal":"Edit meal"}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>`;
+  if(SH.cook&&!SH.adding&&typeof fpCookHtml==="function") return fpCookHtml();
+  let h=`<div class="xs-head"><h2>${SH.cook?"Add an ingredient":SH.isNew?"New recipe":"Edit recipe"}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>`;
   if(SH.adding){ const q=(SH.q||"").toLowerCase().trim(); const list=foodDb().filter(f=>!q||f.n.toLowerCase().includes(q));
     if(SH.pick){ const P=SH.pick, f=foodById(P.id), m=macrosOf(f,gramsOf(f,P.amt,P.unit));
       return h+`<h3>${esc(f.n)}</h3><div class="row"><div class="field"><label>Amount</label><input inputmode="decimal" data-xs-amt="1" value="${esc(P.amt)}" data-xs-focus="amt"></div><div class="field"><label>Unit</label><select data-xs-unit="1">${unitsOf(f).map(([u])=>`<option ${u===P.unit?"selected":""}>${esc(u)}</option>`).join("")}</select></div></div>
@@ -416,7 +418,7 @@ function recipeHtml(){ const r=SH.r, T=recipeTotals(r,true);
         <div class="row"><button type="button" class="btn" data-xs="ingadd">Add ingredient</button><button type="button" class="btn ghost" data-xs="fback">Back</button></div>` }
     return h+`<input class="xs-search" type="search" placeholder="Search ingredients" value="${esc(SH.q||"")}" data-xs-q="1" data-xs-focus="q" autocomplete="off">
       <div class="xs-results"><div class="xs-list">${list.map(f=>`<button type="button" class="xs-item" data-xs-pickf="${f.id}"><span><b>${esc(f.n)}</b><span class="small muted num">${fmtN(f.custom?f.k:f.k)} kcal ${f.custom?"per "+esc(f.serving||"serving"):"/ 100 g"}</span></span><span class="xs-plus">+</span></button>`).join("")}</div>${usdaSection(SH.q,list.length)}</div>
-      <button type="button" class="btn ghost" data-xs="ingback" style="margin-top:12px">Back to meal</button>` }
+      <button type="button" class="btn ghost" data-xs="ingback" style="margin-top:12px">Back to the recipe</button>` }
   h+=`<div class="field"><label>Meal name</label><input data-xs-rf="name" value="${esc(r.name)}" placeholder="e.g. Pesto chicken rice bowls" data-xs-focus="rname"></div>
     <div class="field" style="max-width:160px"><label>Makes (servings)</label><input inputmode="numeric" data-xs-rf="servings" value="${esc(r.servings)}" data-xs-focus="rserv"></div>
     <h3>Ingredients</h3>`;
@@ -426,7 +428,7 @@ function recipeHtml(){ const r=SH.r, T=recipeTotals(r,true);
   h+=`<button type="button" class="btn ghost sm" data-xs="ingnew" style="margin:8px 0">+ Add ingredient</button>
     <div class="note num rtot"><b>Per serving:</b> ${fmtN(T.per.kcal)} kcal · ${Math.round(T.per.p)} g protein · ${Math.round(T.per.c)} g carbs · ${Math.round(T.per.f)} g fat<br><span class="small muted">Whole batch: ${fmtN(T.total.kcal)} kcal · ${Math.round(T.total.p)} g protein</span></div>
     ${methodHtml}<p class="note" data-xs-err hidden></p>
-    <div class="row"><button type="button" class="btn" data-xs="rsave">Save meal</button>${SH.isNew?"":`<button type="button" class="btn ghost" data-xs="rdel">${SH.delConfirm?"Tap again to delete":"Delete"}</button>`}</div>`;
+    <div class="row"><button type="button" class="btn" data-xs="rsave">Save recipe</button>${SH.isNew?"":`<button type="button" class="btn ghost" data-xs="rdel">${SH.delConfirm?"Tap again to delete":"Delete"}</button>`}</div>`;
   return h;
 }
 function cfoodHtml(){ const d=SH.d;
