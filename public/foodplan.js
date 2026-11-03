@@ -31,11 +31,13 @@ function fpMigrate(K) {
   const lists = ids.map(id => old.lists.find(l => l.id === id)), need = groceryList();
   const words = s => String(s || "").toLowerCase().replace(/[^a-z ]/g, " ").split(/\s+/).filter(w => w.length > 2 && !["lean", "ground", "fresh", "frozen", "large", "breast", "liquid", "whole", "raw", "dry", "cooked"].includes(w)).map(w => w.replace(/(es|s)$/, "").slice(0, 7));
   const match = name => { const w = words(name); return need.find(g => w.length && w.some(x => x.length > 2 && g.n.toLowerCase().includes(x))) };
-  const s = { weeks: lists.map(l => l.name || "Week"), day: old.day || 0, start: old.start || ymd(nextShopDay({ day: 0 })), assign: {}, extras: [], notes: lists.map(l => (l.steps || []).join("\n")), migrated: true };
+  // alias keeps each item's old key, so products you scanned (and recipes sized to them) carry over
+  const s = { weeks: lists.map(l => l.name || "Week"), day: old.day || 0, start: old.start || ymd(nextShopDay({ day: 0 })), assign: {}, extras: [], alias: {}, notes: lists.map(l => (l.steps || []).join("\n")), migrated: true };
   const seen = {};
   lists.forEach((l, wi) => (l.items || []).forEach(it => { const g = match(it.name), key = g ? "f:" + g.id : "x:" + (it.name || "").toLowerCase(); (seen[key] = seen[key] || { it, g, weeks: new Set() }).weeks.add(wi) }));
   Object.entries(seen).forEach(([key, v]) => { const wk = v.weeks.size === lists.length ? "*" : [...v.weeks][0];
-    if (v.g) s.assign[key] = wk; else s.extras.push({ id: newId("ex"), name: v.it.name, amt: v.it.amt, unit: v.it.unit || "", note: v.it.note || "", week: wk }) });
+    if (v.g) { s.assign[key] = wk; if (v.it.id) s.alias[key] = v.it.id }
+    else { const id = newId("ex"); s.extras.push({ id, name: v.it.name, amt: v.it.amt, unit: v.it.unit || "", note: v.it.note || "", week: wk }); if (v.it.id) s.alias["x:" + id] = v.it.id } });
   return s;
 }
 function fpWeekIdx(s, d) { const n = s.weeks.length; if (n < 2) return 0; const st = parseYmd(s.start || ymd(d)); const w = Math.floor(Math.round((d - st) / 864e5) / 7); return ((w % n) + n) % n }
@@ -45,14 +47,17 @@ function fpShopItems(s, w) {
   const N = s.weeks.length, out = [], need = groceryList(), uses = fpUses();
   need.forEach(g => { const key = "f:" + g.id, a = s.assign[key] == null ? "*" : s.assign[key]; if (a !== "*" && Number(a) !== w) return;
     const mult = a === "*" ? 1 : N, gr = g.gr * mult;
-    out.push({ key, name: g.n, gr, qty: fpQty(g.id, gr), need: { q: Math.round(gr) / 28.3495 >= 16 ? +(gr / 453.6).toFixed(2) : +(gr / 28.3495).toFixed(1), u: gr / 28.3495 >= 16 ? "lb" : "oz" }, a, mult, uses: uses[g.id] || [] }) });
+    const ea = fpEach(g.id), need = ea ? { q: Math.ceil(gr / ea[1] - 0.05), u: "count" } : gr / 28.3495 >= 16 ? { q: +(gr / 453.6).toFixed(2), u: "lb" } : { q: +(gr / 28.3495).toFixed(1), u: "oz" };
+    out.push({ key, name: g.n, gr, qty: fpQty(g.id, gr), need, a, mult, uses: uses[g.id] || [] }) });
   s.extras.forEach(x => { const a = x.week == null ? "*" : x.week; if (a !== "*" && Number(a) !== w) return;
     out.push({ key: "x:" + x.id, name: x.name, qty: x.note || (x.amt ? `${fmtQ(x.amt)}${x.unit && x.unit !== "count" ? " " + x.unit : ""}` : ""), need: x.amt > 0 && GU[x.unit] ? { q: +x.amt, u: x.unit } : null, a, extra: x }) });
   return out.sort((a, b) => (a.extra ? 1 : 0) - (b.extra ? 1 : 0) || a.name.localeCompare(b.name));
 }
+// things you buy by the piece (eggs, tortillas, cans); meat and produce are bought by weight
+function fpEach(id) { const f = foodById(id); return f && !f.custom ? (f.sv || []).find(([l]) => /^1 (large|medium|bagel|bun|tortilla|avocado|clove|cake|bar|can|block|package|bottle)/.test(l)) : null }
 function fpQty(id, gr) { const f = foodById(id); if (!f) return ""; if (f.custom) return `${fmtQ(Math.round(gr / 100 * 10) / 10)} × ${f.serving || "serving"}`;
-  const each = (f.sv || []).find(([l]) => /^1 (large|medium|bagel|bun|tortilla|avocado|clove|cake|bar|can|block|package|fillet|breast|thigh|steak|bottle)/.test(l));
-  return each ? `${Math.ceil(gr / each[1] - 0.05)} × ${each[0].replace(/^1 /, "")}` : gr >= 454 ? `${(gr / 453.6).toFixed(1)} lb` : `${Math.ceil(gr / 28.35)} oz` }
+  const each = fpEach(id);
+  return each ? `${Math.ceil(gr / each[1] - 0.05)} × ${each[0].replace(/^1 /, "")}` : gr >= 454 ? `${fmtQ(+(gr / 453.6).toFixed(1))} lb` : `${Math.ceil(gr / 28.35)} oz` }
 function fpUses() { const K = kitchen(), out = {}; SLOTS.forEach(([sk]) => (K.plan[sk] || []).forEach(e => { if (e.t !== "r") return; const r = K.recipes.find(x => x.id === e.id); if (!r) return; (r.items || []).forEach(it => { (out[it.f] = out[it.f] || []); if (!out[it.f].includes(r.name)) out[it.f].push(r.name) }) })); return out }
 const fpWkName = (s, a) => a === "*" || a == null ? "Every week" : `${s.weeks[a] || "Week " + (Number(a) + 1)} only`;
 
@@ -75,7 +80,7 @@ function fpPlan() {
     if (!its.length) h += `<p class="small muted" style="margin:0">Nothing planned.</p>`;
     its.forEach((e, i) => { const M = entryMacros(e); if (!M) return;
       if (e.t === "r") { const r = K.recipes.find(x => x.id === e.id), wk = recipeWeek(e.id);
-        h += `<div class="fp-rec"><div class="fp-rec-top"><div class="fp-rec-name"><b>${esc(r.name)}</b><span class="small muted num">${esc(M.amount)} a day · ${fmtN(M.m.kcal)} kcal · ${Math.round(M.m.p)} g protein</span>${wk ? `<span class="fp-tag">Changed this week</span>` : ""}</div>
+        h += `<div class="fp-rec"><div class="fp-rec-top"><div class="fp-rec-name"><b>${esc(r.name)}</b><span class="small muted num">${esc(M.amount)} a day · ${fmtN(M.m.kcal)} kcal · ${Math.round(M.m.p)} g protein</span>${wk ? `<span class="fp-tag">Changed this week</span>` : typeof recipeScales === "function" && recipeScales(r).length ? `<span class="fp-tag">Adjusted to your packages</span>` : ""}</div>
           <button type="button" class="fp-x" data-c-prm="${sk}|${i}" aria-label="Remove ${esc(r.name)} from ${sn}">×</button></div>
           <div class="fp-rec-btns"><button type="button" class="btn sm" data-fp-cook="${r.id}">Cook</button><button type="button" class="btn ghost sm" data-c-rec="${r.id}">Edit recipe</button>${wk ? `<button type="button" class="link small" data-fp-reset="${r.id}">Undo this week's changes</button>` : ""}</div></div>` }
       else h += `<div class="extra"><span>${esc(M.name)} <span class="muted small num">· ${esc(M.amount)} · ${fmtN(M.m.kcal)} kcal</span></span><button type="button" data-c-prm="${sk}|${i}" aria-label="Remove ${esc(M.name)}">×</button></div>` });
@@ -85,7 +90,7 @@ function fpPlan() {
   h += K.recipes.length ? K.recipes.map(r => { const T = recipeTotals(r); return `<div class="fp-recrow"><button type="button" class="dayline rec" data-c-rec="${r.id}"><span class="txt"><b>${esc(r.name)}</b><br><span class="small muted num">Makes ${T.n} · ${fmtN(T.per.kcal)} kcal · ${Math.round(T.per.p)} g protein per serving</span></span></button><button type="button" class="btn ghost sm" data-fp-cook="${r.id}">Cook</button></div>` }).join("")
     : `<p class="small muted" style="margin:0">Add the meals you cook: every ingredient in the batch and how many servings it makes. The app works out macros per serving, then put them on your plan.</p>`;
   h += `</div>`;
-  h += `<details class="card fp-foods"><summary><b>My foods</b> <span class="small muted">· packaged foods from their label</span></summary>${K.foods.map(f => `<button type="button" class="dayline" data-c-cf="${f.id}"><span class="txt"><b>${esc(f.n)}</b> <span class="small muted num">${esc(f.serving)} · ${fmtN(f.k)} kcal · ${f.p} g P</span></span></button>`).join("")}<button type="button" class="btn ghost sm" data-c-cf="" style="align-self:flex-start">+ New food</button></details>`;
+  h += `<details class="card fp-foods" ${K.foods.length ? "open" : ""}><summary><b>My foods</b> <span class="small muted">· packaged foods from their label</span></summary>${K.foods.map(f => `<button type="button" class="dayline" data-c-cf="${f.id}"><span class="txt"><b>${esc(f.n)}</b> <span class="small muted num">${esc(f.serving)} · ${fmtN(f.k)} kcal · ${f.p} g P</span></span></button>`).join("")}<button type="button" class="btn ghost sm" data-c-cf="" style="align-self:flex-start">+ New food</button></details>`;
   return h;
 }
 function fpToday() {
@@ -103,7 +108,7 @@ function fpShopView() {
   h += `<div class="card fp-list"><div class="row between"><h3>${esc(s.weeks[w])}${w === next ? ` <span class="chip food">${fmtShort(nd)}</span>` : ""}</h3><span class="small muted">${items.length} item${items.length === 1 ? "" : "s"}</span></div>`;
   if (!items.length) h += `<p class="small muted" style="margin:0">${kitchen().recipes.length ? "Nothing to buy this week. Put recipes on your plan, or add items below." : "Add recipes to your plan and this list fills in by itself."}</p>`;
   items.forEach(it => { const chip = `<button type="button" class="fp-mv" data-fp-mv="${esc(it.key)}" aria-haspopup="menu" aria-label="${esc(it.name)}: ${esc(fpWkName(s, it.a))}. Tap to move">${esc(N > 1 ? (it.a === "*" ? "Every week" : s.weeks[it.a]) : "Move")}<svg viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>`;
-    h += `<div class="fp-item">${shopRow(it.key, ck(it), it.name, it.qty, it.need)}<div class="fp-item-sub">${it.uses && it.uses.length ? `<span class="small muted">${esc(it.uses.join(", "))}${it.mult > 1 ? ` · covers ${it.mult} weeks` : ""}</span>` : it.extra ? `<button type="button" class="link small" data-fp-xedit="${esc(it.extra.id)}">Edit</button>` : "<span></span>"}${N > 1 ? chip : ""}</div></div>` });
+    h += `<div class="fp-item">${shopRow((s.alias && s.alias[it.key]) || it.key, ck(it), it.name, it.qty, it.need)}<div class="fp-item-sub">${it.uses && it.uses.length ? `<span class="small muted">${esc(it.uses.join(", "))}${it.mult > 1 ? ` · covers ${it.mult} weeks` : ""}</span>` : it.extra ? `<button type="button" class="link small" data-fp-xedit="${esc(it.extra.id)}">Edit</button>` : "<span></span>"}${N > 1 ? chip : ""}</div></div>` });
   h += `<div class="row" style="gap:8px;margin-top:6px"><button type="button" class="btn ghost sm" data-fp-xadd="1">+ Add item</button><button type="button" class="link small" data-fp-unck="${w}">Uncheck all</button></div>`;
   if (s.notes[w]) h += `<div class="eyebrow" style="margin-top:10px">Cooking order</div><ol class="steps small">${s.notes[w].split("\n").filter(Boolean).map(x => `<li>${esc(x)}</li>`).join("")}</ol>`;
   return h + `</div>`;
