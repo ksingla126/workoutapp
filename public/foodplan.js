@@ -137,15 +137,15 @@ function fpExtraHtml() { const W = SH, s = fpShop();
 // cooking: the recipe card you work from, with this week's changes
 function fpCookHtml() {
   const r = SH.r, o = SH.orig, T = recipeTotals(r, true), O = recipeTotals(o, true), dk = Math.round(T.per.kcal - O.per.kcal), dp = Math.round(T.per.p - O.per.p);
-  const same = (a, b) => a && b && a.f === b.f && Number(a.amt) === Number(b.amt) && a.unit === b.unit;
+  const same = (a, b) => a && b && a.f === b.f && Math.abs(gramsOf(foodById(a.f), numIn(a.amt), a.unit) - gramsOf(foodById(b.f), numIn(b.amt), b.unit)) < 0.5;
   let h = `<div class="xs-head"><div><span class="hub-sys">COOKING</span><h2 style="margin:2px 0 0">${esc(r.name)}</h2></div><button type="button" class="btn ghost sm" data-xs="close">Close</button></div>`;
   if (SH.ask) return h + `<div class="fp-ask"><b>Keep these changes?</b><p class="small muted">${SH.diff.map(esc).join(" · ")}</p>
       <button type="button" class="btn" data-fp-save="week">Just this week</button><button type="button" class="btn ghost" data-fp-save="perm">Make it permanent</button><button type="button" class="link small" data-fp-save="back">Back to the recipe</button>
       <p class="small muted" style="margin:0">This week lasts until your next shopping day (${fmtShort(addDays(parseYmd(fpWeekEnd()), 1))}). Permanent changes update the recipe and your shopping list.</p></div>`;
   h += `<p class="small muted" style="margin:0">Change anything you're doing differently today. Macros update as you go.</p>
     <div class="field" style="max-width:160px"><label for="fpServ">Makes (servings)</label><input id="fpServ" inputmode="numeric" data-fp-serv="1" value="${esc(r.servings)}" data-xs-focus="fpserv"></div>
-    <div class="fp-ings">${r.items.map((it, i) => { const f = foodById(it.f); if (!f) return ""; const was = o.items.find(x => x.f === it.f), changed = !was ? "new" : !same(it, was) ? "chg" : "";
-      return `<div class="fp-ing ${changed}"><span class="fp-ing-n">${esc(f.n)}${changed === "new" ? ` <span class="fp-tag">Added</span>` : ""}</span><span class="fp-ing-a"><input inputmode="decimal" aria-label="${esc(f.n)} amount" data-fp-amt="${i}" value="${esc(it.amt)}" data-xs-focus="fpa${i}"><span class="small muted">${esc(it.unit)}</span></span><button type="button" class="fp-x" data-fp-rm="${i}" aria-label="Remove ${esc(f.n)} this time">×</button></div>` }).join("")}</div>
+    <div class="fp-ings">${r.items.map((it, i) => { const was = o.items.find(x => x.f === it.f), changed = !was ? "new" : !same(it, was) ? "chg" : "";
+      return ingRow(it, i, { cls: changed, tag: changed === "new" ? ` <span class="fp-tag">Added</span>` : "", rm: `data-fp-rm="${i}"` }) }).join("")}</div>
     ${(SH.removed || []).length ? `<div class="fp-removed small">Not using: ${SH.removed.map((it, i) => { const f = foodById(it.f); return `${esc(f ? f.n : it.f)} <button type="button" class="link small" data-fp-undo="${i}">Put back</button>` }).join(" · ")}</div>` : ""}
     <button type="button" class="btn ghost sm" data-xs="ingnew" style="align-self:flex-start">+ Add ingredient</button>
     <div class="note num rtot fp-ctot"><b>Per serving:</b> ${fmtN(T.per.kcal)} kcal · ${Math.round(T.per.p)} g protein · ${Math.round(T.per.c)} g carbs · ${Math.round(T.per.f)} g fat${dk || dp ? `<br><span class="small">${dk >= 0 ? "+" : ""}${dk} kcal, ${dp >= 0 ? "+" : ""}${dp} g protein vs the recipe</span>` : ""}</div>
@@ -156,8 +156,9 @@ function fpCookHtml() {
 function fpDiff(o, r) {
   const out = [], nm = id => { const f = foodById(id); return f ? f.n.split(",")[0] : id };
   if (Number(o.servings) !== Number(r.servings)) out.push(`makes ${r.servings} (was ${o.servings})`);
-  o.items.forEach(a => { const b = r.items.find(x => x.f === a.f); if (!b) out.push(`no ${nm(a.f)}`); else if (Number(a.amt) !== Number(b.amt) || a.unit !== b.unit) out.push(`${nm(a.f)} ${fmtQ(b.amt)} ${b.unit} (was ${fmtQ(a.amt)})`) });
-  r.items.forEach(b => { if (!o.items.some(a => a.f === b.f)) out.push(`+ ${nm(b.f)} ${fmtQ(b.amt)} ${b.unit}`) });
+  const g = it => gramsOf(foodById(it.f), numIn(it.amt), it.unit);
+  o.items.forEach(a => { const b = r.items.find(x => x.f === a.f); if (!b) out.push(`no ${nm(a.f)}`); else if (Math.abs(g(a) - g(b)) >= 0.5) out.push(`${nm(a.f)} ${fmtAmt(b.amt, b.unit)} (was ${fmtAmt(a.amt, a.unit)})`) });
+  r.items.forEach(b => { if (!o.items.some(a => a.f === b.f)) out.push(`+ ${nm(b.f)} ${fmtAmt(b.amt, b.unit)}`) });
   return out;
 }
 
@@ -248,7 +249,14 @@ document.addEventListener("change", e => { const t = e.target, d = (t && t.datas
 .fp-item-sub{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-left:30px;min-height:28px}
 .fp-mv{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:650 12px var(--body);border-radius:999px;padding:4px 10px;cursor:pointer;white-space:nowrap;min-height:30px}
 .fp-mv svg{width:9px;height:6px;opacity:.6}
-.fp-ings{display:flex;flex-direction:column;gap:6px}
+.fp-ings,.ing-list{display:flex;flex-direction:column;gap:6px}
+.ing-row{border:1px solid var(--line);border-radius:12px;padding:9px 10px;background:var(--surface);display:flex;flex-direction:column;gap:7px}
+.ing-row.chg{border-color:color-mix(in srgb,var(--warn) 55%,var(--line))}.ing-row.new{border-color:color-mix(in srgb,var(--good) 55%,var(--line))}
+.ing-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.ing-n{font-size:14.5px;min-width:0}.ing-k{flex-shrink:0}
+.ing-ctl{display:flex;align-items:center;gap:6px}
+.ing-ctl input{width:64px;flex:0 0 64px;text-align:center;font:700 16px var(--body);border:1px solid var(--line);border-radius:9px;padding:7px 4px;background:var(--surface-2);color:var(--ink)}
+.ing-ctl select{flex:1;min-width:0;font:600 14px var(--body);border:1px solid var(--line);border-radius:9px;padding:8px 6px;background:var(--surface-2);color:var(--ink)}
+.ing-x{width:36px;height:36px;flex-shrink:0;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:10px;font-size:18px;cursor:pointer}
 .fp-ing{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:8px 8px 8px 12px;background:var(--surface)}
 .fp-ing.chg{border-color:color-mix(in srgb,var(--warn) 55%,var(--line))}.fp-ing.new{border-color:color-mix(in srgb,var(--good) 55%,var(--line))}
 .fp-ing-n{flex:1;min-width:0;font-size:14.5px}.fp-ing-a{display:flex;align-items:center;gap:6px;flex-shrink:0}
