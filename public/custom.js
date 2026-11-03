@@ -208,7 +208,7 @@ function usdaWant(q){ q=usdaKey(q); if(q.length<3||USDA.results[q]) return; clea
 function usdaPaint(q){ if(SH&&usdaKey(SH.q)===q) paintPart(".xs-results") }
 function usdaSection(q,localCount){ q=usdaKey(q); if(q.length<3) return localCount?"":`<p class="small muted">No matches. Type at least 3 letters to search the USDA database.</p>`;
   usdaWant(q); const r=USDA.results[q];
-  let h=`<div class="eyebrow" style="margin-top:12px">USDA database</div>`;
+  let h=`<div class="eyebrow" style="margin-top:12px">Brands &amp; USDA database</div>`;
   if(!r||r.loading) return h+`<p class="small muted"><span class="pulse"></span> Searching…</p>`;
   if(r.err) return h+`<p class="small muted">${esc(r.err)}</p>`;
   if(!r.list.length) return h+`<p class="small muted">No USDA matches. Try fewer words, or add it as a custom food.</p>`;
@@ -405,7 +405,7 @@ async function shareBarcode(entry){ try{ const tok=window.appAuthToken? await wi
   await fetch("/api/barcode",{method:"POST",headers:{authorization:"Bearer "+tok,"content-type":"application/json"},body:JSON.stringify(entry)}) }catch(e){} }
 const srcTxt=src=>src&&src.length? src.join(" + ") : "the barcode databases";
 async function lookupCode(code){ code=String(code||"").replace(/\D/g,""); if(code.length<6){ SH.lookErr="Enter the full barcode number."; SH.lookAdd=null; paintSheet(); return }
-  const W=SH, pickFood=f=>{ W.view=null; W.lookErr=""; W.lookAdd=null; W.tab="foods"; W.pick={t:"f",id:f.id,amt:1,unit:unitsOf(f)[0][0]}; paintSheet(true) };
+  const W=SH, pickFood=f=>{ W.view=null; W.lookErr=""; W.lookAdd=null; W.tab="foods"; W.pick=pickFor(f,W); paintSheet(true) };
   const mine=kitchen().foods.find(f=>f.code===code); if(mine) return pickFood({...mine,custom:true});
   W.lookErr="Looking up…"; W.lookAdd=null; paintSheet();
   try{ const tok=window.appAuthToken? await window.appAuthToken() : null; const r=await fetch("/api/barcode?code="+code,{headers:tok?{authorization:"Bearer "+tok}:{}}); const j=await r.json().catch(()=>({}));
@@ -423,21 +423,27 @@ function ingRow(it,i,opts){ const f=foodById(it.f); if(!f) return ""; opts=opts|
   return `<div class="ing-row ${opts.cls||""}"><div class="ing-top"><span class="ing-n">${esc(f.n)}${opts.tag||""}</span><span class="small muted num ing-k" data-ing-k="${i}">${fmtN(m.kcal)} kcal</span></div>
     <div class="ing-ctl"><input inputmode="decimal" aria-label="${esc(f.n)} amount" data-xs-ia="${i}" value="${esc(it.amt)}" data-xs-focus="ia${i}"><select aria-label="${esc(f.n)} unit" data-xs-iu="${i}">${unitsOf(f).map(([u])=>`<option value="${esc(u)}" ${u===it.unit?"selected":""}>${esc(unitOptLabel(u))}</option>`).join("")}</select>
     <button type="button" class="btn ghost sm" data-xs-ingsw="${i}">Swap</button><button type="button" class="ing-x" ${opts.rm||`data-xs-ingrm="${i}"`} aria-label="Remove ${esc(f.n)}">×</button></div></div>` }
+function pickFor(f,W){ let unit=pieceUnit(f)||unitsOf(f)[0][0], amt=1;
+  if(W&&W.kind==="recipe"&&W.swap!=null&&W.r&&W.r.items[W.swap]){ const o=W.r.items[W.swap], of=foodById(o.f), g=of? gramsOf(of,o.amt,o.unit) : 0;
+    if(!pieceUnit(f)&&["g","oz","lb"].includes(o.unit)) unit=o.unit; const per=unitGrams(f,unit); if(g>0&&per>0) amt=convAmt(f,g,"g",unit) }
+  return {t:"f",id:f.id,amt,unit} }
 function recipeHtml(){ const r=SH.r, T=recipeTotals(r,true);
   if(SH.cook&&!SH.adding&&typeof fpCookHtml==="function") return fpCookHtml();
   const swapF=SH.swap!=null&&SH.r.items[SH.swap]? foodById(SH.r.items[SH.swap].f) : null;
   let h=`<div class="xs-head"><h2>${swapF&&SH.adding?`Swap ${esc(swapF.n.split(",")[0])} for…`:SH.cook?"Add an ingredient":SH.isNew?"New recipe":"Edit recipe"}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>`;
-  if(SH.adding){ const q=(SH.q||"").toLowerCase().trim(); const list=foodDb().filter(f=>!q||f.n.toLowerCase().includes(q));
+  if(SH.adding&&SH.view==="scan") return scanHtml();
+  if(SH.adding){ const q=(SH.q||"").toLowerCase().trim(); const all=foodDb().filter(f=>!q||f.n.toLowerCase().includes(q)), list=q&&!SH.allLocal? all.slice(0,5) : all;
     if(SH.pick){ const P=SH.pick, f=foodById(P.id), m=macrosOf(f,gramsOf(f,P.amt,P.unit));
       return h+`<h3>${esc(f.n)}</h3><div class="row"><div class="field"><label>Amount</label><input inputmode="decimal" data-xs-amt="1" value="${esc(P.amt)}" data-xs-focus="amt"></div><div class="field"><label>Unit</label><select data-xs-unit="1">${unitsOf(f).map(([u])=>`<option value="${esc(u)}" ${u===P.unit?"selected":""}>${esc(unitOptLabel(u))}</option>`).join("")}</select></div></div>
         <p class="num macroline"><b>${fmtN(m.kcal)} kcal</b> · ${Math.round(m.p)} g P · ${Math.round(m.c)} g C · ${Math.round(m.f)} g F</p>
         <div class="row"><button type="button" class="btn" data-xs="ingadd">${SH.swap!=null?"Swap it in":"Add ingredient"}</button><button type="button" class="btn ghost" data-xs="fback">Back</button></div>` }
-    return h+`<input class="xs-search" type="search" placeholder="Search ingredients" value="${esc(SH.q||"")}" data-xs-q="1" data-xs-focus="q" autocomplete="off">
-      <div class="xs-results"><div class="xs-list">${list.map(f=>`<button type="button" class="xs-item" data-xs-pickf="${f.id}"><span><b>${esc(f.n)}</b><span class="small muted num">${(()=>{ const pu=pieceUnit(f); return f.custom? `${fmtN(f.k)} kcal per ${esc(f.serving||"serving")}` : pu? `${fmtN(f.k*unitGrams(f,pu)/100)} kcal per ${esc(pu.slice(2))}` : `${fmtN(f.k)} kcal / 100 g` })()}</span></span><span class="xs-plus">+</span></button>`).join("")}</div>${usdaSection(SH.q,list.length)}</div>
+    return h+`<div class="row ing-find" style="gap:8px;flex-wrap:nowrap"><input class="xs-search" type="search" placeholder="Search a food or brand, e.g. Trader Joe's salsa" aria-label="Search a food or brand" value="${esc(SH.q||"")}" data-xs-q="1" data-xs-focus="q" autocomplete="off"><button type="button" class="btn ghost sm" data-xs="scan" style="flex-shrink:0">Scan barcode</button></div>
+      <p class="small muted" style="margin:0">Search the exact product you bought, or scan its barcode, so the macros match your label.</p>
+      <div class="xs-results">${q?`<div class="eyebrow">Basics</div>`:""}<div class="xs-list">${list.map(f=>`<button type="button" class="xs-item" data-xs-pickf="${f.id}"><span><b>${esc(f.n)}</b><span class="small muted num">${(()=>{ const pu=pieceUnit(f); return f.custom? `${fmtN(f.k)} kcal per ${esc(f.serving||"serving")}` : pu? `${fmtN(f.k*unitGrams(f,pu)/100)} kcal per ${esc(pu.slice(2))}` : `${fmtN(f.k)} kcal / 100 g` })()}</span></span><span class="xs-plus">+</span></button>`).join("")}</div>${all.length>list.length?`<button type="button" class="link small" data-xs="alllocal">Show all ${all.length} basics</button>`:""}${usdaSection(SH.q,list.length)}</div>
       <button type="button" class="btn ghost" data-xs="ingback" style="margin-top:12px">Back to the recipe</button>` }
   h+=`<div class="field"><label>Recipe name</label><input data-xs-rf="name" value="${esc(r.name)}" placeholder="e.g. Pesto chicken rice bowls" data-xs-focus="rname"></div>
     <div class="field" style="max-width:160px"><label>Makes (servings)</label><input inputmode="numeric" data-xs-rf="servings" value="${esc(r.servings)}" data-xs-focus="rserv"></div>
-    <h3>Ingredients</h3>`;
+    <h3>Ingredients</h3><p class="small muted" style="margin:-4px 0 0">Using a specific brand? Tap Swap and search it or scan its barcode.</p>`;
   const methodHtml=`<div class="field"><label>Method (one step per line)</label><textarea data-xs-rf="method" rows="7" data-xs-focus="rmethod" placeholder="Brown the turkey…">${esc(r.method||"")}</textarea></div>
     <div class="field"><label>Storing and reheating</label><textarea data-xs-rf="store" rows="3" data-xs-focus="rstore">${esc(r.store||"")}</textarea></div>`;
   h+= r.items.length? `<div class="ing-list">${r.items.map((it,i)=>ingRow(it,i)).join("")}</div>` : `<p class="small muted">Add the ingredients for the whole batch.</p>`;
@@ -1549,10 +1555,7 @@ document.addEventListener("click",e=>{
   if(d.xs==="scanadd"){ const A=SH.lookAdd||{}, back=SH; stopScan(); openSheet({kind:"cfood",isNew:true,back,d:{id:newId("cf"),n:A.name||"",serving:"1 serving",k:"",p:"",c:"",f:"",code:A.code}}); return }
   if(d.xs==="lookup"){ stopScan(); const inp=document.querySelector("[data-xs-code]"); lookupCode(inp?inp.value:SH.code); return }
   if(d.xsPickr){ SH.pick={t:"r",id:d.xsPickr,qty:1}; paintSheet(true); return }
-  if(d.xsPickf){ const f=foodById(d.xsPickf); keepUsda(f); let unit=pieceUnit(f)||unitsOf(f)[0][0], amt=1;
-    if(SH.kind==="recipe"&&SH.swap!=null&&SH.r&&SH.r.items[SH.swap]){ const o=SH.r.items[SH.swap], of=foodById(o.f), g=of? gramsOf(of,o.amt,o.unit) : 0;
-      if(!pieceUnit(f)&&["g","oz","lb"].includes(o.unit)) unit=o.unit; const per=unitGrams(f,unit); if(g>0&&per>0) amt=convAmt(f,g,"g",unit) }
-    SH.pick={t:"f",id:f.id,amt,unit}; paintSheet(true); return }
+  if(d.xsPickf){ const f=foodById(d.xsPickf); keepUsda(f); SH.pick=pickFor(f,SH); paintSheet(true); return }
   if(d.xs==="fback"){ SH.pick=null; paintSheet(true); return }
   if(d.xs==="fadd"){ const P=SH.pick, e=P.t==="r"?{t:"r",id:P.id,qty:numIn(P.qty)}:{t:"f",id:P.id,amt:numIn(P.amt),unit:P.unit}; if(!(e.qty>0||e.amt>0)){ toast("Enter an amount above 0"); return }
     if(SH.mode==="plan"){ const K=kitchen(); (K.plan[SH.slot]=K.plan[SH.slot]||[]).push(e); xsClose(); commitPlan(); toast("Added to plan"); return }
@@ -1568,6 +1571,7 @@ document.addEventListener("click",e=>{
   if(d.xs==="ingback"){ SH.adding=false; SH.pick=null; SH.swap=null; paintSheet(true); return }
   if(d.xs==="ingadd"){ const P=SH.pick; if(!(numIn(P.amt)>0)){ toast("Enter an amount above 0"); return } const it={f:P.id,amt:numIn(P.amt),unit:P.unit};
     if(SH.swap!=null&&SH.r.items[SH.swap]) SH.r.items[SH.swap]=it; else SH.r.items.push(it); SH.swap=null; SH.adding=false; SH.pick=null; paintSheet(true); return }
+  if(d.xs==="alllocal"){ SH.allLocal=true; paintPart(".xs-results"); return }
   if(d.xsIngsw!=null){ SH.swap=+d.xsIngsw; SH.adding=true; SH.q=""; SH.pick=null; paintSheet(true); return }
   if(d.xsIngrm!=null){ SH.r.items.splice(+d.xsIngrm,1); paintSheet(); return }
   if(d.xs==="rsave"){ const r=SH.r; r.name=(r.name||"").trim(); r.servings=Math.max(1,Math.round(numIn(r.servings))||1); r.items=(r.items||[]).map(it=>({...it,amt:numIn(it.amt)})).filter(it=>it.amt>0);
@@ -1579,13 +1583,13 @@ document.addEventListener("click",e=>{
     if(!x.n||!(x.k>=0)){ const er=document.querySelector("[data-xs-err]"); er.textContent="Add a name and calories."; er.hidden=false; return }
     const K=kitchen(), i=K.foods.findIndex(f=>f.id===x.id); if(i>=0) K.foods[i]=x; else K.foods.push(x);
     if(x.code&&!x.shared) shareBarcode({code:x.code,name:x.n,food:{n:x.n,serving:x.serving,k:x.k,p:x.p,c:x.c,f:x.f}});
-    const back=SH.back; if(back){ commitPlan(); back.view=null; back.lookErr=""; back.lookAdd=null; back.tab="foods"; back.pick={t:"f",id:x.id,amt:1,unit:unitsOf({...x,custom:true})[0][0]}; openSheet(back); toast("Saved. Everyone who scans it gets it now"); return }
+    const back=SH.back; if(back){ commitPlan(); back.view=null; back.lookErr=""; back.lookAdd=null; back.tab="foods"; back.pick=pickFor({...x,custom:true},back); openSheet(back); toast("Saved. Everyone who scans it gets it now"); return }
     xsClose(); commitPlan(); toast("Food saved"); return }
   if(d.xs==="cfdel"){ if(!SH.delConfirm){ SH.delConfirm=true; paintSheet(); return } const K=kitchen(); K.foods=K.foods.filter(f=>f.id!==SH.d.id); xsClose(); commitPlan(); return }
 });
 document.addEventListener("input",e=>{ const t=e.target, d=t.dataset||{};
   if(!SH) return;
-  if(d.xsQ){ SH.q=t.value; paintPart(".xs-results"); return }
+  if(d.xsQ){ SH.q=t.value; SH.allLocal=false; paintPart(".xs-results"); return }
   if(d.xsCode){ SH.code=t.value; return }
   if(d.xsPw){ SH.w=t.value; paintPart(".plate-out"); return }
   if(d.xsQty){ SH.pick.qty=t.value; paintPart(".macroline"); return }
