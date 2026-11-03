@@ -438,6 +438,10 @@ function rkAlertCount() {
 
 /* ---------- screen ---------- */
 let rkOpen = null, rkMode = "raw", rkTrialOpen = false;
+// What the Ranks tab shows right now (raw or bodyweight-scaled). Home and the header chip read from here so they always match.
+function rkShown(R) { const sc = rkMode === "scaled";
+  return { sc, ov: sc ? R.overallScaled : R.overall, avg: sc ? R.overallAvgScaled : R.overallAvg,
+    group: g => g.num == null ? null : sc ? Math.min(5, g.scaled) : g.num } }
 try { const v = localStorage.getItem("rd25-rkmode"); if (v === "raw" || v === "scaled") rkMode = v } catch (e) {}
 const RK_COL = ["#8590A6", "#22A06B", "#3C7BF4", "#7B4DF2", "#F06A1D", "#E2A50C"];
 const rkBadge = (n, big) => { const i = Math.max(0, Math.min(5, Math.floor(n))); return `<span class="rk-l${big ? " big" : ""}${i === 5 ? " s" : ""}" style="--rc:${RK_COL[i]}" role="img" aria-label="Rank ${rkLetter(n)}">${rkLetter(n)}</span>` };
@@ -445,7 +449,8 @@ const rkBadge = (n, big) => { const i = Math.max(0, Math.min(5, Math.floor(n)));
 function rankChip() {
   try { if (!(S.profile && (S.profile.setup || Object.keys(S.logs).length))) return ""; const R = rankState(), n = rkAlertCount();
     const un = !R.place || R.place.pending;
-    return `<button type="button" class="rk-chip" data-tab-go="ranks" aria-label="${un ? "Unranked" : "Overall rank " + rkLetter(R.overall)}. Open Ranks">${un ? '<span class="rk-l rk-q" style="--rc:#5B6378;font-size:15px" role="img" aria-label="Unranked">?</span>' : rkBadge(R.overall)}<span>Rank</span>${n ? `<i class="rk-dot" aria-hidden="true"></i>` : ""}</button>` } catch (e) { return "" }
+    const ov = rkShown(R).ov;
+    return `<button type="button" class="rk-chip" data-tab-go="ranks" aria-label="${un ? "Unranked" : "Overall rank " + rkLetter(ov)}. Open Ranks">${un ? '<span class="rk-l rk-q" style="--rc:#5B6378;font-size:15px" role="img" aria-label="Unranked">?</span>' : rkBadge(ov)}<span>Rank</span>${n ? `<i class="rk-dot" aria-hidden="true"></i>` : ""}</button>` } catch (e) { return "" }
 }
 document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-tab-go]"); if (!b) return; tab = b.dataset.tabGo; try { localStorage.setItem("rd25-tab", tab) } catch (_) {} lastRenderKey = ""; render(); window.scrollTo(0, 0) });
 const rkBar = (prog, col) => `<div class="rk-bar"><i style="width:${Math.round(Math.max(0, Math.min(1, prog)) * 100)}%;background:${col || "var(--gym)"}"></i></div>`;
