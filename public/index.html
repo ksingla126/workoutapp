@@ -831,6 +831,7 @@ svg.inl{width:15px;height:15px;vertical-align:-3px}
 <script src="/quests.js"></script>
 <script src="/travel.js"></script>
 <script src="/hub.js"></script>
+<script src="/foodplan.js"></script>
 <script src="/game.js"></script>
 <script>
 /* ---------- Program definition ---------- */
@@ -1288,6 +1289,7 @@ function viewHome(openLogger){
 }
 // Food tab: today's numbers and diary first, then the meal plan and shopping
 function viewFoodTab(){
+  if(CUSTOM&&typeof foodTab==="function") return foodTab();
   const d=sel, k=ymd(d), p=planFor(d), e=dayEaten(k), tgt=dayTarget(d), ptg=dayProtein(d), wf=p?weekFood(p.w):{eaten:0,target:0};
   const pctW=Math.min(100,wf.target?wf.eaten/wf.target*100:0);
   let h=`<div><div class="eyebrow" style="margin-bottom:6px">${k===ymd(today)?"Today":fmtDate(d)}</div><div class="glance">
