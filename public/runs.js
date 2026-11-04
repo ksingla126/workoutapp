@@ -412,9 +412,10 @@ function matchReps(list, spec) {
 }
 
 function runCheck(k, l) {
-  const st = l && l.st; if (!st) return null;
+  const st = l && l.st; if (!l || l.type !== "run") return null;
   const p = (l.plan && l.plan.type === "run") ? l.plan : planFor(parseYmd(k));
   const spec = runSpec(l, p && p.type === "run" ? p : null), fmt = l.race ? "tt" : FMT_OF[spec.type] || "steady";
+  if (!st || (!st.series && !st.efforts && !st.laps && (l.repLog || l.tempo))) return l.mi > 0 || l.repLog ? manualCheck(k, l, spec, fmt) : null;
   const S2 = st.series, out = { fmt, spec, stats: [], notes: [], reps: null, tone: "good", verdict: "" };
   const add = (a, b) => b != null && b !== "" && out.stats.push([a, b]);
   const warn = (t, tone = "warn") => { out.notes.push(t); if (tone === "warn" || out.tone === "good") out.tone = tone };
@@ -511,15 +512,172 @@ function runCheckHtml(k, l) {
   let c = null; try { c = runCheck(k, l) } catch (e) { c = null } if (!c) return "";
   const col = c.tone === "good" ? "var(--good)" : c.tone === "ok" ? "var(--warn,#E0A100)" : "var(--bad)";
   const lbl = { steady: "Steady run", tempo: "Tempo", reps: "Intervals", short: c.spec.type === "hills" ? "Hill sprints" : "Sprints", tt: l.race ? "Race" : "Time trial" }[c.fmt];
-  let h = `<div class="runchk"><div class="eyebrow">Session check · ${esc(lbl)}${c.src === "laps" ? " · from your watch laps" : ""}</div><p class="rc-v" style="border-left-color:${col}">${esc(c.verdict)}</p>`;
+  let h = `<div class="runchk"><div class="eyebrow">Session check · ${esc(lbl)}${c.src === "laps" ? " · from your watch laps" : c.manual ? " · from what you entered" : ""}</div><p class="rc-v" style="border-left-color:${col}">${esc(c.verdict)}</p>`;
   if (c.stats.length) h += `<div class="stv">${c.stats.map(([a, b]) => `<div><span class="l">${esc(a)}</span><span class="v num">${esc(String(b))}</span></div>`).join("")}</div>`;
   if (c.reps && c.reps.length) { const short = c.fmt === "short", hills = c.spec.type === "hills";
-    h += `<div class="rc-reps"><div class="rc-r hd small muted"><span>#</span><span>Time</span><span>${short ? "Top speed" : "Pace"}</span><span>${hills ? "Climb" : "Dist"}</span><span>Rest</span></div>${c.reps.map(r => `<div class="rc-r num"><span>${r.n}</span><span>${fmtSec(r.dur)}</span><span>${short ? mph(r.top) : r.pace ? paceTxt(r.pace) : "–"}</span><span>${hills ? (r.g != null ? Math.round(r.g * 3.28084) + " ft" : "–") : r.m >= 1000 ? dTxt(r.m / 1609.344, 2) : r.m + " m"}</span><span>${r.rest != null ? fmtSec(r.rest) : "–"}</span></div>`).join("")}</div>` }
+    h += `<div class="rc-reps"><div class="rc-r hd small muted"><span>#</span><span>Time</span><span>${short ? "Top speed" : "Pace"}</span><span>${hills ? "Climb" : "Dist"}</span><span>Rest</span></div>${c.reps.map(r => `<div class="rc-r num"><span>${r.n}</span><span>${r.dur != null ? fmtSec(r.dur) : "–"}</span><span>${short ? (r.top ? mph(r.top) : "–") : r.pace ? paceTxt(r.pace) : "–"}</span><span>${hills ? (r.g != null ? Math.round(r.g * 3.28084) + " ft" : "–") : !r.m ? "–" : r.m >= 1000 ? dTxt(r.m / 1609.344, 2) : r.m + " m"}</span><span>${r.rest != null ? fmtSec(r.rest) : "–"}</span></div>`).join("")}</div>` }
   if (c.notes.length) h += `<ul class="rc-n small">${c.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>`;
   return h + `</div>`;
 }
 // plain-text version for the coach's written analysis
 function runCheckText(k, l) {
   let c = null; try { c = runCheck(k, l) } catch (e) { return "" } if (!c) return "";
-  return `Session check (computed from the recording, format ${c.fmt}${c.src ? `, reps from ${c.src}` : ""}): ${c.verdict} ${c.stats.map(([a, b]) => `${a}: ${b}`).join("; ")}.${c.reps ? ` Reps: ${c.reps.map(r => `#${r.n} ${fmtSec(r.dur)} ${r.m} m${r.pace ? ` @ ${fmtMin(r.pace)}/mi` : ""}${r.top ? ` top ${trimN(r.top * 2.23694)} mph` : ""}${r.hr ? ` HR ${r.hr}` : ""}${r.rest != null ? ` rest ${fmtSec(r.rest)}` : ""}${r.g != null ? ` climb ${Math.round(r.g * 3.28084)} ft` : ""}`).join("; ")}.` : ""} ${c.notes.join(" ")}`;
+  return `Session check (computed from ${c.manual ? "what he typed in" : "the recording"}, format ${c.fmt}${c.src ? `, reps from ${c.src}` : ""}): ${c.verdict} ${c.stats.map(([a, b]) => `${a}: ${b}`).join("; ")}.${c.reps ? ` Reps: ${c.reps.map(r => `#${r.n}${r.dur != null ? " " + fmtSec(r.dur) : ""}${r.m ? ` ${r.m} m` : ""}${r.pace ? ` @ ${fmtMin(r.pace)}/mi` : ""}${r.top ? ` top ${trimN(r.top * 2.23694)} mph` : ""}${r.hr ? ` HR ${r.hr}` : ""}${r.rest != null ? ` rest ${fmtSec(r.rest)}` : ""}${r.g != null ? ` climb ${Math.round(r.g * 3.28084)} ft` : ""}`).join("; ")}.` : ""} ${c.notes.join(" ")}`;
+}
+
+/* ======================= Typing a run in by hand ======================= */
+// "30", "30:00", "3000", "1:05:30", "30m", "1h 5m", "45 min" → minutes
+function smartMin(s) {
+  s = String(s || "").trim().toLowerCase().replace(",", "."); if (!s) return null;
+  if (/[a-z]/.test(s)) { let m = 0, hit = false; s.replace(/([\d.]+)\s*(h|hr|hrs|hours?|m|mins?|minutes?|s|secs?|seconds?)\b/g, (_, n, u) => { hit = true; n = Number(n); m += u[0] === "h" ? n * 60 : u[0] === "s" ? n / 60 : n }); return hit && m > 0 ? m : null }
+  const v = parseTime(s); return v > 0 ? v : null;
+}
+// rep time: "14.2" or "14.2s" → s, "1:20" → 80, "2m" / "2 min" → 120
+function smartSec(s) {
+  s = String(s || "").trim().toLowerCase().replace(",", "."); if (!s) return null;
+  if (/^\d+(\.\d+)?$/.test(s)) return Number(s) > 0 ? Number(s) : null;
+  if (/^\d+:\d{1,2}(\.\d+)?$/.test(s)) { const [a, b] = s.split(":"); return Number(a) * 60 + Number(b) }
+  const m = smartMin(s); return m ? Math.round(m * 600) / 10 : null;
+}
+// distance in miles: "3.1" (your unit), "5k", "5 km", "3.1 mi", "800m", "800" (metres when 20 or more and `metresOK`)
+function smartMi(s, metresOK) {
+  s = String(s || "").trim().toLowerCase().replace(",", "."); if (!s) return null;
+  const m = s.match(/^([\d.]+)\s*(k|km|kms|kilometers?|kilometres?|mi|mile|miles|m|meters?|metres?)?$/); if (!m) return null;
+  const n = Number(m[1]); if (!(n > 0)) return null; const u = m[2] || "";
+  if (/^k/.test(u)) return n / KM; if (/^mi/.test(u)) return n; if (/^m/.test(u)) return n / 1609.344;
+  if (metresOK && n >= 20) return n / 1609.344;
+  return fromDU(n);
+}
+const rxD = (k, id) => drafts[dkey(k, id)];
+function rxFmt(p, log) { const spec = runSpec(log, p); return { spec, fmt: (p.race || (log && log.race)) ? "tt" : FMT_OF[spec.type] || "steady" } }
+function rxRepN(k, p, log, spec) { const d = rxD(k, "rx-n"); if (d != null) return Math.max(0, Math.min(40, Number(d) || 0)); return (log && (log.repLog ? log.repLog.length : log.reps)) || spec.n || p.reps || 4 }
+function runLogHtml(p, k, log) {
+  const { spec, fmt } = rxFmt(p, log), u = RU(), rep = fmt === "reps" || fmt === "short", tt = fmt === "tt";
+  const f = (id, lbl, val, ph, mode = "decimal", hint = "") => `<div class="field"><label for="${id}">${lbl}</label><input id="${id}" inputmode="${mode}" autocomplete="off" value="${esc(val ?? "")}" placeholder="${esc(ph)}">${hint ? `<span class="small muted">${hint}</span>` : ""}</div>`;
+  const plannedMi = spec.by === "dist" && spec.v ? spec.v : null, plannedMin = spec.by === "time" && spec.v ? spec.v : null;
+  let h = `<div class="rx-quick row" style="gap:8px;flex-wrap:wrap">${log ? "" : `<button type="button" class="btn ghost sm" data-rx-fill="${k}">Fill in as planned</button>`}<span class="small muted">Times: 30:00, 3000 or 30m · Distances: 3.1, 5k or 800m</span></div>`;
+  h += `<div class="row rx-tot" style="align-items:flex-start">
+    ${f("rmi", rep ? `Total distance (${u})` : `Distance (${u})`, log && log.mi && !log.est ? dU(log.mi, 2) : "", rep ? "optional" : tt && plannedMi ? dU(plannedMi, 2) : u === "km" ? "e.g. 5" : "e.g. 3.1")}
+    ${f("rtime", tt ? "Finish time" : rep ? "Total time" : "Time", log && log.min && log.est !== "both" ? fmtMin(log.min) : "", rep ? "optional" : plannedMin ? `${plannedMin}:00` : "30:00", "text")}
+    ${f("rrpe", "Effort 1–10", log ? log.rpe : "", "6", "numeric")}</div>${rep ? `<span class="small muted" style="margin-top:-6px">No watch totals? Leave them blank and they're estimated from your plan.</span>` : ""}`;
+  if (rep) {
+    const n = rxRepN(k, p, log, spec), w = spec.work || {}, byDist = w.by === "dist", hills = spec.type === "hills";
+    const lbl = byDist ? "Time" : hills ? "Time (optional)" : `Distance`, ph = byDist ? (w.v <= 200 ? "e.g. 14.5" : "e.g. 1:32") : hills ? (w.v ? `${w.v} s` : "") : (u === "km" ? "e.g. 800m or 0.8" : "e.g. 800m or 0.5");
+    h += `<div class="rx-reps"><div class="row between"><b class="small">Reps ${spec.n ? `<span class="muted">· planned ${spec.n} × ${byDist ? fmtWorkDist(w.v) : w.v ? fmtSec(w.v) : "rep"}</span>` : ""}</b>
+      <span class="step"><button type="button" data-rx-n="${k}|-1" aria-label="One rep fewer">−</button><b class="num">${n}</b><button type="button" data-rx-n="${k}|1" aria-label="One rep more">+</button></span></div>
+      <p class="small muted" style="margin:0">${byDist ? "Each rep's time, if you know it." : hills ? "Count the reps you did; times are optional." : "How far each rep went, if you know it."} Blanks are fine.</p>
+      <div class="rx-grid">${[...Array(n)].map((_, i) => { const r = log && log.repLog && log.repLog[i]; const v = r ? (byDist || hills ? (r.t != null ? String(r.t) : "") : (r.m != null ? (r.m < 1000 ? r.m + "m" : dU(r.m / 1609.344, 2)) : "")) : "";
+        return `<label class="rx-r"><span class="num">${i + 1}</span><input id="rx-r${i}" inputmode="${byDist || hills ? "decimal" : "text"}" autocomplete="off" value="${esc(v)}" placeholder="${esc(ph)}" aria-label="Rep ${i + 1} ${lbl.toLowerCase()}"></label>` }).join("")}</div></div>`;
+  }
+  if (fmt === "tempo") {
+    const tp = log && log.tempo;
+    h += `<div class="rx-sub"><b class="small">Tempo part</b><div class="row" style="align-items:flex-start">${f("rx-tmin", "Time", tp ? fmtMin(tp.min) : "", plannedMin ? `${plannedMin}:00` : "20:00", "text")}${f("rx-tdist", `Distance (${u})`, tp && tp.mi ? dU(tp.mi, 2) : "", "optional")}</div><span class="small muted" id="rx-tpace"></span></div>`;
+  }
+  h += `<div class="row" style="align-items:flex-start">${f("rx-hr", "Avg heart rate", log && log.hr ? log.hr : "", "optional", "numeric")}</div>`;
+  h += `<p class="small rx-err" id="rx-err" role="alert" hidden></p>`;
+  return h;
+}
+// what was typed → the log fields, or the first problem to fix
+function runLogCollect(p, k, log, timerMin) {
+  const { spec, fmt } = rxFmt(p, log), rep = fmt === "reps" || fmt === "short", val = id => { const el = document.getElementById(id); return el ? el.value.trim() : "" };
+  const bad = (id, msg) => ({ err: msg, el: id });
+  const miTxt = val("rmi"), tTxt = val("rtime");
+  let mi = miTxt ? smartMi(miTxt) : null, min = tTxt ? smartMin(tTxt) : null;
+  if (miTxt && !(mi > 0)) return bad("rmi", `Couldn't read “${miTxt}” as a distance. Try 3.1, 5k or 800m.`);
+  if (tTxt && !(min > 0)) return bad("rtime", `Couldn't read “${tTxt}” as a time. Try 30:00, 3000 or 30m.`);
+  if (!min && timerMin > 0) min = timerMin;
+  const rpeT = val("rrpe"), rpe = rpeT ? Number(rpeT) : null; if (rpeT && !(rpe >= 1 && rpe <= 10)) return bad("rrpe", "Effort is 1 to 10.");
+  const hrT = val("rx-hr"), hr = hrT ? Math.round(Number(hrT)) : null; if (hrT && !(hr >= 60 && hr <= 230)) return bad("rx-hr", "Heart rate should be between 60 and 230.");
+  const out = { rpe, ...(hr ? { hr } : {}) };
+  if (rep) {
+    const n = rxRepN(k, p, log, spec), w = spec.work || {}, byDist = w.by === "dist", hills = spec.type === "hills", list = [];
+    for (let i = 0; i < n; i++) { const t = val("rx-r" + i);
+      if (!t) { list.push({ t: null, m: byDist ? w.v : null }); continue }
+      if (byDist || hills) { const s = smartSec(t); if (!(s > 0) || s > 3600) return bad("rx-r" + i, `Rep ${i + 1}: couldn't read “${t}” as a time. Try 14.5 or 1:32.`); list.push({ t: s, m: byDist ? w.v : null }) }
+      else { const m2 = smartMi(t, true); if (!(m2 > 0) || m2 > 10) return bad("rx-r" + i, `Rep ${i + 1}: couldn't read “${t}” as a distance. Try 800m or 0.5.`); list.push({ t: w.v || null, m: Math.round(m2 * 1609.344) }) } }
+    if (!n) return bad("rx-r0", "Add at least one rep, or log it as a different run with Change run.");
+    out.repLog = list; out.reps = n;
+    // totals from the plan when left blank (marked as estimates; estimates don't count toward your rank)
+    if (!mi || !min) { const R = p.rid && runById(p.rid), warm = (R && R.warm) || spec.warm || 0, cool = (R && R.cool) || warm, easyP = recentEasyPace() || 12;
+      const work = list.reduce((a, x) => a + (x.t || w.v || (byDist ? w.v / 3.5 : 60)), 0), restS = spec.rest && spec.rest.by === "time" ? spec.rest.v : byDist ? (w.v || 100) / 1.3 : (w.v || 20) * 3.5;
+      const estMin = warm + cool + work / 60 + Math.max(0, n - 1) * restS / 60;
+      const repMi = list.reduce((a, x) => a + (x.m || (x.t ? x.t * 3.5 : (w.v || 60) * 3.5)), 0) / 1609.344, restMi = spec.rest && spec.rest.how === "jog" ? Math.max(0, n - 1) * restS / 60 / easyP : Math.max(0, n - 1) * restS / 60 / 20;
+      if (!min) { min = Math.round(estMin * 10) / 10; out.est = "both" } else out.est = "mi";
+      if (!mi) mi = Math.round(((warm + cool) / easyP + repMi + restMi) * 100) / 100; else if (out.est === "mi") delete out.est }
+  } else {
+    if (!mi) return bad("rmi", fmt === "tt" ? "Enter the race or time trial distance." : "Enter how far you ran.");
+    if (!min) return bad("rtime", fmt === "tt" ? "Enter your finish time." : "Enter how long it took.");
+    if (fmt === "tempo") { const tm = val("rx-tmin"), td = val("rx-tdist");
+      if (tm || td) { const a = tm ? smartMin(tm) : null, b = td ? smartMi(td) : null;
+        if (tm && !(a > 0)) return bad("rx-tmin", `Couldn't read “${tm}” as a time.`); if (td && !(b > 0)) return bad("rx-tdist", `Couldn't read “${td}” as a distance.`);
+        if (a > min + 0.01) return bad("rx-tmin", "The tempo part can't be longer than the whole run."); if (b && b > mi + 0.01) return bad("rx-tdist", "The tempo part can't be farther than the whole run.");
+        out.tempo = { min: a || null, mi: b || null } } }
+  }
+  const pace = min / mi;
+  if (!out.est && (pace < 3.6 || pace > 30) && RX_CONFIRM !== k + "|" + mi + "|" + min) { RX_CONFIRM = k + "|" + mi + "|" + min;
+    const other = RU() === "km" ? pace * KM : pace / KM, hint = other >= 3.6 && other <= 30 ? ` If that was ${miTxt} ${RU() === "km" ? "mi" : "km"}, switch the unit in Plan → Runs.` : "";
+    return bad("rmi", `That works out to ${paceTxt(pace)}, which looks off. Check the distance and time.${hint} Tap Save again to keep it.`) }
+  out.mi = Math.round(mi * 1000) / 1000; out.min = Math.round(min * 100) / 100;
+  return { data: out };
+}
+let RX_CONFIRM = "";
+function recentEasyPace() { const L = Object.values(S.logs).filter(l => l.type === "run" && l.mi > 0 && l.min > 0 && !l.est && (l.key === "tue" || l.key === "sat")).slice(-6).map(l => l.min / l.mi).filter(x => x > 6 && x < 20); return L.length ? avgOf(L) : null }
+function rxFill(k, p) {
+  const { spec, fmt } = rxFmt(p, S.logs[k]); const set = (id, v) => { drafts[dkey(k, id)] = v };
+  if (fmt === "reps" || fmt === "short") { set("rx-n", spec.n || p.reps || 4); [...Array(40)].forEach((_, i) => delete drafts[dkey(k, "rx-r" + i)]) }
+  else { const pace = recentEasyPace() || 11;
+    if (spec.by === "dist" && spec.v) { set("rmi", dU(spec.v, 2)); if (!rxD(k, "rtime")) set("rtime", fmtMin(spec.v * pace)) }
+    else if (spec.by === "time" && spec.v) { set("rtime", `${spec.v}:00`); if (!rxD(k, "rmi")) set("rmi", dU(spec.v / pace, 2)) }
+    if (fmt === "tempo" && spec.v) set("rx-tmin", `${spec.v}:00`) }
+  drafts[dkey(k, "open-trainLog")] = true; persistDrafts(); lastRenderKey = ""; render();
+  setTimeout(() => { const el = document.getElementById(fmt === "reps" || fmt === "short" ? "rx-r0" : "rtime"); if (el) el.focus() }, 50);
+}
+function rxPreview(k, p) {
+  const v = id => { const el = document.getElementById(id); return el ? el.value : "" }, mi = smartMi(v("rmi")), m = smartMin(v("rtime")), pe = document.getElementById("pace");
+  if (pe) pe.textContent = mi > 0 && m > 0 ? paceTxt(m / mi) : "–";
+  const tp = document.getElementById("rx-tpace"); if (tp) { const a = smartMin(v("rx-tmin")), b = smartMi(v("rx-tdist")); tp.textContent = a > 0 && b > 0 ? `Tempo pace ${paceTxt(a / b)}${racePace(activeRace()) ? ` · race pace ${paceTxt(racePace(activeRace()))}` : ""}` : "" }
+}
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-rx-fill],[data-rx-n]"); if (!t) return; const d = t.dataset;
+  if (d.rxFill) { const k = d.rxFill, p = planFor(parseYmd(k)); if (p) rxFill(k, p); return }
+  if (d.rxN) { const [k, s] = d.rxN.split("|"), p = planFor(parseYmd(k)), { spec } = rxFmt(p, S.logs[k]); drafts[dkey(k, "rx-n")] = Math.max(0, Math.min(40, rxRepN(k, p, S.logs[k], spec) + Number(s))); drafts[dkey(k, "open-trainLog")] = true; persistDrafts(); lastRenderKey = ""; render() }
+});
+document.addEventListener("input", e => { const t = e.target; if (t && t.id && /^(rmi|rtime|rx-tmin|rx-tdist)$/.test(t.id) && typeof sel !== "undefined") { const k = ymd(sel), p = planFor(sel); if (p && p.type === "run") rxPreview(k, p) }
+  if (t && t.id && /^(rmi|rtime|rrpe|rx-)/.test(t.id)) { const er = document.getElementById("rx-err"); if (er && !er.hidden) { er.hidden = true; document.querySelectorAll(".rx-bad").forEach(x => x.classList.remove("rx-bad")) } } });
+
+/* ----- the session check for a run typed in by hand ----- */
+function manualCheck(k, l, spec, fmt) {
+  const out = { fmt, spec, stats: [], notes: [], reps: null, tone: "good", verdict: "", manual: true };
+  const add = (a, b) => b != null && b !== "" && out.stats.push([a, b]);
+  const pace = l.mi > 0 && l.min > 0 ? l.min / l.mi : null;
+  if (fmt === "reps" || fmt === "short") {
+    const L = l.repLog || (l.reps ? [...Array(l.reps)].map(() => ({})) : []), n = spec.n || L.length;
+    if (!L.length) { out.tone = "ok"; out.verdict = "No reps were entered."; return out }
+    const withV = L.map((x, i) => ({ ...x, i, v: x.t > 0 && x.m > 0 ? x.m / x.t : null }));
+    out.reps = withV.map(x => ({ n: x.i + 1, dur: x.t ? Math.round(x.t * 10) / 10 : null, m: x.m || null, pace: x.v ? paceOfV(x.v) : null, top: x.v, hr: null, rest: null, g: null }));
+    add("Reps", `${L.length}${n ? ` of ${n}` : ""}`);
+    const vs = withV.filter(x => x.v).map(x => x.v);
+    if (vs.length) { if (fmt === "short") add("Fastest rep", mph(Math.max(...vs))); else add("Avg rep pace", paceTxt(paceOfV(avgOf(vs)))) }
+    let fade = 0; if (vs.length >= 3) { const a = avgOf(vs.slice(0, 2)), b = avgOf(vs.slice(-2)); fade = (a - b) / a; const fp = Math.round(fade * 100); add(fmt === "short" ? "Speed drop" : "Fade", fp === 0 ? "none" : fp > 0 ? `${fp}% slower` : `${-fp}% faster`) }
+    if (l.est) out.notes.push("Totals were estimated from the plan, so this run doesn't count toward your rank.");
+    if (n && L.length < n) { out.tone = "warn"; out.verdict = `${L.length} of ${n} reps done.` }
+    else if (fade > 0.1) { out.tone = "warn"; out.verdict = `All ${L.length} reps, but the last ones were ${Math.round(fade * 100)}% slower. Start a touch easier.` }
+    else if (fade > 0.05) { out.tone = "ok"; out.verdict = `All ${L.length} reps with some fade.` }
+    else out.verdict = vs.length >= 3 ? `All ${L.length} reps and even.` : `All ${L.length} reps done.${vs.length ? "" : " Add rep times next time to see your fade."}`;
+    return out;
+  }
+  add(fmt === "tt" ? "Pace" : "Avg pace", pace ? paceTxt(pace) : null);
+  if (l.hr) add("Avg HR", `${l.hr} bpm`);
+  if (fmt === "tt") { const tgt = spec.target || (l.race && CUSTOM.su.race && CUSTOM.su.race.target), goal = spec.by === "dist" && spec.v;
+    add("Time", fmtMin(l.min));
+    if (tgt && goal && Math.abs(l.mi - goal) / goal < 0.03) { const diff = l.min - tgt; add("Vs goal", `${diff <= 0 ? "−" : "+"}${fmtMin(Math.abs(diff))}`); out.verdict = diff <= 0 ? `Goal beaten by ${fmtMin(-diff)}.` : `${fmtMin(diff)} off your goal.`; out.tone = diff <= 0 ? "good" : diff < tgt * 0.03 ? "ok" : "warn" }
+    else out.verdict = `${dTxt(l.mi, 2)} in ${fmtMin(l.min)}.`; return out }
+  if (fmt === "tempo" && l.tempo && l.tempo.min && l.tempo.mi) { const tp = l.tempo.min / l.tempo.mi, rp = racePace(activeRace(parseYmd(k))); add("Tempo pace", paceTxt(tp)); if (rp) add("Vs race pace", `${tp <= rp ? "−" : "+"}${fmtMin(Math.abs(pU(tp - rp)))}`) }
+  const prev = Object.entries(S.logs).filter(([kk, x]) => kk < k && x.type === "run" && x.mi > 0 && x.min > 0 && ((x.plan && x.plan.rid && x.plan.rid === (l.plan && l.plan.rid)) || x.key === l.key)).sort().pop();
+  if (prev && pace) { const pp = prev[1].min / prev[1].mi, d = pace - pp; add("Vs last time", Math.abs(d) * 60 < 3 ? "same pace" : `${d < 0 ? "−" : "+"}${fmtMin(Math.abs(pU(d)))}/${RU()}`) }
+  if (spec.type === "long" && spec.v && l.mi < spec.v * 0.9) { out.tone = "warn"; out.verdict = `${dTxt(spec.v - l.mi)} short of the planned ${dTxt(spec.v)}.` }
+  if (l.hr && fmt === "steady" && spec.type !== "long" && l.hr > HR_HI + 5) { out.tone = out.tone === "warn" ? "warn" : "ok"; out.notes.push(`Average heart rate ${l.hr} is above your easy zone (${HR_LO}–${HR_HI}). Slow down to keep easy runs easy.`) }
+  if (!out.verdict) out.verdict = out.tone === "good" ? (fmt === "tempo" ? "Tempo logged." : "Run logged. Steady work.") : out.notes.shift();
+  if (!l.st) out.notes.push("Connect Strava or import the GPX file for pacing and heart-rate detail.");
+  return out;
 }

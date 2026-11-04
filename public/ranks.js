@@ -142,7 +142,7 @@ function rkAllEntries() {
       Object.entries(cnt).forEach(([p, n]) => { if (n >= C.consistencySets) mark(p, k) });
     }
     const runs = [];
-    if (l.type === "run" && l.mi > 0 && l.min > 0) runs.push({ run: { mi: l.mi, min: l.min, st: l.st }, key: k + "|run", gate: l.gate || l.race });
+    if (l.type === "run" && l.mi > 0 && l.min > 0 && !l.est) runs.push({ run: { mi: l.mi, min: l.min, st: l.st }, key: k + "|run", gate: l.gate || l.race });
     (l.extraRuns || []).forEach((x, i) => { if (x && x.mi > 0 && x.min > 0) runs.push({ run: { mi: x.mi, min: x.min, st: x.best ? { best: x.best, src: "strava" } : null }, key: k + "|xr" + i }) });
     runs.forEach(r => { ["mile", "m400", "endur"].forEach(p => mark(p, k)); E.push(...rkRunEntries(k, r.run, r.key, r.gate)) });
   });
