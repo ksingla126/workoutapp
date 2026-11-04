@@ -337,7 +337,7 @@ function rkWeekSessions(mon, td) {
   let plan = 0, done = 0;
   for (let i = 0; i < 7; i++) {
     const k = rkAdd(mon, i), l = S.logs[k], p = typeof planFor === "function" ? planFor(parseYmd(k)) : null;
-    if (p && p.type !== "rest") plan++;
+    if (p && p.type !== "rest" && !(typeof preStart === "function" && preStart(k))) plan++;
     if (k <= td && l && (l.type === "gym" || l.type === "run")) done++;
   }
   return { plan, done: Math.min(done, plan), need: Math.ceil(plan * RKC().discipline.hitPct) };
@@ -502,7 +502,7 @@ function rkDiscCard(R) {
   const sq = D.weeks.map(x => `<i class="${x.hit ? "on" : ""}" title="Week of ${fmtShort(parseYmd(x.w))}: ${x.done} of ${x.plan}"></i>`).join("");
   let h = `<div class="card rk-group"><button type="button" class="rk-head" data-rkgroup="disc" aria-expanded="${open}">${rkBadge(D.num, true)}<span style="flex:1;min-width:0;text-align:left"><span class="row between"><b class="rk-name">Discipline</b><span class="small muted">${open ? "Hide" : "Details"} ›</span></span>
     ${rkBar(D.rank >= 5 ? 1 : D.prog, RK_COL[Math.min(5, D.rank + 1)])}
-    <span class="small muted">${D.n} of the last ${C.weeks} weeks on target${D.next ? ` · ${rkLetter(D.rank + 1)} at ${D.next}` : ""}</span></span></button>`;
+    <span class="small muted">${D.weeks.length < 2 ? `${D.week ? `${D.week.done} of ${D.week.need} sessions this week to put it on target` : "Hit 75% of your sessions this week"}` : `${D.n} of the last ${Math.min(C.weeks, D.weeks.length)} weeks on target`}${D.next ? ` · ${rkLetter(D.rank + 1)} at ${D.next} weeks` : ""}</span></span></button>`;
   if (open) h += `<div class="rk-part"><div class="small">A week is on target when you log ${Math.round(C.hitPct * 100)}% of its planned sessions. Discipline rises with on-target weeks in your last ${C.weeks} and needs no Gates. Miss weeks and it slips on its own.</div>
     <div class="rk-cons rk-disc" aria-label="${D.n} of the last ${D.weeks.length} weeks on target">${sq || '<span class="small muted">Your first week counts once it\'s on target.</span>'}</div>
     <div class="row between small"><span class="muted">This week</span><span class="num"><b>${wk.done}</b> of ${wk.plan} sessions${wk.plan ? (wk.done >= wk.need ? " · on target" : ` · ${wk.need - wk.done} more for on target`) : ""}</span></div>
@@ -602,6 +602,7 @@ function viewRanks() {
   if (R.place && !R.place.pending) h += `<p class="small muted" style="margin:0 4px">Placed ${fmtShort(parseYmd(R.place.at))} from your training ${fmtShort(parseYmd(R.place.from))}–${fmtShort(parseYmd(R.place.to))} (placement caps at B).</p>`;
   const al = rkAlerts(R); if (al) h += `<div class="stack" style="gap:8px">${al}</div>`;
   R.groups.forEach(g => h += g.disc ? rkDiscCard(R) : rkGroupCard(g, R));
+  if (typeof friendsCard === "function") h += friendsCard();
   if (R.place && typeof questLog === "function") h += questLog();
   const un = rkUnrated();
   if (un.length) h += `<div class="card"><h2>Unrated exercises</h2><p class="small muted">Pick a similar exercise so these count. They count up to B and can't be Gates.</p>${un.map(([id, L]) => `<div class="row between" style="align-items:center"><span>${esc(L.name)}</span><select data-rkmap="${esc(id)}"><option value="">Counts like…</option>${Object.keys(C.conv).map(x => `<option value="${x}">${esc(rkExName(x))}</option>`).join("")}</select></div>`).join("")}</div>`;

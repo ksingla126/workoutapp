@@ -66,3 +66,14 @@ When a scan finds nothing and someone types in the product (name and package siz
 
 Barcode lookups also use `USDA_API_KEY`: USDA's branded foods are matched on the UPC and are usually the best source for US groceries.
 
+
+## Friends
+
+Players can turn on Friends (Ranks tab), share a 6-character code and compare rank letters, sessions this week and quest streaks. Nothing else is shared.
+
+1. In Supabase **SQL Editor**, run `supabase/migrations-004-friends.sql`.
+2. Uses the same `SUPABASE_SERVICE_ROLE_KEY` in Vercel. The tables aren't readable from the app; only `/api/friends` reads and writes them.
+
+## Recipe import
+
+Food → Import reads a recipe from a link (the schema.org Recipe data most recipe sites include), a photo of the ingredient list (uses the coach), or pasted text. No setup needed. `/api/recipe-import` only fetches public http(s) pages for signed-in users.

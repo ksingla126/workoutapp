@@ -75,6 +75,7 @@ function fpPlan() {
     <div class="fp-tot"><div><div class="row between"><span>Calories</span><b class="num">${fmtN(day.kcal)} <small>/ ${fmtN(g.kcal)}</small></b></div><div class="bar food"><i style="width:${pk}%"></i></div></div>
       <div><div class="row between"><span>Protein</span><b class="num">${Math.round(day.p)} <small>/ ${g.p} g</small></b></div><div class="bar food"><i style="width:${pp}%"></i></div></div></div>
     <p class="small muted" style="margin:0">${day.kcal ? `Carbs ${Math.round(day.c)} g · Fat ${Math.round(day.f)} g a day.${g.kcal - day.kcal > g.kcal * 0.15 ? ` About ${fmtN(Math.round((g.kcal - day.kcal) / 50) * 50)} kcal short: add a snack or another serving.` : ""}` : "Add your recipes to each meal. Your shopping list builds itself from this plan."}</p></div>`;
+  if (typeof foodStartHtml === "function") h += foodStartHtml();
   SLOTS.forEach(([sk, sn]) => {
     const its = K.plan[sk] || [];
     h += `<div class="card fp-slot"><div class="row between"><h3>${sn}</h3><button type="button" class="btn ghost sm" data-c-padd="${sk}">+ Add</button></div>`;
@@ -87,7 +88,7 @@ function fpPlan() {
       else h += `<div class="extra"><span>${esc(M.name)} <span class="muted small num">· ${esc(M.amount)} · ${fmtN(M.m.kcal)} kcal</span></span><button type="button" data-c-prm="${sk}|${i}" aria-label="Remove ${esc(M.name)}">×</button></div>` });
     h += `</div>` });
   // all recipes, planned or not
-  h += `<div class="card"><div class="row between"><h2>My recipes</h2><button type="button" class="btn sm" data-c-rec="">+ New recipe</button></div>`;
+  h += `<div class="card"><div class="row between"><h2>My recipes</h2><div class="row" style="gap:6px"><button type="button" class="btn ghost sm" data-ri-open="1">Import</button><button type="button" class="btn sm" data-c-rec="">+ New</button></div></div>`;
   h += K.recipes.length ? K.recipes.map(r => { const T = recipeTotals(r); return `<div class="fp-recrow"><button type="button" class="dayline rec" data-c-rec="${r.id}"><span class="txt"><b>${esc(r.name)}</b><br><span class="small muted num">Makes ${T.n} · ${fmtN(T.per.kcal)} kcal · ${Math.round(T.per.p)} g protein per serving</span></span></button><button type="button" class="btn ghost sm" data-fp-cook="${r.id}">Cook</button></div>` }).join("")
     : `<p class="small muted" style="margin:0">Add the meals you cook: every ingredient in the batch and how many servings it makes. The app works out macros per serving, then put them on your plan.</p>`;
   h += `</div>`;
