@@ -54,9 +54,10 @@ function fpShopItems(s, w) {
   return out.sort((a, b) => (a.extra ? 1 : 0) - (b.extra ? 1 : 0) || a.name.localeCompare(b.name));
 }
 // things you buy by the piece (eggs, tortillas, cans); meat and produce are bought by weight
-function fpEach(id) { const f = foodById(id); return f && !f.custom ? (f.sv || []).find(([l]) => /^1 (large|medium|bagel|bun|tortilla|avocado|clove|cake|bar|can|block|package|bottle)/.test(l)) : null }
-function fpQty(id, gr) { const f = foodById(id); if (!f) return ""; if (f.custom) return `${fmtQ(Math.round(gr / 100 * 10) / 10)} × ${f.serving || "serving"}`;
-  const each = fpEach(id);
+function fpEach(id) { const f = foodById(id); if (f && (f.custom || f.pc)) { const pc = pieceUnit(f); return pc ? [pc, unitGrams(f, pc)] : null }
+  return f && !f.custom ? (f.sv || []).find(([l]) => /^1 (large|medium|bagel|bun|tortilla|avocado|clove|cake|bar|can|block|package|bottle)/.test(l)) : null }
+function fpQty(id, gr) { const f = foodById(id); if (!f) return ""; const each = fpEach(id);
+  if (f.custom && !each) return `${fmtQ(Math.round(gr / 100 * 10) / 10)} × ${f.serving || "serving"}`;
   return each ? `${Math.ceil(gr / each[1] - 0.05)} × ${each[0].replace(/^1 /, "")}` : gr >= 454 ? `${fmtQ(+(gr / 453.6).toFixed(1))} lb` : `${Math.ceil(gr / 28.35)} oz` }
 function fpUses() { const K = kitchen(), out = {}; SLOTS.forEach(([sk]) => (K.plan[sk] || []).forEach(e => { if (e.t !== "r") return; const r = K.recipes.find(x => x.id === e.id); if (!r) return; (r.items || []).forEach(it => { (out[it.f] = out[it.f] || []); if (!out[it.f].includes(r.name)) out[it.f].push(r.name) }) })); return out }
 const fpWkName = (s, a) => a === "*" || a == null ? "Every week" : `${s.weeks[a] || "Week " + (Number(a) + 1)} only`;

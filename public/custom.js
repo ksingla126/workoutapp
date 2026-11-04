@@ -190,7 +190,7 @@ const FOOD_RAW=[
   ["fries","French fries",312,3.4,41,15,[["1 medium order",117]]]
 ];
 function foodDb(){ const k=(typeof S!=="undefined"&&S.profile&&S.profile.kitchen)||{};
-  return [...FOOD_RAW.map(([id,n,kc,p,c,f,sv])=>({id,n,k:kc,p,c,f,sv})), ...(k.foods||[]).map(x=>({...x,custom:true})), ...(k.usda||[])] }
+  return [...FOOD_RAW.map(([id,n,kc,p,c,f,sv])=>({id,n,k:kc,p,c,f,sv})), ...(k.foods||[]).map(x=>({...x,custom:true})), ...(k.usda||[]).map(countify)] }
 function foodById(id){ return foodDb().find(f=>f.id===id) || USDA.cache.get(id) }
 
 /* ----- USDA FoodData Central search (via /api/foods) ----- */
@@ -202,7 +202,7 @@ function usdaWant(q){ q=usdaKey(q); if(q.length<3||USDA.results[q]) return; clea
     try{ const tok=window.appAuthToken? await window.appAuthToken() : null;
       const r=await fetch("/api/foods?q="+encodeURIComponent(q),{headers:tok?{authorization:"Bearer "+tok}:{}});
       const j=await r.json().catch(()=>({})); if(!r.ok) throw j.code||"error";
-      (j.foods||[]).forEach(f=>USDA.cache.set(f.id,f)); USDA.results[q]={list:j.foods||[]};
+      (j.foods||[]).forEach(f=>{countify(f); USDA.cache.set(f.id,f)}); USDA.results[q]={list:j.foods||[]};
     }catch(e){ USDA.results[q]={err:e==="rate_limited"?"USDA search is busy. Try again in a minute.":"USDA search isn't available right now."}; setTimeout(()=>{delete USDA.results[q]},30000) }
     usdaPaint(q) },400) }
 function usdaPaint(q){ if(SH&&usdaKey(SH.q)===q) paintPart(".xs-results") }
@@ -214,8 +214,8 @@ function usdaSection(q,localCount){ q=usdaKey(q); if(q.length<3) return localCou
   if(!r.list.length) return h+`<p class="small muted">No USDA matches. Try fewer words, or add it as a custom food.</p>`;
   return h+`<div class="xs-list">${r.list.map(f=>{const pu=pieceUnit(f), u=pu? [pu,unitGrams(f,pu)] : f.sv[0]||["100 g",100], m=macrosOf(f,u[1]); return `<button type="button" class="xs-item" data-xs-pickf="${f.id}"><span><b>${esc(f.n)}</b><span class="small muted num">${esc(u[0])} · ${fmtN(m.kcal)} kcal · ${Math.round(m.p)} g P</span></span><span class="xs-plus">+</span></button>`}).join("")}</div>`;
 }
-function keepUsda(f){ if(!f||(f.src!=="usda"&&f.src!=="off")) return; const K=kitchen(); K.usda=K.usda||[]; if(!K.usda.some(x=>x.id===f.id)){ K.usda.push({id:f.id,n:f.n,k:f.k,p:f.p,c:f.c,f:f.f,sv:f.sv,src:f.src}); if(K.usda.length>300) K.usda.shift(); saveProfile() } }
-function unitsOf(f){ return f.custom? [[f.serving||"1 serving",100]] : [...(f.sv||[]),["g",1],["oz",28.35],["lb",453.6]] }
+function keepUsda(f){ if(!f||(f.src!=="usda"&&f.src!=="off")) return; const K=kitchen(); K.usda=K.usda||[]; if(!K.usda.some(x=>x.id===f.id)){ K.usda.push({id:f.id,n:f.n,k:f.k,p:f.p,c:f.c,f:f.f,sv:f.sv,src:f.src,...(f.pc?{pc:f.pc}:{})}); if(K.usda.length>300) K.usda.shift(); saveProfile() } }
+function unitsOf(f){ if(f.custom){ const c=customPiece(f); return c? [c,[f.serving||"1 serving",100]] : [[f.serving||"1 serving",100]] } return [...(f.sv||[]),["g",1],["oz",28.35],["lb",453.6]] }
 function gramsOf(f,amt,unit){ if(!f) return 0; const u=unitsOf(f).find(x=>x[0]===unit)||unitsOf(f)[0]; return (Number(amt)||0)*u[1] }
 function macrosOf(f,grams){ const m=grams/100; return {kcal:f.k*m,p:f.p*m,c:f.c*m,f:f.f*m} }
 const addM=(a,b,x=1)=>({kcal:a.kcal+b.kcal*x,p:a.p+b.p*x,c:a.c+b.c*x,f:a.f+b.f*x});
@@ -228,7 +228,26 @@ function entryMacros(e){ // plan/diary source: {t:"r",id,qty} or {t:"f",id,amt,u
   const f=foodById(e.id); if(!f) return null; return {name:f.n,amount:fmtAmt(e.amt,e.unit),m:macrosOf(f,gramsOf(f,e.amt,e.unit))} }
 // Counting: eggs, tortillas, bananas… read as "3 large eggs", not "3 × large egg" or grams
 const MEASURE_RE=/^1 (cup|tbsp|tsp|oz|fl oz|lb|g|ml|l|scoop|serving|container|packet|portion)\b/i;
-function pieceUnit(f){ if(!f||f.custom) return null; const u=(f.sv||[]).find(([l])=>/^1 /.test(l)&&!MEASURE_RE.test(l)); return u? u[0] : null }
+// Branded and label foods: read the count from the serving text ("1 serving (1 TORTILLA)", "2 slices (64 g)")
+const NOT_COUNT=/^(cups?|c|tbsps?|tablespoons?|tsps?|teaspoons?|oz|ounces?|onz|fl|lbs?|pounds?|g|grams?|grm|gm|kg|ml|mlt|milliliters?|l|liters?|scoops?|servings?|containers?|packets?|portions?|pkgs?|packages?|pouch(es)?|bags?|bottles?|cans?|jars?|boxes?|tubs?|cartons?|pints?|quarts?|gallons?|dashes?|pinch(es)?|sprays?|nlea|x|of|serving size)$/i;
+function singular(w){ return /(ch|sh|ss|x)es$/i.test(w)? w.slice(0,-2) : /ies$/i.test(w)? w.slice(0,-3)+"y" : /oes$/i.test(w)? w.slice(0,-2) : /[^s]s$/i.test(w)? w.slice(0,-1) : w }
+const FRAC={"½":0.5,"¼":0.25,"¾":0.75,"⅓":1/3,"⅔":2/3};
+function countIn(txt){ txt=String(txt||"").toLowerCase().replace(/^1 serving\s*/,"").replace(/^\((.*)\)$/,"$1").trim();
+  const m=txt.match(/^(\d+(?:\.\d+)?|\d+\/\d+|[½¼¾⅓⅔])\s+([a-z][a-z' -]*?)\s*(?:\(|,|$)/); if(!m) return null;
+  const n=FRAC[m[1]]||(m[1].includes("/")? m[1].split("/").reduce((a,b)=>a/b) : Number(m[1])), ws=m[2].trim().split(/\s+/);
+  if(!(n>0)||ws.length>3||ws.some(w=>NOT_COUNT.test(w))) return null; ws[ws.length-1]=singular(ws[ws.length-1]); return {n,noun:ws.join(" ")} }
+// countable products by name, for labels that only give a weight ("1 serving (45 g)")
+const COUNT_NAME=/\b(tortillas?|wraps?|bagels?|english muffins?|muffins?|buns?|pitas?|naans?|waffles?|pancakes?|eggs?|cookies?|bars?|hot dogs?|franks?|sausages?|patty|patties|burgers?|croissants?|biscuits?|rolls?|cups?|pudding cups?|string cheese|cheese sticks?|bananas?|apples?|oranges?|tacos? shells?|taco shells?|dumplings?|meatballs?|nuggets?)\b/i;
+const COUNT_NAME_NOT=/\b(whites?|liquid|mix|chips?|sauce|seasoning|flour|crumbs|dip|spread|powder|cereal|granola|noodles?|salad|cake mix|dough|shredded|substitute)\b/i;
+function countify(f){ if(!f||f.pc!==undefined||f.custom) return f; if(f.src!=="usda"&&f.src!=="off") return f;
+  f.pc=null; if((f.sv||[]).some(([l])=>/^1 /.test(l)&&!MEASURE_RE.test(l))) return f;
+  const sv=f.sv||[], s=sv.find(([l])=>/^1 serving/i.test(l)); if(!s||!(s[1]>0)) return f;
+  let c=countIn(s[0]);
+  if(!c&&/^1 serving \(\d+(\.\d+)? ?(g|ml)\)$/i.test(s[0])&&!COUNT_NAME_NOT.test(f.n)){ const m=String(f.n).split(" · ")[0].match(COUNT_NAME); if(m&&!/^cups?$/i.test(m[1])) c={n:1,noun:singular(m[1].toLowerCase().replace(/patties/,"patty"))} }
+  if(!c) return f; const u="1 "+c.noun; f.pc=u; f.sv=[[u,Math.round(s[1]/c.n*10)/10],...sv]; return f }
+// label foods you typed in: "2 tortillas (90 g)" also counts by the tortilla
+function customPiece(f){ if(!f||!f.custom) return null; const c=countIn(f.serving); return c? ["1 "+c.noun,100/c.n] : null }
+function pieceUnit(f){ if(!f) return null; if(f.custom){ const c=customPiece(f); return c? c[0] : null } const u=(f.sv||[]).find(([l])=>/^1 /.test(l)&&!MEASURE_RE.test(l)); return u? u[0] : null }
 function pluralW(w){ return /(s|x|ch|sh)$/i.test(w)? w+"es" : /[^aeiou]y$/i.test(w)? w.slice(0,-1)+"ies" : w+"s" }
 function nounN(noun,n){ if(Number(n)===1) return noun; const m=noun.match(/^([^(]*?)(\s*\(.*\))?$/), head=m[1].trim(), tail=m[2]||""; const ws=head.split(" "); ws[ws.length-1]=pluralW(ws[ws.length-1]); return ws.join(" ")+tail }
 function unitOptLabel(u){ return ["g","oz","lb"].includes(u)? u : /^1 /.test(u)? nounN(u.slice(2),2) : u }
@@ -410,7 +429,7 @@ async function lookupCode(code){ code=String(code||"").replace(/\D/g,""); if(cod
   W.lookErr="Looking up…"; W.lookAdd=null; paintSheet();
   try{ const tok=window.appAuthToken? await window.appAuthToken() : null; const r=await fetch("/api/barcode?code="+code,{headers:tok?{authorization:"Bearer "+tok}:{}}); const j=await r.json().catch(()=>({}));
     if(SH!==W) return;
-    if(r.ok&&j.food){ USDA.cache.set(j.food.id,j.food); keepUsda(j.food); W.src=srcTxt(j.src); return pickFood(j.food) }
+    if(r.ok&&j.food){ countify(j.food); USDA.cache.set(j.food.id,j.food); keepUsda(j.food); W.src=srcTxt(j.src); return pickFood(j.food) }
     if(r.ok&&j.cfood){ // label nutrition another RankUp user entered: keep a copy in this person's foods
       const K=kitchen(), x={id:newId("cf"),n:j.cfood.n||j.product.name,serving:j.cfood.serving||"1 serving",k:j.cfood.k,p:j.cfood.p||0,c:j.cfood.c||0,f:j.cfood.f||0,code,shared:1};
       K.foods.push(x); saveProfile(); toast("Found it: added by another RankUp user"); return pickFood({...x,custom:true}) }
@@ -706,7 +725,9 @@ function groceryList(){ const K=kitchen(), g={};
       (r.items||[]).forEach(it=>{const f=foodById(it.f); add(f,gramsOf(f,it.amt,it.unit)*(Number(e.qty)||0)/n*7)}) }
     else { const f=foodById(e.id); add(f,gramsOf(f,e.amt,e.unit)*7) } }));
   return Object.entries(g).map(([id,gr])=>{ const f=foodById(id); let qty;
-    if(f.custom) qty=`${fmtQ(Math.round(gr/100*10)/10)} × ${f.serving||"serving"}`;
+    const pc=(f.custom||f.pc)&&pieceUnit(f);
+    if(pc) qty=`${Math.ceil(gr/unitGrams(f,pc)-0.05)} × ${pc.replace(/^1 /,"")}`;
+    else if(f.custom) qty=`${fmtQ(Math.round(gr/100*10)/10)} × ${f.serving||"serving"}`;
     else { const each=f.sv.find(([l])=>/^1 (large|medium|bagel|bun|tortilla|avocado|clove|cake|bar|can|block|package|fillet|breast|thigh|steak|bottle)/.test(l));
       qty= each? `${Math.ceil(gr/each[1]-0.05)} × ${each[0].replace(/^1 /,"")}` : gr>=454? `${(gr/453.6).toFixed(1)} lb` : `${Math.ceil(gr/28.35)} oz` }
     return {id,n:f.n,qty,gr} }).sort((a,b)=>a.n.localeCompare(b.n));
