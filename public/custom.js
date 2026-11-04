@@ -300,7 +300,7 @@ function paintSheet(scrollTop){ if(!SH) return; const el=sheetEl(), inn=el.query
   if(focusSel){ const f=inn.querySelector(`[data-xs-focus="${focusSel}"]`); if(f){ f.focus(); try{const v=f.value; f.setSelectionRange(v.length,v.length)}catch(e){} } } }
 const commitPlan=()=>{ saveProfile(); onProfile(); render() };
 // Repaint only part of the sheet, so the input being typed in (and the iPhone keyboard) stays put.
-function sheetHtml(){ return SH.kind==="form"? formHtml() : SH.kind==="autogen"? autogenHtml() : SH.kind==="shopItem"? shopItemHtml() : SH.kind==="shopList"? shopListHtml() : SH.kind==="shopSched"? shopSchedHtml() : SH.kind==="gscan"? gscanHtml() : SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="fmt"? fmtSheetHtml() : SH.kind==="paths"? pathsHtml() : SH.kind==="fpgoals"? fpGoalsHtml() : SH.kind==="fpsched"? fpSchedHtml() : SH.kind==="fpextra"? fpExtraHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : (SH.kind==="runnew"||SH.kind==="race")&&typeof runSheetHtml==="function"? runSheetHtml() : "" }
+function sheetHtml(){ return SH.kind==="form"? formHtml() : SH.kind==="autogen"? autogenHtml() : SH.kind==="shopItem"? shopItemHtml() : SH.kind==="shopList"? shopListHtml() : SH.kind==="shopSched"? shopSchedHtml() : SH.kind==="gscan"? gscanHtml() : SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="fmt"? fmtSheetHtml() : SH.kind==="paths"? pathsHtml() : SH.kind==="fpgoals"? fpGoalsHtml() : SH.kind==="fpsched"? fpSchedHtml() : SH.kind==="fpextra"? fpExtraHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : (SH.kind==="runnew"||SH.kind==="race")&&typeof runSheetHtml==="function"? runSheetHtml() : typeof extraSheetHtml==="function"? extraSheetHtml() : "" }
 function paintPart(sel){ if(!SH) return; const el=document.querySelector("#xsheet .xs-in"); const dst=el&&el.querySelector(sel); if(!dst){ paintSheet(); return }
   const tmp=document.createElement("div"); tmp.innerHTML=sheetHtml(); const src=tmp.querySelector(sel); if(src) dst.innerHTML=src.innerHTML; else paintSheet() }
 function estMin(ex){ const sec=(ex||[]).reduce((t,e)=>t+(e.sets||3)*((e.rest||90)+(isSec(e)?(e.hi||45):40)),0); return Math.max(10,Math.round(sec/60/5)*5) }
@@ -468,6 +468,7 @@ function recipeHtml(){ const r=SH.r, T=recipeTotals(r,true);
   const methodHtml=`<div class="field"><label>Method (one step per line)</label><textarea data-xs-rf="method" rows="7" data-xs-focus="rmethod" placeholder="Brown the turkey…">${esc(r.method||"")}</textarea></div>
     <div class="field"><label>Storing and reheating</label><textarea data-xs-rf="store" rows="3" data-xs-focus="rstore">${esc(r.store||"")}</textarea></div>`;
   h+= r.items.length? `<div class="ing-list">${r.items.map((it,i)=>ingRow(it,i)).join("")}</div>` : `<p class="small muted">Add the ingredients for the whole batch.</p>`;
+  h+= typeof pendingHtml==="function"? pendingHtml() : "";
   h+=`<button type="button" class="btn ghost sm" data-xs="ingnew" style="margin:8px 0">+ Add ingredient</button>
     <div class="note num rtot"><b>Per serving:</b> ${fmtN(T.per.kcal)} kcal · ${Math.round(T.per.p)} g protein · ${Math.round(T.per.c)} g carbs · ${Math.round(T.per.f)} g fat<br><span class="small muted">Whole batch: ${fmtN(T.total.kcal)} kcal · ${Math.round(T.total.p)} g protein</span></div>
     ${methodHtml}<p class="note" data-xs-err hidden></p>
@@ -1273,17 +1274,22 @@ function accountBtn(){ if(!window.__platform) return ""; const n=accountName(); 
 function accountHtml(){
   const pr=userPrefs(), P=window.LOOK?LOOK.presets:{}, email=window.appUserEmail?appUserEmail():"";
   const tog=(k,label,sub)=>`<label class="setrow"><span><b>${label}</b>${sub?`<span class="small muted">${sub}</span>`:""}</span><input type="checkbox" class="switch" data-acct-tog="${k}" ${pr[k]?"checked":""}></label>`;
-  return `<div class="xs-head"><div class="acct-id"><span class="acct big">${esc((accountName()[0]||"?").toUpperCase())}</span><span><b>${esc(accountName())}</b>${email?`<span class="small muted">${esc(email)}</span>`:""}</span></div><button type="button" class="btn ghost sm" data-xs="close">Close</button></div>
+  return `<div class="xs-head"><div class="acct-id"><span class="acct big">${esc((accountName()[0]||"?").toUpperCase())}</span><span><span class="eyebrow">Settings</span><b>${esc(accountName())}</b>${email?`<span class="small muted">${esc(email)}</span>`:""}</span></div><button type="button" class="btn ghost sm" data-xs="close">Close</button></div>
    <h3>Appearance</h3>
    <div class="seg three">${[["system","System"],["light","Light"],["dark","Dark"]].map(([k,l])=>`<button type="button" class="${pr.mode===k?"on":""}" data-acct-mode="${k}" aria-pressed="${pr.mode===k}">${l}</button>`).join("")}</div>
    <div class="palettes">${Object.entries(P).map(([k,v])=>`<button type="button" class="pal ${pr.palette===k?"on":""}" data-acct-pal="${k}" aria-pressed="${pr.palette===k}"><span class="dots">${v.dots.map(c=>`<i style="background:${c}"></i>`).join("")}</span>${esc(v.name)}</button>`).join("")}</div>
    <h3>Units</h3>
    <div class="seg" style="grid-template-columns:1fr 1fr">${[["lb","Pounds (lb)"],["kg","Kilograms (kg)"]].map(([k,l])=>`<button type="button" class="${UNIT()===k?"on":""}" data-acct-unit="${k}" aria-pressed="${UNIT()===k}">${l}</button>`).join("")}</div>
+   ${typeof RU==="function"?`<div class="seg" style="grid-template-columns:1fr 1fr;margin-top:8px">${[["mi","Miles (mi)"],["km","Kilometres (km)"]].map(([k,l])=>`<button type="button" class="${RU()===k?"on":""}" data-acct-dist="${k}" aria-pressed="${RU()===k}">${l}</button>`).join("")}</div>`:""}
+   ${CUSTOM?`<h3>About you</h3><label class="setrow"><span><b>Birth month</b><span class="small muted">Keeps your age current for ranks</span></span><input class="setnum" type="month" data-acct-birth="1" value="${esc(CUSTOM.su.birth||"")}" max="${ymd(today).slice(0,7)}" style="width:150px"></label>`:""}
    <h3>Workouts</h3>
    ${tog("sound","Rest timer sound","Beep when rest is over")}
    ${tog("awake","Keep screen on","While a workout timer is running")}
    <label class="setrow"><span><b>Resting heart rate</b><span class="small muted">Used for fitness estimates</span></span><input class="setnum" inputmode="numeric" data-acct-rhr="1" value="${esc(S.profile.restHr||"")}" placeholder="70"></label>
    ${stravaRows()}
+   ${CUSTOM&&typeof RU==="function"?`<h3>Running</h3><button type="button" class="setlink" data-run-race="1">${(()=>{const R=CUSTOM.su.race; return R&&R.date&&R.date>=ymd(today)?`Race: ${esc(R.label||dTxt(R.dist))} · ${fmtShort(parseYmd(R.date))}`:"Add a race"})()}<span>›</span></button><button type="button" class="setlink" data-acct-runs="1">Edit your runs<span>›</span></button>`:""}
+   ${typeof friendsRows==="function"?friendsRows():""}
+   ${CUSTOM?`<h3>Ranks</h3><button type="button" class="setlink" data-acct-pause="1">Pause ranks (travel or illness)<span>›</span></button>`:""}
    <h3>Account</h3>
    ${CUSTOM?`<button type="button" class="setlink" data-acct-edit="1">Edit plan & goals<span>›</span></button>`:""}
    <button type="button" class="setlink" data-acct-export="1">Download my data<span>›</span></button>
@@ -1453,6 +1459,9 @@ document.addEventListener("click",e=>{
   // --- account
   if(d.acct){ openSheet({kind:"account"}); if(window.appConfig&&appConfig().strava) stravaCheck(false); return }
   if(d.acctUnit){ setUnit(d.acctUnit); paintSheet(); return }
+  if(d.acctDist){ S.profile.distU=d.acctDist; saveProfile(); paintSheet(); lastRenderKey=""; render(); return }
+  if(d.acctRuns){ xsClose(); tab="plan"; planView="training"; lastRenderKey=""; render(); setTimeout(()=>{ const el=document.querySelector(".runr")||document.querySelector("[data-run-new]"); if(el) el.scrollIntoView({block:"center"}) },60); return }
+  if(d.acctPause){ xsClose(); tab="ranks"; lastRenderKey=""; render(); setTimeout(()=>{ const el=[...document.querySelectorAll(".card h2")].find(x=>x.textContent.trim()==="Pause"); if(el) el.scrollIntoView({block:"center"}) },300); return }
   if(d.acctMode){ setPref({mode:d.acctMode}); paintSheet(); return }
   if(d.acctPal){ setPref({palette:d.acctPal}); paintSheet(); return }
   if(d.acctEdit){ xsClose(); setupOpen=true; SUW=null; render(); window.scrollTo(0,0); return }
@@ -1595,7 +1604,8 @@ document.addEventListener("click",e=>{
   if(d.xs==="ingnew"){ SH.adding=true; SH.swap=null; SH.q=""; SH.pick=null; paintSheet(true); return }
   if(d.xs==="ingback"){ SH.adding=false; SH.pick=null; SH.swap=null; paintSheet(true); return }
   if(d.xs==="ingadd"){ const P=SH.pick; if(!(numIn(P.amt)>0)){ toast("Enter an amount above 0"); return } const it={f:P.id,amt:numIn(P.amt),unit:P.unit};
-    if(SH.swap!=null&&SH.r.items[SH.swap]) SH.r.items[SH.swap]=it; else SH.r.items.push(it); SH.swap=null; SH.adding=false; SH.pick=null; paintSheet(true); return }
+    if(SH.swap!=null&&SH.r.items[SH.swap]) SH.r.items[SH.swap]=it; else SH.r.items.push(it); SH.swap=null;
+    if(SH.pendI!=null&&SH.r.pending){ SH.r.pending.splice(SH.pendI,1); if(!SH.r.pending.length) delete SH.r.pending; SH.pendI=null } SH.adding=false; SH.pick=null; paintSheet(true); return }
   if(d.xs==="alllocal"){ SH.allLocal=true; paintPart(".xs-results"); return }
   if(d.xsIngsw!=null){ SH.swap=+d.xsIngsw; SH.adding=true; SH.q=""; SH.pick=null; paintSheet(true); return }
   if(d.xsIngrm!=null){ SH.r.items.splice(+d.xsIngrm,1); paintSheet(); return }
@@ -1648,6 +1658,8 @@ document.addEventListener("change",e=>{ const t=e.target, d=t.dataset||{};
   if(d.cRest){ const [rid,i]=d.cRest.split("|"); suMut(su=>{su.routines.find(r=>r.id===rid).ex[+i].rest=Number(t.value)}); return }
   if(d.xsBarw&&SH){ const u=UNIT(), v=Number(t.value); if(v>=0&&v<200){ const bars={...(userPrefs().bars||{})}; bars[u]={...(bars[u]||{}),[d.xsBarw]:v}; setPref({bars}); paintSheet() } return }
   if(d.acctTog){ setPref({[d.acctTog]:t.checked}); return }
+  if(d.acctBirth){ const v=t.value; if(!/^\d{4}-\d{2}$/.test(v)||!S.profile.setup) return; const a=new Date().getFullYear()-Number(v.slice(0,4)); if(a<13||a>100){ toast("Check the year"); return }
+    S.profile.setup.birth=v; if(typeof rkAgeAt==="function") S.profile.setup.age=rkAgeAt(ymd(today)); saveProfile(); onProfile(); toast("Saved"); return }
   if(d.acctRhr){ const v=Math.round(numIn(t.value)); S.profile.restHr= v>=30&&v<=120? v : ""; saveProfile(); render(); return }
   if(d.cGoal){ suMut(su=>{su.food=su.food||{}; const v=Math.round(numIn(t.value)); su.food[d.cGoal]=v>0?v:undefined; if(d.cGoal==="kcal"&&v>0) su.kcal=v}); return }
   if(d.cGro){ S.profile.grocery={...(S.profile.grocery||{}),[d.cGro]:t.checked}; saveProfile(); t.closest(".mealrow")?.classList.toggle("eaten",t.checked); return }

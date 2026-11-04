@@ -67,7 +67,8 @@ function gameLive(box, info) {
 }
 document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("#lvDone"); if (!b) return; const r = b.getBoundingClientRect(), ghost = document.createElement("div");
   ghost.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;pointer-events:none`; document.body.appendChild(ghost);
-  setTimeout(() => { if (document.querySelector(".lv-main")) { gBurst(ghost, { n: 14, spread: 50, text: "SET CLEAR" }); gBlip(); gBuzz(20) } ghost.remove() }, 20) }, true);
+  // after the tap the live view redraws as the rest card, so burst over that card's top edge, clear of "Up next"
+  setTimeout(() => { const m = document.querySelector(".lv-main"); if (m) { const q = m.getBoundingClientRect(); ghost.style.cssText = `position:fixed;left:${q.left}px;top:${q.top - 6}px;width:${q.width}px;height:24px;pointer-events:none`; gBurst(ghost, { n: 14, spread: 50, text: "SET CLEAR" }); gBlip(); gBuzz(20) } ghost.remove() }, 20) }, true);
 
 /* ---------- the skin ---------- */
 (() => { const st = document.createElement("style"); st.id = "gameSkin"; st.textContent = `

@@ -260,6 +260,9 @@ p{margin:0}
 .timerbar{position:fixed;left:0;right:0;z-index:5;background:var(--ink);color:var(--bg);padding:8px 16px 0}
 .timerbar .tb-row{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-bottom:8px}
 .timerbar .tb-blk{display:flex;flex-direction:column;line-height:1.05}
+html body .timerbar.mini{left:auto!important;right:14px!important;width:auto!important;max-width:none!important;border-radius:999px!important;padding:6px 14px 6px 12px!important;cursor:pointer}
+html body .timerbar.mini .tb-row{padding-bottom:0;gap:8px;flex-wrap:nowrap}html body .timerbar.mini .rest,html body .timerbar.mini .tb-btns,html body .timerbar.mini .tb-prog{display:none!important}
+html body .timerbar.mini .tb-v{font-size:16px!important}html body .timerbar.mini .tb-l::after{content:" · tap to return"}
 .timerbar .tb-l{font-size:10px;font-weight:800;opacity:.7}
 .timerbar .tb-v{font-family:var(--display);font-size:26px;font-weight:800}
 .timerbar .tb-btns{display:flex;gap:6px;margin-left:auto}
@@ -845,6 +848,7 @@ svg.inl{width:15px;height:15px;vertical-align:-3px}
 <script src="/foodplan.js"></script>
 <script src="/game.js"></script>
 <script src="/runs.js"></script>
+<script src="/extras.js"></script>
 <script>
 /* ---------- Program definition ---------- */
 let CUSTOM = null; // set when the user built their own plan in setup
@@ -1023,7 +1027,7 @@ const fmtDate=d=>d.toLocaleDateString("en-US",{weekday:"short",month:"short",day
 const fmtShort=d=>d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
 const fmtN=n=>Math.round(n).toLocaleString("en-US");
 // Schedule changes live in profile.moves: {"YYYY-MM-DD": "rest" | "<date whose session happens on this day>"}
-function planFor(d){ let p=planFor0(d); if(p&&p.type==="run"&&CUSTOM&&typeof swappedRun==="function") p=swappedRun(p,ymd(d)); if(p&&p.type==="gym"&&typeof travelPlan==="function") p=travelPlan(p,ymd(d)); return p&&p.ex? {...p,ex:p.ex.map(e=>withFmt(e,ymd(d)))} : p }
+function planFor(d){ let p=planFor0(d); if(p&&p.type==="run"&&CUSTOM&&typeof swappedRun==="function") p=swappedRun(p,ymd(d)); if(p&&p.type==="run"&&CUSTOM&&typeof firstRunEasy==="function") p=firstRunEasy(p,ymd(d)); if(p&&p.type==="gym"&&typeof travelPlan==="function") p=travelPlan(p,ymd(d)); return p&&p.ex? {...p,ex:p.ex.map(e=>withFmt(e,ymd(d)))} : p }
 function planFor0(d){
   if(!inProgram(d)) return null;
   if(CUSTOM){ const lp=loggedPlan(d); if(lp) return lp }
@@ -1244,21 +1248,26 @@ function render(fromStore){
   const v=$("#view");
   v.innerHTML = tab==="hub"&&typeof viewHub==="function"?viewHub(): tab==="home"?trainSwitch()+viewHome(openLogger): tab==="food"||(tab==="plan"&&planView==="food")?viewFoodTab(): tab==="plan"?trainSwitch()+viewPlan(): tab==="progress"?trainSwitch()+viewProgress(): tab==="ranks"?viewRanks(): advSwitch()+(advView==="outlook"?viewOutlook():viewAdvice());
   applyDrafts();
-  bind(); if(tab==="ranks") bindRanks(); if(tab==="hub"&&typeof hubMaybeTour==="function") hubMaybeTour(); if(typeof gameAfterRender==="function") gameAfterRender();
+  bind(); if(tab==="ranks") bindRanks(); if(tab==="hub"&&typeof hubMaybeTour==="function") hubMaybeTour(); if(tab==="hub"&&typeof maybeRecap==="function") setTimeout(maybeRecap,400); else if(typeof HT!=="undefined"&&HT.i>=0) hubTourEnd(); if(typeof gameAfterRender==="function") gameAfterRender();
   setTimeout(maybeOverload,0); setTimeout(rankNotify,0); if(typeof questNotify==="function") setTimeout(questNotify,0);
 }
 function renderTop(){
   if(tab==="hub"){ if(document.title!==APP_NAME) document.title=APP_NAME; $("#top").innerHTML=""; $("#top").classList.add("hub-top"); return } $("#top").classList.remove("hub-top");
+  if(tab==="food"||tab==="ranks"||tab==="advice"||(tab==="plan"&&planView==="food")){ if(document.title!==APP_NAME) document.title=APP_NAME;
+    const T={food:"Food",plan:"Food",ranks:"Ranks",advice:"System"}[tab];
+    $("#top").innerHTML=`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}${accountBtn()}</span></div><h1 class="top-week">${T}</h1>`; return }
   const w=Math.max(1,weekOf(today)), mon=monOf(w);
-  let wkPlan=0, wkDone=0; for(let i=0;i<7;i++){ const d=addDays(mon,i), p=planFor(d); if(p&&p.type!=="rest"){ wkPlan++; if(S.logs[ymd(d)]) wkDone++ } }
+  let wkPlan=0, wkDone=0; for(let i=0;i<7;i++){ const d=addDays(mon,i), p=planFor(d); if(p&&p.type!=="rest"&&!preStart(d)){ wkPlan++; if(S.logs[ymd(d)]) wkDone++ } }
   const plannedSoFar=countPlanned(today), done=Object.keys(S.logs).filter(k=>parseYmd(k)<=today&&parseYmd(k)>=countStart()).length;
   const pct=wkPlan? Math.min(100,wkDone/wkPlan*100) : 0;
   if(document.title!==APP_NAME) document.title=APP_NAME;
   $("#top").innerHTML=`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}${accountBtn()}</span></div>
    <h1 class="top-week">Week ${w}</h1>
    <div class="bar" role="progressbar" aria-label="This week's sessions" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div>
-   <div class="top-meta"><span><b class="num">${wkDone}</b> of ${wkPlan} this week</span><span><b class="num">${done}</b> of ${plannedSoFar} done overall</span></div>`;
+   <div class="top-meta"><span><b class="num">${wkDone}</b> of ${wkPlan} this week</span><span><b class="num">${done}</b> of ${plannedSoFar} done since you started</span></div>`;
 }
+// days before you signed up aren't "missed": they don't count unless you logged them
+function preStart(d){ const k=typeof d==="string"?d:ymd(d); return !!(CUSTOM&&CUSTOM.su.firstDay&&k<CUSTOM.su.firstDay&&!S.logs[k]) }
 function countStart(){ if(!CUSTOM||!CUSTOM.su.firstDay) return START; let k=CUSTOM.su.firstDay; Object.keys(S.logs).forEach(x=>{if(x<k) k=x}); const d=parseYmd(k); return d>START?d:START }
 function countPlanned(upTo){let n=0;for(let d=new Date(countStart());d<=upTo;d=addDays(d,1)){const p=planFor(d); if(p&&p.type!=="rest") n++}return n}
 function unseenAdvice(){return S.advice.at>(S.advice.seenAt||0)?(S.advice.items||[]).length:0}
@@ -1476,7 +1485,7 @@ function advicePreview(){
 }
 function weekSnapshot(w){
   const mon=monOf(w); let gymDone=0,gymPlan=0,runDone=0,runPlan=0,mi=0;
-  for(let i=0;i<7;i++){const d=addDays(mon,i),p=planFor(d); if(!p) continue; const l=S.logs[ymd(d)];
+  for(let i=0;i<7;i++){const d=addDays(mon,i),p=planFor(d); if(!p||preStart(d)) continue; const l=S.logs[ymd(d)];
     if(p.type==="gym"){gymPlan++; if(l) gymDone++} if(p.type==="run"){runPlan++; if(l){runDone++; mi+=Number(l.mi)||0}}}
   const tom=addDays(sel,1), tp=planFor(tom);
   const tomTxt=!tp?"Nothing planned":tp.type==="rest"?"Rest day + meal prep":tp.type==="gym"?tp.name:`${tp.t} — ${tp.d}`;
@@ -1656,7 +1665,7 @@ function viewAdvice(){
   if(!S.chat.length) h+=`<div class="sugg" id="sugg">${coachSuggestions().map(s=>`<button data-s="${esc(s)}">${esc(s)}</button>`).join("")}</div>`;
   h+=`<div class="composer"><textarea id="chatIn" rows="1" placeholder="Message your coach"></textarea><button class="btn" id="chatSend">Send</button><button class="btn ghost" id="chatStop" hidden>Stop</button></div>`;
   if(userReady && !sampleFn) h+=`<p class="note">Your coach is unavailable right now. Check your connection and try again.</p>`;
-  h+=`<div class="row between" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><span class="small muted">Signed in</span><button class="btn ghost sm" type="button" onclick="appSignOut()">Sign out</button></div>`;
+  h+=`<div class="row between" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><span class="small muted">Units, Strava, race and your account</span><button class="btn ghost sm" type="button" data-acct="1">Settings</button></div>`;
   return h+`</div>`;
 }
 function md(t){return esc(t).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")}
@@ -1848,11 +1857,15 @@ function timerBox(k){
   const running=TM.start&&TM.date===k, other=TM.start&&TM.date!==k;
   if(running) return `<div class="timerbox"><div><div class="eyebrow">Workout running</div><div class="big num" id="tmWork2">${fmtClock(Date.now()-TM.start)}</div></div><div class="row" style="gap:8px"><button class="btn sm" type="button" data-openlive="1">Live view</button><button class="btn ghost sm" id="tmEnd">End</button></div></div>`;
   if(k!==ymd(today)) return "";
-  return `<div class="timerbox"><div><div class="eyebrow">Timer</div><div class="small muted">${other?"A workout from another day is still running.":"Opens the live view: one set at a time with rest timers. You can also tick sets below."}</div></div><button class="btn sm" id="tmStart">${other?"Restart for today":"Start workout"}</button></div>`;
+  const isRun=(()=>{const p=planFor(parseYmd(k)); return p&&p.type==="run"})();
+  return `<div class="timerbox"><div><div class="eyebrow">${isRun?"Guided run":"Timer"}</div><div class="small muted">${other?"A workout from another day is still running.":isRun?"Each part of the run with a countdown, and a beep and buzz when it's time to switch.":"Opens the live view: one set at a time with rest timers. You can also tick sets below."}</div></div><button class="btn sm" id="tmStart">${other?"Restart for today":isRun?"Start run":"Start workout"}</button></div>`;
 }
 function tick(){
   const bar=$("#timerBar"); if(!bar) return;
+  if(TM.start&&Date.now()-TM.start>5*3600000&&!liveOpen){ TM={start:0,date:"",restEnd:0,restDur:0}; saveTM(); keepAwake(false) } // forgotten timers stop after 5 hours
   if(!TM.start){bar.hidden=true; document.body.classList.remove("timing"); if(liveOpen){liveOpen=false; renderLive()} return}
+  // full bar only on the workout's own day in Train; everywhere else a small "back to workout" chip
+  const mini=!(tab==="home"&&typeof sel!=="undefined"&&ymd(sel)===TM.date); bar.classList.toggle("mini",mini); document.body.classList.toggle("timing-mini",mini);
   if(liveOpen) liveTick();
   const nav=document.querySelector("nav.tabs"); if(nav&&nav.offsetHeight) bar.style.bottom=Math.max(0,Math.round(window.innerHeight-nav.getBoundingClientRect().top+8))+"px";
   bar.hidden=liveOpen; document.body.classList.add("timing");
@@ -1930,6 +1943,7 @@ function renderLive(){
       ${cur?`<p class="small muted lv-hint">Tap an exercise to do it next.</p>`:""}`;
     top=top.replace('<div class="small muted" id="lvProg"></div>',`<div class="small muted" id="lvProg">${doneN}/${steps.length} sets</div>`);
     top+=`<div class="lv-xp" role="progressbar" aria-label="Workout progress" aria-valuemin="0" aria-valuemax="${steps.length}" aria-valuenow="${doneN}"><i style="width:${steps.length?Math.round(doneN/steps.length*100):0}%"></i></div>`;
+  } else if(typeof runLiveParts==="function"){ const RP=runLiveParts(k,p); main=RP.main; next=RP.next; list=RP.list; liveState=RP.state;
   } else {
     liveState="run";
     main=`<div class="lv-main"><div class="lv-label">Time</div><div class="lv-clock" id="lvRunClock">${fmtClock(now-TM.start)}</div><p class="small lv-note">${esc(p.d)}</p>${/bpm/.test(p.d)?`<p class="small lv-note">Jog until your watch shows ${HR_HI}, walk until it drops to ${HR_LO}.</p>`:""}<button class="btn lv-cta" id="lvRunDone">Finish run</button></div>`;
@@ -1943,7 +1957,7 @@ function liveTick(){
   const rc=document.getElementById("lvRunClock"); if(rc) rc.textContent=fmtClock(now-TM.start);
   const r=document.getElementById("lvRest"), f=document.getElementById("lvRestFill");
   if(r&&TM.restEnd&&TM.restEnd>now){ r.textContent=fmtClock(TM.restEnd-now); if(f) f.style.width=Math.min(100,100-(TM.restEnd-now)/(TM.restDur*1000)*100)+"%" }
-  const c=liveCtx(); if(c&&c.p.type==="gym"){ const resting=TM.restEnd&&TM.restEnd>now, justDone=TM.restEnd&&TM.restEnd<=now&&now-TM.restEnd<20000; const idx=liveIdx(gymSteps(c.k,c.p));
+  const c=liveCtx(); if(c&&c.p.type==="run"&&typeof runLiveTick==="function") runLiveTick(c.k,c.p); if(c&&c.p.type==="gym"){ const resting=TM.restEnd&&TM.restEnd>now, justDone=TM.restEnd&&TM.restEnd<=now&&now-TM.restEnd<20000; const idx=liveIdx(gymSteps(c.k,c.p));
     const st=`${idx}|${resting?"r":justDone?"g":"x"}`; if(st!==liveState && !(document.activeElement&&/lvW|lvR|lvM/.test(document.activeElement.id||""))) renderLive() }
 }
 function bindLive(k,p){
@@ -1973,7 +1987,8 @@ function bindLive(k,p){
   if($$("lvFinish")) $$("lvFinish").onclick=finish;
   if($$("lvRunDone")) $$("lvRunDone").onclick=finish;
 }
-document.getElementById("timerBar").addEventListener("click",e=>{ if(e.target.closest("[data-rest],#tmSkip")) return; openLive() });
+document.getElementById("timerBar").addEventListener("click",e=>{ if(e.target.closest("[data-rest],#tmSkip")) return;
+  if(TM.date&&(tab!=="home"||ymd(sel)!==TM.date)){ tab="home"; sel=parseYmd(TM.date); lastRenderKey=""; render() } openLive() });
 
 setInterval(tick,500);
 document.querySelectorAll("#timerBar [data-rest]").forEach(b=>b.onclick=()=>startRest(Number(b.dataset.rest)));
@@ -2544,7 +2559,7 @@ function viewRuns(){ return runSel&&S.logs[runSel]&&S.logs[runSel].type==="run"?
 function runsIndex(){
   const L=runList();
   let h=`<div class="card"><div><div class="eyebrow">Every run you've logged · tap one for the full breakdown</div><h2>Runs</h2></div>`;
-  if(!L.length) return h+`<p class="small muted">No runs yet. Log one from the Home tab on a run day${CUSTOM&&CUSTOM.su.runDays.length?` (${CUSTOM.su.runDays.map(i=>DOW[i]).join(", ")})`:""}, or import from Strava for maps and splits, and it'll show up here.</p>${stravaPrompt("runs")}</div>`;
+  if(!L.length) return h+`<p class="small muted">No runs yet. Log one from Train on a run day${CUSTOM&&CUSTOM.su.runDays.length?` (${CUSTOM.su.runDays.map(i=>DOW[i]).join(", ")})`:""}, or import from Strava for maps and splits, and it'll show up here.</p>${stravaPrompt("runs")}</div>`;
   const tot=L.reduce((a,[k,l])=>a+(Number(l.mi)||0),0), longest=Math.max(...L.map(([k,l])=>Number(l.mi)||0)), best=Math.min(...L.filter(([k,l])=>l.mi&&l.min).map(([k,l])=>l.min/l.mi));
   h+=`<div class="kpis"><div class="kpi"><div class="v num">${L.length}</div><div class="l">runs</div></div><div class="kpi"><div class="v num">${dU(tot)}</div><div class="l">total ${RU()==="km"?"km":"miles"}</div></div><div class="kpi"><div class="v num">${longest.toFixed(1)}</div><div class="l">longest (mi)</div></div></div>`;
   if(isFinite(best)) h+=`<p class="small muted">Fastest average pace so far: <b class="num" style="color:var(--ink)">${paceTxt(best)}</b></p>`;
@@ -2819,7 +2834,7 @@ function bind(){
   document.querySelectorAll("[data-goto]").forEach(b=>b.onclick=()=>{sel=parseYmd(b.dataset.goto);tab="home";render();window.scrollTo(0,0)});
   document.querySelectorAll("[data-goto-tab]").forEach(b=>b.onclick=()=>{tab=b.dataset.gotoTab; if(tab==="advice"&&S.advice.at>(S.advice.seenAt||0)){S.advice.seenAt=S.advice.at;saveAdvice()} render();window.scrollTo(0,0)});
   const k=ymd(sel), p=planFor(sel), log=S.logs[k];
-  $("#tmStart")?.addEventListener("click",()=>{startWorkout(); render(); if(p&&p.type==="gym") openLive(); else { const d=$("#trainLog"); if(d&&!d.open){d.open=true} } });
+  $("#tmStart")?.addEventListener("click",()=>{startWorkout(); render(); if(p&&(p.type==="gym"||p.type==="run")) openLive(); else { const d=$("#trainLog"); if(d&&!d.open){d.open=true} } });
   document.querySelectorAll("[data-openlive]").forEach(b=>b.onclick=()=>openLive());
   bindTimerEnd();
   $("#fillTime")?.addEventListener("click",()=>{const m=(Date.now()-TM.start)/60000; const el=$("#rtime"); el.value=fmtMin(m); drafts[draftKey("rtime")]=el.value; persistDrafts(); el.dispatchEvent(new Event("input",{bubbles:true}))});
@@ -3166,7 +3181,7 @@ function bindSetup(){
     const ws=S.profile.weights||(S.profile.weights=[]); if(!ws.some(x=>x.d===ymd(today))) ws.push({d:ymd(today),lb:wt});
     saveProfile(); onProfile(); setupOpen=false; SUW=null; sel=inProgram(today)?today:START;
     if(s.split==="own") su.routines.forEach(r=>R_OPEN.add(r.id));
-    tab= s.split==="own"? "plan" : "home"; if(tab==="plan") planView="training"; render(); window.scrollTo(0,0);
+    tab= s.split==="own"? "plan" : prev? "home" : "hub"; if(tab==="plan") planView="training"; render(); window.scrollTo(0,0);
     toast(prev?"Plan updated": s.split==="own"? "Now add exercises to your routines" : "Your plan is ready");
   };
 }
