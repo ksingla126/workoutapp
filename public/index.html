@@ -431,6 +431,10 @@ nav.tabs .badge{position:absolute;top:2px;right:calc(50% - 22px);min-width:16px;
 .runchk{display:flex;flex-direction:column;gap:10px}.rc-v{margin:0;padding:2px 0 2px 10px;border-left:3px solid var(--good);font-weight:600}
 .rc-reps{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;overflow:hidden}.rc-r{display:grid;grid-template-columns:22px 1fr 1.3fr 1fr 1fr;gap:6px;padding:6px 10px;font-size:13px;border-top:1px solid var(--line)}.rc-r.hd{border-top:0;background:var(--surface-2)}.rc-r span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rc-n{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;color:var(--muted)}
+.rx-reps,.rx-sub{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.rx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px}.rx-r{display:flex;align-items:center;gap:6px;min-width:0}.rx-r>span{width:20px;flex:none;text-align:right;color:var(--muted);font-size:12px;font-weight:700}
+.rx-r input{flex:1;min-width:0;box-sizing:border-box;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:8px;color:var(--ink);font:inherit;font-size:16px}
+.rx-bad{border-color:var(--bad)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--bad) 30%,transparent)}.rx-err{margin:0;color:var(--bad);font-weight:600}
 .step{display:flex;align-items:center;gap:6px}.step button{width:30px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:600 16px var(--body)}
 .step b{min-width:18px;text-align:center;color:var(--ink);font-size:15px}
 .rng{display:flex;align-items:center;gap:4px;color:var(--ink)}.rng input{width:100%;min-width:0;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:8px 6px;text-align:center;color:var(--ink);font:inherit}
@@ -1340,17 +1344,13 @@ function trainingCard(p,k,log,openLogger){
     <div class="plan-box"><div style="font-weight:700">${esc(p.d)}</div><div class="small muted">${goal}</div>${p.swapped?`<div class="small muted" style="margin-top:4px">Changed for today (planned: ${esc(p.from)}). <button type="button" class="link small" data-runswap="${k}">Change</button></div>`:""}</div>
     ${stravaChooser(k,log)}${log?"":stravaPrompt("home")}${timerBox(k)}${dayMenu(p,k,log)}
     ${prevTxt?`<div class="small num" style="color:var(--run);font-weight:600">${esc(prevTxt)}</div>`:""}
-    <details class="logger" id="trainLog" ${openLogger?"open":""}><summary>${hasDraft(k,TRAIN_RE)?"Unsaved entries · tap to finish":log?`Logged: ${dTxt(log.mi,2)} · ${fmtMin(log.min)} · ${paceTxt(log.min/log.mi)}${log.reps?` · ${log.reps} reps`:""}`:"Log this run"}</summary><div class="stack" style="gap:10px;margin-top:12px">
+    <details class="logger" id="trainLog" ${openLogger?"open":""}><summary>${hasDraft(k,TRAIN_RE)?"Unsaved entries · tap to finish":log?`Logged: ${log.est?"≈":""}${dTxt(log.mi,2)} · ${log.est==="both"?"≈":""}${fmtMin(log.min)}${log.est?"":` · ${paceTxt(log.min/log.mi)}`}${log.reps?` · ${log.reps} reps`:""}`:"Log this run"}</summary><div class="stack" style="gap:10px;margin-top:12px">
     ${importerHtml(k)}
-    <div class="row" style="align-items:flex-start">
-      <div class="field"><label for="rmi">Distance (${RU()})</label><input id="rmi" inputmode="decimal" value="${log&&log.mi?dU(log.mi,2):""}" placeholder="${p.reps?"incl. warm-up":RU()==="km"?"e.g. 3.5":"e.g. 2.2"}"></div>
-      <div class="field"><label for="rtime">Time (3000 = 30:00)</label><input id="rtime" inputmode="numeric" value="${log?.min?fmtMin(log.min):""}" placeholder="3000"></div>
-      <div class="field"><label for="rrpe">Effort 1–10</label><input id="rrpe" inputmode="numeric" value="${esc(log?.rpe??"")}" placeholder="6"></div>
-    </div>${p.reps?`<div class="field"><label for="rreps">Reps done (planned ${p.reps})</label><input id="rreps" inputmode="numeric" value="${esc(log?.reps??"")}" placeholder="${p.reps}"></div>`:""}
+    ${runLogHtml(p,k,log)}
     <div class="row between"><div><div class="eyebrow">Pace</div><div class="pace num" id="pace">–</div></div>${TM.start&&TM.date===k?'<button class="btn ghost sm" id="fillTime">Use timer time</button>':""}</div>
     <div class="field"><label for="rnotes">Notes</label><textarea id="rnotes" placeholder="Weather, legs, anything hurt…">${esc(log?.notes||"")}</textarea></div>
     <div class="stack" style="gap:6px"><label class="rk-check"><input type="checkbox" id="rrace" ${log?(log.race?"checked":""):p.race?"checked":""}> This was a race</label></div>
-    <div class="row"><button class="btn" id="saveRun">${log?"Update run":"Save run"}</button>${log?'<button class="btn ghost" id="delLog">Clear log</button>':""}</div></div></details>${log&&log.st?ranBlock(k,log):""}${extraRunsBlock(k,log)}${log?`<button class="btn ghost sm" data-openrun="${k}" style="align-self:flex-start">Full breakdown ›</button>`:""}</div>`;
+    <div class="row"><button class="btn" id="saveRun">${log?"Update run":"Save run"}</button>${log?'<button class="btn ghost" id="delLog">Clear log</button>':""}</div></div></details>${log&&log.st?ranBlock(k,log):log&&typeof runCheckHtml==="function"?runCheckHtml(k,log):""}${extraRunsBlock(k,log)}${log?`<button class="btn ghost sm" data-openrun="${k}" style="align-self:flex-start">Full breakdown ›</button>`:""}</div>`;
 }
 function setCount(ex,k){ const l=S.logs[k], cur=l&&l.ex&&l.ex[ex.id]; return Math.max(ex.sets, cur?cur.length:0)+(Number(drafts[dkey(k,`xs-${ex.id}`)])||0) }
 function setTypeK(k,id,i){ const v=drafts[dkey(k,`st-${id}-${i}`)]; if(v!==undefined) return v||""; const l=S.logs[k], c=l&&l.ex&&l.ex[id]&&l.ex[id][i]; return (c&&c.t)||"" }
@@ -1827,7 +1827,7 @@ function clearDrafts(dateKey,re){Object.keys(drafts).forEach(k=>{const i=k.index
 const viewEl=document.getElementById("view");
 viewEl.addEventListener("input",e=>{const el=e.target; if(!el.id||el.type==="checkbox"||el.type==="file"||NO_DRAFT.has(el.id)) return; drafts[draftKey(el.id)]=el.value; persistDrafts()});
 viewEl.addEventListener("toggle",e=>{const d=e.target; if(d.tagName==="DETAILS"&&d.id){drafts[draftKey("open-"+d.id)]=d.open; persistDrafts()}},true);
-const TRAIN_RE=/^(w-|r-|m-|c-|xs-|st-|gnotes$|rmi$|rtime$|rrpe$|rnotes$|open-trainLog$|strava$)/;
+const TRAIN_RE=/^(w-|r-|m-|c-|xs-|st-|rx-|gnotes$|rmi$|rtime$|rrpe$|rnotes$|open-trainLog$|strava$)/;
 
 /* ---------- Workout + rest timers (survive tab switches and reloads) ---------- */
 let TM={start:0,date:"",restEnd:0,restDur:0};
@@ -2846,7 +2846,7 @@ function bind(){
     const newLog={type:"gym",day:p.day,ex,db,fmt,durMin,notes:$("#gnotes").value.trim(),savedAt:Date.now()}; const prs=findPRs(k,newLog); if(prs.length) newLog.prs=prs;
     clearDrafts(k,TRAIN_RE); saveLog(k,newLog).then(()=>{toast(prs.length?`New PR: ${prs.map(id=>(p.ex.find(e=>e.id===id)||{name:id}).name).join(", ")} 🎉`:"Session saved"); lastRenderKey=""; render(); setTimeout(maybeAutoAdvice,1500)});
   });
-  const upd=()=>{const mi=fromDU(String($("#rmi").value).replace(",",".")), m=parseTime($("#rtime").value); $("#pace").textContent = mi>0&&m>0? paceTxt(m/mi):"–"};
+  const upd=()=>{ if(typeof rxPreview==="function"&&p&&p.type==="run") rxPreview(k,p) };
   if($("#rmi")){["#rmi","#rtime"].forEach(s=>$(s).addEventListener("input",upd)); upd()}
   const impStatus=m=>{const el=$("#impStatus"); if(el) el.innerHTML=m};
   $("#gpxIn")?.addEventListener("change",async e=>{
@@ -2904,17 +2904,16 @@ function bind(){
   document.querySelectorAll("[data-pv]").forEach(b=>b.onclick=()=>{progView=b.dataset.pv; runSel=null; try{localStorage.setItem("rd25-pview",progView)}catch(e){} render(); window.scrollTo(0,0)});
   $("#runBack")?.addEventListener("click",()=>{runSel=null; render(); window.scrollTo(0,0)});
   $("#saveRun")?.addEventListener("click",()=>{
-    const mi=fromDU(String($("#rmi").value).replace(",",".")); let m=parseTime($("#rtime").value);
-    if(!(m>0) && TM.start && TM.date===k) m=(Date.now()-TM.start)/60000;
-    if(!(mi>0&&m>0)){toast(`Enter distance and time, like ${RU()==="km"?"3.4":"2.1"} and 3000 for 30:00`);return}
-    const reps=$("#rreps")?Math.round(Number($("#rreps").value))||null:null;
+    const tmMin=TM.start&&TM.date===k?(Date.now()-TM.start)/60000:null, got=runLogCollect(p,k,log,tmMin);
+    if(got.err){ const er=$("#rx-err"); document.querySelectorAll(".rx-bad").forEach(x=>x.classList.remove("rx-bad")); const el=document.getElementById(got.el);
+      if(el){ el.classList.add("rx-bad"); el.focus() } if(er){ er.textContent=got.err; er.hidden=false; er.scrollIntoView({block:"nearest"}) } else toast(got.err); return }
+    const X=got.data; RX_CONFIRM="";
     if(TM.start&&TM.date===k) stopWorkout();
-    const rpe=Number($("#rrpe").value)||null;
     const imp=getImport(k), st=imp||(log&&log.st)||null, analysis=imp?null:((log&&log.analysis)||null);
     clearDrafts(k,TRAIN_RE); delete imports[k];
     const xr=extrasForSave(k,log);
     const race=!!$("#rrace")?.checked, gate=!!$("#rgate")?.checked;
-    saveLog(k,{type:"run",key:p.key,mi:Math.round(mi*1000)/1000,min:m,rpe,...(reps?{reps}:{}),notes:$("#rnotes").value.trim(),st,analysis,...(race?{race:true}:{}),...(gate?{gate:true}:{}),...(xr.length?{extraRuns:xr}:{}),savedAt:Date.now()}).then(()=>{toast(imp?"Run saved. Your coach is analyzing it…":"Run saved"); lastRenderKey=""; render(); if(imp) setTimeout(()=>analyzeRun(k),300); setTimeout(maybeAutoAdvice,imp?20000:1500)});
+    saveLog(k,{type:"run",key:p.key,...X,notes:$("#rnotes").value.trim(),st,analysis,...(race?{race:true}:{}),...(gate?{gate:true}:{}),...(xr.length?{extraRuns:xr}:{}),savedAt:Date.now()}).then(()=>{toast(imp?"Run saved. Your coach is analyzing it…":"Run saved"); lastRenderKey=""; render(); if(imp) setTimeout(()=>analyzeRun(k),300); setTimeout(maybeAutoAdvice,imp?20000:1500)});
   });
   $("#delLog")?.addEventListener("click",function(){ if(this.dataset.armed){clearDrafts(k,TRAIN_RE); deleteLog(k).then(()=>{toast("Log cleared");lastRenderKey="";render()})} else {this.dataset.armed="1"; this.textContent="Tap again to clear"} });
   document.querySelectorAll("[data-meal]").forEach(c=>c.addEventListener("change",()=>{
