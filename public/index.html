@@ -428,6 +428,9 @@ nav.tabs .badge{position:absolute;top:2px;right:calc(50% - 22px);min-width:16px;
 .runf>label.rk-check{flex:1 1 100%;flex-direction:row;font-size:14px;color:var(--ink)}.runf select,.runf input:not([type=checkbox]){box-sizing:border-box;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:8px 8px;color:var(--ink);font:inherit;font-size:15px;width:100%;min-width:0}
 .runf .step b{min-width:52px;text-align:center}.runf .seg{flex:0 0 150px;grid-template-columns:1fr 1fr}.seg.sm{grid-template-columns:1fr 1fr;padding:3px}.seg.sm button{padding:6px 12px;font-size:13px}
 .runr .eyebrow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.runchk{display:flex;flex-direction:column;gap:10px}.rc-v{margin:0;padding:2px 0 2px 10px;border-left:3px solid var(--good);font-weight:600}
+.rc-reps{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;overflow:hidden}.rc-r{display:grid;grid-template-columns:22px 1fr 1.3fr 1fr 1fr;gap:6px;padding:6px 10px;font-size:13px;border-top:1px solid var(--line)}.rc-r.hd{border-top:0;background:var(--surface-2)}.rc-r span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rc-n{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;color:var(--muted)}
 .step{display:flex;align-items:center;gap:6px}.step button{width:30px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:600 16px var(--body)}
 .step b{min-width:18px;text-align:center;color:var(--ink);font-size:15px}
 .rng{display:flex;align-items:center;gap:4px;color:var(--ink)}.rng input{width:100%;min-width:0;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:8px 6px;text-align:center;color:var(--ink);font:inherit}
@@ -2560,6 +2563,7 @@ function runDetail(k){
   else h+=`<div class="stv"><div><span class="l">Distance</span><span class="v num">${dTxt(l.mi,2)}</span></div><div><span class="l">Time</span><span class="v num">${fmtMin(l.min)}</span></div><div><span class="l">Avg pace</span><span class="v num">${pace?fmtMin(pace)+"/mi":"–"}</span></div></div><p class="note">Typed-in run. Import the Strava GPX on this day's run card (Home) to get graphs and an analysis.</p>`;
   if(l.notes) h+=`<div class="lastnote"><b>Your note:</b> “${esc(l.notes)}”</div>`;
   h+=`</div>`;
+  if(typeof runCheckHtml==="function"){ const rc=runCheckHtml(k,l); if(rc) h+=`<div class="card">${rc}</div>` }
   const S2=st&&st.series;
   if(st&&!S2) h+=`<div class="card"><p class="small muted">${st.src==="gpx"?"This run was imported before graphs were added. Re-import the GPX on the run card to see pace and heart-rate graphs.":"Screenshots don't include second-by-second data, so detailed graphs need the GPX file. The splits above still work."}</p></div>`;
   if(S2&&S2.t.length>3){
@@ -2697,7 +2701,7 @@ function trackFromPoints(pts,name){
   return {src:"gpx",name:name.slice(0,80),date:ymd(new Date(first.t)),mi:+(distM/M_PER_MI).toFixed(2),movingMin:+(moving/60).toFixed(2),elapsedMin:+((last.t-first.t)/60000).toFixed(2),
     elevFt:pts.some(p=>p.ele!=null)?Math.round(gain*3.28084):null,avgHr:hrs.length?Math.round(avgOf(hrs)):null,maxHr:hrs.length?Math.round(Math.max(...hrs)):null,cad:cad?Math.round(cad):null,
     runMin:+(runS/60).toFixed(1),walkMin:+(walkS/60).toFixed(1),runThrPace:+(M_PER_MI/thr/60).toFixed(2),splits:splits.slice(0,30),series:buildSeries(pts,thr),
-    gps:pts.some(p=>p.lat!=null),...(()=>{const b=bestEfforts(pts); return b?{best:b}:{}})()};
+    gps:pts.some(p=>p.lat!=null),...(()=>{const b=bestEfforts(pts); return b?{best:b}:{}})(),...(()=>{const e=typeof findEfforts==="function"?findEfforts(pts):null; return e?{efforts:e}:{}})()};
 }
 // Fastest 400 m and mile inside a run, for the Speed rank. Stretches with a GPS gap over 10 s or an impossible jump (> 12 m/s)
 // are skipped, and anything faster than the world record is treated as a glitch.
@@ -2763,7 +2767,7 @@ function importerHtml(k){
 }
 function anaHtml(k){const l=S.logs[k]; if(anaBusy[k]!=null) return anaBusy[k]?md(anaBusy[k]):'<span class="pulse"></span> Your coach is analyzing this run…'; if(l&&l.analysis) return md(l.analysis.text); return '<span class="muted small">Tap Analyze run for a breakdown of your splits, effort, run/walk execution and what to change next time.</span>'}
 function ranBlock(k,log){
-  return `<div class="stack" style="gap:10px;border-top:1px solid var(--line);padding-top:12px"><div class="row between"><div class="eyebrow">Strava data · ${log.st.src==="gpx"?"GPX file":"screenshots"}</div></div>${stravaBlock(log.st)}
+  return `<div class="stack" style="gap:10px;border-top:1px solid var(--line);padding-top:12px"><div class="row between"><div class="eyebrow">Strava data · ${log.st.src==="gpx"?"GPX file":log.st.src==="strava"?"synced":"screenshots"}</div></div>${stravaBlock(log.st)}${typeof runCheckHtml==="function"?runCheckHtml(k,log):""}
     <div class="row between" style="margin-top:4px"><div class="eyebrow">Coach analysis</div><button class="btn ghost sm" id="anaBtn" data-ana="${k}" ${anaBusy[k]!=null||!sampleFn?"disabled":""}>${log.analysis?"Re-analyze":"Analyze run"}</button></div>
     <div class="ana" id="ana-${k}">${anaHtml(k)}</div></div>`;
 }
@@ -2781,6 +2785,7 @@ Planned session for ${fmtDate(d)}: ${p&&p.type==="run"?`${p.t} — ${p.d}`:"(not
 What he logged: ${logLine(k,log)}
 ${isHrRun(k)?(()=>{const r=hrRange(st.series); return `This was a HEART-RATE-BASED easy run: target ${HR_LO}–${HR_HI} bpm (jog until ${HR_HI}, walk until ${HR_LO}).${r?` Time in range ${Math.round(r.pctIn)}%, above ${HR_HI}: ${fmtMin(r.above)}, below ${HR_LO}: ${fmtMin(r.below)}.`:" (No heart-rate trace available.)"} Judge execution mainly on staying in range, not on pace.`})():""}
 ${(()=>{const sg=segmentsOf(st); return sg.length?`Detected intervals in order (from GPS speed): ${sg.slice(0,40).map(x=>`${x.type} ${fmtMin(x.dur)}${x.pace?` @ ${fmtMin(x.pace)}/mi`:""}${x.hr?` HR ${x.hr}`:""}`).join("; ")}`:""})()}
+${typeof runCheckText==="function"?runCheckText(k,log):""}
 Strava data (${st.src==="gpx"?`computed from his GPX file; running vs walking time is estimated from speed, counting anything faster than ${st.runThrPace?fmtMin(st.runThrPace):"14:00"}/mi as running; split paces include paused time`:"read from his Strava screenshots"}):
 ${detail}
 His previous runs (newest first):
@@ -2790,7 +2795,7 @@ Write a detailed but easy-to-read analysis for him, about 250–350 words, with 
 **Verdict** — one or two sentences.
 **Pacing & splits** — consistency, fade or negative split; quote his actual split paces.
 **Effort** — heart rate and drift from first to last splits, and whether the effort fit the session type. Skip this section if there is no HR data.
-**Run/walk execution** — did he follow the planned intervals.
+**Session execution** — judge it as the session type it was (steady run, tempo, intervals, sprints or hill sprints, time trial or race) using the session check above: reps completed, rep-to-rep consistency, recoveries, climb per hill rep, or run/walk adherence.
 **Vs. last time** — compare with the same session last week if there is one.
 **Next run** — 2 or 3 specific adjustments with numbers.
 Use only numbers from the data. If something is missing, say so in a few words instead of guessing.`;
