@@ -275,7 +275,7 @@ function foodGoals(){ const su=CUSTOM&&CUSTOM.su; const g=(su&&su.food)||{}; con
 const SNAP_KEYS=["id","name","sets","lo","hi","inc","rest","bw","unit","optW","alt","muscle","equip","uni","ss"];
 function planSnapshot(d){ const p=planFor(d); if(!p||p.type==="rest") return null;
   if(p.type==="gym") return {type:"gym",day:p.day,name:p.name,ex:(p.ex||[]).map(e=>{const o={}; SNAP_KEYS.forEach(k=>{if(e[k]!==undefined) o[k]=e[k]}); return o})};
-  return {type:"run",key:p.key,t:p.t,d:p.d} }
+  return {type:"run",key:p.key,t:p.t,d:p.d,...(p.rid?{rid:p.rid}:{}),...(p.reps?{reps:p.reps}:{}),...(p.hint?{hint:p.hint}:{}),...(p.race?{race:true}:{}),...(p.tt?{tt:true}:{})} }
 function loggedPlan(d){ const k=ymd(d), l=S.logs[k]; if(!l) return null; const w=weekOf(d), i=dowOf(d);
   if(l.plan&&l.plan.type) return {...l.plan,w,i,logged:true};
   if(l.type==="gym"&&l.ex&&CUSTOM.su.fromLegacy&&/^[ABC]$/.test(l.day||"")&&typeof gymDay0==="function"){
@@ -300,7 +300,7 @@ function paintSheet(scrollTop){ if(!SH) return; const el=sheetEl(), inn=el.query
   if(focusSel){ const f=inn.querySelector(`[data-xs-focus="${focusSel}"]`); if(f){ f.focus(); try{const v=f.value; f.setSelectionRange(v.length,v.length)}catch(e){} } } }
 const commitPlan=()=>{ saveProfile(); onProfile(); render() };
 // Repaint only part of the sheet, so the input being typed in (and the iPhone keyboard) stays put.
-function sheetHtml(){ return SH.kind==="form"? formHtml() : SH.kind==="autogen"? autogenHtml() : SH.kind==="shopItem"? shopItemHtml() : SH.kind==="shopList"? shopListHtml() : SH.kind==="shopSched"? shopSchedHtml() : SH.kind==="gscan"? gscanHtml() : SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="fmt"? fmtSheetHtml() : SH.kind==="paths"? pathsHtml() : SH.kind==="fpgoals"? fpGoalsHtml() : SH.kind==="fpsched"? fpSchedHtml() : SH.kind==="fpextra"? fpExtraHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : "" }
+function sheetHtml(){ return SH.kind==="form"? formHtml() : SH.kind==="autogen"? autogenHtml() : SH.kind==="shopItem"? shopItemHtml() : SH.kind==="shopList"? shopListHtml() : SH.kind==="shopSched"? shopSchedHtml() : SH.kind==="gscan"? gscanHtml() : SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="fmt"? fmtSheetHtml() : SH.kind==="paths"? pathsHtml() : SH.kind==="fpgoals"? fpGoalsHtml() : SH.kind==="fpsched"? fpSchedHtml() : SH.kind==="fpextra"? fpExtraHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : (SH.kind==="runnew"||SH.kind==="race")&&typeof runSheetHtml==="function"? runSheetHtml() : "" }
 function paintPart(sel){ if(!SH) return; const el=document.querySelector("#xsheet .xs-in"); const dst=el&&el.querySelector(sel); if(!dst){ paintSheet(); return }
   const tmp=document.createElement("div"); tmp.innerHTML=sheetHtml(); const src=tmp.querySelector(sel); if(src) dst.innerHTML=src.innerHTML; else paintSheet() }
 function estMin(ex){ const sec=(ex||[]).reduce((t,e)=>t+(e.sets||3)*((e.rest||90)+(isSec(e)?(e.hi||45):40)),0); return Math.max(10,Math.round(sec/60/5)*5) }
@@ -308,9 +308,11 @@ function estMin(ex){ const sec=(ex||[]).reduce((t,e)=>t+(e.sets||3)*((e.rest||90
 /* ======================= Routine editor (Plan → Training) ======================= */
 function routinesEditor(){
   const su=CUSTOM.su, rs=su.routines||[];
-  const opts=(v)=>[["rest","Rest"],["run","Run"],...rs.map(r=>[r.id,r.name])].map(([id,n])=>`<option value="${esc(id)}" ${v===id?"selected":""}>${esc(n)}</option>`).join("");
-  let h=`<div class="card"><h2>Weekly schedule</h2><div class="sched">${DOW.map((d,i)=>`<label><span>${d}</span><select data-c-week="${i}">${opts(su.week[i])}</select></label>`).join("")}</div>
-    <p class="small muted">Changes apply to your plan from today on.</p></div>`;
+  const runO=typeof schedOptsRuns==="function";
+  const opts=(v,i)=>[["rest","Rest"],...(runO?[]:[["run","Run"]])].map(([id,n])=>`<option value="${esc(id)}" ${v===id?"selected":""}>${esc(n)}</option>`).join("")
+    +`<optgroup label="Gym">${rs.map(r=>`<option value="${esc(r.id)}" ${v===r.id?"selected":""}>${esc(r.name)}</option>`).join("")}</optgroup>`+(runO?schedOptsRuns(v,(su.runWeek||[])[i]):"");
+  let h=`<div class="card"><h2>Weekly schedule</h2><div class="sched">${DOW.map((d,i)=>`<label><span>${d}</span><select data-c-week="${i}">${opts(su.week[i],i)}</select></label>`).join("")}</div>
+    <p class="small muted">Changes apply to your plan from today on.</p></div>`+(typeof runsEditor==="function"?runsEditor():"");
   rs.forEach((r,ri)=>{
     if(!R_OPEN.has(r.id)){ h+=`<div class="card routine"><div class="row between" style="gap:8px"><h2>${esc(r.name)}</h2><button type="button" class="btn ghost sm" data-c-ropen="${r.id}">Edit</button></div>
       <div class="small">${r.ex.length? r.ex.map(e=>{const L=libEx(e.id); return `${e.ss?"⛓ ":""}${esc(L?L.name:e.id)} <span class="muted num">${e.sets}×${e.lo}–${e.hi}${L&&L.type==="t"?"s":""}</span>`}).join("<br>") : `<span class="muted">No exercises yet.</span> <button type="button" class="link small" data-c-ropen="${r.id}">Add some</button>`}</div></div>`; return }
@@ -1136,7 +1138,7 @@ function swapsText(){ const sw=swapsOf(), L=id=>(libEx(id)||(typeof X!=="undefin
 // Schedule changes live in profile.moves: {"YYYY-MM-DD": "rest" | "<date whose session happens on this day>"}
 function dayMenu(p,k,log){ if(log||!p) return ""; const past=k<ymd(today);
   if(p.type==="rest") return past? "" : `<div class="row daymenu"><button type="button" class="link small" data-daymove="${k}|swap">Train today: swap with a workout day</button></div>`;
-  return `<div class="row daymenu"><button type="button" class="link small" data-daymove="${k}|move">Move</button>${past?"":`<button type="button" class="link small" data-daymove="${k}|swap">Swap</button>`}<button type="button" class="link small" data-dayskip="${k}">Make it a rest day</button></div>` }
+  return `<div class="row daymenu"><button type="button" class="link small" data-daymove="${k}|move">Move</button>${past?"":`<button type="button" class="link small" data-daymove="${k}|swap">Swap</button>`}${p.type==="run"&&!p.race&&typeof runNewHtml==="function"?`<button type="button" class="link small" data-runswap="${k}">Change run</button>`:""}<button type="button" class="link small" data-dayskip="${k}">Make it a rest day</button></div>` }
 function weekResetBtn(k){ return Object.keys(S.profile.moves||{}).some(d=>weekDays(k).includes(d)&&!S.logs[d])? `<button type="button" class="link small" data-resetweek="${k}" style="align-self:flex-start">Undo this week's schedule changes</button>` : "" }
 function srcOf(dk){ const mv=S.profile.moves||{}, v=mv[dk]; if(v==="rest") return null; if(v&&/^\d{4}-/.test(v)) return v; const b=basePlan(parseYmd(dk)); return b&&b.type!=="rest"? dk : null }
 function setSrc(dk,src){ const mv=S.profile.moves=S.profile.moves||{}; const b=basePlan(parseYmd(dk)), own=b&&b.type!=="rest";
@@ -1635,8 +1637,10 @@ document.addEventListener("change",e=>{ const t=e.target, d=t.dataset||{};
   if(d.cStore){ if(t.value==="__add"){ t.value=storeName(); openSheet({kind:"gscan",view:"store",key:"",name:""}); return } kitchen().store=t.value; saveProfile(); lastRenderKey=""; render(); toast(`Shopping at ${t.value}`); return }
   if(d.xsUnit&&SH){ SH.pick.unit=t.value; paintPart(".macroline"); return }
   if(d.xsNf&&SH){ SH.d[d.xsNf]=t.value; return }
-  if(d.cWeek!=null){ const su0=S.profile.setup; if(t.value==="run"&&su0.week.filter((w,i)=>w==="run"&&i!==+d.cWeek).length>=3){ toast("Up to 3 run days a week"); t.value=su0.week[+d.cWeek]; return }
-    suMut(su=>{su.week[+d.cWeek]=t.value}); return }
+  if(d.cWeek!=null){ const su0=S.profile.setup, i=+d.cWeek, v=t.value;
+    if(v==="runnew"){ t.value=su0.week[i]==="run"?"run:"+((su0.runWeek||[])[i]||""):su0.week[i]; openSheet({kind:"runnew",day:i}); return }
+    if(/^run/.test(v)&&su0.week[i]!=="run"&&su0.week.filter(w=>w==="run").length>=6){ toast("Keep at least one rest day"); t.value=su0.week[i]; return }
+    suMut(su=>{ su.runWeek=su.runWeek||Array(7).fill(null); if(/^run:/.test(v)){ su.week[i]="run"; su.runWeek[i]=v.slice(4)||null } else { su.week[i]=v; su.runWeek[i]=null } }); return }
   if(d.cRname){ suMut(su=>{const r=su.routines.find(x=>x.id===d.cRname); r.name=t.value.trim().slice(0,40)||r.name}); return }
   if(d.cLo||d.cHi){ const [rid,i]=(d.cLo||d.cHi).split("|"); suMut(su=>{const x=su.routines.find(r=>r.id===rid).ex[+i]; const v=Math.max(1,Math.round(numIn(t.value))||1); if(d.cLo){x.lo=v; if(x.hi<v) x.hi=v} else {x.hi=v; if(x.lo>v) x.lo=v}}); return }
   if(d.cRest){ const [rid,i]=d.cRest.split("|"); suMut(su=>{su.routines.find(r=>r.id===rid).ex[+i].rest=Number(t.value)}); return }

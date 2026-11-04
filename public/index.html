@@ -424,6 +424,10 @@ nav.tabs .badge{position:absolute;top:2px;right:calc(50% - 22px);min-width:16px;
 .rex-act{display:flex;gap:4px;flex-shrink:0}.rex-act button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit}
 .rex-act button:disabled{opacity:.35}
 .rex-f{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(80px,1fr);gap:8px;align-items:end}.rex-f label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
+.runf{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-end}.runf>label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted);min-width:0;flex:1 1 120px}
+.runf>label.rk-check{flex:1 1 100%;flex-direction:row;font-size:14px;color:var(--ink)}.runf select,.runf input:not([type=checkbox]){box-sizing:border-box;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:8px 8px;color:var(--ink);font:inherit;font-size:15px;width:100%;min-width:0}
+.runf .step b{min-width:52px;text-align:center}.runf .seg{flex:0 0 150px;grid-template-columns:1fr 1fr}.seg.sm{grid-template-columns:1fr 1fr;padding:3px}.seg.sm button{padding:6px 12px;font-size:13px}
+.runr .eyebrow{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .step{display:flex;align-items:center;gap:6px}.step button{width:30px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:600 16px var(--body)}
 .step b{min-width:18px;text-align:center;color:var(--ink);font-size:15px}
 .rng{display:flex;align-items:center;gap:4px;color:var(--ink)}.rng input{width:100%;min-width:0;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:8px 6px;text-align:center;color:var(--ink);font:inherit}
@@ -833,6 +837,7 @@ svg.inl{width:15px;height:15px;vertical-align:-3px}
 <script src="/hub.js"></script>
 <script src="/foodplan.js"></script>
 <script src="/game.js"></script>
+<script src="/runs.js"></script>
 <script>
 /* ---------- Program definition ---------- */
 let CUSTOM = null; // set when the user built their own plan in setup
@@ -843,6 +848,7 @@ const DAYMS = 86400000;
 const DOW = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 let SCHED = ["A","run","B","run","C","run","rest"];
 let RUNKEY = {1:"tue",3:"thu",5:"sat"};
+let RUNSCHED = [null,null,null,null,null,null,null]; // run routine id per weekday (runs.js)
 
 const GYM = {
   A:{name:"Day A · Leg Press & Bench", ex:[
@@ -1010,7 +1016,7 @@ const fmtDate=d=>d.toLocaleDateString("en-US",{weekday:"short",month:"short",day
 const fmtShort=d=>d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
 const fmtN=n=>Math.round(n).toLocaleString("en-US");
 // Schedule changes live in profile.moves: {"YYYY-MM-DD": "rest" | "<date whose session happens on this day>"}
-function planFor(d){ let p=planFor0(d); if(p&&p.type==="gym"&&typeof travelPlan==="function") p=travelPlan(p,ymd(d)); return p&&p.ex? {...p,ex:p.ex.map(e=>withFmt(e,ymd(d)))} : p }
+function planFor(d){ let p=planFor0(d); if(p&&p.type==="run"&&CUSTOM&&typeof swappedRun==="function") p=swappedRun(p,ymd(d)); if(p&&p.type==="gym"&&typeof travelPlan==="function") p=travelPlan(p,ymd(d)); return p&&p.ex? {...p,ex:p.ex.map(e=>withFmt(e,ymd(d)))} : p }
 function planFor0(d){
   if(!inProgram(d)) return null;
   if(CUSTOM){ const lp=loggedPlan(d); if(lp) return lp }
@@ -1022,7 +1028,9 @@ function planFor0(d){
 function basePlan(d){
   if(!inProgram(d)) return null;
   const w=weekOf(d), i=dowOf(d), s=SCHED[i];
+  if(CUSTOM&&typeof racePlan==="function"){ const rp=racePlan(d); if(rp) return rp }
   if(s==="rest") return {type:"rest",w,i};
+  if(s==="run"&&CUSTOM&&typeof scheduledRun==="function"){ const x=scheduledRun(i,d,w); if(x) return {...x,w,i} }
   if(s==="run"){const r=runWeek(w)[RUNKEY[i]]; return r?{type:"run",w,i,key:RUNKEY[i],...r}:null}
   return {type:"gym",w,i,day:s,...gymDay(s,d)};
 }
@@ -1322,23 +1330,23 @@ function trainingCard(p,k,log,openLogger){
       ${log?`<button type="button" class="btn ghost sm" data-share="${k}" style="align-self:flex-start">Share workout</button>`:""}</div>${mondayWeighIn()}</div>`;
     return h;
   }
-  const prevKey=(()=>{const want=p.key; return Object.keys(S.logs).filter(kk=>kk<k&&S.logs[kk].type==="run"&&S.logs[kk].key===want).sort().pop()})(), prev=prevKey?S.logs[prevKey]:null;
-  const prevTxt = prev&&prev.mi? `Last time (${fmtShort(parseYmd(prevKey))}): ${prev.mi} mi in ${fmtMin(prev.min)} (${fmtMin(prev.min/prev.mi)}/mi)` : "";
-  const goal = p.key==="tue"? (/bpm/.test(p.d)? `Keep your heart rate between ${HR_LO} and ${HR_HI}: jog slowly until it reaches ${HR_HI}, walk until it drops to ${HR_LO}, repeat. Pace doesn't matter.${/strides/.test(p.d)?" Finish with the strides: 15–20 s fast and relaxed (about 85%), walking 60–90 s between each.":""}` : /strides/.test(p.d)? "Keep the run/walk easy and conversational, then do the strides: 15–20 s smooth and fast (about 85%, not all-out), walk 60–90 s back between each." : "Cover a little more ground than last week in the same time.") : p.key==="thu"? "Hold each run segment a touch quicker than last week; keep the walks easy." : "Finish the distance. Pace doesn't matter; time on feet does.";
-  return `<div class="card"><div class="row between"><div><div class="eyebrow">Run</div><h2>${esc(p.t)}</h2></div>${log?'<span class="chip run">Logged ✓</span>':""}</div>
-    <div class="plan-box"><div style="font-weight:700">${esc(p.d)}</div><div class="small muted">${goal}</div></div>
+  const prevKey=(()=>{const want=p.key, same=kk=>{const l=S.logs[kk]; return l.type==="run"&&(p.rid? (l.plan&&l.plan.rid)===p.rid||(!(l.plan&&l.plan.rid)&&l.key===want) : l.key===want)}; return Object.keys(S.logs).filter(kk=>kk<k&&same(kk)).sort().pop()})(), prev=prevKey?S.logs[prevKey]:null;
+  const prevTxt = prev&&prev.mi? `Last time (${fmtShort(parseYmd(prevKey))}): ${dTxt(prev.mi,2)} in ${fmtMin(prev.min)} (${paceTxt(prev.min/prev.mi)})${prev.reps?` · ${prev.reps} reps`:""}` : "";
+  const goal = p.hint? p.hint : p.key==="tue"? (/bpm/.test(p.d)? `Keep your heart rate between ${HR_LO} and ${HR_HI}: jog slowly until it reaches ${HR_HI}, walk until it drops to ${HR_LO}, repeat. Pace doesn't matter.${/strides/.test(p.d)?" Finish with the strides: 15–20 s fast and relaxed (about 85%), walking 60–90 s between each.":""}` : /strides/.test(p.d)? "Keep the run/walk easy and conversational, then do the strides: 15–20 s smooth and fast (about 85%, not all-out), walk 60–90 s back between each." : "Cover a little more ground than last week in the same time.") : p.key==="thu"? "Hold each run segment a touch quicker than last week; keep the walks easy." : "Finish the distance. Pace doesn't matter; time on feet does.";
+  return `<div class="card"><div class="row between"><div><div class="eyebrow">Run${p.tag?` · ${esc(p.tag)}`:""}</div><h2>${esc(p.t)}</h2></div>${log?'<span class="chip run">Logged ✓</span>':""}</div>
+    <div class="plan-box"><div style="font-weight:700">${esc(p.d)}</div><div class="small muted">${goal}</div>${p.swapped?`<div class="small muted" style="margin-top:4px">Changed for today (planned: ${esc(p.from)}). <button type="button" class="link small" data-runswap="${k}">Change</button></div>`:""}</div>
     ${stravaChooser(k,log)}${log?"":stravaPrompt("home")}${timerBox(k)}${dayMenu(p,k,log)}
     ${prevTxt?`<div class="small num" style="color:var(--run);font-weight:600">${esc(prevTxt)}</div>`:""}
-    <details class="logger" id="trainLog" ${openLogger?"open":""}><summary>${hasDraft(k,TRAIN_RE)?"Unsaved entries · tap to finish":log?`Logged: ${log.mi} mi · ${fmtMin(log.min)} · ${fmtMin(log.min/log.mi)}/mi`:"Log this run"}</summary><div class="stack" style="gap:10px;margin-top:12px">
+    <details class="logger" id="trainLog" ${openLogger?"open":""}><summary>${hasDraft(k,TRAIN_RE)?"Unsaved entries · tap to finish":log?`Logged: ${dTxt(log.mi,2)} · ${fmtMin(log.min)} · ${paceTxt(log.min/log.mi)}${log.reps?` · ${log.reps} reps`:""}`:"Log this run"}</summary><div class="stack" style="gap:10px;margin-top:12px">
     ${importerHtml(k)}
     <div class="row" style="align-items:flex-start">
-      <div class="field"><label for="rmi">Distance (mi)</label><input id="rmi" inputmode="decimal" value="${esc(log?.mi??"")}" placeholder="e.g. 2.2"></div>
+      <div class="field"><label for="rmi">Distance (${RU()})</label><input id="rmi" inputmode="decimal" value="${log&&log.mi?dU(log.mi,2):""}" placeholder="${p.reps?"incl. warm-up":RU()==="km"?"e.g. 3.5":"e.g. 2.2"}"></div>
       <div class="field"><label for="rtime">Time (3000 = 30:00)</label><input id="rtime" inputmode="numeric" value="${log?.min?fmtMin(log.min):""}" placeholder="3000"></div>
       <div class="field"><label for="rrpe">Effort 1–10</label><input id="rrpe" inputmode="numeric" value="${esc(log?.rpe??"")}" placeholder="6"></div>
-    </div>
+    </div>${p.reps?`<div class="field"><label for="rreps">Reps done (planned ${p.reps})</label><input id="rreps" inputmode="numeric" value="${esc(log?.reps??"")}" placeholder="${p.reps}"></div>`:""}
     <div class="row between"><div><div class="eyebrow">Pace</div><div class="pace num" id="pace">–</div></div>${TM.start&&TM.date===k?'<button class="btn ghost sm" id="fillTime">Use timer time</button>':""}</div>
     <div class="field"><label for="rnotes">Notes</label><textarea id="rnotes" placeholder="Weather, legs, anything hurt…">${esc(log?.notes||"")}</textarea></div>
-    <div class="stack" style="gap:6px"><label class="rk-check"><input type="checkbox" id="rrace" ${log&&log.race?"checked":""}> This was a race</label></div>
+    <div class="stack" style="gap:6px"><label class="rk-check"><input type="checkbox" id="rrace" ${log?(log.race?"checked":""):p.race?"checked":""}> This was a race</label></div>
     <div class="row"><button class="btn" id="saveRun">${log?"Update run":"Save run"}</button>${log?'<button class="btn ghost" id="delLog">Clear log</button>':""}</div></div></details>${log&&log.st?ranBlock(k,log):""}${extraRunsBlock(k,log)}${log?`<button class="btn ghost sm" data-openrun="${k}" style="align-self:flex-start">Full breakdown ›</button>`:""}</div>`;
 }
 function setCount(ex,k){ const l=S.logs[k], cur=l&&l.ex&&l.ex[ex.id]; return Math.max(ex.sets, cur?cur.length:0)+(Number(drafts[dkey(k,`xs-${ex.id}`)])||0) }
@@ -1472,7 +1480,7 @@ function weekSnapshot(w){
   return `<div class="card"><div class="eyebrow">This week</div><div class="kpis">
     <div class="kpi"><div class="v num">${gymDone}/${gymPlan}</div><div class="l">gym sessions</div></div>
     <div class="kpi"><div class="v num">${runDone}/${runPlan}</div><div class="l">runs</div></div>
-    <div class="kpi"><div class="v num">${mi.toFixed(1)}</div><div class="l">miles</div></div></div>
+    <div class="kpi"><div class="v num">${dU(mi)}</div><div class="l">${RU()==="km"?"km":"miles"}</div></div></div>
     <p class="small"><span class="muted">Tomorrow (${DOW[dowOf(tom)]}):</span> <b>${esc(tomTxt)}</b></p></div>`;
 }
 
@@ -1501,7 +1509,7 @@ function viewPlan(){
   const wFirst=planPast?1:Math.max(1,cw-1), wLast=Math.min(WEEKS,Math.max(1,cw)+3+planMore);
   if(wFirst>1) h+=`<button type="button" class="btn ghost sm" data-planpast="1">Show earlier weeks</button>`;
   for(let w=wFirst;w<=wLast;w++){
-    const mon=monOf(w), r=runWeek(w);
+    const mon=monOf(w), r={tag:CUSTOM&&typeof runTagFor==="function"?runTagFor(w):runWeek(w).tag};
     h+=`<div class="card wk ${w===cw?"cur":""}"><div class="row between"><h3>Week ${w} <span class="muted small" style="font-family:var(--body);font-weight:500">${fmtShort(mon)} – ${fmtShort(addDays(mon,6))}</span></h3><div class="row" style="gap:6px">${r.tag?`<span class="chip">${esc(r.tag)}</span>`:""}${w===cw?'<span class="chip run">This week</span>':""}</div></div><div class="days">`;
     for(let i=0;i<7;i++){const d=addDays(mon,i),p=planFor(d); if(!p||p.type==="rest") continue; const k=ymd(d);
       const txt=(p.type==="gym"?(CUSTOM?p.name:`Gym ${p.day}`):`${p.t}: ${p.d}`)+(p.src?` (moved from ${DOW[dowOf(parseYmd(p.src))]})`:"");
@@ -1566,7 +1574,7 @@ function viewProgress(){
   let h=`<div class="seg" role="tablist" aria-label="Progress view"><button role="tab" data-pv="lifts" aria-selected="${progView==="lifts"}" class="${progView==="lifts"?"on":""}"><span class="plate p-gym"></span>Lifts</button><button role="tab" data-pv="runs" aria-selected="${progView==="runs"}" class="${progView==="runs"?"on":""}"><span class="plate p-run"></span>Runs</button><button role="tab" data-pv="body" aria-selected="${progView==="body"}" class="${progView==="body"?"on":""}"><span class="plate p-food"></span>Body &amp; Food</button></div>`;
   if(progView==="runs" && runSel && S.logs[runSel] && S.logs[runSel].type==="run") return h+runDetail(runSel);
   if(progView==="lifts") h+=`<div class="kpis"><div class="kpi"><div class="v num">${tot.gym}</div><div class="l">gym sessions</div></div>
-   <div class="kpi"><div class="v num">${tot.mi.toFixed(1)}</div><div class="l">miles run</div></div>
+   <div class="kpi"><div class="v num">${dU(tot.mi)}</div><div class="l">${RU()==="km"?"km":"miles"} run</div></div>
    <div class="kpi"><div class="v num">${wchg==null?"–":(wchg>0?"+":"")+toUd(wchg).toFixed(1)}</div><div class="l">${uL()} since first weigh-in</div></div></div>`;
   let shared="";
   // body weight
@@ -1588,8 +1596,8 @@ function viewProgress(){
   shared+=photosCard();
   // weekly table
   shared+=`<div class="card"><div class="row between"><h2>Week by week</h2><span class="chip">Week ${cw}</span></div><div class="tablewrap"><table>
-   <thead><tr><th>Wk</th><th>Gym</th><th>Runs</th><th>Miles</th><th>Long</th><th>Easy pace</th><th>Volume</th><th>Calories</th></tr></thead><tbody>
-   ${rows.map(r=>`<tr class="${r.w===cw?"cur":""}"><td>${r.w}</td><td>${r.gym}/${perWeek("gym",r.w)}</td><td>${r.runs}/${perWeek("run",r.w)}</td><td>${r.mi?r.mi.toFixed(1):"–"}</td><td>${r.long?r.long+" mi":"–"}</td><td>${r.easy?fmtMin(r.easy):"–"}</td><td>${r.vol?Math.round(toUd(r.vol)/1000)+"k "+uL():"–"}</td><td>${r.kcal?fmtN(r.kcal)+" / "+fmtN(r.ktarget):"–"}</td></tr>`).join("")}
+   <thead><tr><th>Wk</th><th>Gym</th><th>Runs</th><th>${RU()==="km"?"Km":"Miles"}</th><th>Long</th><th>Easy pace</th><th>Volume</th><th>Calories</th></tr></thead><tbody>
+   ${rows.map(r=>`<tr class="${r.w===cw?"cur":""}"><td>${r.w}</td><td>${r.gym}/${perWeek("gym",r.w)}</td><td>${r.runs}/${perWeek("run",r.w)}</td><td>${r.mi?dU(r.mi):"–"}</td><td>${r.long?dTxt(r.long):"–"}</td><td>${r.easy?fmtMin(pU(r.easy)):"–"}</td><td>${r.vol?Math.round(toUd(r.vol)/1000)+"k "+uL():"–"}</td><td>${r.kcal?fmtN(r.kcal)+" / "+fmtN(r.ktarget):"–"}</td></tr>`).join("")}
    </tbody></table></div></div>`;
   let runsH=runsIndex();
   // running
@@ -2275,7 +2283,7 @@ function viewOutlook(){
       <p class="small"><span class="muted">Estimated VO₂max</span> <b class="num">${P.vo2N.toFixed(1)} → ${P.vo2P.toFixed(1)}</b></p>
       <div class="eyebrow">Race times ${hz.label}</div>
       <div class="races">${P.races.map(r=>`<div class="race"><div class="rn"><b>${r.n}</b><span class="mode ${r.proj.mode==="Running"?"run":r.proj.mode==="Walking"?"walk":"rw"}">${r.proj.mode}</span></div>
-        <div class="rt num"><b>${fmtMin(r.proj.t)}</b><span class="small muted">${fmtMin(r.proj.t/r.mi)}/mi · now ${fmtMin(r.now.t)}</span></div></div>`).join("")}</div>
+        <div class="rt num"><b>${fmtMin(r.proj.t)}</b><span class="small muted">${paceTxt(r.proj.t/r.mi)} · now ${fmtMin(r.now.t)}</span></div></div>`).join("")}</div>
 `;
   } else h+=`<p class="small muted">Log a run with heart-rate data to see a projection.</p>`;
   h+=`</div>`;
@@ -2535,11 +2543,11 @@ function runsIndex(){
   let h=`<div class="card"><div><div class="eyebrow">Every run you've logged · tap one for the full breakdown</div><h2>Runs</h2></div>`;
   if(!L.length) return h+`<p class="small muted">No runs yet. Log one from the Home tab on a run day${CUSTOM&&CUSTOM.su.runDays.length?` (${CUSTOM.su.runDays.map(i=>DOW[i]).join(", ")})`:""}, or import from Strava for maps and splits, and it'll show up here.</p>${stravaPrompt("runs")}</div>`;
   const tot=L.reduce((a,[k,l])=>a+(Number(l.mi)||0),0), longest=Math.max(...L.map(([k,l])=>Number(l.mi)||0)), best=Math.min(...L.filter(([k,l])=>l.mi&&l.min).map(([k,l])=>l.min/l.mi));
-  h+=`<div class="kpis"><div class="kpi"><div class="v num">${L.length}</div><div class="l">runs</div></div><div class="kpi"><div class="v num">${tot.toFixed(1)}</div><div class="l">total miles</div></div><div class="kpi"><div class="v num">${longest.toFixed(1)}</div><div class="l">longest (mi)</div></div></div>`;
-  if(isFinite(best)) h+=`<p class="small muted">Fastest average pace so far: <b class="num" style="color:var(--ink)">${fmtMin(best)}/mi</b></p>`;
+  h+=`<div class="kpis"><div class="kpi"><div class="v num">${L.length}</div><div class="l">runs</div></div><div class="kpi"><div class="v num">${dU(tot)}</div><div class="l">total ${RU()==="km"?"km":"miles"}</div></div><div class="kpi"><div class="v num">${longest.toFixed(1)}</div><div class="l">longest (mi)</div></div></div>`;
+  if(isFinite(best)) h+=`<p class="small muted">Fastest average pace so far: <b class="num" style="color:var(--ink)">${paceTxt(best)}</b></p>`;
   h+=`<div>${L.map(([k,l])=>{const d=parseYmd(k), p=l.mi&&l.min?l.min/l.mi:null;
     return `<button class="runrow" data-run="${k}"><span class="rd"><b>${fmtDate(d)}</b><span class="small muted">${esc(runLabel(k,l))} · Week ${weekOf(d)}</span><span class="tags">${l.st?`<span class="chip run">${l.st.src==="gpx"?"GPX":"Screenshots"}</span>`:""}${l.analysis?`<span class="chip coach">Analyzed</span>`:""}${l.st&&l.st.avgHr?`<span class="chip num">♥ ${l.st.avgHr}</span>`:""}</span></span>
-      <span class="rm"><b>${l.mi} mi</b><span class="small muted num">${fmtMin(l.min)} · ${p?fmtMin(p)+"/mi":"–"}</span></span><span class="chev">›</span></button>`}).join("")}</div></div>`;
+      <span class="rm"><b>${dTxt(l.mi,2)}</b><span class="small muted num">${fmtMin(l.min)} · ${p?paceTxt(p):"–"}${l.reps?` · ${l.reps} reps`:""}</span></span><span class="chev">›</span></button>`}).join("")}</div></div>`;
   return h;
 }
 function zoneTimes(S2){ const z=[0,0,0,0,0]; let any=false; const mx=HR_MAX_EST; S2.hr.forEach(v=>{ if(!v) return; any=true; const f=v/mx; const i=f<.6?0:f<.7?1:f<.8?2:f<.9?3:4; z[i]+=S2.step/60 }); return any?z:null }
@@ -2549,7 +2557,7 @@ function runDetail(k){
   h+=`<div class="card"><div class="row between"><div><div class="eyebrow">${fmtDate(d)} · Week ${weekOf(d)}</div><h2>${esc(runLabel(k,l))}</h2></div>${l.rpe?`<span class="chip num">Effort ${l.rpe}/10</span>`:""}</div>
     ${p&&p.type==="run"?`<div class="plan-box"><div class="small"><b>Plan:</b> ${esc(p.d)}</div></div>`:""}`;
   if(st) h+=stravaBlock(st);
-  else h+=`<div class="stv"><div><span class="l">Distance</span><span class="v num">${l.mi} mi</span></div><div><span class="l">Time</span><span class="v num">${fmtMin(l.min)}</span></div><div><span class="l">Avg pace</span><span class="v num">${pace?fmtMin(pace)+"/mi":"–"}</span></div></div><p class="note">Typed-in run. Import the Strava GPX on this day's run card (Home) to get graphs and an analysis.</p>`;
+  else h+=`<div class="stv"><div><span class="l">Distance</span><span class="v num">${dTxt(l.mi,2)}</span></div><div><span class="l">Time</span><span class="v num">${fmtMin(l.min)}</span></div><div><span class="l">Avg pace</span><span class="v num">${pace?fmtMin(pace)+"/mi":"–"}</span></div></div><p class="note">Typed-in run. Import the Strava GPX on this day's run card (Home) to get graphs and an analysis.</p>`;
   if(l.notes) h+=`<div class="lastnote"><b>Your note:</b> “${esc(l.notes)}”</div>`;
   h+=`</div>`;
   const S2=st&&st.series;
@@ -2582,7 +2590,7 @@ function runDetail(k){
   // compare with previous run of the same type
   const prev=runList().find(([kk,ll])=>kk<k&&ll.key===l.key);
   if(prev){ const [pk,pl]=prev, ps=pl.st||{}, cs=st||{};
-    const rowsC=[["Distance",l.mi,pl.mi,v=>v+" mi",1],["Avg pace",pace,pl.mi&&pl.min?pl.min/pl.mi:null,v=>fmtMin(v)+"/mi",-1],["Avg HR",cs.avgHr,ps.avgHr,v=>v+" bpm",-1],["Running time",cs.runMin,ps.runMin,v=>fmtMin(v),1]].filter(r=>r[1]!=null&&r[2]!=null);
+    const rowsC=[["Distance",l.mi,pl.mi,v=>dTxt(v,2),1],["Avg pace",pace,pl.mi&&pl.min?pl.min/pl.mi:null,v=>paceTxt(v),-1],["Avg HR",cs.avgHr,ps.avgHr,v=>v+" bpm",-1],["Running time",cs.runMin,ps.runMin,v=>fmtMin(v),1]].filter(r=>r[1]!=null&&r[2]!=null);
     if(rowsC.length) h+=`<div class="card"><h2>Vs. ${fmtDate(parseYmd(pk))}</h2><div class="tablewrap"><table class="cmp"><thead><tr><th></th><th>This run</th><th>Last ${DOW[dowOf(parseYmd(pk))]}</th><th>Change</th></tr></thead><tbody>${rowsC.map(([n,a,b,f,good])=>{const diff=a-b, better=Math.abs(diff)<1e-9?null:(diff*good>0); return `<tr><td>${n}</td><td>${f(a)}</td><td>${f(b)}</td><td class="${better==null?"":better?"better":"worse"}">${better==null?"same":(diff>0?"+":"−")+(n==="Avg pace"||n==="Running time"?fmtMin(Math.abs(diff)):n==="Distance"?Math.abs(diff).toFixed(2)+" mi":Math.round(Math.abs(diff)))}</td></tr>`}).join("")}</tbody></table></div></div>`; }
   if(st) h+=`<div class="card"><div class="row between"><h2>Coach analysis</h2><button class="btn ghost sm" id="anaBtn" data-ana="${k}" ${anaBusy[k]!=null||!sampleFn?"disabled":""}>${l.analysis?"Re-analyze":"Analyze run"}</button></div><div class="ana" id="ana-${k}">${anaHtml(k)}</div></div>`;
   return h;
@@ -2733,7 +2741,7 @@ function finishImport(k,st){
 }
 function stravaBlock(st){
   const pace=st.mi&&(st.movingMin||st.elapsedMin)?(st.movingMin||st.elapsedMin)/st.mi:null;
-  const stats=[["Distance",st.mi?`${st.mi} mi`:null],["Moving time",st.movingMin?fmtMin(st.movingMin):null],["Avg pace",pace?`${fmtMin(pace)}/mi`:null],["Elapsed",st.elapsedMin&&st.movingMin&&st.elapsedMin-st.movingMin>0.5?fmtMin(st.elapsedMin):null],
+  const stats=[["Distance",st.mi?dTxt(st.mi,2):null],["Moving time",st.movingMin?fmtMin(st.movingMin):null],["Avg pace",pace?paceTxt(pace):null],["Elapsed",st.elapsedMin&&st.movingMin&&st.elapsedMin-st.movingMin>0.5?fmtMin(st.elapsedMin):null],
     ["Elevation",st.elevFt!=null?`+${st.elevFt} ft`:null],["Avg HR",st.avgHr?`${st.avgHr} bpm`:null],["Max HR",st.maxHr?`${st.maxHr} bpm`:null],["Cadence",st.cad?`${st.cad} spm`:null],
     ["Running",st.runMin!=null&&st.runMin>0?`~${fmtMin(st.runMin)}`:null],["Walking",st.walkMin!=null&&st.runMin>0?`~${fmtMin(st.walkMin)}`:null],["Calories",st.cal?String(st.cal):null]].filter(x=>x[1]);
   let h=`<div class="stv">${stats.map(([l,v])=>`<div><span class="l">${l}</span><span class="v num">${esc(v)}</span></div>`).join("")}</div>`;
@@ -2833,7 +2841,7 @@ function bind(){
     const newLog={type:"gym",day:p.day,ex,db,fmt,durMin,notes:$("#gnotes").value.trim(),savedAt:Date.now()}; const prs=findPRs(k,newLog); if(prs.length) newLog.prs=prs;
     clearDrafts(k,TRAIN_RE); saveLog(k,newLog).then(()=>{toast(prs.length?`New PR: ${prs.map(id=>(p.ex.find(e=>e.id===id)||{name:id}).name).join(", ")} 🎉`:"Session saved"); lastRenderKey=""; render(); setTimeout(maybeAutoAdvice,1500)});
   });
-  const upd=()=>{const mi=Number($("#rmi").value), m=parseTime($("#rtime").value); $("#pace").textContent = mi>0&&m>0? fmtMin(m/mi)+" /mi":"–"};
+  const upd=()=>{const mi=fromDU(String($("#rmi").value).replace(",",".")), m=parseTime($("#rtime").value); $("#pace").textContent = mi>0&&m>0? paceTxt(m/mi):"–"};
   if($("#rmi")){["#rmi","#rtime"].forEach(s=>$(s).addEventListener("input",upd)); upd()}
   const impStatus=m=>{const el=$("#impStatus"); if(el) el.innerHTML=m};
   $("#gpxIn")?.addEventListener("change",async e=>{
@@ -2891,16 +2899,17 @@ function bind(){
   document.querySelectorAll("[data-pv]").forEach(b=>b.onclick=()=>{progView=b.dataset.pv; runSel=null; try{localStorage.setItem("rd25-pview",progView)}catch(e){} render(); window.scrollTo(0,0)});
   $("#runBack")?.addEventListener("click",()=>{runSel=null; render(); window.scrollTo(0,0)});
   $("#saveRun")?.addEventListener("click",()=>{
-    const mi=Number($("#rmi").value); let m=parseTime($("#rtime").value);
+    const mi=fromDU(String($("#rmi").value).replace(",",".")); let m=parseTime($("#rtime").value);
     if(!(m>0) && TM.start && TM.date===k) m=(Date.now()-TM.start)/60000;
-    if(!(mi>0&&m>0)){toast("Enter distance and time, like 2.1 and 3000 for 30:00");return}
+    if(!(mi>0&&m>0)){toast(`Enter distance and time, like ${RU()==="km"?"3.4":"2.1"} and 3000 for 30:00`);return}
+    const reps=$("#rreps")?Math.round(Number($("#rreps").value))||null:null;
     if(TM.start&&TM.date===k) stopWorkout();
     const rpe=Number($("#rrpe").value)||null;
     const imp=getImport(k), st=imp||(log&&log.st)||null, analysis=imp?null:((log&&log.analysis)||null);
     clearDrafts(k,TRAIN_RE); delete imports[k];
     const xr=extrasForSave(k,log);
     const race=!!$("#rrace")?.checked, gate=!!$("#rgate")?.checked;
-    saveLog(k,{type:"run",key:p.key,mi:Math.round(mi*100)/100,min:m,rpe,notes:$("#rnotes").value.trim(),st,analysis,...(race?{race:true}:{}),...(gate?{gate:true}:{}),...(xr.length?{extraRuns:xr}:{}),savedAt:Date.now()}).then(()=>{toast(imp?"Run saved. Your coach is analyzing it…":"Run saved"); lastRenderKey=""; render(); if(imp) setTimeout(()=>analyzeRun(k),300); setTimeout(maybeAutoAdvice,imp?20000:1500)});
+    saveLog(k,{type:"run",key:p.key,mi:Math.round(mi*1000)/1000,min:m,rpe,...(reps?{reps}:{}),notes:$("#rnotes").value.trim(),st,analysis,...(race?{race:true}:{}),...(gate?{gate:true}:{}),...(xr.length?{extraRuns:xr}:{}),savedAt:Date.now()}).then(()=>{toast(imp?"Run saved. Your coach is analyzing it…":"Run saved"); lastRenderKey=""; render(); if(imp) setTimeout(()=>analyzeRun(k),300); setTimeout(maybeAutoAdvice,imp?20000:1500)});
   });
   $("#delLog")?.addEventListener("click",function(){ if(this.dataset.armed){clearDrafts(k,TRAIN_RE); deleteLog(k).then(()=>{toast("Log cleared");lastRenderKey="";render()})} else {this.dataset.armed="1"; this.textContent="Tap again to clear"} });
   document.querySelectorAll("[data-meal]").forEach(c=>c.addEventListener("change",()=>{
@@ -2978,6 +2987,7 @@ function applySetup(raw){
   SCHED=su.week.map(w=>w==="run"?"run":gym[w]?w:"rest"); RUNKEY={};
   const kinds=su.runDays.length===1?["sat"]:su.runDays.length===2?["tue","sat"]:["tue","thu","sat"];
   su.runDays.forEach((d,i)=>RUNKEY[d]=kinds[Math.min(i,2)]);
+  RUNSCHED=su.week.map((w,i)=>w==="run"?(su.runWeek||[])[i]||null:null);
   if(su.legacyRuns) RUNWK=null; else { const cache={}; RUNWK=w=>cache[w]||(cache[w]=runWeekFor(su,w)) }
   CUSTOM={su,gym,rest};
   const ids=[...new Set(su.routines.flatMap(r=>r.ex.map(e=>e.id)))];
@@ -3007,6 +3017,7 @@ function onProfile(){
   syncPrefs(); initStdAliases(); maybeMigrateLegacy(); maybePallofHold(); maybeOngoing(); maybeMealsV3(); maybeStravaInit();
   let su=S.profile&&S.profile.setup;
   if(su&&!(su.routines&&su.week)){ su=S.profile.setup=normalizeSetup(su); saveProfile() }
+  if(su&&typeof maybeRunRoutines==="function"&&maybeRunRoutines()) saveProfile();
   const st=su?JSON.stringify(su)+JSON.stringify((S.profile.setup||{}).customEx||[]):"";
   if(st===appliedStamp) return; appliedStamp=st;
   if(su) applySetup(su);
