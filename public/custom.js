@@ -275,7 +275,7 @@ function foodGoals(){ const su=CUSTOM&&CUSTOM.su; const g=(su&&su.food)||{}; con
 const SNAP_KEYS=["id","name","sets","lo","hi","inc","rest","bw","unit","optW","alt","muscle","equip","uni","ss"];
 function planSnapshot(d){ const p=planFor(d); if(!p||p.type==="rest") return null;
   if(p.type==="gym") return {type:"gym",day:p.day,name:p.name,ex:(p.ex||[]).map(e=>{const o={}; SNAP_KEYS.forEach(k=>{if(e[k]!==undefined) o[k]=e[k]}); return o})};
-  return {type:"run",key:p.key,t:p.t,d:p.d,...(p.rid?{rid:p.rid}:{}),...(p.reps?{reps:p.reps}:{}),...(p.hint?{hint:p.hint}:{}),...(p.race?{race:true}:{}),...(p.tt?{tt:true}:{})} }
+  return {type:"run",key:p.key,t:p.t,d:p.d,...(p.rid?{rid:p.rid}:{}),...(p.reps?{reps:p.reps}:{}),...(p.hint?{hint:p.hint}:{}),...(p.race?{race:true}:{}),...(p.tt?{tt:true}:{}),...(p.spec?{spec:p.spec}:{})} }
 function loggedPlan(d){ const k=ymd(d), l=S.logs[k]; if(!l) return null; const w=weekOf(d), i=dowOf(d);
   if(l.plan&&l.plan.type) return {...l.plan,w,i,logged:true};
   if(l.type==="gym"&&l.ex&&CUSTOM.su.fromLegacy&&/^[ABC]$/.test(l.day||"")&&typeof gymDay0==="function"){
@@ -1327,6 +1327,8 @@ function stravaToSt(run){ const S2=run.streams||{}, t0=Date.parse(run.start), k=
   if(!st){ const mi=(Number(run.distance)||0)/1609.344; if(mi<0.05) return null; let cad=run.cadence; if(cad&&cad<120) cad*=2;
     st={name:String(run.name||"").slice(0,80),mi:+mi.toFixed(2),movingMin:run.moving?+(run.moving/60).toFixed(2):null,elapsedMin:run.elapsed?+(run.elapsed/60).toFixed(2):null,
       elevFt:run.elevM!=null?Math.round(run.elevM*3.28084):null,avgHr:run.avgHr?Math.round(run.avgHr):null,maxHr:run.maxHr?Math.round(run.maxHr):null,cad:cad?Math.round(cad):null,splits:[]} }
+  if(st&&Array.isArray(run.laps)&&run.laps.length>1){ let acc=0; st.laps=run.laps.map(x=>{ const s0=S2.time&&S2.time[x.i]!=null? S2.time[x.i] : acc; acc=s0+(Number(x.t)||0);
+      return {s:Math.round(s0),d:Math.round(Number(x.t)||0),m:Math.round(Number(x.m)||0),v:+(Number(x.v)||0).toFixed(2),vx:+(Number(x.vx)||0).toFixed(2),hr:x.hr?Math.round(x.hr):null,hx:x.hx?Math.round(x.hx):null,g:x.g!=null?Math.round(x.g):null} }) }
   st.src="strava"; st.stravaId=run.id; st.date=k; if(run.type==="VirtualRun") st.treadmill=true; return st }
 async function stravaSync(manual){
   const ss=stravaState(); if(!ss.connected||stravaBusy) return; stravaBusy=true;

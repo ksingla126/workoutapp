@@ -24,14 +24,19 @@ export default async function handler(req) {
   const runs = acts.filter((a) => RUN.test(a.sport_type || a.type || ""));
   const batch = runs.slice(0, 8), out = [];
   for (const a of batch) {
-    let streams = {};
+    let streams = {}, laps = null;
     if (!a.manual) {
       const s = await fetch(`https://www.strava.com/api/v3/activities/${a.id}/streams?keys=time,latlng,distance,heartrate,altitude,cadence&key_by_type=true`, { headers: h });
       if (s.status === 429) break; // keep what we have; the app will ask again later
       if (s.ok) { const st = await s.json(); const g = (k) => (st[k] && st[k].data) || null; streams = { time: g("time"), latlng: g("latlng"), distance: g("distance"), heartrate: g("heartrate"), altitude: g("altitude"), cadence: g("cadence") }; }
+      // watch laps: a structured workout (or lap-button presses) marks each rep exactly
+      const l = await fetch(`https://www.strava.com/api/v3/activities/${a.id}/laps`, { headers: h }).catch(() => null);
+      if (l && l.ok) { const L = await l.json().catch(() => []);
+        if (Array.isArray(L) && L.length > 1) laps = L.slice(0, 80).map((x) => ({ i: x.start_index, t: x.elapsed_time, mt: x.moving_time, m: x.distance, v: x.average_speed, vx: x.max_speed,
+          hr: x.average_heartrate || null, hx: x.max_heartrate || null, g: x.total_elevation_gain ?? null })); }
     }
     out.push({ id: a.id, name: a.name, type: a.sport_type || a.type, start: a.start_date, startLocal: a.start_date_local, distance: a.distance, moving: a.moving_time, elapsed: a.elapsed_time,
-      avgHr: a.average_heartrate || null, maxHr: a.max_heartrate || null, elevM: a.total_elevation_gain ?? null, cadence: a.average_cadence || null, manual: !!a.manual, streams });
+      avgHr: a.average_heartrate || null, maxHr: a.max_heartrate || null, elevM: a.total_elevation_gain ?? null, cadence: a.average_cadence || null, manual: !!a.manual, streams, laps });
   }
   const last = out[out.length - 1];
   const more = out.length < runs.length;
