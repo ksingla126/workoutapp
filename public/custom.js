@@ -1095,7 +1095,7 @@ function addExHtml(W,inDay){
   const q=(W.q||"").toLowerCase().trim(), mu=W.mu||"";
   const list=exLib().filter(e=>(!mu||e.muscle===mu)&&(!q||e.name.toLowerCase().includes(q)||e.muscle.toLowerCase().includes(q)||e.equip.toLowerCase().includes(q)));
   return `<div class="xs-head"><h2>Add to today</h2><button type="button" class="btn sm" data-xs="close">Done</button></div>
-   <p class="small muted">Adds to ${fmtDate(parseYmd(W.k))} only. To keep it, add it to the routine in Plan.</p>
+   <p class="small muted">Adds to ${fmtDate(parseYmd(W.k))}. When you save the workout, you can keep it in your routine.</p>
    <input class="xs-search" type="search" placeholder="Search exercises" value="${esc(W.q||"")}" data-xs-q="1" data-xs-focus="q" autocomplete="off">
    <div class="xs-chips"><button type="button" class="${!mu?"on":""}" data-xs-mu="">All</button>${MUSCLES.map(m=>`<button type="button" class="${mu===m?"on":""}" data-xs-mu="${m}">${m}</button>`).join("")}</div>
    <div class="xs-results"><div class="xs-list">${list.map(e=>{const used=inDay.has(e.id); return `<button type="button" class="xs-item ${used?"on":""}" data-xs-addday="${e.id}" ${used?"disabled":""}><span><b>${esc(e.name)}</b><span class="small muted">${used?"In this workout":`${esc(e.muscle)} · ${esc(e.equip)}`}</span></span><span class="xs-plus">${used?"✓":"+"}</span></button>`}).join("")||`<p class="small muted">No matches.</p>`}</div></div>`;
@@ -1152,6 +1152,10 @@ function moveTargets(k){ const td=ymd(today), base=k>td?k:td, end=ymd(addDays(mo
   for(let d=parseYmd(td);ymd(d)<=end;d=addDays(d,1)){ const x=ymd(d); if(x!==k&&!S.logs[x]&&inProgram(d)) out.push(x) } return out }
 function swapDays(a,b){ const sa=srcOf(a), sb=srcOf(b); setSrc(a,sb); setSrc(b,sa) }
 function moveDay(from,to){ const sa=srcOf(from); setSrc(to,sa); setSrc(from,null) }
+// the open rest day nearest to `to` in its week (not the day being moved from); ties go to the later day
+function nearestRest(to,from){ const td=ymd(today), T=parseYmd(to);
+  return weekDays(to).filter(d=>d!==to&&d!==from&&d>=td&&!S.logs[d]&&inProgram(parseYmd(d))&&!srcOf(d))
+    .sort((a,b)=>Math.abs(parseYmd(a)-T)-Math.abs(parseYmd(b)-T)||(b>a?1:-1))[0]||null }
 // sessions in the last week that were planned but never logged
 function missedDays(){ const td=ymd(today), out=[]; for(let i=6;i>=1;i--){ const d=addDays(today,-i), k=ymd(d); if(d<countStart()||!inProgram(d)||S.logs[k]) continue; const p=planFor(d); if(p&&(p.type==="gym"||p.type==="run")) out.push(k) } return out }
 function missedCard(){ const ms=missedDays(); if(!ms.length) return "";
@@ -1162,6 +1166,7 @@ function moveHtml(){ const k=SH.k, mode=SH.mode||"move", src=srcOf(k), past=k<ym
     return `<div class="xs-head"><h2>${esc(dayName(t))} already has ${esc(other)}</h2><button type="button" class="btn ghost sm" data-xs-movepick="back">Back</button></div>
      <p class="small muted">What should happen to ${esc(other)}?</p>
      ${past?"":`<button type="button" class="swapopt" data-xs-movepick="swap"><b>Swap them</b><span>${esc(sessLabel(src))} on ${esc(dayName(t))}, ${esc(other)} on ${esc(dayName(k))}.</span></button>`}
+     ${(()=>{ const r=nearestRest(t,k); return r?`<button type="button" class="swapopt" data-xs-movepick="bump"><b>Move ${esc(other)} to the nearest rest day</b><span>${esc(sessLabel(src))} on ${esc(dayName(t))}, ${esc(other)} on ${esc(dayName(r))}.${past?"":` ${esc(dayName(k))} becomes a rest day.`}</span></button>`:`<p class="small muted" style="margin:0">No free rest day left that week to move ${esc(other)} to.</p>` })()}
      <button type="button" class="swapopt" data-xs-movepick="replace"><b>Replace it</b><span>${esc(sessLabel(src))} on ${esc(dayName(t))}. ${esc(other)} is skipped${past?"":` and ${esc(dayName(k))} becomes a rest day`}.</span></button>` }
   const wk=mondayOf(parseYmd(targets[0]||k)), thisWk=ymd(wk), item=d=>{ const s=srcOf(d); return `<button type="button" class="xs-item" data-xs-moveto="${d}"><span><b>${d===ymd(today)?"Today":dayName(d)}</b><span class="small muted">${esc(sessLabel(s))}</span></span><span class="xs-plus">${mode==="swap"?"⇄":"→"}</span></button>` };
   const a=targets.filter(d=>d<ymd(addDays(wk,7))), b=targets.filter(d=>d>=ymd(addDays(wk,7)));
@@ -1290,6 +1295,7 @@ function accountHtml(){
    ${CUSTOM&&typeof RU==="function"?`<h3>Running</h3><button type="button" class="setlink" data-run-race="1">${(()=>{const R=CUSTOM.su.race; return R&&R.date&&R.date>=ymd(today)?`Race: ${esc(R.label||dTxt(R.dist))} · ${fmtShort(parseYmd(R.date))}`:"Add a race"})()}<span>›</span></button><button type="button" class="setlink" data-acct-runs="1">Edit your runs<span>›</span></button>`:""}
    ${typeof friendsRows==="function"?friendsRows():""}
    ${CUSTOM?`<h3>Ranks</h3><button type="button" class="setlink" data-acct-pause="1">Pause ranks (travel or illness)<span>›</span></button>`:""}
+   ${CUSTOM&&typeof openShare==="function"?`<h3>Friends</h3><button type="button" class="setlink" data-share="">Share RankUp with a friend<span>›</span></button>`:""}
    <h3>Account</h3>
    ${CUSTOM?`<button type="button" class="setlink" data-acct-edit="1">Edit plan & goals<span>›</span></button>`:""}
    <button type="button" class="setlink" data-acct-export="1">Download my data<span>›</span></button>
@@ -1523,6 +1529,8 @@ document.addEventListener("click",e=>{
     moveDay(k,to); saveProfile(); xsClose(); lastRenderKey=""; render(); toast(`${sessLabel(a)} moved to ${dayName(to)}`); return }
   if(d.xsMovepick){ const k=SH.k, to=SH.pick, a=srcOf(k), b=srcOf(to);
     if(d.xsMovepick==="back"){ SH.pick=null; paintSheet(true); return }
+    if(d.xsMovepick==="bump"){ const r=nearestRest(to,k); if(!r){ toast("No free rest day that week"); return } moveDay(k,to); setSrc(r,b);
+      saveProfile(); xsClose(); lastRenderKey=""; render(); toast(`${sessLabel(a)} moved to ${dayName(to)}. ${sessLabel(b)} moved to ${dayName(r)}`); return }
     if(d.xsMovepick==="swap") swapDays(k,to); else moveDay(k,to);
     saveProfile(); xsClose(); lastRenderKey=""; render(); toast(d.xsMovepick==="swap"?`${dayName(k)} and ${dayName(to)} swapped`:`${sessLabel(a)} moved to ${dayName(to)}. ${sessLabel(b)} skipped`); return }
   if(d.xsPushweek){ const days=weekDays(SH.k).filter(x=>x>=SH.k&&!S.logs[x]), srcs=days.map(srcOf); days.forEach((x,i)=>setSrc(x,i===0?null:srcs[i-1])); saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Week pushed back a day"); return }

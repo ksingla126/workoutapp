@@ -9,6 +9,12 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="RankUp">
+<meta name="description" content="Log your training and rank up from E to S.">
+<meta property="og:title" content="Join me on RankUp">
+<meta property="og:description" content="Log your training and rank up from E to S. Compare ranks with friends.">
+<meta property="og:image" content="/icon-512.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="icon" href="/icon-192.png">
@@ -1248,7 +1254,7 @@ function render(fromStore){
   const v=$("#view");
   v.innerHTML = tab==="hub"&&typeof viewHub==="function"?viewHub(): tab==="home"?trainSwitch()+viewHome(openLogger): tab==="food"||(tab==="plan"&&planView==="food")?viewFoodTab(): tab==="plan"?trainSwitch()+viewPlan(): tab==="progress"?trainSwitch()+viewProgress(): tab==="ranks"?viewRanks(): advSwitch()+(advView==="outlook"?viewOutlook():viewAdvice());
   applyDrafts();
-  bind(); if(tab==="ranks") bindRanks(); if(tab==="hub"&&typeof hubMaybeTour==="function") hubMaybeTour(); if(tab==="hub"&&typeof maybeRecap==="function") setTimeout(maybeRecap,400); else if(typeof HT!=="undefined"&&HT.i>=0) hubTourEnd(); if(typeof gameAfterRender==="function") gameAfterRender();
+  bind(); if(tab==="ranks") bindRanks(); if(tab==="hub"&&typeof hubMaybeTour==="function") hubMaybeTour(); if(tab==="hub"&&typeof maybeRecap==="function") setTimeout(()=>{ maybeRecap(); if(typeof maybeInvite==="function") maybeInvite() },400); else if(typeof HT!=="undefined"&&HT.i>=0) hubTourEnd(); if(typeof gameAfterRender==="function") gameAfterRender();
   setTimeout(maybeOverload,0); setTimeout(rankNotify,0); if(typeof questNotify==="function") setTimeout(questNotify,0);
 }
 function renderTop(){
@@ -2859,7 +2865,7 @@ function bind(){
     const durMin = TM.start&&TM.date===k ? (Date.now()-TM.start)/60000 : (log&&log.durMin)||null;
     if(TM.start&&TM.date===k) stopWorkout();
     const newLog={type:"gym",day:p.day,ex,db,fmt,durMin,notes:$("#gnotes").value.trim(),savedAt:Date.now()}; const prs=findPRs(k,newLog); if(prs.length) newLog.prs=prs;
-    clearDrafts(k,TRAIN_RE); saveLog(k,newLog).then(()=>{toast(prs.length?`New PR: ${prs.map(id=>(p.ex.find(e=>e.id===id)||{name:id}).name).join(", ")} 🎉`:"Session saved"); lastRenderKey=""; render(); setTimeout(maybeAutoAdvice,1500)});
+    clearDrafts(k,TRAIN_RE); saveLog(k,newLog).then(()=>{toast(prs.length?`New PR: ${prs.map(id=>(p.ex.find(e=>e.id===id)||{name:id}).name).join(", ")} 🎉`:"Session saved"); lastRenderKey=""; render(); if(typeof routineAsk==="function") setTimeout(()=>routineAsk(k),700); setTimeout(maybeAutoAdvice,1500)});
   });
   const upd=()=>{ if(typeof rxPreview==="function"&&p&&p.type==="run") rxPreview(k,p) };
   if($("#rmi")){["#rmi","#rtime"].forEach(s=>$(s).addEventListener("input",upd)); upd()}
