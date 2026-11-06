@@ -2,7 +2,7 @@
  * rates can be tuned without touching scoring code. Spec: "Fitness Rank System — Design Spec v2" (Oct 24, 2026).
  * Weights are one-rep maxes in lb, times are seconds. Ladders list the minimum for D, C, B, A, S (E is anything below D). */
 window.RANK_CFG = {
-  version: 4,
+  version: 5,
   letters: ["E", "D", "C", "B", "A", "S"],
   refBW: { male: 200, female: 170 },          // raw ladders are written for these body weights
   scaleExp: 0.67,                             // size scaling for ladders without data: target × (bodyweight ÷ reference)^0.67
@@ -25,6 +25,64 @@ window.RANK_CFG = {
     pull:  { male: [[136,168,186,205,227],[154.5,196,211,231,253],[173,214,232,252,278],[194,232,252,274,300],[218,245,272,296,321],[248,256,284,316,340],[285,273,314,360,431]],
              female: [[120.5,121,134,150,163],[132.5,130,146,164,176],[149,132,155,175,194]] }
   },
+  // ---- Hybrid scoring: every exercise counts toward every part it works, weighted by how much it works it ----
+  // An exercise is a main exercise for a part at weight ≥ primaryAt. Side exercises (weight w) can lift a part at most
+  // boost × w letters above your main exercises there; with no main exercise they count at (soloFloor + (1 − soloFloor) × w)
+  // and can't take the part past soloCap (B). Weights under minW are ignored.
+  hybrid: { primaryAt: 0.8, boost: 0.5, soloFloor: 0.6, soloCap: 3, minW: 0.2 },
+  // the 17 muscles in the breakdown, and the rank part each one feeds
+  muscles: [["chest","Chest","chest"],["fdelt","Front delts","shoulders"],["sdelt","Side delts","shoulders"],["rdelt","Rear delts","row"],
+    ["lats","Lats","pull"],["upback","Upper back","row"],["traps","Traps","row"],["biceps","Biceps","biceps"],["triceps","Triceps","triceps"],
+    ["forearms","Forearms",null],["quads","Quads","quads"],["hams","Hamstrings","hams"],["glutes","Glutes","hams"],["lowback","Lower back","hams"],
+    ["calves","Calves","calves"],["abs","Abs","core"],["obliques","Obliques","core"]],
+  // how much each muscle stands for its part (side delts count less toward Shoulders than front delts, and so on)
+  partMuscles: { chest: { chest: 1 }, shoulders: { fdelt: 1, sdelt: 0.6 }, row: { upback: 1, rdelt: 0.6, traps: 0.6 }, pull: { lats: 1 },
+    biceps: { biceps: 1 }, triceps: { triceps: 1 }, quads: { quads: 1 }, hams: { hams: 1, glutes: 0.8, lowback: 0.6 }, calves: { calves: 1 }, core: { abs: 1, obliques: 0.6 } },
+  // movement patterns → muscle weights (0–1). New exercises get a pattern from their muscle group and name.
+  musclePat: {
+    hpress: { chest: 1, fdelt: 0.5, triceps: 0.5 }, incpress: { chest: 0.9, fdelt: 0.7, triceps: 0.45 }, fly: { chest: 1, fdelt: 0.3 },
+    dipchest: { chest: 0.8, triceps: 0.8, fdelt: 0.4 }, vpress: { fdelt: 1, sdelt: 0.5, triceps: 0.5, traps: 0.2 },
+    side: { sdelt: 1, traps: 0.2 }, front: { fdelt: 1, sdelt: 0.2 }, uprow: { sdelt: 0.8, traps: 0.7, biceps: 0.2 },
+    rear: { rdelt: 1, upback: 0.6, traps: 0.3 }, vpull: { lats: 1, biceps: 0.5, upback: 0.4, rdelt: 0.2, forearms: 0.3 },
+    lats: { lats: 1, triceps: 0.2, chest: 0.2 }, hpull: { upback: 1, lats: 0.7, rdelt: 0.5, biceps: 0.4, traps: 0.4, forearms: 0.3 },
+    hpullbb: { upback: 1, lats: 0.7, rdelt: 0.5, biceps: 0.4, traps: 0.5, lowback: 0.4, forearms: 0.4 }, scap: { upback: 0.6, chest: 0.2 },
+    shrug: { traps: 1, forearms: 0.4 }, curl: { biceps: 1, forearms: 0.4 }, hammer: { biceps: 0.8, forearms: 0.7 },
+    triiso: { triceps: 1 }, tricomp: { triceps: 1, chest: 0.6, fdelt: 0.3 }, tridip: { triceps: 1, chest: 0.5, fdelt: 0.3 },
+    squat: { quads: 1, glutes: 0.6, hams: 0.25, lowback: 0.3, abs: 0.2 }, fsquat: { quads: 1, glutes: 0.5, upback: 0.3, abs: 0.3 },
+    lunge: { quads: 1, glutes: 0.7, hams: 0.3 }, kneeext: { quads: 1 },
+    deadlift: { hams: 1, glutes: 0.8, lowback: 0.7, quads: 0.3, traps: 0.4, upback: 0.4, forearms: 0.5 },
+    hinge: { hams: 1, glutes: 0.8, lowback: 0.6, forearms: 0.3 }, hamcurl: { hams: 1, calves: 0.2 },
+    glute: { glutes: 1, hams: 0.5 }, abduct: { glutes: 0.8 }, adduct: { glutes: 0.3, quads: 0.3 }, swing: { glutes: 1, hams: 0.7, lowback: 0.4 },
+    calves: { calves: 1 }, crunch: { abs: 1, obliques: 0.3 }, hang: { abs: 1, obliques: 0.4, forearms: 0.4, lats: 0.2 },
+    twist: { obliques: 1, abs: 0.5 }, antiext: { abs: 1, obliques: 0.4 }, backext: { lowback: 1, glutes: 0.6, hams: 0.5 },
+    carry: { forearms: 1, traps: 0.7, abs: 0.3 }, grip: { forearms: 1 }, cardio: {}
+  },
+  exPat: {
+    hpress: "bench dbbench declinebench smithbench chestpress dbfloor declinedb pushup wallpu inclpu kneepu declpu archerpu widepu",
+    incpress: "incline inclinebb inclinesmith inclinemach inclwide", fly: "fly dbfly cablecross lowcablefly inclinedbfly", dipchest: "dips",
+    vpress: "ohp dbpress machpress arnold smithohp landmine pikebench pike elevpike hspuneg", side: "lateral cablelat machlateral",
+    front: "frontraise platefront", uprow: "uprow bbupright dbuprow", rear: "revfly dbrevfly facepull revcablefly proney pronet wallslide",
+    vpull: "pulldown pullup chinup assistpull closepull singlepull floorpull pullneg doorrowlat", lats: "straightarm dbpullover",
+    hpull: "cablerow dbrow onearmrow machinerow invrow isorow highrow meadows doorrow tablerow tablerowst tablerowfe", hpullbb: "bbrow tbarrow pendlay",
+    scap: "scappu", shrug: "shrug bbshrug", curl: "curl bbcurl ezcurl conc preacher cablecurl inclinecurl spider machpreacher dbpreacher bayesian doorcurl towelcurl",
+    hammer: "hammer ropehammer revcurl", triiso: "pushdown ropepush ohtri dbohtri skull kickback singlepush ezohtri dbskull",
+    tricomp: "cgbench jmpress jmsmith", tridip: "tridip machdip benchdipb benchdip diamondpu",
+    squat: "squat smithsquat hack pendulum beltsquat legpress legpress45 goblet heelgoblet boxsquat bwsquat heelsq jumpsquat", fsquat: "frontsquat",
+    lunge: "split lunge stepup revlunge bblunge splitsq bss pistolbox pistol", kneeext: "legext legext1 sissyassist sissy wallsit wallsitw",
+    deadlift: "deadlift sumodl rackpull tbdl", hinge: "rdl dbrdl sldl goodmorning gmbw slrdl dbslrdl",
+    hamcurl: "legcurl lyingcurl nordic ghr slidecurl slidecurl1 nordicneg dblegcurl",
+    glute: "hipthrust machthrust glutebridge smithhip slbridge slthrust dbthrust pullthrough cablekick donkeykick", abduct: "abductor cableabd sidelegraise",
+    adduct: "adductor copenhagen", swing: "kbswing dbswing", calves: "calfraise seatedcalf tiltcalf legpresscalf smithcalf donkeycalf bwcalf slcalf dbslcalf",
+    crunch: "crunch declinecrunch cablecrunch machcrunch situp legraise", hang: "hangleg kneeraise toestobar", twist: "russian woodchop pallof pallofhold bicycle sideplank",
+    antiext: "plank abwheel deadbug hollow", backext: "backext superman", carry: "farmercarry farmerhold suitcase", grip: "wristcurl deadhang",
+    cardio: "jumprope burpee mountain rowerg boxjump battlerope sledpush airbike"
+  },
+  // weight × reps exercises with no conversion of their own get one from their pattern (they count up to B, never as Gates)
+  patRate: { hpress: ["chest", 0.9], incpress: ["chest", 0.8], fly: ["chest", 0.45], vpress: ["shoulders", 0.9], side: ["shoulders", 0.3], front: ["shoulders", 0.3],
+    uprow: ["shoulders", 0.7], rear: ["shoulders", 0.4], vpull: ["pull", 0.9], lats: ["pull", 0.5], hpull: ["row", 1], hpullbb: ["row", 1], shrug: ["row", 1],
+    curl: ["biceps", 0.85], hammer: ["biceps", 0.9], triiso: ["triceps", 0.5], tricomp: ["triceps", 1], squat: ["quads", 1.1], fsquat: ["quads", 0.85],
+    lunge: ["quads", 0.45], kneeext: ["quads", 0.7], deadlift: ["hams", 1], hinge: ["hams", 0.75], hamcurl: ["hams", 0.45], glute: ["hams", 1.4],
+    abduct: ["hams", 0.3], swing: ["hams", 0.4], calves: ["calves", 1] },
   // parts without public data: a share of another part's standards (close-grip bench ≈ 89% of bench, barbell curl ≈ 47%)
   derived: { triceps: { from: "chest", r: 0.89 }, biceps: { from: "chest", r: 0.47 } },
 
