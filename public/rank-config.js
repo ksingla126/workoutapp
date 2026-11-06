@@ -78,7 +78,7 @@ window.RANK_CFG = {
     cardio: "jumprope burpee mountain rowerg boxjump battlerope sledpush airbike"
   },
   // weight × reps exercises with no conversion of their own get one from their pattern (they count up to B, never as Gates)
-  patRate: { hpress: ["chest", 0.9], incpress: ["chest", 0.8], fly: ["chest", 0.45], vpress: ["shoulders", 0.9], side: ["shoulders", 0.3], front: ["shoulders", 0.3],
+  patRate: { hpress: ["chest", 0.9], incpress: ["chest", 0.8], fly: ["chest", 0.47], vpress: ["shoulders", 0.9], side: ["shoulders", 0.3], front: ["shoulders", 0.3],
     uprow: ["shoulders", 0.7], rear: ["shoulders", 0.4], vpull: ["pull", 0.9], lats: ["pull", 0.5], hpull: ["row", 1], hpullbb: ["row", 1], shrug: ["row", 1],
     curl: ["biceps", 0.85], hammer: ["biceps", 0.9], triiso: ["triceps", 0.5], tricomp: ["triceps", 1], squat: ["quads", 1.1], fsquat: ["quads", 0.85],
     lunge: ["quads", 0.45], kneeext: ["quads", 0.7], deadlift: ["hams", 1], hinge: ["hams", 0.75], hamcurl: ["hams", 0.45], glute: ["hams", 1.4],
@@ -146,7 +146,8 @@ window.RANK_CFG = {
   conv: {
     bench: [{ p: "chest", r: 1 }], dbbench: [{ p: "chest", r: 0.8 }], incline: [{ p: "chest", r: 0.7 }], inclinebb: [{ p: "chest", r: 0.8 }],
     declinebench: [{ p: "chest", r: 1.05 }], smithbench: [{ p: "chest", r: 1.05 }], chestpress: [{ p: "chest", r: 1.1 }],
-    fly: [{ p: "chest", r: 0.6, cap: 3 }], dbfly: [{ p: "chest", r: 0.4, cap: 3 }], cablecross: [{ p: "chest", r: 0.5, cap: 3 }],
+    // flies: ratio of the fly 1RM to bench 1RM in Strength Level's male standards (machine 188 vs 212, DB 2×50 vs 212, cable 76 vs 212)
+    fly: [{ p: "chest", r: 0.88, cap: 3 }], dbfly: [{ p: "chest", r: 0.47, cap: 3 }], cablecross: [{ p: "chest", r: 0.36, cap: 3 }],
     pushup: [{ p: "chest", k: "bw", r: 1, ladder: "pushup", cap: 3 }],
     dips: [{ p: "chest", k: "bw", r: 1.3 }, { p: "triceps", k: "bw", r: 1.45 }],
 
@@ -180,7 +181,7 @@ window.RANK_CFG = {
     dbslcalf: [{ p: "calves", r: 0.5, cap: 3 }],
     // added with the bigger library (conservative; machines and cables capped at B)
     inclinesmith: [{ p: "chest", r: 0.85 }], inclinemach: [{ p: "chest", r: 1, cap: 3 }], declinedb: [{ p: "chest", r: 0.85 }],
-    lowcablefly: [{ p: "chest", r: 0.4, cap: 3 }], inclinedbfly: [{ p: "chest", r: 0.35, cap: 3 }],
+    lowcablefly: [{ p: "chest", r: 0.32, cap: 3 }], inclinedbfly: [{ p: "chest", r: 0.42, cap: 3 }],
     closepull: [{ p: "pull", r: 0.9 }], singlepull: [{ p: "pull", r: 0.45, cap: 3 }],
     pendlay: [{ p: "row", r: 1 }], meadows: [{ p: "row", r: 0.5, cap: 3 }], isorow: [{ p: "row", r: 1, cap: 3 }], highrow: [{ p: "row", r: 1, cap: 3 }], bbshrug: [{ p: "row", r: 1, cap: 3 }],
     rackpull: [{ p: "hams", r: 1.2, cap: 3 }], sldl: [{ p: "hams", r: 0.8 }], sumodl: [{ p: "hams", r: 1 }], pullthrough: [{ p: "hams", r: 0.6, cap: 3 }], smithhip: [{ p: "hams", r: 1.4, cap: 3 }],
