@@ -2,7 +2,7 @@
  * rates can be tuned without touching scoring code. Spec: "Fitness Rank System — Design Spec v2" (Oct 24, 2026).
  * Weights are one-rep maxes in lb, times are seconds. Ladders list the minimum for D, C, B, A, S (E is anything below D). */
 window.RANK_CFG = {
-  version: 5,
+  version: 6,
   letters: ["E", "D", "C", "B", "A", "S"],
   refBW: { male: 200, female: 170 },          // raw ladders are written for these body weights
   scaleExp: 0.67,                             // size scaling for ladders without data: target × (bodyweight ÷ reference)^0.67
@@ -78,10 +78,10 @@ window.RANK_CFG = {
     cardio: "jumprope burpee mountain rowerg boxjump battlerope sledpush airbike"
   },
   // weight × reps exercises with no conversion of their own get one from their pattern (they count up to B, never as Gates)
-  patRate: { hpress: ["chest", 0.9], incpress: ["chest", 0.8], fly: ["chest", 0.47], vpress: ["shoulders", 0.9], side: ["shoulders", 0.3], front: ["shoulders", 0.3],
-    uprow: ["shoulders", 0.7], rear: ["shoulders", 0.4], vpull: ["pull", 0.9], lats: ["pull", 0.5], hpull: ["row", 1], hpullbb: ["row", 1], shrug: ["row", 1],
+  patRate: { hpress: ["chest", 0.9], incpress: ["chest", 0.8], fly: ["chest", 0.47], vpress: ["shoulders", 0.9], side: ["shoulders", 0.49], front: ["shoulders", 0.52],
+    uprow: ["shoulders", 0.95], rear: ["shoulders", 0.51], vpull: ["pull", 0.7], lats: ["pull", 0.6], hpull: ["row", 1], hpullbb: ["row", 1], shrug: ["row", 1],
     curl: ["biceps", 0.85], hammer: ["biceps", 0.9], triiso: ["triceps", 0.5], tricomp: ["triceps", 1], squat: ["quads", 1.1], fsquat: ["quads", 0.85],
-    lunge: ["quads", 0.45], kneeext: ["quads", 0.7], deadlift: ["hams", 1], hinge: ["hams", 0.75], hamcurl: ["hams", 0.45], glute: ["hams", 1.4],
+    lunge: ["quads", 0.45], kneeext: ["quads", 0.7], deadlift: ["hams", 1], hinge: ["hams", 0.75], hamcurl: ["hams", 0.45], glute: ["hams", 0.89],
     abduct: ["hams", 0.3], swing: ["hams", 0.4], calves: ["calves", 1] },
   // parts without public data: a share of another part's standards (close-grip bench ≈ 89% of bench, barbell curl ≈ 47%)
   derived: { triceps: { from: "chest", r: 0.89 }, biceps: { from: "chest", r: 0.47 } },
@@ -96,7 +96,7 @@ window.RANK_CFG = {
     triceps:   { kind: "load", male: [85, 145, 200, 250, 300],  female: [45, 75, 100, 125, 155] },
     quads:     { kind: "load", male: [135, 225, 315, 395, 475], female: [95, 150, 205, 255, 315] },
     hams:      { kind: "load", male: [185, 275, 365, 455, 545], female: [125, 185, 245, 305, 365] },
-    calves:    { kind: "load", male: [100, 160, 225, 290, 360], female: [60, 95, 140, 185, 235] },
+    calves:    { kind: "load", male: [95, 205, 302, 453, 625], female: [60, 129, 190, 285, 394] },
     core:      { kind: "reps", male: [3, 7, 12, 16, 20],        female: [2, 5, 9, 13, 17] },
     mile:      { kind: "time", male: [630, 540, 465, 400, 345], female: [750, 630, 540, 465, 405] },
     m400:      { kind: "time", male: [125, 110, 95, 84, 72],    female: [145, 127, 110, 97, 83] },
@@ -104,7 +104,7 @@ window.RANK_CFG = {
     // exercise-specific ladders
     plank:     { kind: "hold", male: [60, 90, 120, 180, 240],   female: [60, 90, 120, 180, 240] },
     pushup:    { kind: "reps", male: [10, 25, 40, 55, 70],      female: [3, 12, 25, 35, 45] },
-    cablecrunch: { kind: "load", male: [50, 80, 110, 140, 170], female: [30, 50, 65, 85, 100] }
+    cablecrunch: { kind: "load", male: [51, 101, 144, 209, 283], female: [31, 61, 86, 125, 170] }
   },
 
   // The parts that get ranked, the reference lift for each, and the basic Gate options when a split has none.
@@ -144,58 +144,60 @@ window.RANK_CFG = {
   // and their rates lean conservative because machines and cable stacks vary between gyms.
   // ladder = use an exercise-specific ladder instead of the part's. Loads are the total moved (both dumbbells).
   conv: {
-    bench: [{ p: "chest", r: 1 }], dbbench: [{ p: "chest", r: 0.8 }], incline: [{ p: "chest", r: 0.7 }], inclinebb: [{ p: "chest", r: 0.8 }],
-    declinebench: [{ p: "chest", r: 1.05 }], smithbench: [{ p: "chest", r: 1.05 }], chestpress: [{ p: "chest", r: 1.1 }],
-    // flies: ratio of the fly 1RM to bench 1RM in Strength Level's male standards (machine 188 vs 212, DB 2×50 vs 212, cable 76 vs 212)
-    fly: [{ p: "chest", r: 0.88, cap: 3 }], dbfly: [{ p: "chest", r: 0.47, cap: 3 }], cablecross: [{ p: "chest", r: 0.36, cap: 3 }],
+    bench: [{ p: "chest", r: 1 }], dbbench: [{ p: "chest", r: 0.8 }], incline: [{ p: "chest", r: 0.78 }], inclinebb: [{ p: "chest", r: 0.9 }],
+    declinebench: [{ p: "chest", r: 1.09 }], smithbench: [{ p: "chest", r: 0.94 }], chestpress: [{ p: "chest", r: 0.88 }],
+    // Rates: how each lift's 1RM compares with the part's reference lift in Strength Level's male standards (geometric mean of the
+    // novice, intermediate and advanced ratios; dumbbell figures there are per dumbbell, so two-dumbbell lifts use 2×). Lifts the site
+    // doesn't list are estimated from their nearest listed variant.
+    fly: [{ p: "chest", r: 0.88, cap: 3 }], dbfly: [{ p: "chest", r: 0.46, cap: 3 }], cablecross: [{ p: "chest", r: 0.34, cap: 3 }],
     pushup: [{ p: "chest", k: "bw", r: 1, ladder: "pushup", cap: 3 }],
     dips: [{ p: "chest", k: "bw", r: 1.3 }, { p: "triceps", k: "bw", r: 1.45 }],
 
-    pullup: [{ p: "pull", k: "bw", r: 1 }], chinup: [{ p: "pull", k: "bw", r: 1.05 }], pulldown: [{ p: "pull", r: 0.9 }],
+    pullup: [{ p: "pull", k: "bw", r: 1 }], chinup: [{ p: "pull", k: "bw", r: 1.05 }], pulldown: [{ p: "pull", r: 0.7 }],
     assistpull: [{ p: "pull", k: "assist", r: 1, cap: 2 }],
 
-    bbrow: [{ p: "row", r: 1 }], tbarrow: [{ p: "row", r: 1.1 }], cablerow: [{ p: "row", r: 1 }], dbrow: [{ p: "row", r: 0.8 }],
-    onearmrow: [{ p: "row", r: 0.45 }], machinerow: [{ p: "row", r: 1, cap: 3 }], facepull: [{ p: "row", r: 0.6, cap: 3 }],
-    straightarm: [{ p: "row", r: 0.5, cap: 3 }], shrug: [{ p: "row", r: 1.0, cap: 3 }],
+    bbrow: [{ p: "row", r: 1 }], tbarrow: [{ p: "row", r: 0.92 }], cablerow: [{ p: "row", r: 0.97 }], dbrow: [{ p: "row", r: 0.81 }],
+    onearmrow: [{ p: "row", r: 0.47 }], machinerow: [{ p: "row", r: 1.15, cap: 3 }], facepull: [{ p: "row", r: 0.51, cap: 3 }],
+    straightarm: [{ p: "row", r: 0.59, cap: 3 }], shrug: [{ p: "row", r: 0.96, cap: 3 }],
 
-    ohp: [{ p: "shoulders", r: 1 }], dbpress: [{ p: "shoulders", r: 0.9 }], arnold: [{ p: "shoulders", r: 0.8 }], machpress: [{ p: "shoulders", r: 1.1 }],
-    lateral: [{ p: "shoulders", r: 0.3, cap: 3 }], cablelat: [{ p: "shoulders", r: 0.15, cap: 3 }], frontraise: [{ p: "shoulders", r: 0.3, cap: 3 }],
-    revfly: [{ p: "shoulders", r: 0.6, cap: 3 }], dbrevfly: [{ p: "shoulders", r: 0.25, cap: 3 }], uprow: [{ p: "shoulders", r: 0.7, cap: 3 }],
+    ohp: [{ p: "shoulders", r: 1 }], dbpress: [{ p: "shoulders", r: 0.97 }], arnold: [{ p: "shoulders", r: 0.75 }], machpress: [{ p: "shoulders", r: 1.16 }],
+    lateral: [{ p: "shoulders", r: 0.49, cap: 3 }], cablelat: [{ p: "shoulders", r: 0.24, cap: 3 }], frontraise: [{ p: "shoulders", r: 0.52, cap: 3 }],
+    revfly: [{ p: "shoulders", r: 1.02, cap: 3 }], dbrevfly: [{ p: "shoulders", r: 0.51, cap: 3 }], uprow: [{ p: "shoulders", r: 0.98, cap: 3 }],
 
-    bbcurl: [{ p: "biceps", r: 1 }], ezcurl: [{ p: "biceps", r: 1 }], preacher: [{ p: "biceps", r: 0.85 }], curl: [{ p: "biceps", r: 0.9 }],
-    hammer: [{ p: "biceps", r: 1 }], conc: [{ p: "biceps", r: 0.45 }], inclinecurl: [{ p: "biceps", r: 0.8 }], cablecurl: [{ p: "biceps", r: 0.9, cap: 3 }],
+    bbcurl: [{ p: "biceps", r: 1 }], ezcurl: [{ p: "biceps", r: 1.01 }], preacher: [{ p: "biceps", r: 0.96 }], curl: [{ p: "biceps", r: 0.93 }],
+    hammer: [{ p: "biceps", r: 1.01 }], conc: [{ p: "biceps", r: 0.46 }], inclinecurl: [{ p: "biceps", r: 0.83 }], cablecurl: [{ p: "biceps", r: 1.07, cap: 3 }],
 
-    cgbench: [{ p: "triceps", r: 1 }], skull: [{ p: "triceps", r: 0.45 }], tridip: [{ p: "triceps", k: "bw", r: 1.45 }],
-    pushdown: [{ p: "triceps", r: 0.6, cap: 3 }], ropepush: [{ p: "triceps", r: 0.55, cap: 3 }], ohtri: [{ p: "triceps", r: 0.5, cap: 3 }],
-    dbohtri: [{ p: "triceps", r: 0.3, cap: 3 }], kickback: [{ p: "triceps", r: 0.15, cap: 3 }],
+    cgbench: [{ p: "triceps", r: 1 }], skull: [{ p: "triceps", r: 0.44 }], tridip: [{ p: "triceps", k: "bw", r: 1.45 }],
+    pushdown: [{ p: "triceps", r: 0.57, cap: 3 }], ropepush: [{ p: "triceps", r: 0.47, cap: 3 }], ohtri: [{ p: "triceps", r: 0.42, cap: 3 }],
+    dbohtri: [{ p: "triceps", r: 0.33, cap: 3 }], kickback: [{ p: "triceps", r: 0.18, cap: 3 }],
 
-    squat: [{ p: "quads", r: 1 }], frontsquat: [{ p: "quads", r: 0.85 }], hack: [{ p: "quads", r: 1.2 }], smithsquat: [{ p: "quads", r: 1.1 }],
-    split: [{ p: "quads", r: 0.4 }], lunge: [{ p: "quads", r: 0.45, cap: 3 }], stepup: [{ p: "quads", r: 0.45, cap: 3 }], goblet: [{ p: "quads", r: 0.35, cap: 3 }],
-    legpress: [{ p: "quads", r: 2.5, cap: 3 }], legpress45: [{ p: "quads", r: 2.5, cap: 3 }], legext: [{ p: "quads", r: 0.7, cap: 3 }], legext1: [{ p: "quads", r: 0.35, cap: 3 }],
+    squat: [{ p: "quads", r: 1 }], frontsquat: [{ p: "quads", r: 0.8 }], hack: [{ p: "quads", r: 1.15 }], smithsquat: [{ p: "quads", r: 0.85 }],
+    split: [{ p: "quads", r: 0.47 }], lunge: [{ p: "quads", r: 0.43, cap: 3 }], stepup: [{ p: "quads", r: 0.43, cap: 3 }], goblet: [{ p: "quads", r: 0.3, cap: 3 }],
+    legpress: [{ p: "quads", r: 1.27, cap: 3 }], legpress45: [{ p: "quads", r: 1.72, cap: 3 }], legext: [{ p: "quads", r: 0.75, cap: 3 }], legext1: [{ p: "quads", r: 0.38, cap: 3 }],
 
-    deadlift: [{ p: "hams", r: 1 }], tbdl: [{ p: "hams", r: 1.05 }], rdl: [{ p: "hams", r: 0.75 }], dbrdl: [{ p: "hams", r: 0.6 }],
-    goodmorning: [{ p: "hams", r: 0.55, cap: 3 }], hipthrust: [{ p: "hams", r: 1.4, cap: 3 }], machthrust: [{ p: "hams", r: 1.4, cap: 3 }],
-    legcurl: [{ p: "hams", r: 0.45, cap: 3 }], lyingcurl: [{ p: "hams", r: 0.45, cap: 3 }],
+    deadlift: [{ p: "hams", r: 1 }], tbdl: [{ p: "hams", r: 1.08 }], rdl: [{ p: "hams", r: 0.79 }], dbrdl: [{ p: "hams", r: 0.53 }],
+    goodmorning: [{ p: "hams", r: 0.55, cap: 3 }], hipthrust: [{ p: "hams", r: 0.89, cap: 3 }], machthrust: [{ p: "hams", r: 0.89, cap: 3 }],
+    legcurl: [{ p: "hams", r: 0.52, cap: 3 }], lyingcurl: [{ p: "hams", r: 0.41, cap: 3 }],
 
-    dbfloor: [{ p: "chest", r: 0.7, cap: 3 }], heelgoblet: [{ p: "quads", r: 0.35, cap: 3 }], dbslrdl: [{ p: "hams", r: 0.3, cap: 3 }], dbthrust: [{ p: "hams", r: 0.7, cap: 3 }],
+    dbfloor: [{ p: "chest", r: 0.68, cap: 3 }], heelgoblet: [{ p: "quads", r: 0.3, cap: 3 }], dbslrdl: [{ p: "hams", r: 0.21, cap: 3 }], dbthrust: [{ p: "hams", r: 0.45, cap: 3 }],
     dbslcalf: [{ p: "calves", r: 0.5, cap: 3 }],
     // added with the bigger library (conservative; machines and cables capped at B)
-    inclinesmith: [{ p: "chest", r: 0.85 }], inclinemach: [{ p: "chest", r: 1, cap: 3 }], declinedb: [{ p: "chest", r: 0.85 }],
-    lowcablefly: [{ p: "chest", r: 0.32, cap: 3 }], inclinedbfly: [{ p: "chest", r: 0.42, cap: 3 }],
-    closepull: [{ p: "pull", r: 0.9 }], singlepull: [{ p: "pull", r: 0.45, cap: 3 }],
-    pendlay: [{ p: "row", r: 1 }], meadows: [{ p: "row", r: 0.5, cap: 3 }], isorow: [{ p: "row", r: 1, cap: 3 }], highrow: [{ p: "row", r: 1, cap: 3 }], bbshrug: [{ p: "row", r: 1, cap: 3 }],
-    rackpull: [{ p: "hams", r: 1.2, cap: 3 }], sldl: [{ p: "hams", r: 0.8 }], sumodl: [{ p: "hams", r: 1 }], pullthrough: [{ p: "hams", r: 0.6, cap: 3 }], smithhip: [{ p: "hams", r: 1.4, cap: 3 }],
-    smithohp: [{ p: "shoulders", r: 1.05 }], machlateral: [{ p: "shoulders", r: 0.3, cap: 3 }], revcablefly: [{ p: "shoulders", r: 0.3, cap: 3 }],
-    bbupright: [{ p: "shoulders", r: 0.7, cap: 3 }], landmine: [{ p: "shoulders", r: 0.5, cap: 3 }],
-    spider: [{ p: "biceps", r: 0.8 }], machpreacher: [{ p: "biceps", r: 0.85, cap: 3 }], dbpreacher: [{ p: "biceps", r: 0.4 }], bayesian: [{ p: "biceps", r: 0.4, cap: 3 }],
-    ropehammer: [{ p: "biceps", r: 0.9, cap: 3 }], revcurl: [{ p: "biceps", r: 0.75 }],
-    machdip: [{ p: "triceps", r: 1, cap: 3 }], singlepush: [{ p: "triceps", r: 0.3, cap: 3 }], ezohtri: [{ p: "triceps", r: 0.5 }],
-    pendulum: [{ p: "quads", r: 1.2, cap: 3 }], beltsquat: [{ p: "quads", r: 1.1, cap: 3 }], revlunge: [{ p: "quads", r: 0.45, cap: 3 }], bblunge: [{ p: "quads", r: 0.5, cap: 3 }],
-    smithcalf: [{ p: "calves", r: 1 }], donkeycalf: [{ p: "calves", r: 1, cap: 3 }],
+    inclinesmith: [{ p: "chest", r: 0.85 }], inclinemach: [{ p: "chest", r: 0.79, cap: 3 }], declinedb: [{ p: "chest", r: 0.75 }],
+    lowcablefly: [{ p: "chest", r: 0.31, cap: 3 }], inclinedbfly: [{ p: "chest", r: 0.41, cap: 3 }],
+    closepull: [{ p: "pull", r: 0.7 }], singlepull: [{ p: "pull", r: 0.47, cap: 3 }],
+    pendlay: [{ p: "row", r: 1.06 }], meadows: [{ p: "row", r: 0.64, cap: 3 }], isorow: [{ p: "row", r: 1.15, cap: 3 }], highrow: [{ p: "row", r: 1.15, cap: 3 }], bbshrug: [{ p: "row", r: 1.44, cap: 3 }],
+    rackpull: [{ p: "hams", r: 1.24, cap: 3 }], sldl: [{ p: "hams", r: 0.83 }], sumodl: [{ p: "hams", r: 1.09 }], pullthrough: [{ p: "hams", r: 0.37, cap: 3 }], smithhip: [{ p: "hams", r: 0.89, cap: 3 }],
+    smithohp: [{ p: "shoulders", r: 1.15 }], machlateral: [{ p: "shoulders", r: 0.93, cap: 3 }], revcablefly: [{ p: "shoulders", r: 0.32, cap: 3 }],
+    bbupright: [{ p: "shoulders", r: 0.93, cap: 3 }], landmine: [{ p: "shoulders", r: 0.9, cap: 3 }],
+    spider: [{ p: "biceps", r: 0.83 }], machpreacher: [{ p: "biceps", r: 0.96, cap: 3 }], dbpreacher: [{ p: "biceps", r: 0.46 }], bayesian: [{ p: "biceps", r: 0.53, cap: 3 }],
+    ropehammer: [{ p: "biceps", r: 0.91, cap: 3 }], revcurl: [{ p: "biceps", r: 0.84 }],
+    machdip: [{ p: "triceps", r: 1.16, cap: 3 }], singlepush: [{ p: "triceps", r: 0.29, cap: 3 }], ezohtri: [{ p: "triceps", r: 0.44 }],
+    pendulum: [{ p: "quads", r: 1.15, cap: 3 }], beltsquat: [{ p: "quads", r: 1.47, cap: 3 }], revlunge: [{ p: "quads", r: 0.43, cap: 3 }], bblunge: [{ p: "quads", r: 0.61, cap: 3 }],
+    smithcalf: [{ p: "calves", r: 0.9 }], donkeycalf: [{ p: "calves", r: 1, cap: 3 }],
     kneeraise: [{ p: "core", k: "bw", r: 0.7, cap: 3 }], toestobar: [{ p: "core", k: "bw", r: 1.2 }],
-    calfraise: [{ p: "calves", r: 1 }], tiltcalf: [{ p: "calves", r: 1 }], seatedcalf: [{ p: "calves", r: 0.8 }], legpresscalf: [{ p: "calves", r: 1.3 }],
+    calfraise: [{ p: "calves", r: 1 }], tiltcalf: [{ p: "calves", r: 1 }], seatedcalf: [{ p: "calves", r: 0.66 }], legpresscalf: [{ p: "calves", r: 1.45 }],
 
-    hangleg: [{ p: "core", k: "bw", r: 1 }], abwheel: [{ p: "core", k: "bw", r: 1 }], cablecrunch: [{ p: "core", r: 1, ladder: "cablecrunch" }], machcrunch: [{ p: "core", r: 0.9, ladder: "cablecrunch", cap: 3 }],
+    hangleg: [{ p: "core", k: "bw", r: 1 }], abwheel: [{ p: "core", k: "bw", r: 1 }], cablecrunch: [{ p: "core", r: 1, ladder: "cablecrunch" }], machcrunch: [{ p: "core", r: 1.13, ladder: "cablecrunch", cap: 3 }],
     plank: [{ p: "core", k: "hold", r: 1, ladder: "plank", cap: 3 }], sideplank: [{ p: "core", k: "hold", r: 0.6, ladder: "plank", cap: 3 }]
   },
   // Older built-in exercises that were sometimes done with dumbbells: score them as the dumbbell version when they were.
