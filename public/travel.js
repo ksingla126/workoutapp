@@ -81,7 +81,7 @@ const TV_OF = {
   pulldown: "vpull", pullup: "vpull", chinup: "vpull", assistpull: "vpull", straightarm: "vpull", dbpullover: "vpull",
   shrug: "shrug",
   curl: "biceps", bbcurl: "biceps", ezcurl: "biceps", hammer: "biceps", conc: "biceps", preacher: "biceps", cablecurl: "biceps", inclinecurl: "biceps",
-  pushdown: "triceps", ropepush: "triceps", ohtri: "triceps", dbohtri: "triceps", skull: "triceps", cgbench: "triceps", tridip: "triceps", kickback: "triceps",
+  pushdown: "triceps", ropepush: "triceps", ohtri: "triceps", dbohtri: "triceps", skull: "triceps", cgbench: "triceps", jmpress: "triceps", jmsmith: "triceps", tridip: "triceps", kickback: "triceps",
   squat: "squat", frontsquat: "squat", goblet: "squat", hack: "squat", smithsquat: "squat", legpress: "squat", legpress45: "squat", split: "squat", lunge: "squat", stepup: "squat",
   legext: "kneeext", legext1: "kneeext",
   rdl: "hinge", dbrdl: "hinge", deadlift: "hinge", tbdl: "hinge", goodmorning: "hinge", kbswing: "hinge",

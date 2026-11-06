@@ -38,6 +38,7 @@ const EXLIB_RAW = [
   ["pushdown","Triceps Pushdown (Cable)","Triceps","Cable","w"],["ropepush","Rope Pushdown (Cable)","Triceps","Cable","w"],
   ["ohtri","Overhead Triceps Extension (Cable)","Triceps","Cable","w"],["dbohtri","Overhead Triceps Extension (Dumbbell)","Triceps","Dumbbell","w",1],
   ["skull","Skull Crusher (EZ Bar)","Triceps","EZ bar","w"],["cgbench","Close-Grip Bench Press","Triceps","Barbell","w"],
+  ["jmpress","JM Press (Barbell)","Triceps","Barbell","w"],["jmsmith","JM Press (Smith Machine)","Triceps","Smith machine","w"],
   ["tridip","Triceps Dip","Triceps","Bodyweight","bw"],["kickback","Triceps Kickback (Dumbbell)","Triceps","Dumbbell","w",1],
   // Quads
   ["squat","Squat (Barbell)","Quads","Barbell","w"],["frontsquat","Front Squat (Barbell)","Quads","Barbell","w"],
