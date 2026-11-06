@@ -70,7 +70,19 @@ const EXLIB_RAW = [
   ["wristcurl","Wrist Curl (Dumbbell)","Forearms","Dumbbell","w"],["deadhang","Dead Hang","Forearms","Bodyweight","t"],
   ["farmercarry","Farmer's Carry (Dumbbell)","Forearms","Dumbbell","wd"],["farmerhold","Farmer's Hold (Dumbbell)","Forearms","Dumbbell","tw"],
   ["jumprope","Jump Rope","Cardio","Other","t"],["burpee","Burpee","Cardio","Bodyweight","bw"],["mountain","Mountain Climber","Cardio","Bodyweight","t"],
-  ["rowerg","Rowing Machine (seconds)","Cardio","Machine","t"]
+  ["rowerg","Rowing Machine (seconds)","Cardio","Machine","t"],
+  // More from the library: popular gym exercises
+  ["inclinesmith","Incline Bench Press (Smith Machine)","Chest","Smith machine","w"],["inclinemach","Incline Chest Press (Machine)","Chest","Machine","w"],["declinedb","Decline Bench Press (Dumbbell)","Chest","Dumbbell","w"],["lowcablefly","Low-to-High Cable Fly","Chest","Cable","w"],["inclinedbfly","Incline Chest Fly (Dumbbell)","Chest","Dumbbell","w"],
+  ["closepull","Close-Grip Lat Pulldown (Cable)","Back","Cable","w"],["singlepull","Single-Arm Lat Pulldown (Cable)","Back","Cable","w"],["pendlay","Pendlay Row (Barbell)","Back","Barbell","w"],["meadows","Meadows Row (Landmine)","Back","Barbell","w"],["rackpull","Rack Pull (Barbell)","Back","Barbell","w"],["bbshrug","Shrug (Barbell)","Back","Barbell","w"],["isorow","Iso-Lateral Row (Machine)","Back","Machine","w"],["highrow","High Row (Machine)","Back","Machine","w"],
+  ["smithohp","Overhead Press (Smith Machine)","Shoulders","Smith machine","w"],["machlateral","Lateral Raise (Machine)","Shoulders","Machine","w"],["revcablefly","Reverse Fly (Cable)","Shoulders","Cable","w"],["bbupright","Upright Row (Barbell)","Shoulders","Barbell","w"],["landmine","Landmine Press","Shoulders","Barbell","w"],["platefront","Front Raise (Plate)","Shoulders","Other","w"],
+  ["spider","Spider Curl (Dumbbell)","Biceps","Dumbbell","w"],["machpreacher","Preacher Curl (Machine)","Biceps","Machine","w"],["dbpreacher","Preacher Curl (Dumbbell)","Biceps","Dumbbell","w",1],["bayesian","Bayesian Curl (Cable)","Biceps","Cable","w"],["ropehammer","Hammer Curl (Cable Rope)","Biceps","Cable","w"],["revcurl","Reverse Curl (EZ Bar)","Biceps","EZ bar","w"],
+  ["machdip","Seated Dip (Machine)","Triceps","Machine","w"],["singlepush","Single-Arm Pushdown (Cable)","Triceps","Cable","w"],["ezohtri","Overhead Triceps Extension (EZ Bar)","Triceps","EZ bar","w"],
+  ["pendulum","Pendulum Squat (Machine)","Quads","Machine","w"],["beltsquat","Belt Squat (Machine)","Quads","Machine","w"],["revlunge","Reverse Lunge (Dumbbell)","Quads","Dumbbell","w"],["bblunge","Lunge (Barbell)","Quads","Barbell","w"],["jumpsquat","Jump Squat","Quads","Bodyweight","bw"],
+  ["sldl","Stiff-Leg Deadlift (Barbell)","Hamstrings","Barbell","w"],["sumodl","Sumo Deadlift (Barbell)","Hamstrings","Barbell","w"],["ghr","Glute-Ham Raise","Hamstrings","Bodyweight","bw"],
+  ["pullthrough","Cable Pull-Through","Glutes","Cable","w"],["smithhip","Hip Thrust (Smith Machine)","Glutes","Smith machine","w"],["cableabd","Hip Abduction (Cable)","Glutes","Cable","w"],
+  ["smithcalf","Calf Raise (Smith Machine)","Calves","Smith machine","w"],["donkeycalf","Donkey Calf Raise (Machine)","Calves","Machine","w"],
+  ["bicycle","Bicycle Crunch","Core","Bodyweight","bw"],["situp","Sit-Up","Core","Bodyweight","bw"],["hollow","Hollow Body Hold","Core","Bodyweight","t"],["kneeraise","Hanging Knee Raise","Core","Bodyweight","bw"],["toestobar","Toes to Bar","Core","Bodyweight","bw"],
+  ["boxjump","Box Jump","Cardio","Bodyweight","bw"],["battlerope","Battle Ropes (seconds)","Cardio","Other","t"],["sledpush","Sled Push","Cardio","Other","wd"],["airbike","Air Bike (seconds)","Cardio","Machine","t"],
 ];
 const MUSCLES=["Chest","Back","Shoulders","Biceps","Triceps","Quads","Hamstrings","Glutes","Calves","Core","Forearms","Cardio"];
 const EQUIP=["Barbell","Dumbbell","Machine","Cable","Bodyweight","EZ bar","Smith machine","Kettlebell","Other"];

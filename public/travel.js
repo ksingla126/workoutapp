@@ -93,9 +93,17 @@ const TV_OF = {
   pallof: "antirot", pallofhold: "antirot", woodchop: "antirot", abwheel: "antirot",
   hangleg: "hang", deadhang: "grip", wristcurl: "grip", farmercarry: "grip", farmerhold: "grip", wallsitw: "squat",
   backext: "backext", rowerg: "cardio",
+  inclinesmith: "hpush", inclinemach: "hpush", declinedb: "hpush", lowcablefly: "fly", inclinedbfly: "fly",
+  closepull: "vpull", singlepull: "vpull", pendlay: "hpull", meadows: "hpull", isorow: "hpull", highrow: "hpull", bbshrug: "shrug", rackpull: "hinge",
+  smithohp: "vpush", landmine: "vpush", machlateral: "side", bbupright: "side", platefront: "side", revcablefly: "rear",
+  spider: "biceps", machpreacher: "biceps", dbpreacher: "biceps", bayesian: "biceps", ropehammer: "biceps", revcurl: "biceps",
+  machdip: "triceps", singlepush: "triceps", ezohtri: "triceps",
+  pendulum: "squat", beltsquat: "squat", revlunge: "squat", bblunge: "squat",
+  sldl: "hinge", sumodl: "hinge", ghr: "hamcurl", pullthrough: "glute", smithhip: "glute", cableabd: "hipside",
+  smithcalf: "calves", donkeycalf: "calves", situp: "crunch", bicycle: "crunch", kneeraise: "hang", toestobar: "hang", sledpush: "cardio", airbike: "cardio", battlerope: "cardio",
 };
 // fine anywhere: kept as they are
-const TV_KEEP = new Set(["wallsit", "plank", "sideplank", "crunch", "legraise", "deadbug", "russian", "burpee", "mountain", "jumprope", "rope"]);
+const TV_KEEP = new Set(["hollow", "jumpsquat", "boxjump", "wallsit", "plank", "sideplank", "crunch", "legraise", "deadbug", "russian", "burpee", "mountain", "jumprope", "rope"]);
 const TV_MUSCLE = { Chest: "hpush", Back: "hpull", Shoulders: "vpush", Biceps: "biceps", Triceps: "triceps", Quads: "squat", Hamstrings: "hinge", Glutes: "glute", Calves: "calves", Core: "crunch", Forearms: "grip", Cardio: "cardio" };
 const TV_DB_EQUIP = new Set(["Dumbbell", "Bodyweight"]);
 const TV_BAR_ONLY = new Set(["pullup", "chinup", "hangleg", "deadhang", "pullneg"]);
