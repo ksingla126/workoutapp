@@ -47,7 +47,7 @@ document.addEventListener("click", e => {
     sysNotice.__g = true };
   if (document.readyState === "complete") go(); else addEventListener("load", go); setTimeout(go, 1500);
 })();
-const _gRankObs = new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.classList && n.classList.contains("rk-up")) { gFanfare(); gBuzz([60, 40, 80]); setTimeout(() => { const b = n.querySelector(".rk-l"); if (b) gBurst(b, { n: 24, spread: 90 }) }, 350) } })));
+const _gRankObs = new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.classList && n.classList.contains("rk-up")) { const cine = n.classList.contains("fx-cine"); gBuzz(cine ? [20, 60, 20, 60, 120] : [60, 40, 80]); setTimeout(gFanfare, cine ? 950 : 0); if (!cine) setTimeout(() => { const b = n.querySelector(".rk-l"); if (b) gBurst(b, { n: 24, spread: 90 }) }, 350) } })));
 _gRankObs.observe(document.documentElement, { childList: true, subtree: false }); try { _gRankObs.observe(document.body, { childList: true }) } catch (e) { addEventListener("DOMContentLoaded", () => _gRankObs.observe(document.body, { childList: true })) }
 
 /* ---------- screens slide in and bars fill when a tab opens ---------- */
