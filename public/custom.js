@@ -62,7 +62,7 @@ const EXLIB_RAW = [
   // Core
   ["plank","Plank","Core","Bodyweight","t"],["sideplank","Side Plank","Core","Bodyweight","t"],["wallsit","Wall Sit","Quads","Bodyweight","t"],["wallsitw","Weighted Wall Sit","Quads","Dumbbell","tw"],
   ["declinecrunch","Decline Crunch (Weighted)","Core","Bodyweight","bw"],["cablecrunch","Cable Crunch","Core","Cable","w"],
-  ["crunch","Crunch","Core","Bodyweight","bw"],["hangleg","Hanging Leg Raise","Core","Bodyweight","bw"],
+  ["crunch","Crunch","Core","Bodyweight","bw"],["machcrunch","Ab Crunch (Machine)","Core","Machine","w"],["hangleg","Hanging Leg Raise","Core","Bodyweight","bw"],
   ["legraise","Lying Leg Raise","Core","Bodyweight","bw"],["pallof","Pallof Press (Cable)","Core","Cable","w"],["pallofhold","Pallof Hold (Cable)","Core","Cable","tw"],
   ["abwheel","Ab Wheel Rollout","Core","Bodyweight","bw"],["russian","Russian Twist","Core","Bodyweight","bw"],
   ["deadbug","Dead Bug","Core","Bodyweight","bw"],["woodchop","Cable Woodchop","Core","Cable","w"],
