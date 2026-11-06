@@ -42,6 +42,9 @@ const RUN_TYPES = {
                make: () => ({ warm: 10, warmHow: "jog", cool: 10, main: { kind: "steady", by: "dist", v: 1, rw: null }, effort: "allout", strides: 0, prog: { on: false, cap: 1 } }) }
 };
 const RUN_ORDER = ["easy", "long", "intervals", "sprints", "hills", "tempo", "fartlek", "recovery", "tt"];
+// "Auto" structure: run the session your way and the reps, recoveries and warm-up are read from the recording
+const AUTO_TYPES = ["intervals", "sprints", "hills", "fartlek", "tempo", "tt"];
+const isAuto = r => !!(r && r.auto && AUTO_TYPES.includes(r.type) && !r.follow);
 const EFFORTS = [["easy", "Easy"], ["hr", "Heart-rate zone"], ["tempo", "Tempo (comfortably hard)"], ["race", "Goal race pace"], ["hard", "Hard"], ["allout", "All-out"]];
 const RUN_RACES = [["5K", 3.107], ["10K", 6.214], ["Half marathon", 13.109], ["Marathon", 26.219]];
 const FOLLOW_NAME = { tue: "Easy run", thu: "Intervals", sat: "Long run" };
@@ -62,6 +65,7 @@ function effortTxt(e, d) {
   return { easy: "easy, conversational pace", tempo: "comfortably hard", hard: "hard", allout: "all-out" }[e] || "easy";
 }
 function runDesc(r, x, d) {
+  if (isAuto(r)) { const last = autoLast(r.id); return `Auto · run it your way; the ${["tempo", "tt"].includes(r.type) ? "hard part and warm-up are" : "reps, recoveries and warm-up are"} read from your recording${last ? `. Last time: ${last}` : ""}` }
   const parts = [];
   if (r.warm > 0) parts.push(`${r.warm}-min ${r.warmHow === "walk" ? "walk" : "easy jog"}`);
   const m = x.main;
@@ -110,6 +114,9 @@ function runPlanFor(r, d, w) {
     const n = (desc.match(/(\d+) × \(/) || [])[1];
     return { type: "run", key: r.follow, rid: r.id, t: r.name || b.t, d: descU(desc), tag, ...(n ? { reps: +n } : {}), spec: specFromText(r.follow, desc, r.type) };
   }
+  if (isAuto(r)) { const T = RUN_TYPES[r.type];
+    return { type: "run", key: role, rid: r.id, t: r.name || T.n, d: runDesc(r, null, d), hint: T.hint + " Warm up, run the session however you like and record it; the structure is worked out afterwards.", tag: "Auto",
+      spec: { type: r.type, effort: r.effort, auto: true }, ...(r.type === "tt" ? { tt: true } : {}) } }
   const x = runProgress(r, w, d), T = RUN_TYPES[r.type] || RUN_TYPES.easy;
   const out = { type: "run", key: role, rid: r.id, t: r.name || T.n, d: runDesc(r, x, d), hint: T.hint, tag: x.tag };
   if (x.main.kind === "rep") out.reps = x.main.n;
@@ -218,6 +225,11 @@ function runFields(r) {
   const m = r.main, id = r.id, u = RU();
   const sel = (attr, v, opts) => `<select data-run-sel="${id}|${attr}">${opts.map(([k, n]) => `<option value="${k}" ${String(v) === String(k) ? "selected" : ""}>${esc(n)}</option>`).join("")}</select>`;
   let h = `<div class="runf"><label>Type${sel("type", r.type, RUN_ORDER.map(t => [t, RUN_TYPES[t].n]))}</label><label>Effort${sel("effort", r.effort, EFFORTS)}</label></div>`;
+  if (AUTO_TYPES.includes(r.type)) {
+    h += `<div class="runf"><span class="lbl small">Structure</span><div class="seg sm" role="group" aria-label="Structure">${[["0", "Set it"], ["1", "Auto"]].map(([v, n]) => `<button type="button" class="${(isAuto(r) ? "1" : "0") === v ? "on" : ""}" data-run-auto="${id}|${v}" aria-pressed="${(isAuto(r) ? "1" : "0") === v}">${n}</button>`).join("")}</div></div>`;
+    if (isAuto(r)) return h + `<p class="small muted">${["tempo", "tt"].includes(r.type) ? "Warm up, run the hard part, cool down. From your Strava or GPX recording the app finds the hard block, how long it was and your pace, and checks it." : "Warm up and run the reps your way. From your Strava or GPX recording the app works out how many reps you did, how long each was (time, or distance if they were round like 400 m), the recoveries and whether you walked or jogged them, plus your warm-up and cool-down, then checks the session."} Your set structure is kept if you switch back.</p>
+      <div class="plan-box small"><b>This week:</b> ${esc(runDesc(r, null, today))}</div>`;
+  }
   h += `<div class="runf">${stepper("Warm-up", `${id}|warm`, r.warm, " min")}${r.warm > 0 || r.cool > 0 ? `<label>As${sel("warmHow", r.warmHow || "jog", [["jog", "Easy jog"], ["walk", "Walk"]])}</label>` : ""}</div>`;
   if (m.kind === "rep") {
     h += `<div class="runf">${stepper("Reps", `${id}|n`, m.n)}<label>Each rep${sel("workBy", m.work.by, [["time", "By time"], ["dist", "By distance"]])}</label>
@@ -274,7 +286,7 @@ function addRun(type, day) {
   return id;
 }
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-run-open],[data-run-new],[data-run-custom],[data-run-dup],[data-run-del],[data-run-step],[data-run-prog],[data-run-unit],[data-run-pick],[data-run-unswap],[data-run-race],[data-run-racedel],[data-run-rdist],[data-run-rsave],[data-runswap]");
+  const t = e.target.closest("[data-run-open],[data-run-new],[data-run-custom],[data-run-dup],[data-run-del],[data-run-step],[data-run-prog],[data-run-auto],[data-run-unit],[data-run-pick],[data-run-unswap],[data-run-race],[data-run-racedel],[data-run-rdist],[data-run-rsave],[data-runswap]");
   if (!t) return; const d = t.dataset;
   if (d.runOpen) { RUN_OPEN.has(d.runOpen) ? RUN_OPEN.delete(d.runOpen) : RUN_OPEN.add(d.runOpen); RUN_DEL = ""; render(); return }
   if (d.runNew) { openSheet({ kind: "runnew", day: null }); return }
@@ -290,6 +302,7 @@ document.addEventListener("click", e => {
       else if (f === "strides") r.strides = Math.max(0, Math.min(10, (r.strides || 0) + 2 * s));
       else if (f === "rwrun") m.rw.run = Math.max(1, Math.min(15, m.rw.run + s));
       else if (f === "rwwalk") m.rw.walk = Math.max(0.5, Math.min(5, m.rw.walk + (m.rw.walk < 1 || (m.rw.walk === 1 && s < 0) ? 0.5 : 1) * s)) }); return }
+  if (d.runAuto) { const [id, v] = d.runAuto.split("|"); runMut(id, r => { r.auto = v === "1" }); return }
   if (d.runProg) { const [id, v] = d.runProg.split("|"); runMut(id, r => { r.prog = { ...(r.prog || {}), on: v === "1" }; r.w0 = weekOf(today); if (!(r.prog.cap > 0)) r.prog.cap = RUN_TYPES[r.type].make().prog.cap }); return }
   if (d.runUnit) { S.profile.distU = d.runUnit; saveProfile(); lastRenderKey = ""; render(); return }
   if (d.runPick) { const v = d.runPick;
@@ -413,18 +426,88 @@ function matchReps(list, spec) {
   return c;
 }
 
+/* ----- Auto: work out a session's structure from the recording ----- */
+const AUTO_DISTS = [100, 150, 200, 300, 400, 500, 600, 800, 1000, 1200, 1500, 1609, 2000, 3000];
+const snapDist = m => { let b = null; AUTO_DISTS.forEach(x => { if (Math.abs(m - x) / x <= 0.1 && (!b || Math.abs(m - x) < Math.abs(m - b))) b = x }); return b };
+const roundSec = s => s >= 60 ? Math.round(s / 5) * 5 : Math.round(s);
+const median = a => { const b = a.slice().sort((x, y) => x - y); return b.length ? b[Math.floor((b.length - 1) / 2)] : 0 };
+function gapSpeed(st, s0, s1) { // m/s between two moments (seconds from the start), from the chart series
+  const S2 = st.series; if (!S2 || !S2.t || S2.t.length < 4 || s1 <= s0) return null;
+  const at = sec => { const m = sec / 60; for (let i = 1; i < S2.t.length; i++) if (S2.t[i] >= m) { const f = (m - S2.t[i - 1]) / ((S2.t[i] - S2.t[i - 1]) || 1); return S2.d[i - 1] + f * (S2.d[i] - S2.d[i - 1]) } return S2.d[S2.d.length - 1] };
+  return (at(s1) - at(s0)) * 1609.344 / (s1 - s0);
+}
+function autoDetect(st, spec) {
+  const type = spec.type, totS = st.series && st.series.t ? Math.round(st.series.t[st.series.t.length - 1] * 60) : (st.min ? st.min * 60 : null);
+  if (["tempo", "tt"].includes(type)) return autoBlock(st, spec, totS);
+  const R = repsFrom(st, { type }); let L = R.list.slice();
+  const short = type === "sprints" || type === "hills";
+  L = L.filter(x => short ? x.d >= 5 && x.d <= 75 : type === "fartlek" ? x.d >= 10 && x.d <= 600 : x.d >= 30 && x.d <= 1500);
+  if (L.length >= 3) { const key = x => short ? (x.vx || x.v) : x.v, mv = median(L.map(key)); L = L.filter(x => key(x) >= mv * (short ? 0.8 : 0.85)) }
+  if (L.length < 2) return null;
+  L.sort((a, b) => a.s - b.s);
+  const n = L.length, durs = L.map(x => x.d), ms = L.map(x => x.m).filter(x => x > 0);
+  let work;
+  // a round distance (400 m) or a round time (3 min), whichever the reps fit more cleanly
+  const dm = ms.length === n ? median(ms) : 0, snapped = dm ? snapDist(dm) : null, td = median(durs), unit = td >= 60 ? 30 : 5, tr = Math.max(unit, Math.round(td / unit) * unit);
+  const eD = snapped ? Math.abs(dm - snapped) / snapped : 1, eT = Math.abs(td - tr) / tr;
+  if (snapped && (type === "intervals" || type === "sprints") && cv(ms) < 0.15 && (eD <= eT || type === "sprints")) work = { by: "dist", v: snapped };
+  else work = { by: "time", v: roundSec(td) };
+  const gaps = L.slice(1).map((x, i) => x.s - (L[i].s + L[i].d)).filter(g => g > 0);
+  let rest = null, how = "jog";
+  if (gaps.length) { const sp = L.slice(1).map((x, i) => gapSpeed(st, L[i].s + L[i].d, x.s)).filter(v => v != null); how = sp.length && median(sp) < 1.7 ? "walk" : "jog";
+    rest = short && how === "walk" && cv(gaps) > 0.25 ? { by: "back", v: 0, how } : { by: "time", v: roundSec(median(gaps)), how } }
+  const warm = Math.round(L[0].s / 60), cool = totS ? Math.max(0, Math.round((totS - (L[n - 1].s + L[n - 1].d)) / 60)) : 0;
+  const wTxt = work.by === "dist" ? fmtWorkDist(work.v) : fmtSec(work.v), rTxt = !rest ? "" : rest.by === "back" ? ` / ${how} back` : ` / ${fmtSec(rest.v)} ${how}`;
+  const text = `${warm ? `${warm} min warm-up · ` : ""}${n} × ${wTxt}${rTxt}${cool ? ` · ${cool} min cool-down` : ""}`;
+  return { spec: { n, work, rest: rest || { by: "time", v: 0, how }, warm }, text, short: `${n} × ${wTxt}${rTxt}`, src: R.src };
+}
+// tempo / time trial: the longest hard stretch (brief dips under 30 s don't break it)
+function autoBlock(st, spec, totS) {
+  const S2 = st.series; if (!S2 || !S2.t || S2.t.length < 8) return null;
+  const N = S2.t.length, stepM = (S2.step || 10) / 60, v = [];
+  for (let i = 0; i < N; i++) { const a = Math.max(0, i - 2), b = Math.min(N - 1, i + 2), dt = S2.t[b] - S2.t[a]; v.push(dt > 0 ? (S2.d[b] - S2.d[a]) / dt : 0) }   // mi per min
+  const mov = v.filter(x => x > 0.03).sort((a, b) => a - b); if (mov.length < 8) return null;
+  const lo = mov[Math.floor(mov.length * 0.2)], hi = mov[Math.floor(mov.length * 0.85)];
+  let thr = (lo + hi) / 2; const steady = hi / lo < 1.12;
+  let best = null;
+  if (steady) best = [0, N - 1];
+  else { let a = -1, dip = 0; const gapPts = Math.max(1, Math.round(0.5 / stepM));
+    for (let i = 0; i <= N; i++) { const on = i < N && v[i] >= thr;
+      if (on) { if (a < 0) a = i; dip = 0 } else if (a >= 0) { dip++; if (dip > gapPts || i === N) { const b = i - dip; if (!best || S2.t[b] - S2.t[a] > S2.t[best[1]] - S2.t[best[0]]) best = [a, b]; a = -1; dip = 0 } } } }
+  if (!best) return null;
+  const [a, b] = best, min = S2.t[b] - S2.t[Math.max(0, a - 1)], mi = S2.d[b] - S2.d[Math.max(0, a - 1)];
+  if (min < (spec.type === "tt" ? 1.5 : 5)) return null;
+  const warm = Math.round(S2.t[Math.max(0, a - 1)]), cool = Math.max(0, Math.round(S2.t[N - 1] - S2.t[b]));
+  const what = spec.type === "tt" ? `${dTxt(mi, 2)} hard in ${fmtMin(min)}` : `${Math.round(min)} min tempo`;
+  const text = `${warm ? `${warm} min warm-up · ` : ""}${what} at ${paceTxt(min / mi)}${cool ? ` · ${cool} min cool-down` : ""}`;
+  return { spec: spec.type === "tt" ? { by: "dist", v: mi, ttStart: Math.max(0, a - 1), warm } : { by: "time", v: Math.max(5, Math.round(min)), warm }, text, short: spec.type === "tt" ? `${dTxt(mi, 2)} in ${fmtMin(min)}` : `${Math.round(min)} min at ${paceTxt(min / mi)}`, block: { min, mi } };
+}
+// what the last Auto run of this routine turned out to be, for the plan description
+const AUTO_MEMO = {};
+function autoLast(rid) {
+  const e = Object.entries(S.logs || {}).filter(([, l]) => l && l.type === "run" && l.plan && l.plan.rid === rid && l.st).sort().pop(); if (!e) return "";
+  const [k, l] = e, key = k + "|" + ((l.st.series && l.st.series.t && l.st.series.t.length) || 0);
+  if (!(key in AUTO_MEMO)) { let t = ""; try { const sp = runSpec(l, l.plan); if (sp && sp.auto) { const A = autoDetect(l.st, sp); t = A ? A.short : "" } } catch (e2) {} AUTO_MEMO[key] = t }
+  return AUTO_MEMO[key];
+}
+
 function runCheck(k, l) {
   const st = l && l.st; if (!l || l.type !== "run") return null;
   const p = (l.plan && l.plan.type === "run") ? l.plan : planFor(parseYmd(k));
-  const spec = runSpec(l, p && p.type === "run" ? p : null), fmt = l.race ? "tt" : spec.runwalk ? "steady" : FMT_OF[spec.type] || "steady";
+  let spec = runSpec(l, p && p.type === "run" ? p : null); const fmt = l.race ? "tt" : spec.runwalk ? "steady" : FMT_OF[spec.type] || "steady";
   if (!st || (!st.series && !st.efforts && !st.laps && (l.repLog || l.tempo))) return l.mi > 0 || l.repLog ? manualCheck(k, l, spec, fmt) : null;
-  const S2 = st.series, out = { fmt, spec, stats: [], notes: [], reps: null, tone: "good", verdict: "" };
+  let auto = null;
+  if (spec.auto) { try { auto = autoDetect(st, spec) } catch (e) { auto = null }
+    if (!auto) return { fmt, spec, stats: [], notes: ["Run the reps or hard part clearly faster than your warm-up and recoveries so they stand out."], reps: null, tone: "ok", auto: null,
+      verdict: st.series || st.efforts ? "Auto couldn't find a structure in this run." : "This import has no second-by-second data, so Auto can't read the session. Connect Strava or import the GPX file." };
+    spec = { ...spec, ...auto.spec } }
+  const S2 = st.series, out = { fmt, spec, stats: [], notes: [], reps: null, tone: "good", verdict: "", auto: auto && auto.text };
   const add = (a, b) => b != null && b !== "" && out.stats.push([a, b]);
   const warn = (t, tone = "warn") => { out.notes.push(t); if (tone === "warn" || out.tone === "good") out.tone = tone };
   const hrOK = S2 && S2.hr && S2.hr.some(x => x);
 
   if (fmt === "reps" || fmt === "short") {
-    const R = repsFrom(st, spec), reps = matchReps(R.list, spec), n = spec.n || reps.length;
+    const R = repsFrom(st, spec), reps = matchReps(R.list, spec), n = spec.auto ? reps.length : spec.n || reps.length;
     if (!R.list.length || !reps.length) { out.verdict = st.series || st.efforts ? "Couldn't find the fast reps in this run." : "This import has no second-by-second data, so the reps can't be checked."; out.tone = "ok";
       if (!st.series) out.notes.push("Connect Strava or import the GPX file to check each rep."); return out }
     if (R.coarse && fmt === "short") out.notes.push("Sprint check is rough: this run was saved before the app kept second-by-second data.");
@@ -460,13 +543,13 @@ function runCheck(k, l) {
   const half = tAt(D / 2), p1 = half ? half / (D / 2) : null, p2 = half ? (T - half) / (D / 2) : null;
   const sp = (st.splits || []).filter(x => x.pace > 0 && x.mi >= 0.9).map(x => x.pace);
   if (fmt === "tt") {
-    const goal = spec.by === "dist" && spec.v ? spec.v : D, tt = D >= goal ? tAt(goal) : D >= goal * 0.97 ? T : null;          // GPS often reads a race a little short
+    const goal = spec.by === "dist" && spec.v ? spec.v : D, tt = auto && auto.block ? auto.block.min : D >= goal ? tAt(goal) : D >= goal * 0.97 ? T : null;          // GPS often reads a race a little short
     if (tt) { add(`${l.race ? "Finish" : "Time"} for ${dTxt(goal, 2)}`, fmtMin(tt)); add("Pace", paceTxt(tt / goal)) }
-    if (p1 && p2) add("2nd half vs 1st", Math.abs(p2 - p1) * 60 < 2 ? "even" : `${p2 < p1 ? "−" : "+"}${fmtMin(Math.abs(pU(p2 - p1)))}/${RU()}`);
+    if (!auto && p1 && p2) add("2nd half vs 1st", Math.abs(p2 - p1) * 60 < 2 ? "even" : `${p2 < p1 ? "−" : "+"}${fmtMin(Math.abs(pU(p2 - p1)))}/${RU()}`);
     const tgt = spec.target || (l.race && CUSTOM.su.race && CUSTOM.su.race.target);
     if (tt && tgt) { const diff = tt - tgt; add("Vs goal", `${diff <= 0 ? "−" : "+"}${fmtMin(Math.abs(diff))}`); out.verdict = diff <= 0 ? `Goal beaten by ${fmtMin(-diff)}.` : `${fmtMin(diff)} off your goal.`; out.tone = diff <= 0 ? "good" : diff < tgt * 0.03 ? "ok" : "warn" }
     else if (!tt) { out.tone = "warn"; out.verdict = `The run was ${dTxt(D, 2)}, shorter than the planned ${dTxt(goal, 2)}.` }
-    if (p1 && p2) { const neg = p2 < p1, d = Math.abs(p2 - p1) / p1;
+    if (!auto && p1 && p2) { const neg = p2 < p1, d = Math.abs(p2 - p1) / p1;
       out.verdict = (out.verdict ? out.verdict + " " : "") + (neg ? "Negative split: you finished stronger." : d > 0.04 ? `Second half ${Math.round(d * 100)}% slower: start more conservatively next time.` : "Evenly paced.");
       if (!neg && d > 0.04 && out.tone === "good") out.tone = "ok" }
     if (hrOK) add("Avg / max HR", `${st.avgHr || "–"} / ${st.maxHr || "–"}`);
@@ -514,7 +597,7 @@ function runCheckHtml(k, l) {
   let c = null; try { c = runCheck(k, l) } catch (e) { c = null } if (!c) return "";
   const col = c.tone === "good" ? "var(--good)" : c.tone === "ok" ? "var(--warn,#E0A100)" : "var(--bad)";
   const lbl = { steady: "Steady run", tempo: "Tempo", reps: "Intervals", short: c.spec.type === "hills" ? "Hill sprints" : "Sprints", tt: l.race ? "Race" : "Time trial" }[c.fmt];
-  let h = `<div class="runchk"><div class="eyebrow">Session check · ${esc(lbl)}${c.src === "laps" ? " · from your watch laps" : c.manual ? " · from what you entered" : ""}</div><p class="rc-v" style="border-left-color:${col}">${esc(c.verdict)}</p>`;
+  let h = `<div class="runchk"><div class="eyebrow">Session check · ${esc(lbl)}${c.src === "laps" ? " · from your watch laps" : c.manual ? " · from what you entered" : ""}</div>${c.auto ? `<p class="rc-auto small"><b>Auto found:</b> ${esc(c.auto)}</p>` : ""}<p class="rc-v" style="border-left-color:${col}">${esc(c.verdict)}</p>`;
   if (c.stats.length) h += `<div class="stv">${c.stats.map(([a, b]) => `<div><span class="l">${esc(a)}</span><span class="v num">${esc(String(b))}</span></div>`).join("")}</div>`;
   if (c.reps && c.reps.length) { const short = c.fmt === "short", hills = c.spec.type === "hills";
     h += `<div class="rc-reps"><div class="rc-r hd small muted"><span>#</span><span>Time</span><span>${short ? "Top speed" : "Pace"}</span><span>${hills ? "Climb" : "Dist"}</span><span>Rest</span></div>${c.reps.map(r => `<div class="rc-r num"><span>${r.n}</span><span>${r.dur != null ? fmtSec(r.dur) : "–"}</span><span>${short ? (r.top ? mph(r.top) : "–") : r.pace ? paceTxt(r.pace) : "–"}</span><span>${hills ? (r.g != null ? Math.round(r.g * 3.28084) + " ft" : "–") : !r.m ? "–" : r.m >= 1000 ? dTxt(r.m / 1609.344, 2) : r.m + " m"}</span><span>${r.rest != null ? fmtSec(r.rest) : "–"}</span></div>`).join("")}</div>` }
@@ -524,7 +607,7 @@ function runCheckHtml(k, l) {
 // plain-text version for the coach's written analysis
 function runCheckText(k, l) {
   let c = null; try { c = runCheck(k, l) } catch (e) { return "" } if (!c) return "";
-  return `Session check (computed from ${c.manual ? "what he typed in" : "the recording"}, format ${c.fmt}${c.src ? `, reps from ${c.src}` : ""}): ${c.verdict} ${c.stats.map(([a, b]) => `${a}: ${b}`).join("; ")}.${c.reps ? ` Reps: ${c.reps.map(r => `#${r.n}${r.dur != null ? " " + fmtSec(r.dur) : ""}${r.m ? ` ${r.m} m` : ""}${r.pace ? ` @ ${fmtMin(r.pace)}/mi` : ""}${r.top ? ` top ${trimN(r.top * 2.23694)} mph` : ""}${r.hr ? ` HR ${r.hr}` : ""}${r.rest != null ? ` rest ${fmtSec(r.rest)}` : ""}${r.g != null ? ` climb ${Math.round(r.g * 3.28084)} ft` : ""}`).join("; ")}.` : ""} ${c.notes.join(" ")}`;
+  return `Session check (computed from ${c.manual ? "what he typed in" : "the recording"}${c.auto ? `; structure detected automatically: ${c.auto}` : ""}, format ${c.fmt}${c.src ? `, reps from ${c.src}` : ""}): ${c.verdict} ${c.stats.map(([a, b]) => `${a}: ${b}`).join("; ")}.${c.reps ? ` Reps: ${c.reps.map(r => `#${r.n}${r.dur != null ? " " + fmtSec(r.dur) : ""}${r.m ? ` ${r.m} m` : ""}${r.pace ? ` @ ${fmtMin(r.pace)}/mi` : ""}${r.top ? ` top ${trimN(r.top * 2.23694)} mph` : ""}${r.hr ? ` HR ${r.hr}` : ""}${r.rest != null ? ` rest ${fmtSec(r.rest)}` : ""}${r.g != null ? ` climb ${Math.round(r.g * 3.28084)} ft` : ""}`).join("; ")}.` : ""} ${c.notes.join(" ")}`;
 }
 
 /* ======================= Typing a run in by hand ======================= */
@@ -703,6 +786,8 @@ function firstRunEasy(p, k) {
 // Steps from the planned run: warm-up, each rep and recovery (or run/walk round), cool-down. Timed steps count
 // down and move on by themselves with a beep; distance steps (100 m, a mile) run a stopwatch until you tap Done.
 function buildRunSteps(p) {
+  if (p.spec && p.spec.auto) { const T = RUN_TYPES[p.spec.type] || {};
+    return [{ k: "work", t: `${p.t}`, s: `Auto: warm up, run ${p.spec.type === "tt" ? "it all-out" : "the session your way"}, cool down. Tap Done when you finish; the structure is read from your recording.`, dur: null, lap: true }] }
   const spec = runSpec(null, p), r = p.rid && runById(p.rid), out = [], warm = spec.warm || (r && r.warm) || 0, cool = (r && r.cool) || spec.warm || 0, how = r && r.warmHow === "walk" ? "walk" : "easy jog";
   const eff = spec.effort ? effortTxt(spec.effort, today) : "";
   if (warm) out.push({ k: "warm", t: "Warm-up", s: `${warm} min ${how}`, dur: warm * 60 });
