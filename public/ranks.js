@@ -664,7 +664,7 @@ function rkMuscleCard(R, sc) {
     return `<div class="rk-mu"><span>${esc(name)}</span>${v == null ? '<span class="rk-l sm" style="--rc:#5B6378">–</span>' : rkBadge(v).replace('class="rk-l', 'class="rk-l sm')}<span class="rk-mu-b">${v == null ? "" : rkBar(f, RK_COL[Math.min(5, Math.floor(v) + 1)])}</span><span class="small muted">${v == null ? "Not trained" : x.est ? "Estimate" : esc(C.parts[p].name)}</span></div>`;
   }).join("");
   return `<details class="card rk-mus"><summary><h2 style="display:inline">Muscle breakdown</h2></summary>
-    <p class="small muted">Every exercise counts toward each muscle it works, weighted by how much it works it. Side exercises can only nudge a muscle above your main lifts for it. "Estimate" means only side work has hit that muscle so far. Your ranks still come from the parts above.</p>
+    <p class="small muted">Every exercise counts toward each muscle it works, weighted by how much it works it. Side exercises can only nudge a muscle above your main lifts for it. "Estimate" means only side work has hit that muscle so far. Letters show your current strength; your ranks still come from the parts above and their Gates.</p>
     <div class="rk-mus-g">${rows}</div></details>`;
 }
 function rkPauseCard(R) {
