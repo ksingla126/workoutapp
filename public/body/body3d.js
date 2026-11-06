@@ -105,10 +105,12 @@ function draw() {
   B.R.setRenderTarget(B.idRT); B.R.render(B.IDS, B.cam); B.R.setRenderTarget(null); B.comp.render();
 }
 function loop(now) {
-  B.raf = 0; if (!B.active) return;
+  B.raf = 0;
+  if (!B.R.domElement.isConnected) { B.gone = B.gone || performance.now(); B.active = false; return } // screen left: stop drawing
+  if (!B.active) return;
   const dt = Math.min(.05, (now - (B.last || now)) / 1000); B.last = now; B.t += dt * 2.2;
-  if (B.target != null) { let d = B.target - B.ang; d = Math.atan2(Math.sin(d), Math.cos(d)); B.ang += d * Math.min(1, dt * 7); if (Math.abs(d) < .002) { B.ang = B.target; B.target = null } }
-  else if (B.spin) B.ang += dt * .45;
+  if (!B.drag && Math.abs(B.vel) > .01) { B.ang += B.vel * dt; B.vel *= Math.pow(.04, dt) }   // momentum after a flick
+  else if (!B.drag) B.vel = 0;
   draw(); B.raf = requestAnimationFrame(loop);
 }
 
@@ -116,28 +118,42 @@ function loop(now) {
 function pick(x, y) {
   const px = new Uint8Array(4), X = Math.round(x * B.dpr), Y = Math.round((B.ht - y) * B.dpr);
   B.R.readRenderTargetPixels(B.idRT, X, Y, 1, 1, px);
-  if (px[0] + px[1] === 0) return null;
+  if (px[0] + px[1] === 0) return px[2] > 0 ? "skin" : null;
   let best = null, bd = 1e9; B.ids.forEach(([c, g]) => { const d = Math.abs(c.r * 255 - px[0]) + Math.abs(c.g * 255 - px[1]); if (d < bd) { bd = d; best = g } });
-  return bd < 6 ? best : null;
+  return bd < 6 ? best : "skin";
 }
+const onBody = (x, y) => pick(x, y) != null;   // the ID buffer always matches the frame on screen
 
 /* ---------- public: mount into a slide, recolour, pause ---------- */
 export async function mountBody(host, opts) {
-  if (!B) B = await build();
+  if (!B) { B = await build(); B.ang = 0; B.vel = 0 }
+  // away from the Ranks tab for a moment (not just a redraw of it): face front again
+  if (B.gone && performance.now() - B.gone > 350) { B.ang = 0; B.vel = 0 } B.gone = 0;
   const cv = B.R.domElement; cv.className = "bd-cv"; cv.setAttribute("aria-hidden", "true");
   if (cv.parentNode !== host) host.prepend(cv);
-  B.calm = !!opts.calm; if (B.calm) B.spin = false;
-  size(host); paint(opts.ranks || {}, opts.colors); B.onPick = opts.onPick;
-  if (!cv.__tap) { cv.__tap = true; let sx = 0, sy = 0, st = 0;
-    cv.addEventListener("pointerdown", e => { sx = e.clientX; sy = e.clientY; st = Date.now() });
-    cv.addEventListener("pointerup", e => { if (Math.hypot(e.clientX - sx, e.clientY - sy) > 8 || Date.now() - st > 500) return;
-      const r = cv.getBoundingClientRect(); draw(); const g = pick(e.clientX - r.left, e.clientY - r.top); B.onPick && B.onPick(g) }) }
+  size(host); paint(opts.ranks || {}, opts.colors); B.onPick = opts.onPick; B.onPan = opts.onPan;
+  if (!cv.__drag) { cv.__drag = true;
+    // a drag that starts on the body turns it; one that starts on the empty space around it swipes the carousel
+    let sx = 0, sy = 0, lx = 0, lt = 0, st = 0, mode = null, id = null;
+    cv.addEventListener("pointerdown", e => { if (id != null) return; id = e.pointerId; sx = lx = e.clientX; sy = e.clientY; st = e.timeStamp; lt = performance.now(); mode = null;
+      const r = cv.getBoundingClientRect(); B.downOn = onBody(e.clientX - r.left, e.clientY - r.top); B.vel = 0 });
+    cv.addEventListener("pointermove", e => { if (e.pointerId !== id) return; const dx = e.clientX - sx, dy = e.clientY - sy;
+      if (!mode) { if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return; if (Math.abs(dy) > Math.abs(dx)) { mode = "scroll"; return } mode = B.downOn ? "turn" : "pan"; try { cv.setPointerCapture(id) } catch (_) {} if (mode === "turn") { B.drag = true; ctl.setActive(true) } }
+      if (mode === "turn") { const now = performance.now(), d = e.clientX - lx; B.ang += d * .011; const v = d * .011 / Math.max(.008, (now - lt) / 1000); B.vel = B.vel * .5 + v * .5; lx = e.clientX; lt = now; e.preventDefault() }
+      else if (mode === "pan") { B.onPan && B.onPan(dx, "move"); e.preventDefault() } }, { passive: false });
+    const end = e => { if (e.pointerId !== id) return; id = null; const dx = e.clientX - sx;
+      if (mode === "turn") { B.drag = false; if (performance.now() - lt > 80) B.vel = 0 }
+      else if (mode === "pan") B.onPan && B.onPan(dx, "end");
+      else if (!mode && e.type === "pointerup" && e.timeStamp - st < 600) { const r = cv.getBoundingClientRect(); const g = pick(e.clientX - r.left, e.clientY - r.top); B.onPick && B.onPick(g === "skin" ? null : g) }
+      mode = null };
+    cv.addEventListener("pointerup", end); cv.addEventListener("pointercancel", end) }
   draw(); return ctl;
 }
 const ctl = {
   setActive(on) { if (!B) return; B.active = on; if (on && !B.raf) { B.last = 0; B.raf = requestAnimationFrame(loop) } },
-  face(side) { if (!B) return; B.spin = false; B.target = side === "back" ? Math.PI : 0; ctl.setActive(true) },
-  spin() { if (!B) return; B.target = null; B.spin = true; ctl.setActive(true) },
+  front() { if (B) { B.ang = 0; B.vel = 0; draw() } },
+  angle() { return B ? B.ang : 0 },
+  pickAt(x, y) { if (!B) return null; draw(); return pick(x, y) },
   resize(host) { if (B) { size(host); draw() } },
 };
 export default ctl;
