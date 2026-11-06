@@ -1,0 +1,7 @@
+body-neutral.glb is adapted from BodyParts3D, (c) The Database Center for Life Science,
+licensed under CC Attribution-Share Alike 2.1 Japan (https://creativecommons.org/licenses/by-sa/2.1/jp/deed.en).
+Changes: muscle meshes grouped and simplified, front sheets of the external obliques and the lower latissimus
+trimmed, and the figure reshaped into a gender-neutral build (proportions, smooth head). This adapted model is
+shared under the same license.
+
+The files in three/ are three.js (MIT License, see three/LICENSE).

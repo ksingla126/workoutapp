@@ -734,7 +734,7 @@ function rkHud(R, sc, su) {
   return `<div class="rk-hud"><i class="rk-c tl"></i><i class="rk-c tr"></i><i class="rk-c bl"></i><i class="rk-c br"></i>
     <div class="rk-hud-head"><span class="rk-sys">Status</span><span class="rk-name-h">${esc((su && su.name) || "Hunter")}</span></div>
     ${ovHtml}
-    ${rkRadar(R, sc)}
+    ${rkCarousel(R, sc)}
     ${how}
     ${fresh ? "" : `<div class="rk-tiles">${tiles}</div>`}
     ${fresh ? "" : `<div class="seg two rk-seg" role="tablist" aria-label="Rank view"><button role="tab" data-rkmode="raw" class="${!sc ? "on" : ""}" aria-selected="${!sc}">For you</button><button role="tab" data-rkmode="scaled" class="${sc ? "on" : ""}" aria-selected="${sc}">Absolute</button></div>`}
@@ -754,10 +754,56 @@ function viewRanks() {
   h += rkPauseCard(R);
   h += `<div class="card"><h2>Your details</h2><p class="small muted">${su.sex === "female" ? "Female" : "Male"} · age ${rkAgeAt(R.td)}${su.birth ? "" : " (set your birth month so this stays current)"}. Strength standards ease from 40 on (masters' age multiples), and running targets too.</p>
     <p class="small muted">Standards: <a href="https://fitnessvolt.com/strength-standards/strength-data/" target="_blank" rel="noopener">FitnessVolt</a> / <a href="https://symmetricstrength.com/standards" target="_blank" rel="noopener">Symmetric Strength</a> member data (CC BY 4.0). Biceps and triceps are set from bench ratios; calves and core from the app's own scales.</p>
+    <p class="small muted">3D body: adapted from <a href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/" target="_blank" rel="noopener">BodyParts3D</a> © The Database Center for Life Science (<a href="https://creativecommons.org/licenses/by-sa/2.1/jp/deed.en" target="_blank" rel="noopener">CC BY-SA 2.1 JP</a>). The adapted model is shared under the same license.</p>
     <div class="field" style="max-width:220px"><label for="rkBirth">Birth month</label><input id="rkBirth" type="month" value="${esc(su.birth || "")}" max="${ymd(today).slice(0, 7)}"></div></div>`;
   return h;
 }
+/* ---------- radar + 3D body: a two-slide carousel in the status panel ---------- */
+let rkSlide = 0, rkBody = null, rkBodyErr = false;
+function rkMuscleRanks(R, sc) { const out = {};
+  (RKC().muscles || []).forEach(([m, , p]) => { if (!p) return; const x = rkMuscleValue(R, m, R.td, sc ? "scaled" : "raw"); if (x && x.has) out[m] = Math.min(5, x.v) }); return out }
+function rkCarousel(R, sc) {
+  return `<div class="rk-car"><div class="rk-track" data-rktrack>
+      <div class="rk-slide" aria-label="Rank radar">${rkRadar(R, sc)}</div>
+      <div class="rk-slide bd-slide" aria-label="3D muscle rank map">
+        <div class="bd-host" id="bdHost"><div class="bd-msg">${rkBodyErr ? "The 3D body needs WebGL, which this device can't run." : "Swipe here to load your body map"}</div></div>
+        <div class="bd-top"><span class="bd-sys">Muscle ranks</span><span class="bd-pick" id="bdPick">Tap a muscle</span></div>
+        <div class="bd-ctl"><button type="button" data-bdface="front">Front</button><button type="button" data-bdface="back">Back</button><button type="button" data-bdface="spin" class="on">Spin</button></div>
+      </div></div>
+    <div class="rk-dots" role="tablist" aria-label="Status view"><button type="button" role="tab" data-rkdot="0" aria-label="Radar" class="${rkSlide ? "" : "on"}"></button><button type="button" role="tab" data-rkdot="1" aria-label="3D body" class="${rkSlide ? "on" : ""}"></button></div></div>`;
+}
+function rkBindCarousel() {
+  const tr = document.querySelector("[data-rktrack]"); if (!tr) return;
+  const dots = [...document.querySelectorAll("[data-rkdot]")];
+  const go = i => tr.scrollTo({ left: i * tr.clientWidth, behavior: "smooth" });
+  dots.forEach(d => d.onclick = () => go(+d.dataset.rkdot));
+  if (rkSlide) { tr.style.scrollBehavior = "auto"; tr.scrollLeft = tr.clientWidth; tr.style.scrollBehavior = "" }
+  let tm = 0; const onScroll = () => { const i = Math.round(tr.scrollLeft / Math.max(1, tr.clientWidth)); dots.forEach((d, k) => d.classList.toggle("on", k === i));
+    clearTimeout(tm); tm = setTimeout(() => { rkSlide = i; rkBodyShow(i === 1) }, 90) };
+  tr.addEventListener("scroll", onScroll, { passive: true });
+  document.querySelectorAll("[data-bdface]").forEach(b => b.onclick = () => { if (!rkBody) return; document.querySelectorAll("[data-bdface]").forEach(x => x.classList.toggle("on", x === b));
+    b.dataset.bdface === "spin" ? rkBody.spin() : rkBody.face(b.dataset.bdface) });
+  if (rkSlide === 1) rkBodyShow(true); else if (rkBody) rkBody.setActive(false);
+}
+async function rkBodyShow(on) {
+  const host = document.getElementById("bdHost"); if (!host) return;
+  if (!on) { if (rkBody) rkBody.setActive(false); return }
+  if (rkBodyErr) return;
+  const R = rankState(), calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  try {
+    if (!rkBody) { const msg = host.querySelector(".bd-msg"); if (msg) msg.textContent = "Loading 3D body…" }
+    const mod = await import("/body/body3d.js");
+    const names = Object.fromEntries((RKC().muscles || []).map(([m, nm]) => [m, nm])), ranks = rkMuscleRanks(R, rkMode === "scaled");
+    rkBody = await mod.mountBody(host, { ranks, colors: RK_COL, calm, onPick: g => { const el = document.getElementById("bdPick"); if (!el) return;
+      if (!g || !names[g]) { el.textContent = "Tap a muscle"; el.style.removeProperty("--rc"); return }
+      const v = ranks[g]; el.textContent = v == null ? `${names[g]} · not trained yet` : `${names[g]} · ${rkLetter(v)}`; el.style.setProperty("--rc", v == null ? "#5B6378" : RK_COL[Math.floor(v)]) } });
+    const msg = host.querySelector(".bd-msg"); if (msg) msg.remove();
+    if (calm) document.querySelectorAll("[data-bdface]").forEach(x => x.classList.toggle("on", x.dataset.bdface === "front"));
+    if (document.getElementById("bdHost") === host && rkSlide === 1) rkBody.setActive(true);
+  } catch (e) { rkBodyErr = true; const msg = host.querySelector(".bd-msg") || host.appendChild(Object.assign(document.createElement("div"), { className: "bd-msg" })); msg.textContent = "The 3D body couldn't load on this device."; try { console.warn("body3d", e) } catch (_) {} }
+}
 function bindRanks() {
+  rkBindCarousel();
   const redo = () => { lastRenderKey = ""; render() };
   document.querySelectorAll("[data-rkmode]").forEach(b => b.onclick = () => { rkMode = b.dataset.rkmode; try { localStorage.setItem("rd25-rkmode", rkMode) } catch (e) {} redo() });
   document.querySelectorAll("[data-rkjump]").forEach(b => b.onclick = () => { rkOpen = b.dataset.rkjump; rkTrialOpen = false; redo(); setTimeout(() => { const el = document.querySelector(`[data-rkgroup="${rkOpen}"]`); if (el) el.scrollIntoView({ block: "start", behavior: "smooth" }) }, 50) });
@@ -864,6 +910,19 @@ function rkCelebrate(ev, n) {
 .rk-xp{height:6px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin:7px 0 4px}.rk-xp i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#6A5CFF,#7DE3FF);box-shadow:0 0 10px #7DE3FF}
 .rk-ov-s{font-size:12px;color:#9FB0D8}
 .rk-radar{width:100%;max-width:400px;align-self:center;display:block;overflow:visible}
+.rk-car{position:relative;margin:0 -6px}.rk-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}.rk-track::-webkit-scrollbar{display:none}
+.rk-slide{flex:0 0 100%;scroll-snap-align:center;scroll-snap-stop:always;display:flex;justify-content:center;min-width:0;padding:0 6px;box-sizing:border-box}
+.bd-slide{position:relative;flex-direction:column}
+.bd-host{position:relative;height:clamp(380px,62vh,460px);border-radius:16px;overflow:hidden;background:radial-gradient(90% 70% at 50% 40%,#16205A,#0A0F2C 70%);border:1px solid rgba(140,170,255,.18)}
+.bd-host canvas{position:absolute;inset:0;display:block;touch-action:pan-x pan-y}
+.bd-msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;font-size:13px;color:#9FB0D8}
+.bd-top{position:absolute;left:16px;right:16px;top:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;pointer-events:none}
+.bd-sys{font:800 10.5px/1 var(--display);letter-spacing:.24em;text-transform:uppercase;color:#9FC2FF;text-shadow:0 0 8px rgba(110,160,255,.8)}
+.bd-pick{font-size:12px;font-weight:650;color:#E6ECFF;padding:3px 9px;border-radius:99px;background:color-mix(in srgb,var(--rc,#5B6378) 22%,rgba(7,10,24,.7));border:1px solid color-mix(in srgb,var(--rc,#8FB4FF) 60%,transparent)}
+.bd-ctl{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);display:flex;gap:4px;padding:3px;border-radius:99px;background:rgba(7,10,24,.7);border:1px solid rgba(140,170,255,.25)}
+.bd-ctl button{all:unset;cursor:pointer;font-size:12px;font-weight:650;color:#B8C5E8;padding:4px 11px;border-radius:99px}.bd-ctl button.on{background:#E6ECFF;color:#0B1024}
+.bd-ctl button:focus-visible{outline:2px solid #8FB4FF}
+.rk-dots{display:flex;justify-content:center;gap:7px;margin-top:6px}.rk-dots button{all:unset;cursor:pointer;width:7px;height:7px;border-radius:99px;background:rgba(160,190,255,.3);transition:width .2s}.rk-dots button.on{width:20px;background:#9FC2FF;box-shadow:0 0 8px rgba(125,227,255,.6)}
 .rk-ring{fill:rgba(120,150,255,.035);stroke:rgba(150,175,255,.22);stroke-width:1}.rk-ring.out{stroke:rgba(160,190,255,.55);stroke-width:1.5;fill:rgba(120,150,255,.06)}
 .rk-axis{stroke:rgba(150,175,255,.22);stroke-width:1}
 .rk-tick{font:700 9px/1 var(--body);fill:rgba(170,190,240,.55)}
