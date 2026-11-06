@@ -72,7 +72,7 @@ function recapHtml() {
     ${x.prs.length ? `<div><div class="eyebrow">New personal bests</div><ul class="recap-list">${x.prs.slice(0, 5).map(n => `<li>${esc(n)}</li>`).join("")}</ul></div>` : ""}
     ${x.moves.length ? `<div><div class="eyebrow">Rank changes</div><ul class="recap-list">${x.moves.map(m => `<li>${esc(G[m.p] || m.p)}: ${m.t === "down" ? "down to" : "up to"} <b>${rkLetter(m.to)}</b></li>`).join("")}</ul></div>` : ""}
     <p class="small muted" style="margin:0">This week: ${nn} session${nn === 1 ? "" : "s"} planned.</p>
-    <button type="button" class="btn" data-xs="close">Let's go</button></div>`;
+    <div class="row" style="gap:8px"><button type="button" class="btn" data-xs="close" style="flex:1">Let's go</button><button type="button" class="btn ghost" data-share="recap">Share</button></div></div>`;
 }
 function maybeRecap() {
   const su = CUSTOM && CUSTOM.su; if (!su || tab !== "hub" || (SH && !document.getElementById("xsheet").hidden) || (typeof HT !== "undefined" && HT.i >= 0)) return;
@@ -186,7 +186,7 @@ async function friendsLoad(force) {
 }
 function friendsCard() {
   const on = !!S.profile.friendsOn;
-  if (!on) return `<div class="card" id="friends"><h2>Friends</h2><p class="small muted">Compare ranks with friends. They see your name, your rank letters and how many sessions you did this week. Nothing else.</p><button type="button" class="btn sm" data-fr-on="1" style="align-self:flex-start">Turn on friends</button></div>`;
+  if (!on) return `<div class="card" id="friends"><h2>Friends</h2><p class="small muted">Compare ranks with friends. They see your name, your rank letters and how many sessions you did this week. Nothing else.</p><div class="row" style="gap:8px"><button type="button" class="btn sm" data-fr-on="1">Turn on friends</button><button type="button" class="btn ghost sm" data-share="">Invite with a link</button></div></div>`;
   if (FR.list == null) { setTimeout(() => friendsLoad(), 0); return `<div class="card" id="friends"><h2>Friends</h2><p class="small muted"><span class="pulse"></span> Loading…</p></div>` }
   const L = (x) => x == null ? "?" : rkLetter(x), me = myCard(), rows = [{ name: hubName() + " (you)", card: me, you: true }, ...FR.list].sort((a, b) => ((b.card && b.card.ov) ?? -1) - ((a.card && a.card.ov) ?? -1));
   return `<div class="card" id="friends"><div class="row between"><h2>Friends</h2>${FR.me ? `<button type="button" class="btn ghost sm" data-fr-share="1">Your code: <b class="num">${esc(FR.me.code)}</b></button>` : ""}</div>
@@ -195,11 +195,12 @@ function friendsCard() {
       <span class="fr-who"><b>${esc(f.name || "Friend")}</b><span class="fr-gs">${["upper", "lower", "core", "speed", "endur"].map(g => `<span>${RK_SHORT[g] === "Endurance" ? "Endur." : RK_SHORT[g]} <b>${c.g && c.g[g] != null ? rkLetter(Math.floor(c.g[g])) : "–"}</b></span>`).join("")}</span><span class="small muted num">${c.wk ? `${c.wk.done}/${c.wk.plan} this week` : ""}${c.streak ? ` · ${c.streak}-day streak` : ""}</span></span>
       ${f.you ? "" : `<button type="button" class="fp-x" data-fr-del="${esc(f.code)}" aria-label="Remove ${esc(f.name || "friend")}">×</button>`}</div>` }).join("")}</div>
     <div class="row" style="gap:8px;flex-wrap:nowrap"><input id="frCode" class="xs-search" autocomplete="off" autocapitalize="characters" placeholder="Friend's code" maxlength="8" style="flex:1;min-width:0"><button type="button" class="btn sm" data-fr-add="1">Add</button></div>
-    <p class="small muted" style="margin:0">Share your code; when a friend adds it, you both see each other. <button type="button" class="link small" data-fr-off="1">Turn off friends</button></p></div>`;
+    <button type="button" class="btn ghost sm" data-share="" style="align-self:flex-start">Invite with a link</button>
+    <p class="small muted" style="margin:0">Share your code or a link; when a friend adds you, you both see each other. <button type="button" class="link small" data-fr-off="1">Turn off friends</button></p></div>`;
 }
 
 /* ======================= sheets + taps ======================= */
-function extraSheetHtml() { return SH.kind === "recap" ? recapHtml() : SH.kind === "rimport" ? rimportHtml() : "" }
+function extraSheetHtml() { return SH.kind === "recap" ? recapHtml() : SH.kind === "rimport" ? rimportHtml() : SH.kind === "share" ? shareHtml() : SH.kind === "invite" ? inviteHtml() : SH.kind === "rtask" ? rtaskHtml() : "" }
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-ck-go],[data-ck-skip],[data-ck-hide],[data-recap],[data-ri-open],[data-ri-mode],[data-ri-go],[data-ri-find],[data-ri-drop],[data-fp-logtoday],[data-fr-on],[data-fr-off],[data-fr-add],[data-fr-del],[data-fr-share]");
   if (!t) return; const d = t.dataset;
@@ -250,3 +251,132 @@ document.addEventListener("input", e => { const t = e.target; if (t.dataset && t
 .fr-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.fr-gs{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:12px;color:var(--muted)}.fr-gs b{color:var(--ink)}.fr-who b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fp-x.armed{width:auto;padding:0 8px;font-size:12px}
 `; document.head.appendChild(s);
 })();
+
+/* ======================= Share links ======================= */
+// A link to the app carrying your friend code, your name and a short message. Opening it shows the message, and
+// after sign-up (or right away, if they already use the app) offers to add you as a friend.
+const INV_KEY = "ru-invite";
+const cleanTxt = (s, n) => String(s || "").replace(/[\u0000-\u001f\u007f<>]/g, " ").replace(/\s+/g, " ").trim().slice(0, n);
+(function readInvite() {
+  try { const q = new URLSearchParams(location.search), code = (q.get("invite") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);
+    if (!code && !q.get("from")) return;
+    localStorage.setItem(INV_KEY, JSON.stringify({ code, from: cleanTxt(q.get("from"), 30), m: cleanTxt(q.get("m"), 280), at: Date.now() }));
+    ["invite", "from", "m"].forEach(k => q.delete(k)); history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash) } catch (e) {}
+})();
+function pendingInvite() { try { const v = JSON.parse(localStorage.getItem(INV_KEY) || "null"); return v && Date.now() - v.at < 30 * 864e5 ? v : null } catch (e) { return null } }
+function dropInvite() { try { localStorage.removeItem(INV_KEY) } catch (e) {} const b = document.getElementById("inviteBar"); if (b) b.remove() }
+// a banner over the sign-in and setup screens until the app is set up
+function inviteBar() {
+  const v = pendingInvite(), set = typeof CUSTOM !== "undefined" && CUSTOM; let b = document.getElementById("inviteBar");
+  if (!v || set) { if (b) b.remove(); return }
+  if (!b) { b = document.createElement("div"); b.id = "inviteBar"; b.setAttribute("role", "status"); document.body.appendChild(b) }
+  b.innerHTML = `<b>${esc(v.from || "A friend")} invited you to RankUp</b>${v.m ? `<span>“${esc(v.m)}”</span>` : ""}<span class="ib-s">Create an account and you'll be friends.</span>`;
+}
+setTimeout(inviteBar, 300); setInterval(inviteBar, 1500);
+function maybeInvite() {
+  const v = pendingInvite(); if (!v || !CUSTOM || tab !== "hub" || (SH && !document.getElementById("xsheet").hidden) || (typeof HT !== "undefined" && HT.i >= 0) || !(S.profile.tourDone || (typeof hubTourDone === "function" && hubTourDone()))) return;
+  if (FR.me && v.code === FR.me.code) { dropInvite(); return }
+  openSheet({ kind: "invite", v });
+}
+function inviteHtml() {
+  const v = SH.v;
+  return `<div class="recap"><span class="hub-sys">[SYSTEM] INVITE</span><h2>${esc(v.from || "A friend")} invited you</h2>
+    ${v.m ? `<blockquote class="inv-m">“${esc(v.m)}”</blockquote>` : ""}
+    ${v.code ? `<p class="small muted" style="margin:0">Add ${esc(v.from || "them")} as a friend to compare ranks. You'll both see each other's rank letters and sessions this week.</p>
+      <button type="button" class="btn" data-inv-add="1" ${SH.busy ? "disabled" : ""}>${SH.busy ? "Adding…" : `Add ${esc(v.from || "friend")}`}</button>` : ""}
+    <button type="button" class="btn ghost" data-inv-no="1">Not now</button></div>`;
+}
+function myRankWord() { try { const R = rankState(), V = rkShown(R); return R.place && !R.place.pending ? rkLetter(Math.floor(V.ov)) : null } catch (e) { return null } }
+function defaultShareMsg(kind) {
+  const L = myRankWord();
+  if (kind === "recap" && SH && SH.rec) { const x = SH.rec; return `Week ${x.w} on RankUp: ${x.done} of ${x.plan} sessions${x.mi ? `, ${dTxt(x.mi)} run` : ""}${x.prs.length ? `, ${x.prs.length} new PR${x.prs.length > 1 ? "s" : ""}` : ""}. Join me and let's see who ranks up first.` }
+  return `I'm training on RankUp${L ? ` and I'm ${L}-rank so far` : ""}. Add me as a friend and let's see who ranks up first.`;
+}
+function shareLink(msg) {
+  const u = new URL(location.origin + "/"), code = FR.me && FR.me.code;
+  if (code) u.searchParams.set("invite", code); u.searchParams.set("from", cleanTxt(hubName(), 30)); if (msg) u.searchParams.set("m", cleanTxt(msg, 280));
+  return u.toString();
+}
+async function openShare(kind) {
+  const msg = defaultShareMsg(kind);
+  openSheet({ kind: "share", msg, loading: !FR.me });
+  if (!FR.me) { if (!S.profile.friendsOn) { S.profile.friendsOn = 1; saveProfile() } await friendsLoad(true); if (SH && SH.kind === "share") { SH.loading = false; paintSheet() } }
+}
+function shareHtml() {
+  const msg = SH.msg, link = shareLink(msg), full = `${msg}\n${link}`;
+  return `<div class="xs-head"><h2>Share RankUp</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>
+    <div class="field"><label for="shMsg">Your message</label><textarea id="shMsg" rows="3" maxlength="280" data-sh-msg="1">${esc(msg)}</textarea><span class="small muted" id="shCount">${msg.length}/280</span></div>
+    <p class="small muted" style="margin:0">${SH.loading ? "Getting your link…" : FR.me ? "Your friend sees this message when they open the link, and you become friends when they sign up." : "Your friend sees this message when they open the link."}</p>
+    <div class="sh-link"><span id="shLink">${esc(link)}</span></div>
+    <div class="sh-btns">${navigator.share ? `<button type="button" class="btn" data-sh="native">Share…</button>` : ""}
+      <a class="btn ghost" data-sh="sms" href="sms:?&body=${encodeURIComponent(full)}">Text</a>
+      <a class="btn ghost" data-sh="wa" href="https://wa.me/?text=${encodeURIComponent(full)}" target="_blank" rel="noopener">WhatsApp</a>
+      <a class="btn ghost" data-sh="mail" href="mailto:?subject=${encodeURIComponent("Join me on RankUp")}&body=${encodeURIComponent(full)}">Email</a>
+      <button type="button" class="btn ghost" data-sh="copy">Copy</button></div>`;
+}
+function shareRefresh() {
+  const link = shareLink(SH.msg), full = `${SH.msg}\n${link}`, L = document.getElementById("shLink"), c = document.getElementById("shCount");
+  if (L) L.textContent = link; if (c) c.textContent = `${SH.msg.length}/280`;
+  const set = (k, h) => { const a = document.querySelector(`[data-sh="${k}"]`); if (a) a.href = h };
+  set("sms", `sms:?&body=${encodeURIComponent(full)}`); set("wa", `https://wa.me/?text=${encodeURIComponent(full)}`); set("mail", `mailto:?subject=${encodeURIComponent("Join me on RankUp")}&body=${encodeURIComponent(full)}`);
+}
+document.addEventListener("input", e => { const t = e.target; if (t.dataset && t.dataset.shMsg && SH && SH.kind === "share") { SH.msg = t.value.slice(0, 280); shareRefresh() } });
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-share],[data-sh],[data-inv-add],[data-inv-no]"); if (!t) return; const d = t.dataset;
+  if (d.share != null) { openShare(d.share || ""); return }
+  if (d.sh) { const link = shareLink(SH.msg), full = `${SH.msg}\n${link}`;
+    if (d.sh === "native") { navigator.share({ title: "RankUp", text: SH.msg, url: link }).catch(() => {}); return }
+    if (d.sh === "copy") { (navigator.clipboard ? navigator.clipboard.writeText(full) : Promise.reject()).then(() => toast("Message and link copied")).catch(() => { const L = document.getElementById("shLink"); if (L) { const r = document.createRange(); r.selectNodeContents(L); const s = getSelection(); s.removeAllRanges(); s.addRange(r) } toast("Select the link and copy it") }); return }
+    return }
+  if (d.invNo) { dropInvite(); xsClose(); return }
+  if (d.invAdd) { const v = SH.v; SH.busy = true; paintSheet(); S.profile.friendsOn = 1; saveProfile();
+    xApi("/api/friends", { action: "add", code: v.code }).then(j => { FR.list = j.friends || FR.list; FR.me = j.me || FR.me; dropInvite(); xsClose(); toast(`You and ${v.from || "your friend"} are friends`); if (tab === "ranks") { lastRenderKey = ""; render() } })
+      .catch(e => { SH.busy = false; if (e.code === "not_found") { dropInvite(); xsClose(); toast("That invite link has expired") } else { paintSheet(); toast(e.code === "network" ? "You're offline. Try again later." : "Couldn't add right now") } }); return }
+});
+(function css2() { const s = document.createElement("style"); s.textContent = `
+#inviteBar{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:10001;display:flex;flex-direction:column;gap:2px;padding:10px 14px;border-radius:14px;background:#191C3E;border:1px solid #3B3C8A;color:#ECEFF7;font:500 14px/1.35 var(--body,system-ui);box-shadow:0 8px 30px rgba(0,0,0,.35);max-width:520px;margin:0 auto}
+#inviteBar span{color:#C3C9D9}#inviteBar .ib-s{font-size:12px;color:#97A1B8}
+.inv-m{margin:0;padding:10px 14px;border-left:3px solid var(--accent,#8F8BFF);background:var(--surface-2);border-radius:0 10px 10px 0;font-size:15px}
+.sh-link{padding:10px 12px;border:1px dashed var(--line);border-radius:10px;font-size:12px;color:var(--muted);word-break:break-all;user-select:all}
+.sh-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.sh-btns .btn{text-align:center;text-decoration:none;justify-content:center}.sh-btns [data-sh="native"]{grid-column:1/-1}
+`; document.head.appendChild(s) })();
+
+/* ======================= After a workout: keep the changes? ======================= */
+// Like Hevy's "update routine?": exercises added just for today, and a different number of working sets than the
+// routine has, can be saved into the routine (or left as a one-off). Swaps already ask when you make them.
+function routineChanges(k) {
+  const l = S.logs[k], su = CUSTOM && CUSTOM.su; if (!l || l.type !== "gym" || !l.ex || !su) return null;
+  const rt = (S.profile.setup.routines || []).find(r => r.id === l.day); if (!rt) return null;
+  const work = id => (l.ex[id] || []).filter(s => s && s.t !== "w").length, out = [];
+  const add = ((S.profile.swaps || {}).add || {})[k] || [];
+  add.forEach(a => { const n = work(a.id); if (n && !rt.ex.some(e => e.id === a.id)) out.push({ kind: "add", id: a.id, sets: n, lo: a.lo, hi: a.hi, rest: a.rest, name: (libEx(a.id) || { name: a.id }).name }) });
+  const once = ((S.profile.swaps || {}).once || {})[k] || {};
+  rt.ex.forEach(e => { if (once[e.id]) return; const n = work(e.id); if (n && n !== e.sets) out.push({ kind: "sets", id: e.id, from: e.sets, sets: n, name: (libEx(e.id) || { name: e.id }).name }) });
+  return out.length ? { rid: rt.id, rname: rt.name, list: out } : null;
+}
+function routineAsk(k, n = 0) {
+  const asked = S.profile.rtAsked || {}; if (asked[k]) return;
+  if (document.querySelector(".rk-up") && n < 120) { setTimeout(() => routineAsk(k, n + 1), 500); return }   // after the rank-up moment
+  const c = routineChanges(k); if (!c || (SH && !document.getElementById("xsheet").hidden)) return;
+  openSheet({ kind: "rtask", k, c, on: c.list.map(() => true) });
+}
+function rtaskHtml() {
+  const c = SH.c;
+  return `<div class="xs-head"><h2>Update ${esc(c.rname)}?</h2></div>
+    <p class="small muted" style="margin:0">You changed this workout. Keep the changes for next time, or keep them to today only.</p>
+    <div class="rt-list">${c.list.map((x, i) => `<label class="rt-row"><input type="checkbox" data-rt-on="${i}" ${SH.on[i] ? "checked" : ""}><span>${x.kind === "add" ? `Add <b>${esc(x.name)}</b> (${x.sets} set${x.sets > 1 ? "s" : ""})` : `<b>${esc(x.name)}</b>: ${x.sets} sets instead of ${x.from}`}</span></label>`).join("")}</div>
+    <button type="button" class="btn" data-rt-save="1" ${SH.on.some(Boolean) ? "" : "disabled"}>Update routine</button>
+    <button type="button" class="btn ghost" data-rt-no="1">Just today</button>`;
+}
+document.addEventListener("change", e => { const t = e.target; if (t.dataset && t.dataset.rtOn != null && SH && SH.kind === "rtask") { SH.on[+t.dataset.rtOn] = t.checked; const b = document.querySelector("[data-rt-save]"); if (b) b.disabled = !SH.on.some(Boolean) } });
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-rt-save],[data-rt-no]"); if (!t || !SH || SH.kind !== "rtask") return;
+  const k = SH.k, c = SH.c; S.profile.rtAsked = { ...(S.profile.rtAsked || {}), [k]: 1 };
+  if (t.dataset.rtNo) { saveProfile(); xsClose(); return }
+  const pick = c.list.filter((x, i) => SH.on[i]); xsClose();
+  suMut(su => { const r = su.routines.find(x => x.id === c.rid); if (!r) return;
+    pick.forEach(x => { if (x.kind === "add" && !r.ex.some(e => e.id === x.id)) r.ex.push({ id: x.id, sets: x.sets, lo: x.lo || 8, hi: x.hi || 12, rest: x.rest || 90 });
+      if (x.kind === "sets") { const e = r.ex.find(e => e.id === x.id); if (e) e.sets = x.sets } }) });
+  toast(`${c.rname} updated`);
+});
+(function css3() { const s = document.createElement("style"); s.textContent = `.rt-list{display:flex;flex-direction:column;gap:6px}.rt-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;font-size:14px;cursor:pointer}.rt-row input{margin-top:2px;width:18px;height:18px;flex:none}`; document.head.appendChild(s) })();
