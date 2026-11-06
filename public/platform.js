@@ -16,18 +16,34 @@
       el = document.createElement("div");
       el.id = "authGate";
       el.innerHTML = `
+        <div class="ag-floor" aria-hidden="true"></div><div class="ag-motes" aria-hidden="true">${Array.from({ length: 18 }, (_, i) => `<i style="--x:${(i * 53) % 100}%;--d:${6 + (i * 7) % 9}s;--t:${(i * 13) % 9}s"></i>`).join("")}</div>
         <form class="ag-card" autocomplete="on">
-          <div class="ag-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="30" height="30"><path d="M5 15.5l7-7 7 7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="ag-emblem" aria-hidden="true"><div class="ag-hex"><span class="ag-letter">E</span></div><svg class="ag-ring" viewBox="0 0 100 110" aria-hidden="true"><polygon points="50,3 96,29 96,81 50,107 4,81 4,29" pathLength="100"/></svg></div>
           <h1>RankUp</h1>
-          <p class="ag-sub">Log your training and rank up from E to S.</p>
-          <label>Email<input name="email" type="email" autocomplete="email" required></label>
-          <label>Password<input name="password" type="password" autocomplete="current-password" minlength="6" required></label>
-          <button type="submit" data-act="in">Sign in</button>
-          <button type="button" class="ag-ghost" data-act="up">Create account</button>
-          <button type="button" class="ag-link" data-act="reset">Forgot password?</button>
-          <p class="ag-msg" role="status"></p>
+          <p class="ag-sys" aria-label="System: a new player has been detected"><span class="ag-tag">[SYSTEM]</span> <span class="ag-type"></span><span class="ag-caret" aria-hidden="true"></span></p>
+          <div class="ag-ladder" aria-label="Ranks from E to S">${["E", "D", "C", "B", "A", "S"].map((l, i) => `<span style="--c:${["#8590A6", "#22A06B", "#3C7BF4", "#7B4DF2", "#F06A1D", "#E2A50C"][i]};--i:${i}">${l}</span>`).join('<b aria-hidden="true"></b>')}</div>
+          <div class="ag-panel">
+            <span class="ag-corner tl"></span><span class="ag-corner tr"></span><span class="ag-corner bl"></span><span class="ag-corner br"></span>
+            <div class="ag-head">PLAYER LOGIN</div>
+            <label>Email<input name="email" type="email" autocomplete="email" inputmode="email" required placeholder="you@email.com"></label>
+            <label>Password<input name="password" type="password" autocomplete="current-password" minlength="6" required placeholder="6+ characters"></label>
+            <button type="submit" data-act="in" class="ag-cta"><span>Sign in</span><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <div class="ag-or"><span>New player?</span></div>
+            <button type="button" class="ag-ghost" data-act="up">Create account</button>
+            <button type="button" class="ag-link" data-act="reset">Forgot password?</button>
+            <p class="ag-msg" role="status"></p>
+          </div>
+          <p class="ag-foot">Train. Get ranked from E to S. Climb.</p>
         </form>`;
       document.body.appendChild(el);
+      (function play() {
+        const still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const line = "A new player has been detected.", ty = el.querySelector(".ag-type"), L = el.querySelector(".ag-letter"), hex = el.querySelector(".ag-hex");
+        const cols = ["#8590A6", "#22A06B", "#3C7BF4", "#7B4DF2", "#F06A1D", "#E2A50C"], ls = ["E", "D", "C", "B", "A", "S"];
+        if (still) { ty.textContent = line; return }
+        let i = 0; const t = setInterval(() => { ty.textContent = line.slice(0, ++i); if (i >= line.length) clearInterval(t) }, 38);
+        let r = 0; setInterval(() => { if (el.hidden) return; r = (r + 1) % 6; L.textContent = ls[r]; hex.style.setProperty("--rc", cols[r]); hex.classList.remove("pop"); void hex.offsetWidth; hex.classList.add("pop") }, 1400);
+      })();
       const f = el.querySelector("form"), out = el.querySelector(".ag-msg");
       const say = (t) => (out.textContent = t);
       const busy = (b) => f.querySelectorAll("button").forEach((x) => (x.disabled = b));

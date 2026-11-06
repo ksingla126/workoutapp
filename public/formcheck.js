@@ -24,7 +24,7 @@ P("vpress", "ohp dbpress arnold");
 P("row", "bbrow tbarrow onearmrow dbrow cablerow invrow");
 P("vpull", "pullup chinup pulldown assistpull");
 P("curl", "curl bbcurl ezcurl hammer conc preacher cablecurl inclinecurl");
-P("tri", "pushdown ropepush ohtri dbohtri skull kickback");
+P("tri", "pushdown ropepush ohtri dbohtri skull kickback jmpress jmsmith");
 P("raise", "lateral cablelat frontraise dbrevfly revfly uprow facepull");
 P("legraise", "hangleg legraise");
 P("hold", "plank sideplank");

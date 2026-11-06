@@ -19,20 +19,42 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="icon" href="/icon-192.png">
 <style>
-#authGate{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:24px 18px;background:var(--bg,#EDF0F4);color:var(--ink,#0E1626);font-family:var(--body,system-ui,sans-serif)}
+#authGate{position:fixed;inset:0;z-index:1000;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;padding:28px 16px calc(28px + env(safe-area-inset-bottom,0px));overflow:auto;background:radial-gradient(120% 70% at 50% 0%,#2A2470 0%,#141A33 45%,#0A0E1B 100%);color:#ECEFF7;font-family:var(--body,system-ui,sans-serif)}
 #authGate[hidden]{display:none}
-#authGate .ag-card{width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px}
-#authGate .ag-mark{width:60px;height:66px;clip-path:polygon(50% 0,100% 24%,100% 76%,50% 100%,0 76%,0 24%);background:linear-gradient(155deg,#8F8BFF,#4B48E8 55%,#2F2CB8);color:#fff;display:grid;place-items:center;font:900 24px var(--display,system-ui);margin-bottom:6px}
-#authGate h1{margin:4px 0 0;font:800 38px/1.05 var(--display,system-ui);letter-spacing:-.02em}
-#authGate .ag-sub{margin:0 0 8px;color:var(--muted,#5F6B7E)}
-#authGate label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--muted,#5F6B7E)}
-#authGate input{font:16px var(--body,system-ui);padding:13px 14px;border-radius:12px;border:1px solid var(--line,#E1E5EC);background:var(--surface,#fff);color:var(--ink,#0E1626)}
-#authGate input:focus{outline:none;border-color:var(--gym,#4B48E8);box-shadow:0 0 0 3px color-mix(in srgb,var(--gym,#4B48E8) 22%,transparent)}
-#authGate button{font:700 16px var(--body,system-ui);padding:13px;border-radius:999px;border:0;background:var(--ink,#0E1626);color:var(--bg,#EDF0F4);cursor:pointer}
-#authGate button:disabled{opacity:.5}
-#authGate .ag-ghost{background:transparent;color:var(--ink,#0E1626);border:1px solid var(--line,#E1E5EC)}
-#authGate .ag-link{background:none;color:var(--muted,#5F6B7E);font-size:14px;padding:4px;font-weight:600}
-#authGate .ag-msg{min-height:1.2em;margin:0;font-size:14px;color:var(--bad,#E0402A)}
+#authGate .ag-floor{position:absolute;left:-50%;right:-50%;bottom:-10%;height:60%;background-image:linear-gradient(rgba(143,139,255,.22) 1px,transparent 1px),linear-gradient(90deg,rgba(143,139,255,.22) 1px,transparent 1px);background-size:44px 44px;transform:perspective(420px) rotateX(62deg);transform-origin:50% 0;mask-image:linear-gradient(transparent,#000 30%,#000 70%,transparent);animation:agFloor 3.2s linear infinite;pointer-events:none}
+@keyframes agFloor{to{background-position:0 44px,0 0}}
+#authGate .ag-motes{position:absolute;inset:0;pointer-events:none;overflow:hidden}#authGate .ag-motes i{position:absolute;left:var(--x);bottom:-10px;width:3px;height:3px;border-radius:50%;background:#B9B6FF;box-shadow:0 0 8px #8F8BFF;opacity:0;animation:agMote var(--d) linear var(--t) infinite}
+@keyframes agMote{0%{transform:translateY(0);opacity:0}15%{opacity:.9}100%{transform:translateY(-105vh);opacity:0}}
+#authGate .ag-card{position:relative;width:100%;max-width:380px;min-width:0;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+#authGate .ag-emblem{position:relative;width:92px;height:100px;display:grid;place-items:center;margin-bottom:2px}
+#authGate .ag-hex{--rc:#8590A6;width:76px;height:84px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:linear-gradient(160deg,color-mix(in srgb,var(--rc) 80%,#fff 20%),var(--rc) 55%,color-mix(in srgb,var(--rc) 60%,#000));display:grid;place-items:center;filter:drop-shadow(0 0 18px var(--rc));transition:background .4s,filter .4s}
+#authGate .ag-hex.pop{animation:agPop .5s cubic-bezier(.2,1.5,.4,1)}@keyframes agPop{0%{transform:scale(.82)}100%{transform:scale(1)}}
+#authGate .ag-letter{font:900 44px/1 var(--display,system-ui);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+#authGate .ag-ring{position:absolute;inset:-4px -4px;width:calc(100% + 8px);height:calc(100% + 8px);overflow:visible}#authGate .ag-ring polygon{fill:none;stroke:#A9A6FF;stroke-width:2;stroke-linejoin:round;stroke-dasharray:22 78;filter:drop-shadow(0 0 4px #8F8BFF);animation:agRing 2.4s linear infinite}
+@keyframes agRing{to{stroke-dashoffset:-100}}
+#authGate h1{margin:0;font:900 46px/1 var(--display,system-ui);letter-spacing:.01em;background:linear-gradient(180deg,#fff,#B9B6FF);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 14px rgba(143,139,255,.45))}
+#authGate .ag-sys{margin:0;min-height:1.4em;font:600 13px/1.4 var(--body,system-ui);color:#C3C9D9;letter-spacing:.02em}#authGate .ag-tag{color:#A9A6FF;font-weight:800;letter-spacing:.12em}
+#authGate .ag-caret{display:inline-block;width:7px;height:14px;margin-left:2px;vertical-align:-2px;background:#A9A6FF;animation:agBlink 1s steps(1) infinite}@keyframes agBlink{50%{opacity:0}}
+#authGate .ag-ladder{display:flex;align-items:center;gap:4px;margin:2px 0 4px}#authGate .ag-ladder span{width:26px;height:29px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:var(--c);display:grid;place-items:center;font:800 13px var(--display,system-ui);color:#fff;opacity:.85;animation:agLad 4.2s ease-in-out calc(var(--i)*.25s) infinite}
+#authGate .ag-ladder b{width:10px;height:2px;background:linear-gradient(90deg,rgba(185,182,255,.2),rgba(185,182,255,.6))}@keyframes agLad{0%,70%,100%{transform:none;filter:none}80%{transform:translateY(-4px);filter:drop-shadow(0 0 8px var(--c)) brightness(1.25)}}
+#authGate .ag-panel{position:relative;width:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;text-align:left;padding:20px 18px 16px;border-radius:20px;background:linear-gradient(170deg,rgba(35,36,90,.85),rgba(18,23,42,.9));border:1px solid #3B3C8A;box-shadow:0 0 0 1px rgba(143,139,255,.08) inset,0 20px 60px rgba(0,0,0,.45),0 0 40px rgba(110,105,255,.18);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#authGate .ag-corner{position:absolute;width:16px;height:16px;border:2px solid #8F8BFF;pointer-events:none}#authGate .tl{top:8px;left:8px;border-right:0;border-bottom:0;border-radius:6px 0 0 0}#authGate .tr{top:8px;right:8px;border-left:0;border-bottom:0;border-radius:0 6px 0 0}#authGate .bl{bottom:8px;left:8px;border-right:0;border-top:0;border-radius:0 0 0 6px}#authGate .br{bottom:8px;right:8px;border-left:0;border-top:0;border-radius:0 0 6px 0}
+#authGate .ag-head{font:800 12px var(--body,system-ui);letter-spacing:.22em;color:#A9A6FF;text-align:center;margin-bottom:2px}
+#authGate label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#97A1B8}
+#authGate input{font:500 16px var(--body,system-ui);text-transform:none;letter-spacing:0;padding:13px 14px;border-radius:12px;border:1px solid #2E3658;background:rgba(10,14,27,.7);color:#ECEFF7;transition:border-color .15s,box-shadow .15s}
+#authGate input::placeholder{color:#5B6378}#authGate input:focus{outline:none;border-color:#8F8BFF;box-shadow:0 0 0 3px rgba(143,139,255,.25),0 0 18px rgba(143,139,255,.25)}
+#authGate button{font:800 16px var(--body,system-ui);padding:14px;border:0;cursor:pointer;color:#fff;transition:transform .1s,filter .15s}
+#authGate button:active{transform:scale(.98)}#authGate button:disabled{opacity:.5}
+#authGate .ag-cta{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;border-radius:14px;background:linear-gradient(180deg,#8F8BFF,#5A56F0 60%,#4B48E8);clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));box-shadow:0 0 24px rgba(110,105,255,.55);letter-spacing:.04em;text-transform:uppercase;position:relative;overflow:hidden}
+#authGate .ag-cta::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);animation:agShine 3s ease-in-out infinite}@keyframes agShine{0%,60%{left:-60%}100%{left:130%}}
+#authGate .ag-or{display:flex;align-items:center;gap:10px;color:#97A1B8;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}#authGate .ag-or::before,#authGate .ag-or::after{content:"";flex:1;height:1px;background:#2E3658}
+#authGate .ag-ghost{border-radius:14px;background:rgba(143,139,255,.08);border:1px solid #4A4BA8;color:#DCDAFF}
+#authGate .ag-ghost:hover{background:rgba(143,139,255,.16)}
+#authGate .ag-link{background:none;color:#97A1B8;font-size:13px;padding:2px;font-weight:600}
+#authGate .ag-msg{min-height:1.2em;margin:0;font-size:14px;color:#FF8A73;text-align:center}
+#authGate .ag-foot{margin:6px 0 0;font:700 12px var(--body,system-ui);letter-spacing:.16em;text-transform:uppercase;color:#6E7794}
+@media (prefers-reduced-motion:reduce){#authGate .ag-floor,#authGate .ag-motes i,#authGate .ag-ring,#authGate .ag-ladder span,#authGate .ag-cta::after,#authGate .ag-caret{animation:none}#authGate .ag-motes{display:none}}
+@media (max-height:700px){#authGate .ag-emblem{transform:scale(.8);margin:-10px 0 -8px}#authGate h1{font-size:38px}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="/platform.js"></script>
@@ -266,7 +288,7 @@ p{margin:0}
 .timerbar{position:fixed;left:0;right:0;z-index:5;background:var(--ink);color:var(--bg);padding:8px 16px 0}
 .timerbar .tb-row{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-bottom:8px}
 .timerbar .tb-blk{display:flex;flex-direction:column;line-height:1.05}
-html body .timerbar.mini{left:auto!important;right:14px!important;width:auto!important;max-width:none!important;border-radius:999px!important;padding:6px 14px 6px 12px!important;cursor:pointer}
+html body .timerbar.mini{left:50%!important;right:auto!important;transform:translateX(-50%)!important;width:auto!important;white-space:nowrap;max-width:none!important;border-radius:999px!important;padding:6px 14px 6px 12px!important;cursor:pointer}
 html body .timerbar.mini .tb-row{padding-bottom:0;gap:8px;flex-wrap:nowrap}html body .timerbar.mini .rest,html body .timerbar.mini .tb-btns,html body .timerbar.mini .tb-prog{display:none!important}
 html body .timerbar.mini .tb-v{font-size:16px!important}html body .timerbar.mini .tb-l::after{content:" · tap to return"}
 .timerbar .tb-l{font-size:10px;font-weight:800;opacity:.7}
@@ -444,6 +466,8 @@ nav.tabs .badge{position:absolute;top:2px;right:calc(50% - 22px);min-width:16px;
 .rx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px}.rx-r{display:flex;align-items:center;gap:6px;min-width:0}.rx-r>span{width:20px;flex:none;text-align:right;color:var(--muted);font-size:12px;font-weight:700}
 .rx-r input{flex:1;min-width:0;box-sizing:border-box;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:8px;color:var(--ink);font:inherit;font-size:16px}
 .rx-bad{border-color:var(--bad)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--bad) 30%,transparent)}.rx-err{margin:0;color:var(--bad);font-weight:600}
+.su-intro{gap:8px;border-color:color-mix(in srgb,var(--accent,#8F8BFF) 45%,var(--line));background:linear-gradient(165deg,color-mix(in srgb,var(--accent,#8F8BFF) 18%,var(--surface)),var(--surface) 70%)}.su-intro h2{margin:0;font-size:26px}
+.su-steps{display:flex;flex-wrap:wrap;gap:6px}.su-steps span{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
 .step{display:flex;align-items:center;gap:6px}.step button{width:30px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:600 16px var(--body)}
 .step b{min-width:18px;text-align:center;color:var(--ink);font-size:15px}
 .rng{display:flex;align-items:center;gap:4px;color:var(--ink)}.rng input{width:100%;min-width:0;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:8px 6px;text-align:center;color:var(--ink);font:inherit}
@@ -3117,7 +3141,9 @@ function viewSetup(){
   const opt=(name,val,label,sub)=>`<button type="button" class="suopt ${s[name]===val?"on":""}" data-su-opt="${name}|${val}" aria-pressed="${s[name]===val}"><b>${label}</b>${sub?`<span>${sub}</span>`:""}</button>`;
   const rs=suRoutines(s), sug=suggestKcal(s), sugP=suggestProtein(s);
   const splitOpts=(S.profile.setup?[["keep","Keep my routines",rs.map(r=>r.name).join(" · ")]]:[]).concat(Object.entries(SPLITS).map(([k,sp])=>[k,sp.name,k==="own"?"Empty routines: you pick every exercise":sp.routines.map(r=>r.name).join(" · ")]));
+  const fresh=!S.profile.setup;
   return `<form id="suForm" class="stack" autocomplete="off" onsubmit="return false">
+  ${fresh?`<div class="card su-intro"><span class="hub-sys">[SYSTEM] PLAYER REGISTRATION</span><h2>Create your player</h2><p class="small muted" style="margin:0">Tell the System about you and how you want to train. It builds your plan, then ranks you from <b style="color:#8590A6">E</b> to <b style="color:#E2A50C">S</b> after one week of placement.</p></div>`:""}
   <div class="card"><h2>About you</h2>
     <div class="field"><label for="suName">First name</label><input id="suName" value="${esc(s.name)}" autocomplete="given-name"></div>
     <div class="suopts two">${opt("sex","male","Male")}${opt("sex","female","Female")}</div>

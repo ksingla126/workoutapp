@@ -81,7 +81,7 @@ const TV_OF = {
   pulldown: "vpull", pullup: "vpull", chinup: "vpull", assistpull: "vpull", straightarm: "vpull", dbpullover: "vpull",
   shrug: "shrug",
   curl: "biceps", bbcurl: "biceps", ezcurl: "biceps", hammer: "biceps", conc: "biceps", preacher: "biceps", cablecurl: "biceps", inclinecurl: "biceps",
-  pushdown: "triceps", ropepush: "triceps", ohtri: "triceps", dbohtri: "triceps", skull: "triceps", cgbench: "triceps", tridip: "triceps", kickback: "triceps",
+  pushdown: "triceps", ropepush: "triceps", ohtri: "triceps", dbohtri: "triceps", skull: "triceps", cgbench: "triceps", jmpress: "triceps", jmsmith: "triceps", tridip: "triceps", kickback: "triceps",
   squat: "squat", frontsquat: "squat", goblet: "squat", hack: "squat", smithsquat: "squat", legpress: "squat", legpress45: "squat", split: "squat", lunge: "squat", stepup: "squat",
   legext: "kneeext", legext1: "kneeext",
   rdl: "hinge", dbrdl: "hinge", deadlift: "hinge", tbdl: "hinge", goodmorning: "hinge", kbswing: "hinge",
@@ -91,11 +91,11 @@ const TV_OF = {
   calfraise: "calves", seatedcalf: "calves", tiltcalf: "calves", legpresscalf: "calves",
   cablecrunch: "crunch", declinecrunch: "crunch",
   pallof: "antirot", pallofhold: "antirot", woodchop: "antirot", abwheel: "antirot",
-  hangleg: "hang", deadhang: "grip", wristcurl: "grip",
+  hangleg: "hang", deadhang: "grip", wristcurl: "grip", farmercarry: "grip", farmerhold: "grip", wallsitw: "squat",
   backext: "backext", rowerg: "cardio",
 };
 // fine anywhere: kept as they are
-const TV_KEEP = new Set(["plank", "sideplank", "crunch", "legraise", "deadbug", "russian", "burpee", "mountain", "jumprope", "rope"]);
+const TV_KEEP = new Set(["wallsit", "plank", "sideplank", "crunch", "legraise", "deadbug", "russian", "burpee", "mountain", "jumprope", "rope"]);
 const TV_MUSCLE = { Chest: "hpush", Back: "hpull", Shoulders: "vpush", Biceps: "biceps", Triceps: "triceps", Quads: "squat", Hamstrings: "hinge", Glutes: "glute", Calves: "calves", Core: "crunch", Forearms: "grip", Cardio: "cardio" };
 const TV_DB_EQUIP = new Set(["Dumbbell", "Bodyweight"]);
 const TV_BAR_ONLY = new Set(["pullup", "chinup", "hangleg", "deadhang", "pullneg"]);
