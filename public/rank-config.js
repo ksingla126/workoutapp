@@ -99,6 +99,20 @@ window.RANK_CFG = {
 
     dbfloor: [{ p: "chest", r: 0.7, cap: 3 }], heelgoblet: [{ p: "quads", r: 0.35, cap: 3 }], dbslrdl: [{ p: "hams", r: 0.3, cap: 3 }], dbthrust: [{ p: "hams", r: 0.7, cap: 3 }],
     dbslcalf: [{ p: "calves", r: 0.5, cap: 3 }],
+    // added with the bigger library (conservative; machines and cables capped at B)
+    inclinesmith: [{ p: "chest", r: 0.85 }], inclinemach: [{ p: "chest", r: 1, cap: 3 }], declinedb: [{ p: "chest", r: 0.85 }],
+    lowcablefly: [{ p: "chest", r: 0.4, cap: 3 }], inclinedbfly: [{ p: "chest", r: 0.35, cap: 3 }],
+    closepull: [{ p: "pull", r: 0.9 }], singlepull: [{ p: "pull", r: 0.45, cap: 3 }],
+    pendlay: [{ p: "row", r: 1 }], meadows: [{ p: "row", r: 0.5, cap: 3 }], isorow: [{ p: "row", r: 1, cap: 3 }], highrow: [{ p: "row", r: 1, cap: 3 }], bbshrug: [{ p: "row", r: 1, cap: 3 }],
+    rackpull: [{ p: "hams", r: 1.2, cap: 3 }], sldl: [{ p: "hams", r: 0.8 }], sumodl: [{ p: "hams", r: 1 }], pullthrough: [{ p: "hams", r: 0.6, cap: 3 }], smithhip: [{ p: "hams", r: 1.4, cap: 3 }],
+    smithohp: [{ p: "shoulders", r: 1.05 }], machlateral: [{ p: "shoulders", r: 0.3, cap: 3 }], revcablefly: [{ p: "shoulders", r: 0.3, cap: 3 }],
+    bbupright: [{ p: "shoulders", r: 0.7, cap: 3 }], landmine: [{ p: "shoulders", r: 0.5, cap: 3 }],
+    spider: [{ p: "biceps", r: 0.8 }], machpreacher: [{ p: "biceps", r: 0.85, cap: 3 }], dbpreacher: [{ p: "biceps", r: 0.4 }], bayesian: [{ p: "biceps", r: 0.4, cap: 3 }],
+    ropehammer: [{ p: "biceps", r: 0.9, cap: 3 }], revcurl: [{ p: "biceps", r: 0.75 }],
+    machdip: [{ p: "triceps", r: 1, cap: 3 }], singlepush: [{ p: "triceps", r: 0.3, cap: 3 }], ezohtri: [{ p: "triceps", r: 0.5 }],
+    pendulum: [{ p: "quads", r: 1.2, cap: 3 }], beltsquat: [{ p: "quads", r: 1.1, cap: 3 }], revlunge: [{ p: "quads", r: 0.45, cap: 3 }], bblunge: [{ p: "quads", r: 0.5, cap: 3 }],
+    smithcalf: [{ p: "calves", r: 1 }], donkeycalf: [{ p: "calves", r: 1, cap: 3 }],
+    kneeraise: [{ p: "core", k: "bw", r: 0.7, cap: 3 }], toestobar: [{ p: "core", k: "bw", r: 1.2 }],
     calfraise: [{ p: "calves", r: 1 }], tiltcalf: [{ p: "calves", r: 1 }], seatedcalf: [{ p: "calves", r: 0.8 }], legpresscalf: [{ p: "calves", r: 1.3 }],
 
     hangleg: [{ p: "core", k: "bw", r: 1 }], abwheel: [{ p: "core", k: "bw", r: 1 }], cablecrunch: [{ p: "core", r: 1, ladder: "cablecrunch" }],
