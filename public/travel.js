@@ -89,7 +89,7 @@ const TV_OF = {
   hipthrust: "glute", machthrust: "glute", glutebridge: "glute",
   cablekick: "hipside", abductor: "hipside", adductor: "hipside",
   calfraise: "calves", seatedcalf: "calves", tiltcalf: "calves", legpresscalf: "calves",
-  cablecrunch: "crunch", declinecrunch: "crunch",
+  cablecrunch: "crunch", declinecrunch: "crunch", machcrunch: "crunch",
   pallof: "antirot", pallofhold: "antirot", woodchop: "antirot", abwheel: "antirot",
   hangleg: "hang", deadhang: "grip", wristcurl: "grip", farmercarry: "grip", farmerhold: "grip", wallsitw: "squat",
   backext: "backext", rowerg: "cardio",

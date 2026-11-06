@@ -115,7 +115,7 @@ window.RANK_CFG = {
     kneeraise: [{ p: "core", k: "bw", r: 0.7, cap: 3 }], toestobar: [{ p: "core", k: "bw", r: 1.2 }],
     calfraise: [{ p: "calves", r: 1 }], tiltcalf: [{ p: "calves", r: 1 }], seatedcalf: [{ p: "calves", r: 0.8 }], legpresscalf: [{ p: "calves", r: 1.3 }],
 
-    hangleg: [{ p: "core", k: "bw", r: 1 }], abwheel: [{ p: "core", k: "bw", r: 1 }], cablecrunch: [{ p: "core", r: 1, ladder: "cablecrunch" }],
+    hangleg: [{ p: "core", k: "bw", r: 1 }], abwheel: [{ p: "core", k: "bw", r: 1 }], cablecrunch: [{ p: "core", r: 1, ladder: "cablecrunch" }], machcrunch: [{ p: "core", r: 0.9, ladder: "cablecrunch", cap: 3 }],
     plank: [{ p: "core", k: "hold", r: 1, ladder: "plank", cap: 3 }], sideplank: [{ p: "core", k: "hold", r: 0.6, ladder: "plank", cap: 3 }]
   },
   // Older built-in exercises that were sometimes done with dumbbells: score them as the dumbbell version when they were.

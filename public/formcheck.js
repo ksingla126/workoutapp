@@ -28,7 +28,7 @@ P("tri", "pushdown ropepush ohtri dbohtri skull kickback jmpress jmsmith singlep
 P("raise", "lateral cablelat frontraise dbrevfly revfly uprow facepull bbupright platefront revcablefly");
 P("legraise", "hangleg legraise kneeraise toestobar");
 P("hold", "plank sideplank hollow wallsit");
-P("none", "wristcurl pallof pallofhold cablecrunch rowerg jumprope deadhang");
+P("none", "wristcurl pallof pallofhold cablecrunch machcrunch rowerg jumprope deadhang");
 // everything else (machines, accessories, custom exercises) gets the basic checks
 const MUSCLE_BASIC = { Cardio: "none", Forearms: "none" };
 function patternFor(id, muscle) { return PATTERN_OF[id] || MUSCLE_BASIC[muscle] || "basic"; }
