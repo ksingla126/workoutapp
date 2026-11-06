@@ -59,7 +59,7 @@ const EXLIB_RAW = [
   ["calfraise","Standing Calf Raise","Calves","Machine","w"],["seatedcalf","Seated Calf Raise (Machine)","Calves","Machine","w"],["tiltcalf","Tilt-Seat Calf Raise (Machine)","Calves","Machine","w"],
   ["legpresscalf","Calf Press (Leg Press)","Calves","Machine","w"],
   // Core
-  ["plank","Plank","Core","Bodyweight","t"],["sideplank","Side Plank","Core","Bodyweight","t"],
+  ["plank","Plank","Core","Bodyweight","t"],["sideplank","Side Plank","Core","Bodyweight","t"],["wallsit","Wall Sit","Quads","Bodyweight","t"],["wallsitw","Weighted Wall Sit","Quads","Dumbbell","tw"],
   ["declinecrunch","Decline Crunch (Weighted)","Core","Bodyweight","bw"],["cablecrunch","Cable Crunch","Core","Cable","w"],
   ["crunch","Crunch","Core","Bodyweight","bw"],["hangleg","Hanging Leg Raise","Core","Bodyweight","bw"],
   ["legraise","Lying Leg Raise","Core","Bodyweight","bw"],["pallof","Pallof Press (Cable)","Core","Cable","w"],["pallofhold","Pallof Hold (Cable)","Core","Cable","tw"],
@@ -67,6 +67,7 @@ const EXLIB_RAW = [
   ["deadbug","Dead Bug","Core","Bodyweight","bw"],["woodchop","Cable Woodchop","Core","Cable","w"],
   // Forearms & conditioning
   ["wristcurl","Wrist Curl (Dumbbell)","Forearms","Dumbbell","w"],["deadhang","Dead Hang","Forearms","Bodyweight","t"],
+  ["farmercarry","Farmer's Carry (Dumbbell)","Forearms","Dumbbell","wd"],["farmerhold","Farmer's Hold (Dumbbell)","Forearms","Dumbbell","tw"],
   ["jumprope","Jump Rope","Cardio","Other","t"],["burpee","Burpee","Cardio","Bodyweight","bw"],["mountain","Mountain Climber","Cardio","Bodyweight","t"],
   ["rowerg","Rowing Machine (seconds)","Cardio","Machine","t"]
 ];
@@ -80,10 +81,10 @@ const LIB_MUSCLE_MAP={Chest:{chest:1},Back:{back:1},Shoulders:{shoulders:1},Bice
 function toPlanEx(r){ // routine entry -> exercise object the logger understands
   const L=libEx(r.id)||{id:r.id,name:r.name||r.id,muscle:"",equip:"Other",type:"w"};
   // "t" = timed bodyweight hold (seconds only); "tw" = timed hold with a weight (weight × seconds)
-  const timed=L.type==="t", heldW=L.type==="tw", reps0=L.type==="br", inc= timed||reps0?0 : L.id==="legpress45"||L.id==="legpress"||L.id==="hack"? 20 : L.type==="bw"? 5 : L.equip==="Machine"? 10 : 5;
+  const carry=L.type==="wd", timed=L.type==="t", heldW=L.type==="tw", reps0=L.type==="br", inc= carry? 5 : timed||reps0?0 : L.id==="legpress45"||L.id==="legpress"||L.id==="hack"? 20 : L.type==="bw"? 5 : L.equip==="Machine"? 10 : 5;
   const note= L.type==="bw"? "Bodyweight: leave weight blank, or enter added weight." : L.equip==="Dumbbell"? (L.uni?"Weight = the one dumbbell.":"Weight = each dumbbell.") : "";
-  return {id:L.id,name:L.name,sets:r.sets||3,lo:r.lo||(timed?30:heldW?20:8),hi:r.hi||(timed?60:heldW?30:12),inc,rest:r.rest||90,
-    ...(timed?{bw:true,unit:"sec"}:heldW?{unit:"sec"}:reps0?{bw:true}:{}),...(L.type==="bw"?{optW:true}:{}),...(r.ss?{ss:r.ss}:{}),...(r.note||note?{alt:[note,r.note].filter(Boolean).join(" ")}:{}),muscle:L.muscle,equip:L.equip,uni:L.uni};
+  return {id:L.id,name:L.name,sets:r.sets||3,lo:r.lo||(carry?20:timed?30:heldW?20:8),hi:r.hi||(carry?40:timed?60:heldW?30:12),inc,rest:r.rest||90,
+    ...(carry?{fmt0:"wd"}:timed?{bw:true,unit:"sec"}:heldW?{unit:"sec"}:reps0?{bw:true}:{}),...(L.type==="bw"?{optW:true}:{}),...(r.ss?{ss:r.ss}:{}),...(r.note||note?{alt:[note,r.note].filter(Boolean).join(" ")}:{}),muscle:L.muscle,equip:L.equip,uni:L.uni};
 }
 
 /* ----- Starter splits ----- */
@@ -1519,7 +1520,7 @@ document.addEventListener("click",e=>{
   if(!SH) return;
   if(d.xs==="close"){ xsClose(); return }
   if(d.xsMu!=null){ SH.mu=d.xsMu; paintSheet(); return }
-  if(d.xsAddday){ const k=SH.k, L=libEx(d.xsAddday), tm=L&&L.type==="t"; S.profile.swaps=S.profile.swaps||{}; const sw=S.profile.swaps; sw.add=sw.add||{}; sw.add[k]=[...(sw.add[k]||[]),{id:d.xsAddday,sets:3,lo:tm?30:8,hi:tm?60:12,rest:L&&L.type==="w"&&["Barbell","Smith machine"].includes(L.equip)?150:90}];
+  if(d.xsAddday){ const k=SH.k, L=libEx(d.xsAddday), tm=L&&L.type==="t", cy=L&&L.type==="wd", hw=L&&L.type==="tw"; S.profile.swaps=S.profile.swaps||{}; const sw=S.profile.swaps; sw.add=sw.add||{}; sw.add[k]=[...(sw.add[k]||[]),{id:d.xsAddday,sets:3,lo:cy?20:tm?30:hw?20:8,hi:cy?40:tm?60:hw?30:12,rest:L&&L.type==="w"&&["Barbell","Smith machine"].includes(L.equip)?150:90}];
     saveProfile(); lastRenderKey=""; render(); paintSheet(); toast("Added to today"); return }
   if(d.xsBar){ SH.ex={id:BAR_EX[d.xsBar]}; paintSheet(); return }
   if(d.xsPlate){ const u=UNIT(), p=Number(d.xsPlate), plates={...(userPrefs().plates||{})}; const have=new Set(plates[u]||PLATES[u]); have.has(p)?have.delete(p):have.add(p); plates[u]=[...have]; setPref({plates}); paintSheet(); return }
@@ -1541,7 +1542,7 @@ document.addEventListener("click",e=>{
   if(d.xs==="swapnew"){ SH.back=SH.kind; SH.kind="exNew"; SH.d=null; paintSheet(true); return }
   if(d.xsTab){ SH.tab=d.xsTab; SH.q=""; paintSheet(true); return }
   if(d.xsSlot){ SH.slot=d.xsSlot; paintSheet(); return }
-  if(d.xsEx){ const id=d.xsEx; suMut(su=>{const r=su.routines.find(x=>x.id===SH.rid); const i=r.ex.findIndex(x=>x.id===id); if(i>=0) r.ex.splice(i,1); else { const L=libEx(id), tm=L&&L.type==="t"; r.ex.push({id,sets:3,lo:tm?30:8,hi:tm?60:12,rest:L&&L.type==="w"&&["Barbell","Smith machine"].includes(L.equip)?150:90}) }}); paintSheet(); return }
+  if(d.xsEx){ const id=d.xsEx; suMut(su=>{const r=su.routines.find(x=>x.id===SH.rid); const i=r.ex.findIndex(x=>x.id===id); if(i>=0) r.ex.splice(i,1); else { const L=libEx(id), tm=L&&L.type==="t", cy=L&&L.type==="wd", hw=L&&L.type==="tw"; r.ex.push({id,sets:3,lo:cy?20:tm?30:hw?20:8,hi:cy?40:tm?60:hw?30:12,rest:L&&L.type==="w"&&["Barbell","Smith machine"].includes(L.equip)?150:90}) }}); paintSheet(); return }
   if(d.xs==="exnew"){ SH.kind="exNew"; SH.d=null; paintSheet(true); return }
   if(d.xs==="exback"){ SH.kind=SH.back==="swap"?"swap":"exPick"; paintSheet(true); return }
   if(d.xs==="exsave"){ const x=SH.d; if(!x.name.trim()){ const er=document.querySelector("[data-xs-err]"); er.textContent="Give the exercise a name."; er.hidden=false; return }
