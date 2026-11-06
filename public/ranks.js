@@ -569,7 +569,12 @@ function rkShown(R) { const sc = rkMode === "scaled";
     group: g => g.num == null ? null : sc ? Math.min(5, g.scaled) : g.num } }
 try { const v = localStorage.getItem("rd25-rkmode"); if (v === "raw" || v === "scaled") rkMode = v } catch (e) {}
 const RK_COL = ["#8590A6", "#22A06B", "#3C7BF4", "#7B4DF2", "#F06A1D", "#E2A50C"];
-const rkBadge = (n, big) => { const i = Math.max(0, Math.min(5, Math.floor(n))); return `<span class="rk-l${big ? " big" : ""}${i === 5 ? " s" : ""}" style="--rc:${RK_COL[i]}" role="img" aria-label="Rank ${rkLetter(n)}">${rkLetter(n)}</span>` };
+// Big badges sit in an emblem whose aura grows with the rank: E plain, D–C a soft glow, B a ring, A embers, S gold rays and sparks.
+const rkBadge = (n, big) => { const i = Math.max(0, Math.min(5, Math.floor(n)));
+  const hex = `<span class="rk-l${big ? " big" : ""}${i === 5 ? " s" : ""} g${i}" style="--rc:${RK_COL[i]}" role="img" aria-label="Rank ${rkLetter(n)}">${rkLetter(n)}</span>`;
+  if (!big) return hex;
+  const fx = (i >= 1 ? '<i class="fx-aura"></i>' : "") + (i >= 3 ? '<i class="fx-ring"></i>' : "") + (i >= 4 ? '<i class="fx-emb"><b></b><b></b><b></b><b></b></i>' : "") + (i >= 5 ? '<i class="fx-rays"></i>' : "");
+  return `<span class="fx-em e${i}" style="--rc:${RK_COL[i]}">${fx}${hex}</span>` };
 // Overall rank in the header: taps through to the Ranks screen
 function rankChip() {
   try { if (!(S.profile && (S.profile.setup || Object.keys(S.logs).length))) return ""; const R = rankState(), n = rkAlertCount();
@@ -616,16 +621,17 @@ function rkPartRow(p, R) {
 }
 function rkGroupCard(g, R) {
   const sc = rkMode === "scaled", num = g.num == null ? null : sc ? Math.min(5, g.scaled) : g.num, open = rkOpen === g.id;
-  let h = `<div class="card rk-group"><button type="button" class="rk-head" data-rkgroup="${g.id}" aria-expanded="${open}">${num == null ? '<span class="rk-l" style="--rc:var(--muted)">–</span>' : rkBadge(num, true)}<span style="flex:1;min-width:0;text-align:left"><span class="row between"><b class="rk-name">${esc(g.name)}</b><span class="small muted">${open ? "Hide" : "Details"} ›</span></span>
+  const ti = num == null ? 0 : Math.max(0, Math.min(5, Math.floor(num)));
+  let h = `<div class="card rk-group tint" style="--tc:${RK_COL[ti]}">${num == null ? "" : `<span class="fx-wm" aria-hidden="true">${rkLetter(num)}</span>`}<button type="button" class="rk-head" data-rkgroup="${g.id}" aria-expanded="${open}">${num == null ? '<span class="rk-l" style="--rc:var(--muted)">–</span>' : rkBadge(num, true)}<span style="flex:1;min-width:0;text-align:left"><span class="row between"><b class="rk-name">${esc(g.name)}</b><span class="small muted">${open ? "Hide" : "Details"} ›</span></span>
     ${num == null ? '<span class="small muted">Excluded</span>' : rkBar(num >= 5 ? 1 : num - Math.floor(num), RK_COL[Math.min(5, Math.floor(num) + 1)])}
-    <span class="small muted">${Object.keys(g.parts).map(p => { const P = R.part[p]; return `${esc(RKC().parts[p].name)} ${rkLetter(sc ? Math.min(5, P.scaled.v) : P.num)}${P.gate.open && !sc ? " ⚑" : ""}` }).join(" · ")}</span></span></button>`;
+    <span class="fx-chips">${Object.keys(g.parts).map(p => { const P = R.part[p], v = sc ? Math.min(5, P.scaled.v) : P.num; return `<span class="fx-chip${P.gate.open && !sc ? " gate" : ""}" style="--rc:${RK_COL[Math.max(0, Math.min(5, Math.floor(v)))]}"><b>${rkLetter(v)}</b>${esc(RKC().parts[p].name)}</span>` }).join("")}</span></span></button>`;
   if (open) { h += `<div class="stack" style="gap:10px">${Object.keys(g.parts).map(p => rkPartRow(p, R)).join("")}</div>`; if (g.id === "speed" || g.id === "endur") h += rkTrialBlock() }
   return h + `</div>`;
 }
 function rkDiscCard(R) {
   const D = R.disc, C = RKC().discipline, open = rkOpen === "disc", wk = D.week;
   const sq = D.weeks.map(x => `<i class="${x.hit ? "on" : ""}" title="Week of ${fmtShort(parseYmd(x.w))}: ${x.done} of ${x.plan}"></i>`).join("");
-  let h = `<div class="card rk-group"><button type="button" class="rk-head" data-rkgroup="disc" aria-expanded="${open}">${rkBadge(D.num, true)}<span style="flex:1;min-width:0;text-align:left"><span class="row between"><b class="rk-name">Discipline</b><span class="small muted">${open ? "Hide" : "Details"} ›</span></span>
+  let h = `<div class="card rk-group tint" style="--tc:${RK_COL[Math.min(5, D.rank)]}"><span class="fx-wm" aria-hidden="true">${rkLetter(D.num)}</span><button type="button" class="rk-head" data-rkgroup="disc" aria-expanded="${open}">${rkBadge(D.num, true)}<span style="flex:1;min-width:0;text-align:left"><span class="row between"><b class="rk-name">Discipline</b><span class="small muted">${open ? "Hide" : "Details"} ›</span></span>
     ${rkBar(D.rank >= 5 ? 1 : D.prog, RK_COL[Math.min(5, D.rank + 1)])}
     <span class="small muted">${D.weeks.length < 2 ? `${D.week ? `${D.week.done} of ${D.week.need} sessions this week to put it on target` : "Hit 75% of your sessions this week"}` : `${D.n} of the last ${Math.min(C.weeks, D.weeks.length)} weeks on target`}${D.next ? ` · ${rkLetter(D.rank + 1)} at ${D.next} weeks` : ""}</span></span></button>`;
   if (open) h += `<div class="rk-part"><div class="small">A week is on target when you log ${Math.round(C.hitPct * 100)}% of its planned sessions. Discipline rises with on-target weeks in your last ${C.weeks} and needs no Gates. Miss weeks and it slips on its own.</div>
@@ -805,9 +811,18 @@ function sysNotice(title, body, rank) {
   } catch (e) {}
 }
 function rkCelebrate(ev, n) {
-  const C = RKC(), el = document.createElement("div"); el.className = "rk-up"; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Rank up");
-  el.innerHTML = `<div class="rk-up-in"><div class="eyebrow">${ev.t === "reclaim" ? "Rank reclaimed" : ev.p === "disc" ? "Discipline up" : "Gate cleared"}</div>${rkBadge(ev.to, true)}<h2>${esc(rkPartName(ev.p))} → ${rkLetter(ev.to)}</h2>${n > 1 ? `<p class="small">+${n - 1} more</p>` : ""}<button type="button" class="btn">Continue</button></div>`;
-  document.body.appendChild(el); const close = () => el.remove(); el.onclick = close; setTimeout(() => el.classList.add("on"), 20);
+  const col = RK_COL[Math.min(5, ev.to)], from = Math.max(0, (ev.from != null ? ev.from : ev.to - 1));
+  const el = document.createElement("div"); el.className = "rk-up fx-cine"; el.style.setProperty("--rc", col); el.setAttribute("role", "dialog"); el.setAttribute("aria-label", `Rank up: ${rkPartName(ev.p)} ${rkLetter(ev.to)}`);
+  const title = ev.t === "reclaim" ? "Rank reclaimed" : ev.p === "disc" ? "Discipline up" : "Gate cleared";
+  el.innerHTML = `<canvas class="fx-cv" aria-hidden="true"></canvas><i class="fx-pillar" aria-hidden="true"></i><i class="fx-flash" aria-hidden="true"></i>
+    <div class="rk-up-in"><div class="fx-sys">[SYSTEM] ${esc(title)}</div><div class="fx-big">RANK UP</div>
+      <div class="fx-swap"><span class="fx-old" aria-hidden="true">${rkBadge(from, true)}</span><span class="fx-new">${rkBadge(ev.to, true)}</span><i class="fx-wave" aria-hidden="true"></i></div>
+      <h2>${esc(rkPartName(ev.p))} <span class="fx-arrow">${rkLetter(from)} → </span>${rkLetter(ev.to)}</h2>${n > 1 ? `<p class="small">+${n - 1} more</p>` : ""}<button type="button" class="btn">Continue</button></div>`;
+  document.body.appendChild(el); let ready = false; setTimeout(() => ready = true, 900);
+  const close = () => { if (!ready) return; el.classList.add("out"); setTimeout(() => el.remove(), 260) }; el.onclick = close;
+  el.querySelector(".btn").onclick = e => { e.stopPropagation(); ready = true; close() };
+  setTimeout(() => el.classList.add("on"), 20);
+  if (typeof fxShards === "function") setTimeout(() => fxShards(el.querySelector(".fx-cv"), col), 1000);
 }
 
 /* ---------- styles ---------- */
