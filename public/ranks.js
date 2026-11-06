@@ -79,14 +79,73 @@ function rkVal(m, L) {
 const rkCap = (v, cap) => cap == null ? v : Math.min(v, cap + 0.999);
 const rkPartCap = p => RKC().parts[p].cap;
 
+/* ---------- hybrid: how much each exercise works each muscle and part ---------- */
+const RK_HC = { pat: null, mw: {}, pw: {}, conv: {} };
+function rkPatOf(id) {
+  const C = RKC(); if (!C.exPat) return null;
+  if (!RK_HC.pat) { RK_HC.pat = {}; Object.entries(C.exPat).forEach(([pt, ids]) => ids.split(/\s+/).forEach(x => { if (x) RK_HC.pat[x] = pt })) }
+  if (RK_HC.pat[id]) return RK_HC.pat[id];
+  const map = (rkData().maps || {})[id]; if (map && RK_HC.pat[map]) return RK_HC.pat[map];
+  // exercises added later (or made by you): guess the pattern from the muscle group and the name
+  const L = typeof libEx === "function" && libEx(id); if (!L) return null;
+  const n = String(L.name || "").toLowerCase(), g = L.muscle;
+  const has = re => re.test(n);
+  if (g === "Chest") return has(/fly|cross|pec ?deck/) ? "fly" : has(/dip/) ? "dipchest" : has(/incline/) ? "incpress" : "hpress";
+  if (g === "Shoulders") return has(/rear|reverse|face/) ? "rear" : has(/lateral|side/) ? "side" : has(/front/) ? "front" : has(/upright/) ? "uprow" : "vpress";
+  if (g === "Back") return has(/pull-?up|chin|pulldown|pull-down/) ? "vpull" : has(/shrug/) ? "shrug" : has(/pullover|straight/) ? "lats" : has(/deadlift/) ? "deadlift" : has(/extension|hyper/) ? "backext" : "hpull";
+  if (g === "Biceps") return has(/hammer|reverse/) ? "hammer" : "curl";
+  if (g === "Triceps") return has(/close|jm /) ? "tricomp" : has(/dip/) ? "tridip" : "triiso";
+  if (g === "Quads") return has(/extension/) ? "kneeext" : has(/lunge|split|step/) ? "lunge" : has(/front/) ? "fsquat" : "squat";
+  if (g === "Hamstrings") return has(/curl|nordic/) ? "hamcurl" : has(/deadlift|good ?morning|hinge/) ? "hinge" : "hamcurl";
+  if (g === "Glutes") return has(/abduct/) ? "abduct" : has(/swing/) ? "swing" : "glute";
+  if (g === "Calves") return "calves";
+  if (g === "Core") return has(/twist|chop|pallof|side|oblique/) ? "twist" : has(/plank|wheel|rollout|hollow|dead ?bug/) ? "antiext" : has(/hang|raise|toes/) ? "hang" : "crunch";
+  if (g === "Forearms") return "grip";
+  return null;
+}
+function rkMuscleW(id) { // muscle id → 0–1
+  if (id in RK_HC.mw) return RK_HC.mw[id];
+  const pt = rkPatOf(id); return RK_HC.mw[id] = pt ? (RKC().musclePat[pt] || null) : null;
+}
+function rkPartW(id) { // rank part → 0–1: the strongest of the part's muscles, times how much that muscle stands for the part
+  if (id in RK_HC.pw) return RK_HC.pw[id];
+  const mw = rkMuscleW(id), PM = RKC().partMuscles; if (!mw || !PM) return RK_HC.pw[id] = null;
+  const out = {}; Object.entries(PM).forEach(([p, ms]) => { let w = 0; Object.entries(ms).forEach(([m, imp]) => { w = Math.max(w, (mw[m] || 0) * imp) }); if (w > 0) out[p] = Math.round(w * 100) / 100 });
+  return RK_HC.pw[id] = out;
+}
+function rkRefMid(lad) { return rkLadder(lad, ymd(today), "scaled").th[2] } // the B line on the reference ladder
+// Adds the hybrid layer to an exercise's list: entries for parts it only partly works become side entries (sec = weight),
+// weight × reps exercises also count, at partial credit, toward other weight-ranked parts they work.
+function rkHybrid(eid, list, auto) {
+  const C = RKC(), H = C.hybrid; if (!H) return list;
+  const pw = rkPartW(eid); if (!pw) return list;
+  const out = list.map(c => { const w = pw[c.p]; if (w == null || w >= H.primaryAt) return c; return { ...c, sec: Math.max(H.minW, w) } });
+  const main = out.filter(c => !c.sec && (!c.k || c.k === "load") && !c.ladder).sort((a, b) => (pw[b.p] || 0) - (pw[a.p] || 0))[0];
+  if (!main || C.ladders[main.p].kind !== "load") return out;
+  Object.entries(pw).forEach(([q, w]) => {
+    if (w < H.minW || out.some(c => c.p === q) || !C.ladders[q] || C.ladders[q].kind !== "load" || C.parts[q].run) return;
+    // same standing on both ladders: a set at the middle of the main part's standards lands at the middle of this one's
+    const r = (main.r || 1) * rkRefMid(main.p) / rkRefMid(q);
+    out.push({ p: q, r, cap: 3, sec: Math.min(w, H.primaryAt - 0.01), gen: true });
+  });
+  return out;
+}
 /* ---------- entries ---------- */
 function rkConv(id, l) {
   const C = RKC(); let eid = id;
   if (C.dbVariant[id] && typeof logDb === "function" && logDb(id, l)) eid = C.dbVariant[id];
-  if (C.conv[eid]) return { eid, list: C.conv[eid] };
-  const map = (rkData().maps || {})[id];
-  if (map && C.conv[map]) return { eid: map, list: C.conv[map].map(c => ({ ...c, cap: Math.min(c.cap == null ? 3 : c.cap, 3), custom: true })) };
-  return null;
+  if (eid in RK_HC.conv) return RK_HC.conv[eid];
+  let res = null;
+  if (C.conv[eid]) res = { eid, list: rkHybrid(eid, C.conv[eid]) };
+  else {
+    const map = (rkData().maps || {})[id], L = typeof libEx === "function" && libEx(id);
+    if (map && C.conv[map]) res = { eid: map, list: rkHybrid(map, C.conv[map].map(c => ({ ...c, cap: Math.min(c.cap == null ? 3 : c.cap, 3), custom: true }))) };
+    else if (L && !L.custom && L.type === "w" && C.patRate) { // a library weight exercise with no conversion of its own: rate it from its pattern
+      const pt = rkPatOf(id), pr = pt && C.patRate[pt];
+      if (pr) res = { eid: id, list: rkHybrid(id, [{ p: pr[0], r: pr[1], cap: 3, auto: true }]) };
+    }
+  }
+  return RK_HC.conv[eid] = res;
 }
 function rkTotal(id, l, w) {
   if (typeof DBCFG !== "undefined" && DBCFG[id]) return loadW(id, l, w);
@@ -119,7 +178,7 @@ function rkSetEntries(k, l, id, s, i) {
     }
     if (m == null || !isFinite(m)) return;
     const gateReps = kind === "hold" ? false : LK === "reps" ? true : (r >= C.gateReps[0] && r <= C.gateReps[1]);
-    out.push({ p: c.p, lad, d: k, m, cap: c.cap, gateable: c.cap == null && !c.custom, gateReps, mg, g: s.t === "g", ex: id, eid: cv.eid, set: { w: s.w, r, db: typeof logDb === "function" && logDb(id, l) }, key: `${k}|${id}|${i}`, bw: B, kind });
+    out.push({ p: c.p, lad, d: k, m, cap: c.cap, sec: c.sec, gen: c.gen, gateable: c.cap == null && !c.custom && !c.sec && !c.auto, gateReps, mg, g: s.t === "g", ex: id, eid: cv.eid, set: { w: s.w, r, db: typeof logDb === "function" && logDb(id, l) }, key: `${k}|${id}|${i}`, bw: B, kind });
   });
   return out;
 }
@@ -165,7 +224,7 @@ function rkAllEntries() {
     if (l.type === "gym" && l.ex) {
       const cnt = {};
       Object.entries(l.ex).forEach(([id, sets]) => {
-        const cv = rkConv(id, l), L = typeof libEx === "function" && libEx(id), parts = cv ? [...new Set(cv.list.map(c => c.p))] : (L && C.muscleParts[L.muscle] ? [C.muscleParts[L.muscle]] : []);
+        const cv = rkConv(id, l), L = typeof libEx === "function" && libEx(id), parts = cv ? [...new Set(cv.list.filter(c => !c.sec).map(c => c.p))] : (L && C.muscleParts[L.muscle] ? [C.muscleParts[L.muscle]] : []);
         (sets || []).forEach((s, i) => { if (!s || s.t === "w") return; parts.forEach(p => cnt[p] = (cnt[p] || 0) + 1); E.push(...rkSetEntries(k, l, id, s, i)) });
       });
       Object.entries(cnt).forEach(([p, n]) => { if (n >= C.consistencySets) mark(p, k) });
@@ -224,16 +283,49 @@ function rkFade(R, p, e, d) {
   if (age <= C.graceDays || R.momentum(p, d)) return 1;
   return Math.pow(1 - C.perMonth, (age - C.graceDays) / 30.44);
 }
+// Hybrid combine: the best main-exercise value is the anchor. A side exercise can lift the part at most boost × weight
+// above it; with no main exercise logged, side work counts at partial credit and tops out at B.
+function rkCombine(items) {
+  const H = RKC().hybrid || { boost: 0, soloFloor: 1, soloCap: 5 };
+  let best = 0, src = null;
+  items.forEach(x => { if (!x.sec && x.v > best) { best = x.v; src = x.src } });
+  const anchor = best;
+  items.forEach(x => {
+    if (!x.sec) return; let v, held = false;
+    if (anchor > 0) { const lim = anchor + H.boost * x.sec; v = Math.min(x.v, lim); held = x.v > lim }
+    else v = rkCap(x.v * (H.soloFloor + (1 - H.soloFloor) * x.sec), H.soloCap);
+    if (v > best) { best = v; src = { ...x.src, sec: x.sec, held, solo: !(anchor > 0) } }
+  });
+  return { v: best, src, anchor };
+}
+function rkEntryV(R, p, e, d, mode, opts) {
+  const f = opts && opts.noFade ? 1 : rkFade(R, p, e, d); if (f == null) return null;
+  const L = rkLadder(e.lad, d, mode), m = L.kind === "time" ? e.m / f : e.m * f;
+  let v = rkCap(rkVal(m, L), e.cap); v = rkCap(v, rkPartCap(p));
+  return { v, src: { e, m, fade: f } };
+}
 function rkValue(R, p, d, mode, opts) {
-  let best = 0, src = null; const list = R.byPart[p] || [];
+  const list = R.byPart[p] || [], items = [];
   for (const e of list) {
     if (e.d > d) break; if (e.flag) continue; if (opts && opts.from && e.d < opts.from) continue;
-    const f = opts && opts.noFade ? 1 : rkFade(R, p, e, d); if (f == null) continue;
-    const L = rkLadder(e.lad, d, mode), m = L.kind === "time" ? e.m / f : e.m * f;
-    let v = rkCap(rkVal(m, L), e.cap); v = rkCap(v, rkPartCap(p));
-    if (v > best) { best = v; src = { e, m, fade: f } }
+    const x = rkEntryV(R, p, e, d, mode, opts); if (!x) continue;
+    x.sec = e.sec || 0; items.push(x);
   }
-  return { v: best, src };
+  const c = rkCombine(items); return { v: c.v, src: c.src };
+}
+// one muscle on a day: the part it feeds, scored only from exercises that work that muscle, weighted the same way
+function rkMuscleValue(R, m, d, mode) {
+  const C = RKC(), H = C.hybrid, row = (C.muscles || []).find(x => x[0] === m), p = row && row[2];
+  if (!p || !R.byPart[p]) return null;
+  const items = [];
+  for (const e of R.byPart[p]) {
+    if (e.d > d) break; if (e.flag) continue;
+    const mw = (rkMuscleW(e.eid || e.ex) || {})[m] || 0; if (mw < H.minW) continue;
+    const x = rkEntryV(R, p, e, d, mode); if (!x) continue;
+    x.sec = mw >= H.primaryAt ? 0 : mw; items.push(x);
+  }
+  if (!items.length) return { v: 0, has: false, p };
+  const c = rkCombine(items); return { v: c.v, src: c.src, has: true, est: !(c.anchor > 0), p };
 }
 
 /* ---------- typo / implausible-entry checks ---------- */
@@ -244,6 +336,7 @@ function rkFlags(R, placeWin) {
   const flush = () => { pend.forEach(f => f()); pend = [] };
   R.E.forEach(e => {
     if (e.d !== day) { flush(); day = e.d }
+    if (e.sec) return; // side entries follow their set's main entry (below)
     let why = null; const L = rkLadder(e.lad, e.d, "raw");
     if (L.kind === "time") { if (!e.run || e.whole) { if (e.m < (C.runRecord[e.p] || 0)) why = "faster than the world record" } }
     else if (L.kind === "load") { if (e.m / (e.bw || rkBW(e.d)) > (C.worldRecord[e.lad] || C.worldRecord[e.p] || 99)) why = "beyond world-record strength for your body weight" }
@@ -262,6 +355,8 @@ function rkFlags(R, placeWin) {
     });
   });
   flush();
+  const bad = {}; R.E.forEach(e => { if (!e.sec && e.flag) bad[e.key] = e.flag });
+  R.E.forEach(e => { if (e.sec && bad[e.key]) e.flag = bad[e.key] });
 }
 
 /* ---------- placement ---------- */
@@ -288,6 +383,7 @@ function rkSplitIds() { try { const ph = curPhase(); return [...new Set(Object.v
 function rankState() {
   const sig = rkSig(); if (RK_CACHE.sig === sig && RK_CACHE.R) return RK_CACHE.R;
   for (const k in RK_LCACHE) delete RK_LCACHE[k];
+  RK_HC.pat = null; RK_HC.mw = {}; RK_HC.pw = {}; RK_HC.conv = {};
   RK_W = (S.profile.weights || []).filter(w => w && w.lb > 0).sort((a, b) => a.d < b.d ? -1 : 1);
   RK_PAUSE = rkPauses();
   const C = RKC(), td = ymd(today), { E, trained } = rkAllEntries(), parts = RK_PARTS();
@@ -355,7 +451,7 @@ function rankState() {
   R.overall = gs.length ? Math.min(5, Math.floor(R.overallAvg + (1 - C.overallRoundAt))) : 0;
   R.overallAvgScaled = gs.length ? avg(g => Math.min(5, g.scaled)) : 0;
   R.overallScaled = gs.length ? Math.min(5, Math.floor(R.overallAvgScaled + (1 - C.overallRoundAt))) : 0;
-  R.flagged = E.filter(e => e.flag);
+  R.flagged = E.filter(e => e.flag && !e.sec);
   RK_CACHE = { sig, R };
   return R;
 }
@@ -489,7 +585,7 @@ function rkSrcText(P) {
   if (e.run) return `${esc(e.src)} · ${rkFmtSec(e.m)}${e.p === "endur" ? " 5K-equivalent" : ""} (${fmtShort(parseYmd(e.d))})${faded}`;
   const set = e.kind === "hold" ? `${e.set.r} s` : e.kind === "bw" ? `${e.set.w > 0 ? `BW + ${toU(e.set.w)} ${uL()}` : "BW"} × ${e.set.r}` : e.kind === "assist" ? `assisted (−${toU(e.set.w)} ${uL()}) × ${e.set.r}` : `${toU(e.set.w)} ${uL()}${e.set.db ? "/DB" : ""} × ${e.set.r}`;
   const L = RKC().ladders[e.lad].kind, eq = L === "reps" ? `≈ ${Math.round(e.m)} ${e.lad === "pull" ? "pull-up" : e.lad === "core" ? "leg-raise" : ""} reps` : L === "hold" ? "" : `≈ ${toU(Math.round(e.m))} ${uL()} ${RKC().parts[e.p].ref.toLowerCase()}`;
-  return `${esc(rkExName(e.eid && e.eid !== e.ex && RKC().conv[e.eid] ? e.eid : e.ex))} ${set}${eq ? " " + eq : ""} (${fmtShort(parseYmd(e.d))})${e.cap != null ? ` · counts up to ${rkLetter(e.cap)}` : ""}${faded}`;
+  return `${esc(rkExName(e.eid && e.eid !== e.ex && RKC().conv[e.eid] ? e.eid : e.ex))} ${set}${eq ? " " + eq : ""} (${fmtShort(parseYmd(e.d))})${s.sec ? s.held ? " · side exercise, held to your main lifts" : ` · side exercise, ${s.solo ? "partial credit" : "counts with your main lifts"}` : e.cap != null ? ` · counts up to ${rkLetter(e.cap)}` : ""}${faded}`;
 }
 function rkNextText(p, P) {
   if (P.rank >= 5) return "Top rank";
@@ -557,6 +653,19 @@ function rkAlerts(R) {
   R.events.filter(e => (e.t === "down" || e.t === "reclaim") && rkDays(e.d, R.td) <= 7 && e.p !== "disc").forEach(e => out.push(`<div class="rk-alert ${e.t === "down" ? "warn" : ""}"><b>${esc(rkPartName(e.p))}</b> ${e.t === "down" ? "dropped" : "reclaimed"} to ${rkLetter(e.to)} on ${fmtShort(parseYmd(e.d))}.</div>`));
   Object.entries(rkData().excl || {}).forEach(([p, list]) => { const x = (list || []).find(y => y && !y.to); if (x && rkDays(x.ask || x.from, R.td) >= C.excludeAskDays) out.push(`<div class="rk-alert"><div><b>Still injured?</b> ${esc(C.parts[p].name)} has been excluded for 12 weeks.</div><div class="row"><button type="button" class="btn sm" data-rkkeep="${p}">Keep excluded</button><button type="button" class="btn ghost sm" data-rkexcl="${p}">Include again</button></div></div>`) });
   return out.join("");
+}
+function rkMuscleCard(R, sc) {
+  const C = RKC(); if (!C.muscles || !C.hybrid) return "";
+  let any = false;
+  const rows = C.muscles.map(([m, name, p]) => {
+    if (!p) return `<div class="rk-mu"><span>${esc(name)}</span><span class="rk-l sm" style="--rc:#5B6378">–</span><span class="rk-mu-b"></span><span class="small muted">No standard</span></div>`;
+    const x = rkMuscleValue(R, m, R.td, sc ? "scaled" : "raw"), v = x && x.has ? Math.min(5, x.v) : null; if (v != null) any = true;
+    const f = v == null ? 0 : v >= 5 ? 1 : v - Math.floor(v);
+    return `<div class="rk-mu"><span>${esc(name)}</span>${v == null ? '<span class="rk-l sm" style="--rc:#5B6378">–</span>' : rkBadge(v).replace('class="rk-l', 'class="rk-l sm')}<span class="rk-mu-b">${v == null ? "" : rkBar(f, RK_COL[Math.min(5, Math.floor(v) + 1)])}</span><span class="small muted">${v == null ? "Not trained" : x.est ? "Estimate" : esc(C.parts[p].name)}</span></div>`;
+  }).join("");
+  return `<details class="card rk-mus"><summary><h2 style="display:inline">Muscle breakdown</h2></summary>
+    <p class="small muted">Every exercise counts toward each muscle it works, weighted by how much it works it. Side exercises can only nudge a muscle above your main lifts for it. "Estimate" means only side work has hit that muscle so far. Letters show your current strength; your ranks still come from the parts above and their Gates.</p>
+    <div class="rk-mus-g">${rows}</div></details>`;
 }
 function rkPauseCard(R) {
   const C = RKC(), P = rkPauses(), open = P.find(x => x.open), used = P.filter(x => rkDays(x.to, R.td) < 365).reduce((t, x) => t + rkDays(x.from, x.to) + 1, 0), left = Math.max(0, C.pauseDaysPerYear - used);
@@ -631,6 +740,7 @@ function viewRanks() {
   if (R.place && !R.place.pending) h += `<p class="small muted" style="margin:0 4px">Placed ${fmtShort(parseYmd(R.place.at))} from your training ${fmtShort(parseYmd(R.place.from))}–${fmtShort(parseYmd(R.place.to))} (placement caps at B).</p>`;
   const al = rkAlerts(R); if (al) h += `<div class="stack" style="gap:8px">${al}</div>`;
   R.groups.forEach(g => h += g.disc ? rkDiscCard(R) : rkGroupCard(g, R));
+  h += rkMuscleCard(R, sc);
   if (typeof friendsCard === "function") h += friendsCard();
   if (R.place && typeof questLog === "function") h += questLog();
   const un = rkUnrated();
@@ -705,6 +815,9 @@ function rkCelebrate(ev, n) {
   const css = `.rk-l{display:inline-flex;align-items:center;justify-content:center;width:34px;height:38px;flex:none;color:#fff;font:900 18px/1 var(--display);letter-spacing:-.02em;
   clip-path:polygon(50% 0,100% 24%,100% 76%,50% 100%,0 76%,0 24%);background:linear-gradient(155deg,color-mix(in srgb,var(--rc) 62%,#fff) 0%,var(--rc) 46%,color-mix(in srgb,var(--rc) 78%,#000) 100%);text-shadow:0 1px 1px rgba(0,0,0,.18)}
 .rk-l.big{width:56px;height:62px;font-size:30px}
+.rk-mus summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}.rk-mus summary::after{content:"▾";color:var(--muted)}.rk-mus[open] summary::after{content:"▴"}.rk-mus summary::-webkit-details-marker{display:none}
+.rk-mus-g{display:flex;flex-direction:column;gap:6px;margin-top:8px}.rk-mu{display:grid;grid-template-columns:minmax(0,1.1fr) auto minmax(0,1fr) minmax(0,.9fr);gap:10px;align-items:center;font-size:14px}
+.rk-mu .rk-l{width:24px;height:27px;font-size:13px}.rk-mu .rk-bar{margin:0}.rk-mu>span:last-child{text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rk-l.s{background:linear-gradient(155deg,#FFF1B8 0%,#F5C531 30%,#E2A50C 55%,#B97E00 100%);color:#3B2600;text-shadow:0 1px 0 rgba(255,255,255,.4)}
 .rk-bar{height:8px;border-radius:99px;background:color-mix(in srgb,var(--ink) 8%,transparent);overflow:hidden;margin:6px 0 4px}.rk-bar i{display:block;height:100%;border-radius:99px;transition:width .4s}
 .rk-head{all:unset;display:flex;gap:12px;align-items:center;cursor:pointer;width:100%;box-sizing:border-box}.rk-head:focus-visible{outline:2px solid var(--gym);outline-offset:4px;border-radius:8px}
