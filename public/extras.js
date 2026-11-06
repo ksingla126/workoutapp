@@ -343,7 +343,7 @@ document.addEventListener("click", e => {
 
 /* ======================= After a workout: keep the changes? ======================= */
 // Like Hevy's "update routine?": exercises added just for today, and a different number of working sets than the
-// routine has, can be saved into the routine (or left as a one-off). Swaps already ask when you make them.
+// routine has (an extra set), can be saved into the routine (or left as a one-off). Swaps already ask when you make them.
 function routineChanges(k) {
   const l = S.logs[k], su = CUSTOM && CUSTOM.su; if (!l || l.type !== "gym" || !l.ex || !su) return null;
   const rt = (S.profile.setup.routines || []).find(r => r.id === l.day); if (!rt) return null;
@@ -351,7 +351,7 @@ function routineChanges(k) {
   const add = ((S.profile.swaps || {}).add || {})[k] || [];
   add.forEach(a => { const n = work(a.id); if (n && !rt.ex.some(e => e.id === a.id)) out.push({ kind: "add", id: a.id, sets: n, lo: a.lo, hi: a.hi, rest: a.rest, name: (libEx(a.id) || { name: a.id }).name }) });
   const once = ((S.profile.swaps || {}).once || {})[k] || {};
-  rt.ex.forEach(e => { if (once[e.id]) return; const n = work(e.id); if (n && n !== e.sets) out.push({ kind: "sets", id: e.id, from: e.sets, sets: n, name: (libEx(e.id) || { name: e.id }).name }) });
+  rt.ex.forEach(e => { if (once[e.id]) return; const n = work(e.id); if (n > e.sets) out.push({ kind: "sets", id: e.id, from: e.sets, sets: n, name: (libEx(e.id) || { name: e.id }).name }) });
   return out.length ? { rid: rt.id, rname: rt.name, list: out } : null;
 }
 function routineAsk(k, n = 0) {
