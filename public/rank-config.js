@@ -2,10 +2,31 @@
  * rates can be tuned without touching scoring code. Spec: "Fitness Rank System — Design Spec v2" (Oct 24, 2026).
  * Weights are one-rep maxes in lb, times are seconds. Ladders list the minimum for D, C, B, A, S (E is anything below D). */
 window.RANK_CFG = {
-  version: 3,
+  version: 4,
   letters: ["E", "D", "C", "B", "A", "S"],
   refBW: { male: 200, female: 170 },          // raw ladders are written for these body weights
-  scaleExp: 0.67,                             // scaled mode: target × (bodyweight ÷ reference)^0.67
+  scaleExp: 0.67,                             // size scaling for ladders without data: target × (bodyweight ÷ reference)^0.67
+  // Letters sit at these percentiles of people who log their lifts (Symmetric Strength member data via FitnessVolt,
+  // CC BY 4.0): D = 5th, C = 25th, B = median, A = 80th, S = 95th, for your sex and body weight.
+  pctAt: [5, 25, 50, 80, 95],
+  // [band midpoint body weight lb, 25th, median, 75th, 90th] estimated 1RM in lb (pull-ups: body weight + added).
+  // Source: symmetricstrength.com/standards, logged member lifts, Nov 2026. null = fewer than 200 lifters.
+  std: {
+    chest: { male: [[136,129,157,187,213],[154.5,157,185,216,244],[173,174,206,239,270],[194,187,225,263,298],[218,196,239,280,325],[248,200,249,298,348],[285,193,254,319,380]],
+             female: [[108,65,80,98,115],[120.5,76,90,114,133],[132.5,82,103,122,143],[149,85,105,130,154],[172,90,111,141,171],[200,93,120,147,198]] },
+    quads: { male: [[136,163,204,252,296],[154.5,198,243,289,335],[173,221,270,321,371],[194,240,297,353,408],[218,256,315,379,443],[248,262,332,405,485],[285,252,334,426,536]],
+             female: [[108,99,128,160,199],[120.5,119,154,190,220],[132.5,129,164,204,239],[149,135,175,220,258],[172,143,187,243,290],[200,135,195,250,324]] },
+    hams:  { male: [[136,193,244,297,345],[154.5,239,289,343,396],[173,267,321,381,437],[194,289,354,416,478],[218,303,375,444,510],[248,311,395,472,550],[285,296,392,495,594]],
+             female: [[108,117,158,198,246],[120.5,143,181,223,262],[132.5,159,199,239,286],[149,165,209,256,300],[172,178,225,280,331],[200,180,243,297,365]] },
+    shoulders: { male: [[136,83,101,119,136],[154.5,99,117,135,154],[173,110,130,150,169],[194,120,141,162,185],[218,126,151,175,198],[248,129,157,186,216],[285,125,157,202,243]],
+             female: [[108,44,56,68,77],[120.5,52,64,76,87],[132.5,57,68,81,90],[149,59,73,85,100],[172,63,77,93,110],[200,64,82,104,127]] },
+    row:   { male: [[136,115,141,169,195],[154.5,134,162,192,221],[173,154,180,211,244],[194,161,193,227,264],[218,169,206,245,289],[248,172,216,262,308],[285,159,211,271,332]],
+             female: [[120.5,74,93,111,128],[132.5,77,96,115,134],[149,82,100,122,141],[172,87,106,128,157]] },
+    pull:  { male: [[136,168,186,205,227],[154.5,196,211,231,253],[173,214,232,252,278],[194,232,252,274,300],[218,245,272,296,321],[248,256,284,316,340],[285,273,314,360,431]],
+             female: [[120.5,121,134,150,163],[132.5,130,146,164,176],[149,132,155,175,194]] }
+  },
+  // parts without public data: a share of another part's standards (close-grip bench ≈ 89% of bench, barbell curl ≈ 47%)
+  derived: { triceps: { from: "chest", r: 0.89 }, biceps: { from: "chest", r: 0.47 } },
 
   // kind: load = lb (higher is better) · reps = strict reps · hold = seconds held · time = seconds (lower is better)
   ladders: {
@@ -138,7 +159,8 @@ window.RANK_CFG = {
   worldRecord: { chest: 3.6, row: 3, shoulders: 2.4, biceps: 1.7, triceps: 3.3, quads: 5, hams: 5.2, calves: 9, pull: 70, core: 100, plank: 3600, pushup: 200, cablecrunch: 4 },
   runRecord: { m400: 43, mile: 223, endur: 755 },  // seconds; anything faster is a GPS glitch or a typo
   // strength targets × this after 40 (ages 18–39 use the ladders as written)
-  ageStrength: [[0, 1], [40, 0.97], [45, 0.93], [50, 0.89], [55, 0.84], [60, 0.78], [65, 0.72], [70, 0.65]],
+  // McCulloch masters' age multiples (as used by APF/WPC), age 40–80: strength standards are divided by these
+  ageMAM: [1.000,1.010,1.020,1.031,1.043,1.055,1.068,1.082,1.097,1.113,1.130,1.147,1.165,1.184,1.204,1.225,1.246,1.268,1.291,1.315,1.340,1.366,1.393,1.421,1.450,1.480,1.511,1.543,1.576,1.610,1.645,1.681,1.718,1.756,1.795,1.835,1.876,1.918,1.961,2.005,2.050],
   // running target times get longer with age: × (1 + rate per year past each age) — about 7:45 → 8:15 for a 50-year-old's B mile
   ageRun: [[35, 0.0043], [55, 0.007], [65, 0.01]]
 };

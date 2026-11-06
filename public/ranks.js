@@ -22,7 +22,7 @@ function rkAgeAt(k) {
   if (su.birth && /^\d{4}-\d{2}$/.test(su.birth)) { const [y, m] = su.birth.split("-").map(Number), d = parseYmd(k); let a = d.getFullYear() - y; if (d.getMonth() + 1 < m) a--; if (a >= 10 && a < 110) return a }
   return Number(su.age) || 30;
 }
-function rkAgeStrength(a) { let f = 1; RKC().ageStrength.forEach(([x, v]) => { if (a >= x) f = v }); return f }
+function rkAgeStrength(a) { const t = RKC().ageMAM; if (!t || a < 40) return 1; return 1 / t[Math.min(t.length - 1, Math.floor(a) - 40)] }
 function rkAgeRun(a) { let m = 1; const t = RKC().ageRun; t.forEach(([from, rate], i) => { const to = i + 1 < t.length ? t[i + 1][0] : 200; if (a > from) m += rate * (Math.min(a, to) - from) }); return m }
 
 /* ---------- ladders and values ---------- */
@@ -34,11 +34,40 @@ function rkBW(k) {
   return v || Number(rkSu().weight) || RKC().refBW[rkSex()];
 }
 const RK_LCACHE = {};
+// Letter thresholds for a part. The ranked ("raw") view is for you: your sex, body weight and age. The other view
+// ("scaled") compares you with a reference lifter (200 lb man / 170 lb woman, under 40), the old absolute numbers.
+const RK_Z = p => { const t = { 5: -1.645, 10: -1.2816, 20: -0.8416, 25: -0.6745, 30: -0.5244, 45: -0.1257, 50: 0, 55: 0.1257, 70: 0.5244, 75: 0.6745, 80: 0.8416, 88: 1.175, 90: 1.2816, 95: 1.645, 97: 1.881 }; return t[p] };
+// percentile row [p25, p50, p75, p90] at a body weight: log-log between band midpoints, size-scaled past the ends
+function rkStdAt(rows, bw) {
+  const R = rows.filter(x => x && x.every(v => v > 0)); if (!R.length) return null; const e = RKC().scaleExp;
+  if (bw <= R[0][0]) return R[0].slice(1).map(v => v * Math.pow(bw / R[0][0], e));
+  const last = R[R.length - 1]; if (bw >= last[0]) return last.slice(1).map(v => v * Math.pow(bw / last[0], e));
+  let i = 0; while (R[i + 1][0] < bw) i++; const a = R[i], b = R[i + 1], f = Math.log(bw / a[0]) / Math.log(b[0] / a[0]);
+  return a.slice(1).map((v, j) => Math.exp(Math.log(v) + f * (Math.log(b[j + 1]) - Math.log(v))));
+}
+// the value at percentile p from the 25th/50th/75th/90th, straight lines in z between them, extended past the ends
+function rkPctVal(q, p) {
+  const zs = [-0.6745, 0, 0.6745, 1.2816], z = RK_Z(p); let i = z <= zs[1] ? 0 : z <= zs[2] ? 1 : 2;
+  return q[i] + (q[i + 1] - q[i]) * (z - zs[i]) / (zs[i + 1] - zs[i]);
+}
+function rkStdLadder(key, sx, bw) {
+  const C = RKC(), rows = C.std && C.std[key] && C.std[key][sx]; if (!rows) return null;
+  const q = rkStdAt(rows, bw); if (!q) return null; let th = C.pctAt.map(p => rkPctVal(q, p));
+  if (C.ladders[key].kind === "reps") th = th.map(t => 30 * (t / bw - 1));     // pull-ups: total load → strict reps at your weight
+  const reps = C.ladders[key].kind === "reps";                                  // keep the letters apart: +1 rep or +5% each step
+  for (let i = 0; i < th.length; i++) th[i] = Math.max(reps ? Math.round(th[i]) : th[i], i ? (reps ? th[i - 1] + 1 : th[i - 1] * 1.05) : 1);
+  return th;
+}
 function rkLadder(key, k, mode) {
   const ck = key + k + mode; if (RK_LCACHE[ck]) return RK_LCACHE[ck];
-  const L = RKC().ladders[key], sx = rkSex(), a = rkAgeAt(k);
-  let th = L[sx].map(x => L.kind === "time" ? x * rkAgeRun(a) : x * rkAgeStrength(a));
-  if (mode === "scaled" && L.kind === "load") { const f = Math.pow(rkBW(k) / RKC().refBW[sx], RKC().scaleExp); th = th.map(x => x * f) }
+  const C = RKC(), L = C.ladders[key], sx = rkSex(), mine = mode !== "scaled", a = rkAgeAt(k), bw = mine ? rkBW(k) : C.refBW[sx];
+  if (L.kind === "time") return RK_LCACHE[ck] = { th: L[sx].map(x => x * rkAgeRun(a)), kind: L.kind };
+  const ag = mine ? rkAgeStrength(a) : 1, D = C.derived && C.derived[key];
+  let th = rkStdLadder(D ? D.from : key, sx, bw);
+  if (th) { if (D) th = th.map(x => x * D.r) }
+  else { th = L[sx].slice(); if (L.kind === "load") th = th.map(x => x * Math.pow(bw / C.refBW[sx], C.scaleExp)) }
+  if (L.kind === "reps" && !(C.std && C.std[key])) th = L[sx].slice();        // rep ladders without data already scale with you
+  th = th.map(x => L.kind === "reps" ? Math.max(1, Math.round(x * ag * 10) / 10) : x * ag);
   return RK_LCACHE[ck] = { th, kind: L.kind };
 }
 // metric → 0–5 (E = 0…1, D = 1…2, … S = 5)
@@ -593,8 +622,8 @@ function rkHud(R, sc, su) {
     ${rkRadar(R, sc)}
     ${how}
     ${fresh ? "" : `<div class="rk-tiles">${tiles}</div>`}
-    ${fresh ? "" : `<div class="seg two rk-seg" role="tablist" aria-label="Rank view"><button role="tab" data-rkmode="raw" class="${!sc ? "on" : ""}" aria-selected="${!sc}">Raw</button><button role="tab" data-rkmode="scaled" class="${sc ? "on" : ""}" aria-selected="${sc}">For your size</button></div>`}
-    ${fresh ? "" : `<p class="rk-hud-note">${sc ? "What your lifts are worth at your body weight. Gates and rank-ups always use raw ranks." : "Strength and speed come from your best recent lifts and runs, and each rank-up needs a Gate. Discipline comes from showing up week after week."}</p>`}</div>`;
+    ${fresh ? "" : `<div class="seg two rk-seg" role="tablist" aria-label="Rank view"><button role="tab" data-rkmode="raw" class="${!sc ? "on" : ""}" aria-selected="${!sc}">For you</button><button role="tab" data-rkmode="scaled" class="${sc ? "on" : ""}" aria-selected="${sc}">Absolute</button></div>`}
+    ${fresh ? "" : `<p class="rk-hud-note">${sc ? `Your lifts against a ${rkSex() === "female" ? "170" : "200"} lb ${rkSex() === "female" ? "woman" : "man"} under 40, the same numbers for everyone. Gates and rank-ups use your own ranks.` : `Strength ranks compare you with people who log their lifts, at your sex, body weight${rkAgeAt(R.td) >= 40 ? " and age" : ""}: D is the 5th percentile, C the 25th, B the median, A the 80th and S the 95th. Each rank-up needs a Gate.`}</p>`}</div>`;
 }
 function viewRanks() {
   const R = rankState(), C = RKC(), sc = rkMode === "scaled", su = rkSu();
@@ -607,7 +636,8 @@ function viewRanks() {
   const un = rkUnrated();
   if (un.length) h += `<div class="card"><h2>Unrated exercises</h2><p class="small muted">Pick a similar exercise so these count. They count up to B and can't be Gates.</p>${un.map(([id, L]) => `<div class="row between" style="align-items:center"><span>${esc(L.name)}</span><select data-rkmap="${esc(id)}"><option value="">Counts like…</option>${Object.keys(C.conv).map(x => `<option value="${x}">${esc(rkExName(x))}</option>`).join("")}</select></div>`).join("")}</div>`;
   h += rkPauseCard(R);
-  h += `<div class="card"><h2>Your details</h2><p class="small muted">${su.sex === "female" ? "Female" : "Male"} · age ${rkAgeAt(R.td)}${su.birth ? "" : " (set your birth month so this stays current)"}. Ranks adjust after 40.</p>
+  h += `<div class="card"><h2>Your details</h2><p class="small muted">${su.sex === "female" ? "Female" : "Male"} · age ${rkAgeAt(R.td)}${su.birth ? "" : " (set your birth month so this stays current)"}. Strength standards ease from 40 on (masters' age multiples), and running targets too.</p>
+    <p class="small muted">Standards: <a href="https://fitnessvolt.com/strength-standards/strength-data/" target="_blank" rel="noopener">FitnessVolt</a> / <a href="https://symmetricstrength.com/standards" target="_blank" rel="noopener">Symmetric Strength</a> member data (CC BY 4.0). Biceps and triceps are set from bench ratios; calves and core from the app's own scales.</p>
     <div class="field" style="max-width:220px"><label for="rkBirth">Birth month</label><input id="rkBirth" type="month" value="${esc(su.birth || "")}" max="${ymd(today).slice(0, 7)}"></div></div>`;
   return h;
 }
@@ -645,7 +675,8 @@ function rankNotify() {
     const R = rankState(), D = rkData(), seen = new Set(D.seen || []), fresh = R.events.filter(e => !seen.has(e.id));
     if (!fresh.length) return;
     // first run on this device/account: mark history seen without celebrating it all
-    const recent = fresh.filter(e => rkDays(e.d, R.td) <= 2);
+    const newCfg = D.cfgV !== RKC().version && (D.seen || []).length > 0; D.cfgV = RKC().version;            // standards changed: no burst of rank-ups for old lifts
+    const recent = newCfg ? [] : fresh.filter(e => rkDays(e.d, R.td) <= 2);
     D.seen = [...seen, ...fresh.map(e => e.id)].slice(-400); saveProfile();
     const up = recent.filter(e => e.t === "up" || e.t === "reclaim"), fail = recent.filter(e => e.t === "fail");
     if (up.length) rkCelebrate(up[up.length - 1], up.length);
