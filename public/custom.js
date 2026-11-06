@@ -304,11 +304,19 @@ function loggedPlan(d){ const k=ymd(d), l=S.logs[k]; if(!l) return null; const w
 
 /* ======================= Shared bottom sheet ======================= */
 let SH=null; // {kind, ...state}
+// Sheets sit on the visible part of the screen: above the iPhone keyboard and never taller than what's showing,
+// so their top (title, Close) can't slide off-screen.
+function vvSync(){ const v=window.visualViewport, h=v?v.height:innerHeight, kb=v?Math.max(0,Math.round(innerHeight-v.height-v.offsetTop)):0, r=document.documentElement.style;
+  r.setProperty("--vvh",Math.round(h)+"px"); r.setProperty("--kb",(kb>60?kb:0)+"px"); const x=document.getElementById("xsheet"); if(x) x.classList.toggle("xs-kb",kb>60) }
+if(window.visualViewport){ visualViewport.addEventListener("resize",vvSync); visualViewport.addEventListener("scroll",vvSync) } addEventListener("resize",vvSync); addEventListener("orientationchange",()=>setTimeout(vvSync,300)); vvSync();
 function sheetEl(){ let el=document.getElementById("xsheet"); if(!el){ el=document.createElement("div"); el.id="xsheet"; el.hidden=true; el.innerHTML=`<div class="xs-back" data-xs="close"></div><div class="xs-panel" role="dialog" aria-modal="true"><div class="xs-in"></div></div>`; document.body.appendChild(el) } return el }
 function openSheet(state){ SH=state; const el=sheetEl(); el.hidden=false; document.body.classList.add("xs-open"); paintSheet(true) }
 function xsClose(){ stopScan(); if(SH&&SH.kind==="form"&&SH.track) URL.revokeObjectURL(SH.track.url); SH=null; const el=document.getElementById("xsheet"); if(el) el.hidden=true; document.body.classList.remove("xs-open") }
 function paintSheet(scrollTop){ if(!SH) return; const el=sheetEl(), inn=el.querySelector(".xs-in"); const focusSel=document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.xsFocus;
   inn.innerHTML=sheetHtml();
+  // search sheets keep one height, so the search box stays put while results narrow
+  el.classList.toggle("xs-tall",!!inn.querySelector('.xs-search[type=search]')); vvSync();
+  const hd=inn.querySelector(".xs-head"); if(hd) el.style.setProperty("--xsh",hd.offsetHeight+"px");
   if(scrollTop) el.querySelector(".xs-panel").scrollTop=0;
   if(SH.kind==="form") formMountReplay();
   if(focusSel){ const f=inn.querySelector(`[data-xs-focus="${focusSel}"]`); if(f){ f.focus(); try{const v=f.value; f.setSelectionRange(v.length,v.length)}catch(e){} } } }
@@ -1646,7 +1654,7 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener("input",e=>{ const t=e.target, d=t.dataset||{};
   if(!SH) return;
-  if(d.xsQ){ SH.q=t.value; SH.allLocal=false; paintPart(".xs-results"); return }
+  if(d.xsQ){ SH.q=t.value; SH.allLocal=false; paintPart(".xs-results"); const pn=document.querySelector("#xsheet .xs-panel"); if(pn) pn.scrollTop=0; return }
   if(d.xsCode){ SH.code=t.value; return }
   if(d.xsPw){ SH.w=t.value; paintPart(".plate-out"); return }
   if(d.xsQty){ SH.pick.qty=t.value; paintPart(".macroline"); return }
