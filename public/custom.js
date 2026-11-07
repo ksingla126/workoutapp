@@ -1431,13 +1431,16 @@ function extrasForSave(k,log){ const ib=((S.profile&&S.profile.stravaInbox)||{})
   if(ib&&ib.runs){ ib.runs.forEach(x=>{ if(!xr.some(y=>y.stravaId===x.stravaId)) xr.push(slim(x)) }); const inbox=stravaInbox(); delete inbox[k]; S.profile.stravaInbox=inbox; saveProfile() }
   return xr }
 function maybeStravaInit(){ if(!window.__stravaInit&&window.__platform&&loaded.profile&&loaded.logs){ window.__stravaInit=true; stravaOnLoad() } }
+// Strava sync is off for now: runs come from GPX/TCX files. Anyone who connected before is disconnected once,
+// which revokes the app's access at Strava and deletes the stored tokens.
+const STRAVA_ON=false;
 function stravaOnLoad(){
-  if(!(window.appConfig&&appConfig().strava)) return;
+  if(!STRAVA_ON){ const ss=stravaState(); if(ss.connected||ss.pending){ api("/api/strava-disconnect",{method:"POST"}).then(()=>setStrava({connected:false,pending:0,cursor:null,lastSync:null,off:Date.now()})).catch(()=>{}) } return }
   const q=new URLSearchParams(location.search), r=q.get("strava");
   if(r){ history.replaceState(null,"",location.pathname); if(r!=="connected") toast(r==="denied"?"Strava connection cancelled.":r==="scope"?"Tick “View data about your activities” so runs can import.":r==="expired"?"That Strava link expired. Connect again.":"Strava didn't finish connecting. Try again.") }
   stravaCheck(true);
   document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"){ const ss=stravaState(); if(ss.pending&&Date.now()-ss.pending<30*60000) stravaCheck(true); else if(ss.connected) stravaCheck(false) } }) }
-function stravaRows(){ if(!(window.appConfig&&appConfig().strava)) return ""; const ss=stravaState(), busy=SH&&SH.syncing;
+function stravaRows(){ if(!STRAVA_ON||!(window.appConfig&&appConfig().strava)) return ""; const ss=stravaState(), busy=SH&&SH.syncing;
   const err=SH&&SH.stravaErr?`<p class="note">${esc(SH.stravaErr)}</p>`:"";
   if(ss.connected) return `<h3>Strava</h3><div class="setrow"><span><b>Connected</b><span class="small muted">${busy?"Syncing…":ss.lastSync?"Last synced "+new Date(ss.lastSync).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"Runs import automatically"}</span></span><span class="row" style="gap:6px;flex-wrap:nowrap"><button type="button" class="btn sm" data-acct-ssync="1" ${busy?"disabled":""}>Sync</button><button type="button" class="btn ghost sm" data-acct-sdisc="1">Disconnect</button></span></div>${err}`;
   if(ss.pending&&Date.now()-ss.pending<30*60000) return `<h3>Strava</h3><div class="setrow"><span><b>Finishing on Strava…</b><span class="small muted">Approve on the Strava screen, then come back here.</span></span><button type="button" class="btn sm" data-acct-scheck="1">Check</button></div><button type="button" class="link small" data-acct-sconn="1">Start over</button>${err}`;
@@ -1446,7 +1449,7 @@ function stravaRows(){ if(!(window.appConfig&&appConfig().strava)) return ""; co
 // Strava where runs happen, not only in the account sheet
 const STRAVA_MARK=`<svg viewBox="0 0 24 24" aria-hidden="true" class="sv-mark"><path fill="#FC4C02" d="M10.1 1 4.3 12.4h3.5l2.3-4.5 2.2 4.5h3.5z"/><path fill="#FC4C02" opacity=".6" d="m15.8 12.4-1.7 3.4-1.8-3.4H9.8l4.3 8.4 4.2-8.4z"/></svg>`;
 function stravaPrompt(where){
-  if(!(window.appConfig&&appConfig().strava)) return ""; const ss=stravaState();
+  if(!STRAVA_ON||!(window.appConfig&&appConfig().strava)) return ""; const ss=stravaState();
   if(ss.connected||(ss.pending&&Date.now()-ss.pending<30*60000)) return "";
   if(where==="home"&&userPrefs().stravaHide) return "";
   return `<div class="strava-cta">${STRAVA_MARK}<div style="flex:1;min-width:0"><b>Record runs on Strava?</b><div class="small muted">Connect it once and your runs import by themselves, with the route, splits and heart rate.</div>
@@ -1485,7 +1488,7 @@ document.addEventListener("click",e=>{
   if(d.dayskip){ if(t.dataset.armed){ const lab=sessLabel(srcOf(d.dayskip)); setSrc(d.dayskip,null); saveProfile(); lastRenderKey=""; render(); toast(`${lab} skipped. ${dayName(d.dayskip)} is a rest day`) } else { const was=t.textContent; t.dataset.armed="1"; t.textContent="Tap again to confirm"; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.armed; t.textContent=was } },3000) } return }
   if(d.exhist){ const p=planFor(sel), ex=p&&p.ex&&p.ex.find(e=>e.id===d.exhist); openSheet({kind:"hist",id:d.exhist,name:ex&&ex.name}); return }
   // --- account
-  if(d.acct){ openSheet({kind:"account"}); if(window.appConfig&&appConfig().strava) stravaCheck(false); return }
+  if(d.acct){ openSheet({kind:"account"}); if(STRAVA_ON&&window.appConfig&&appConfig().strava) stravaCheck(false); return }
   if(d.acctUnit){ setUnit(d.acctUnit); paintSheet(); return }
   if(d.acctDist){ S.profile.distU=d.acctDist; saveProfile(); paintSheet(); lastRenderKey=""; render(); return }
   if(d.acctRuns){ xsClose(); tab="plan"; planView="training"; lastRenderKey=""; render(); setTimeout(()=>{ const el=document.querySelector(".runr")||document.querySelector("[data-run-new]"); if(el) el.scrollIntoView({block:"center"}) },60); return }
@@ -1494,9 +1497,9 @@ document.addEventListener("click",e=>{
   if(d.acctPal){ setPref({palette:d.acctPal}); paintSheet(); return }
   if(d.acctEdit){ xsClose(); setupOpen=true; SUW=null; render(); window.scrollTo(0,0); return }
   if(d.acctExport){ exportData(); return }
-  if(d.acctSconn||d.stravaGo){ stravaConnect(); return }
+  if((d.acctSconn||d.stravaGo)&&STRAVA_ON){ stravaConnect(); return }
   if(d.stravaHide){ setPref({stravaHide:Date.now()}); lastRenderKey=""; render(); toast("Hidden. You can connect any time from your account."); return }
-  if(d.acctSsync){ stravaSync(true); return }
+  if(d.acctSsync&&STRAVA_ON){ stravaSync(true); return }
   if(d.acctSdisc){ stravaDisconnect(); return }
   if(d.acctScheck){ stravaCheck(true); return }
   if(d.acctOut){ xsClose(); if(window.appSignOut) appSignOut(); return }

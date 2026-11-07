@@ -50,12 +50,14 @@ progress charts, standings, outlook, and an AI coach (Claude).
 ### 4. Install on iPhone
 Open the site in Safari → **Share → Add to Home Screen**.
 
-## Optional: Strava auto-import
+## Runs: GPX / TCX import
 
-1. Create an API app at [strava.com/settings/api](https://www.strava.com/settings/api). Set **Authorization Callback Domain** to your app's domain (e.g. `workoutapp-nine-bay.vercel.app`, no `https://`).
-2. In Supabase **SQL Editor**, run `supabase/migrations-002-strava.sql`.
-3. In Vercel add `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET` (from the Strava app page) and `SUPABASE_SERVICE_ROLE_KEY` (Supabase → Project Settings → API keys → Legacy → **service_role**; server only, never in the app code). Optional: `APP_URL` (e.g. `https://workoutapp-nine-bay.vercel.app`) so Strava always returns to that domain. Redeploy.
-4. In the app: account button → **Connect Strava**. If something's misconfigured, the account panel says which setting to fix.
+Runs come from the GPX or TCX file of each run (Strava, Garmin Connect, COROS, Polar, Suunto, or HealthFit/RunGap
+for Apple Watch). Strava sync is switched off: Strava's API terms limit how apps may store, share and use synced data
+(including with AI). The old sync code stays in `public/custom.js` behind `STRAVA_ON = false`; only
+`api/strava-disconnect.js` remains on the server, so anyone who connected earlier is disconnected and their tokens
+deleted the next time they open the app. You can remove the `STRAVA_CLIENT_ID` / `STRAVA_CLIENT_SECRET` variables
+from Vercel once that has happened, and revoke the app at strava.com/settings/apps.
 
 ## Shared barcodes
 
