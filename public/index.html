@@ -701,6 +701,7 @@ nav.tabs .badge{top:3px;right:calc(50% - 20px);box-shadow:0 0 0 2px var(--surfac
 /* new-user food, Strava, outlook and rest days */
 .starter{border:1px solid color-mix(in srgb,var(--food) 40%,var(--edge))}.starter-list{margin:4px 0 10px;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14px}
 details.card.needs summary{cursor:pointer;list-style:none}details.card.needs summary::-webkit-details-marker{display:none}details.card.needs[open] summary{margin-bottom:8px}
+.gpx-how summary{cursor:pointer;color:var(--accent,#5B6CFF);font-weight:600}.gpx-how ul{margin:6px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .strava-cta{display:flex;gap:12px;align-items:flex-start;border:1px solid color-mix(in srgb,#FC4C02 35%,var(--edge));background:color-mix(in srgb,#FC4C02 7%,var(--surface));border-radius:14px;padding:12px 14px;margin:10px 0}
 .sv-mark{width:26px;height:26px;flex:none;margin-top:2px}
 .needs-list{list-style:none;margin:0 0 6px;padding:0;display:flex;flex-direction:column;gap:12px}.needs-list li{display:flex;gap:12px;align-items:flex-start}.needs-list li>span:last-child{display:flex;flex-direction:column;gap:2px}
@@ -1706,7 +1707,7 @@ function viewAdvice(){
   if(!S.chat.length) h+=`<div class="sugg" id="sugg">${coachSuggestions().map(s=>`<button data-s="${esc(s)}">${esc(s)}</button>`).join("")}</div>`;
   h+=`<div class="composer"><textarea id="chatIn" rows="1" placeholder="Message your coach"></textarea><button class="btn" id="chatSend">Send</button><button class="btn ghost" id="chatStop" hidden>Stop</button></div>`;
   if(userReady && !sampleFn) h+=`<p class="note">Your coach is unavailable right now. Check your connection and try again.</p>`;
-  h+=`<div class="row between" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><span class="small muted">Units, Strava, race and your account</span><button class="btn ghost sm" type="button" data-acct="1">Settings</button></div>`;
+  h+=`<div class="row between" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><span class="small muted">Units, race and your account</span><button class="btn ghost sm" type="button" data-acct="1">Settings</button></div>`;
   return h+`</div>`;
 }
 function md(t){return esc(t).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")}
@@ -1748,7 +1749,7 @@ function signals(){
 function logLine(k,l){
   const d=parseYmd(k), tag=`${k} ${DOW[dowOf(d)]}`;
   if(l.type==="gym") return `${tag} ${l.plan&&l.plan.name?l.plan.name:"Gym "+l.day}${l.durMin?` (${Math.round(l.durMin)} min)`:""}: `+Object.entries(l.ex||{}).map(([id,sets])=>{const e=ALLEX.find(x=>x.id===id)||{name:id}; const f=logFmt(id,l); return `${e.name}${logDb(id,l)&&FMT[f].w?" (lb per dumbbell)":""}${f!=="wr"?` [${FMT[f].name}]`:""} ${sets.map(s=>setTxt(f,s,false)).join(", ")}`}).join("; ")+(l.notes?` | notes: ${l.notes}`:"");
-  const st=l.st, stTxt=st?` | Strava: ${st.elevFt!=null?`+${st.elevFt} ft, `:""}${st.avgHr?`avg HR ${st.avgHr}${st.maxHr?`/max ${st.maxHr}`:""}, `:""}${st.cad?`cadence ${st.cad} spm, `:""}${st.runMin!=null?`~${Math.round(st.runMin)} min running / ${Math.round(st.walkMin)} min walking, `:""}splits ${(st.splits||[]).map(x=>fmtMin(x.pace)+(x.hr?`@${x.hr}`:"")).join(" ")||"n/a"}`:"";
+  const st=l.st, stTxt=st?` | Recording: ${st.elevFt!=null?`+${st.elevFt} ft, `:""}${st.avgHr?`avg HR ${st.avgHr}${st.maxHr?`/max ${st.maxHr}`:""}, `:""}${st.cad?`cadence ${st.cad} spm, `:""}${st.runMin!=null?`~${Math.round(st.runMin)} min running / ${Math.round(st.walkMin)} min walking, `:""}splits ${(st.splits||[]).map(x=>fmtMin(x.pace)+(x.hr?`@${x.hr}`:"")).join(" ")||"n/a"}`:"";
   return `${tag} ${l.key} run: ${l.mi} mi in ${fmtMin(l.min)} (${l.mi?fmtMin(l.min/l.mi):"–"}/mi)${l.rpe?`, effort ${l.rpe}/10`:""}${stTxt}${l.notes?` | notes: ${l.notes}`:""}`;
 }
 function coachContext(){
@@ -1988,7 +1989,7 @@ function renderLive(){
   } else {
     liveState="run";
     main=`<div class="lv-main"><div class="lv-label">Time</div><div class="lv-clock" id="lvRunClock">${fmtClock(now-TM.start)}</div><p class="small lv-note">${esc(p.d)}</p>${/bpm/.test(p.d)?`<p class="small lv-note">Jog until your watch shows ${HR_HI}, walk until it drops to ${HR_LO}.</p>`:""}<button class="btn lv-cta" id="lvRunDone">Finish run</button></div>`;
-    next=`<div class="lv-next"><span class="lv-label">After</span><span>Your time fills in automatically. Import from Strava on the run card for the full breakdown.</span></div>`;
+    next=`<div class="lv-next"><span class="lv-label">After</span><span>Your time fills in automatically. Import the run's GPX file on the run card for the full breakdown.</span></div>`;
   }
   box.innerHTML=top+main+next+list;
   bindLive(k,p); liveTick(); if(typeof gameLive==="function") gameLive(box,{k,type:p.type,state:liveState});
@@ -2316,7 +2317,7 @@ function outlookNeeds(P){
   return [
     {done:!!(P.upperN&&P.upperN.pct!=null)||reg("upper"),t:"Log a workout with upper-body lifts",s:"Sets your upper-body starting point."},
     {done:!!(P.lowerN&&P.lowerN.pct!=null)||reg("lower"),t:"Log a workout with lower-body lifts",s:"Sets your lower-body starting point."},
-    {done:!!P.vo2N,t:"Log a run with heart rate",s:"From Strava or a GPX file. It estimates your fitness and race times.",opt:!runsPlanned,strava:true},
+    {done:!!P.vo2N,t:"Log a run with heart rate",s:"Import its GPX file. It estimates your fitness and race times.",opt:!runsPlanned,strava:true},
     {done:wOK,t:"Weigh in twice, a week apart",s:"So the projections follow your real body-weight trend."}] }
 function viewOutlook(){
   const P=project(), hz=P.hz, a=P.adh;
@@ -2797,7 +2798,7 @@ function finishImport(k,st){
   if(st.mi) drafts[k+"|rmi"]=String(st.mi);
   const t=st.movingMin||st.elapsedMin; if(t) drafts[k+"|rtime"]=fmtMin(t);
   drafts[k+"|open-trainLog"]=true; persistDrafts();
-  toast("Strava run imported. Check it, then save."); lastRenderKey=""; render();
+  toast("Run imported. Check it, then save."); lastRenderKey=""; render();
 }
 function stravaBlock(st){
   const pace=st.mi&&(st.movingMin||st.elapsedMin)?(st.movingMin||st.elapsedMin)/st.mi:null;
@@ -2814,16 +2815,21 @@ function stravaBlock(st){
 function importerHtml(k){
   const pend=getImport(k), d=parseYmd(k);
   const wrongDay=pend&&pend.date&&pend.date!==k;
-  return `<div class="importer"><div class="row between"><b class="small">Import from Strava</b><span class="small muted">or type it in below</span></div>
-    <div class="row"><label class="btn ghost sm filebtn">Screenshots<input type="file" id="shotIn" accept="image/*" multiple ${imgOK&&sampleFn?"":"disabled"}></label><label class="btn ghost sm filebtn">GPX / TCX file<input type="file" id="gpxIn"></label></div>
-    <p class="small muted">Screenshots of the run's overview and splits, or the GPX file (strava.com → ⋯ → Export GPX).</p>
+  return `<div class="importer"><div class="row between"><b class="small">Import your run file</b><span class="small muted">or type it in below</span></div>
+    <div class="row"><label class="btn ghost sm filebtn">Choose GPX / TCX file<input type="file" id="gpxIn" accept=".gpx,.tcx,application/gpx+xml,application/xml,text/xml"></label></div>
+    <details class="gpx-how small"><summary>How to get the file</summary><ul>
+      <li><b>Strava:</b> open the run on strava.com (on a computer or your phone's browser), tap ⋯ → Export GPX.</li>
+      <li><b>Garmin Connect:</b> open the activity → ⚙ → Export to GPX (or TCX).</li>
+      <li><b>Apple Watch:</b> use an app like HealthFit or RunGap to export the workout as GPX.</li>
+      <li><b>COROS / Polar / Suunto:</b> open the activity in their app or website and export GPX.</li></ul>
+      <p class="muted" style="margin:6px 0 0">The file keeps your pace, heart rate and route, so the session check, Auto and the coach notes all work.</p></details>
     <div id="impStatus" class="small"></div>
     ${pend?`<div class="stack" style="gap:10px"><div class="row between"><span class="chip run">Imported${pend.name?` · ${esc(pend.name)}`:""} · not saved yet</span><button class="link small" id="impClear" type="button">Remove</button></div>${wrongDay?`<p class="note">This activity is from ${fmtShort(parseYmd(pend.date))}, but you're logging ${fmtShort(d)}. Pick the matching day on the week strip if that's wrong.</p>`:""}${stravaBlock(pend)}</div>`:""}
   </div>`;
 }
 function anaHtml(k){const l=S.logs[k]; if(anaBusy[k]!=null) return anaBusy[k]?md(anaBusy[k]):'<span class="pulse"></span> Your coach is analyzing this run…'; if(l&&l.analysis) return md(l.analysis.text); return '<span class="muted small">Tap Analyze run for a breakdown of your splits, effort, run/walk execution and what to change next time.</span>'}
 function ranBlock(k,log){
-  return `<div class="stack" style="gap:10px;border-top:1px solid var(--line);padding-top:12px"><div class="row between"><div class="eyebrow">Strava data · ${log.st.src==="gpx"?"GPX file":log.st.src==="strava"?"synced":"screenshots"}</div></div>${stravaBlock(log.st)}${typeof runCheckHtml==="function"?runCheckHtml(k,log):""}
+  return `<div class="stack" style="gap:10px;border-top:1px solid var(--line);padding-top:12px"><div class="row between"><div class="eyebrow">Run data · ${log.st.src==="gpx"?"GPX file":log.st.src==="strava"?"from Strava":"screenshots"}</div></div>${stravaBlock(log.st)}${typeof runCheckHtml==="function"?runCheckHtml(k,log):""}
     <div class="row between" style="margin-top:4px"><div class="eyebrow">Coach analysis</div><button class="btn ghost sm" id="anaBtn" data-ana="${k}" ${anaBusy[k]!=null||!sampleFn?"disabled":""}>${log.analysis?"Re-analyze":"Analyze run"}</button></div>
     <div class="ana" id="ana-${k}">${anaHtml(k)}</div></div>`;
 }
@@ -2842,7 +2848,7 @@ What he logged: ${logLine(k,log)}
 ${isHrRun(k)?(()=>{const r=hrRange(st.series); return `This was a HEART-RATE-BASED easy run: target ${HR_LO}–${HR_HI} bpm (jog until ${HR_HI}, walk until ${HR_LO}).${r?` Time in range ${Math.round(r.pctIn)}%, above ${HR_HI}: ${fmtMin(r.above)}, below ${HR_LO}: ${fmtMin(r.below)}.`:" (No heart-rate trace available.)"} Judge execution mainly on staying in range, not on pace.`})():""}
 ${(()=>{const sg=segmentsOf(st); return sg.length?`Detected intervals in order (from GPS speed): ${sg.slice(0,40).map(x=>`${x.type} ${fmtMin(x.dur)}${x.pace?` @ ${fmtMin(x.pace)}/mi`:""}${x.hr?` HR ${x.hr}`:""}`).join("; ")}`:""})()}
 ${typeof runCheckText==="function"?runCheckText(k,log):""}
-Strava data (${st.src==="gpx"?`computed from his GPX file; running vs walking time is estimated from speed, counting anything faster than ${st.runThrPace?fmtMin(st.runThrPace):"14:00"}/mi as running; split paces include paused time`:"read from his Strava screenshots"}):
+Recording data (${st.src==="gpx"?`computed from his GPX file; running vs walking time is estimated from speed, counting anything faster than ${st.runThrPace?fmtMin(st.runThrPace):"14:00"}/mi as running; split paces include paused time`:"read from his Strava screenshots"}):
 ${detail}
 His previous runs (newest first):
 ${prev}
@@ -2908,7 +2914,7 @@ function bind(){
   $("#gpxIn")?.addEventListener("change",async e=>{
     const input=e.target, f=input.files&&input.files[0]; if(!f) return;
     if(f.size>30*1024*1024){impStatus("That file is too large. Export a single activity as GPX."); input.value=""; return}
-    if(/\.fit(\.gz)?$/i.test(f.name)){impStatus("FIT files aren't supported. In Strava use Export GPX, or use screenshots."); input.value=""; return}
+    if(/\.fit(\.gz)?$/i.test(f.name)){impStatus("FIT files aren't supported yet. Export the run as GPX or TCX instead."); input.value=""; return}
     if(/\.gz$/i.test(f.name)){impStatus("That file is compressed (.gz). Unzip it first, or use Export GPX."); input.value=""; return}
     impStatus('<span class="pulse"></span> Reading the file…');
     let text="";

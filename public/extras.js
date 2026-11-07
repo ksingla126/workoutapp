@@ -18,7 +18,7 @@ function ckItems() {
     { id: "gym", t: "Log your first workout", done: L.some(l => l && l.type === "gym"), go: "train" },
     ...(runs ? [{ id: "run", t: "Log your first run", done: L.some(l => l && l.type === "run"), go: "run" }] : []),
     { id: "food", t: "Plan a meal or log what you ate", done: ate, go: "food" },
-    ...(runs ? [{ id: "strava", t: "Connect Strava so runs import themselves", done: !!(st.connected || ck.strava), go: "settings", skip: "I don't use Strava" }] : []),
+    ...(runs && typeof STRAVA_ON !== "undefined" && STRAVA_ON ? [{ id: "strava", t: "Connect Strava so runs import themselves", done: !!(st.connected || ck.strava), go: "settings", skip: "I don't use Strava" }] : []),
     { id: "birth", t: "Add your birth month", done: !!su.birth, go: "settings" },
     { id: "friend", t: "Add a friend to compare ranks", done: !!(FR.list && FR.list.length) || !!ck.friend, go: "friends", skip: "Not now" }
   ];

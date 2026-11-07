@@ -1,4 +1,5 @@
-// Disconnects Strava: revokes access and deletes the stored tokens.
+// Strava sync is switched off (runs come from GPX/TCX files). This route stays only so the app can revoke
+// access for anyone who connected before, and delete their stored tokens.
 import { json, userFrom, admin, stravaToken } from "./_lib.js";
 export const config = { runtime: "edge" };
 export default async function handler(req) {

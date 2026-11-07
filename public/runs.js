@@ -227,7 +227,7 @@ function runFields(r) {
   let h = `<div class="runf"><label>Type${sel("type", r.type, RUN_ORDER.map(t => [t, RUN_TYPES[t].n]))}</label><label>Effort${sel("effort", r.effort, EFFORTS)}</label></div>`;
   if (AUTO_TYPES.includes(r.type)) {
     h += `<div class="runf"><span class="lbl small">Structure</span><div class="seg sm" role="group" aria-label="Structure">${[["0", "Set it"], ["1", "Auto"]].map(([v, n]) => `<button type="button" class="${(isAuto(r) ? "1" : "0") === v ? "on" : ""}" data-run-auto="${id}|${v}" aria-pressed="${(isAuto(r) ? "1" : "0") === v}">${n}</button>`).join("")}</div></div>`;
-    if (isAuto(r)) return h + `<p class="small muted">${["tempo", "tt"].includes(r.type) ? "Warm up, run the hard part, cool down. From your Strava or GPX recording the app finds the hard block, how long it was and your pace, and checks it." : "Warm up and run the reps your way. From your Strava or GPX recording the app works out how many reps you did, how long each was (time, or distance if they were round like 400 m), the recoveries and whether you walked or jogged them, plus your warm-up and cool-down, then checks the session."} Your set structure is kept if you switch back.</p>
+    if (isAuto(r)) return h + `<p class="small muted">${["tempo", "tt"].includes(r.type) ? "Warm up, run the hard part, cool down. From your GPX recording the app finds the hard block, how long it was and your pace, and checks it." : "Warm up and run the reps your way. From your GPX recording the app works out how many reps you did, how long each was (time, or distance if they were round like 400 m), the recoveries and whether you walked or jogged them, plus your warm-up and cool-down, then checks the session."} Your set structure is kept if you switch back.</p>
       <div class="plan-box small"><b>This week:</b> ${esc(runDesc(r, null, today))}</div>`;
   }
   h += `<div class="runf">${stepper("Warm-up", `${id}|warm`, r.warm, " min")}${r.warm > 0 || r.cool > 0 ? `<label>As${sel("warmHow", r.warmHow || "jog", [["jog", "Easy jog"], ["walk", "Walk"]])}</label>` : ""}</div>`;
@@ -499,7 +499,7 @@ function runCheck(k, l) {
   let auto = null;
   if (spec.auto) { try { auto = autoDetect(st, spec) } catch (e) { auto = null }
     if (!auto) return { fmt, spec, stats: [], notes: ["Run the reps or hard part clearly faster than your warm-up and recoveries so they stand out."], reps: null, tone: "ok", auto: null,
-      verdict: st.series || st.efforts ? "Auto couldn't find a structure in this run." : "This import has no second-by-second data, so Auto can't read the session. Connect Strava or import the GPX file." };
+      verdict: st.series || st.efforts ? "Auto couldn't find a structure in this run." : "This import has no second-by-second data, so Auto can't read the session. Import the run's GPX file." };
     spec = { ...spec, ...auto.spec } }
   const S2 = st.series, out = { fmt, spec, stats: [], notes: [], reps: null, tone: "good", verdict: "", auto: auto && auto.text };
   const add = (a, b) => b != null && b !== "" && out.stats.push([a, b]);
@@ -509,7 +509,7 @@ function runCheck(k, l) {
   if (fmt === "reps" || fmt === "short") {
     const R = repsFrom(st, spec), reps = matchReps(R.list, spec), n = spec.auto ? reps.length : spec.n || reps.length;
     if (!R.list.length || !reps.length) { out.verdict = st.series || st.efforts ? "Couldn't find the fast reps in this run." : "This import has no second-by-second data, so the reps can't be checked."; out.tone = "ok";
-      if (!st.series) out.notes.push("Connect Strava or import the GPX file to check each rep."); return out }
+      if (!st.series) out.notes.push("Import the run's GPX file to check each rep."); return out }
     if (R.coarse && fmt === "short") out.notes.push("Sprint check is rough: this run was saved before the app kept second-by-second data.");
     const sp = reps.map(x => fmt === "short" ? x.vx || x.v : x.v), first = avgOf(sp.slice(0, 2)), last = avgOf(sp.slice(-2)), fade = first > 0 ? (first - last) / first : 0;
     const rests = reps.slice(1).map((x, i) => x.s - (reps[i].s + reps[i].d));
@@ -538,7 +538,7 @@ function runCheck(k, l) {
   // steady, tempo, time trial: work from the chart series
   if (!S2 || !S2.t || S2.t.length < 6) {
     const pace = l.mi && l.min ? l.min / l.mi : null; add("Avg pace", pace ? paceTxt(pace) : null);
-    out.tone = "ok"; out.verdict = "Only the totals came through, so pacing and heart rate can't be checked."; out.notes.push("Connect Strava or import the GPX file for a full check."); return out }
+    out.tone = "ok"; out.verdict = "Only the totals came through, so pacing and heart rate can't be checked."; out.notes.push("Import the run's GPX file for a full check."); return out }
   const N = S2.t.length, tAt = d => { for (let i = 1; i < N; i++) if (S2.d[i] >= d) { const f = (d - S2.d[i - 1]) / ((S2.d[i] - S2.d[i - 1]) || 1); return S2.t[i - 1] + f * (S2.t[i] - S2.t[i - 1]) } return null };
   const D = S2.d[N - 1], T = S2.t[N - 1];
   const half = tAt(D / 2), p1 = half ? half / (D / 2) : null, p2 = half ? (T - half) / (D / 2) : null;
@@ -773,7 +773,7 @@ function manualCheck(k, l, spec, fmt) {
   if (spec.type === "long" && spec.v && l.mi < spec.v * 0.9) { out.tone = "warn"; out.verdict = `${dTxt(spec.v - l.mi)} short of the planned ${dTxt(spec.v)}.` }
   if (l.hr && fmt === "steady" && spec.type !== "long" && l.hr > HR_HI + 5) { out.tone = out.tone === "warn" ? "warn" : "ok"; out.notes.push(`Average heart rate ${l.hr} is above your easy zone (${HR_LO}–${HR_HI}). Slow down to keep easy runs easy.`) }
   if (!out.verdict) out.verdict = out.tone === "good" ? (fmt === "tempo" ? "Tempo logged." : "Run logged. Steady work.") : out.notes.shift();
-  if (!l.st) out.notes.push("Connect Strava or import the GPX file for pacing and heart-rate detail.");
+  if (!l.st) out.notes.push("Import the run's GPX file for pacing and heart-rate detail.");
   return out;
 }
 
@@ -914,7 +914,7 @@ function runCoach(k, l, c) {
     } else if (l.hr && (type === "easy" || type === "recovery" || type === "long")) {
       l.hr > HR_HI + 3 ? fix("Too hard for an easy run", `Average heart rate ${l.hr} is above your easy ceiling of ${HR_HI}. Slow down or take walk breaks until it settles under ${HR_HI}.`) : good("Easy effort", `Average heart rate ${l.hr} sits in your easy zone. That's what builds your aerobic base.`);
     }
-    if (!l.st) next.push("Connect Strava or import the GPX file for pacing, heart-rate drift and rep-by-rep detail.");
+    if (!l.st) next.push("Import the run's GPX file for pacing, heart-rate drift and rep-by-rep detail.");
     return items.length || next.length ? { items, next } : null;
   }
 
