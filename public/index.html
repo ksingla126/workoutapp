@@ -64,6 +64,7 @@
 <script type="importmap">{"imports":{"three":"/body/three/three.module.min.js"}}</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="/platform.js"></script>
+<script src="/morph.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Semi+Condensed:wght@600;700;800;900&display=swap">
@@ -90,7 +91,7 @@
   --good:#3DD68C; --warn:#F4C452; --bad:#FF6B57; --edge:#222A40; color-scheme:dark}
 
 html,body{height:100%}
-html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html{-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{overscroll-behavior-y:none}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 .wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:14px 110px}
@@ -826,6 +827,14 @@ svg.inl{width:15px;height:15px;vertical-align:-3px}
 .shoprow .mealrow{grid-template-columns:22px 1fr}.shoprow .mealrow .k{grid-column:2;text-align:left;margin-top:-2px}.shoprow .mealrow .k b{color:var(--ink)}
 .gtabs{margin:2px 0 4px}.adj{color:var(--food);font-weight:600;margin:2px 0 6px}.adjchip{margin-top:6px;align-self:flex-start;display:inline-flex}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+/* fluid: things that change animate instead of snapping */
+.bar i,.hub-xp i,.q-bar i,.rk-bar i{transition:width .5s cubic-bezier(.2,.8,.3,1)}
+#view button,#view .btn,#view summary,#view .card[data-go]{transition:transform .12s ease,background-color .18s,color .18s,border-color .18s,opacity .18s}
+#view button:not(:disabled):active,#view summary:active{transform:scale(.97)}
+#view input[type=checkbox]{transition:background-color .15s,border-color .15s,box-shadow .15s}
+nav.tabs button svg{transition:transform .2s cubic-bezier(.3,1.4,.5,1)}nav.tabs button.on svg{transform:translateY(-1px) scale(1.08)}
+@media (prefers-reduced-motion:reduce){.bar i,.hub-xp i,.q-bar i,.rk-bar i,nav.tabs button svg{transition:none}}
+.lv-main{display:flex;flex-direction:column;justify-content:center}
 </style>
 <script src="/look.js"></script>
 <style id="splashCss">
@@ -1292,26 +1301,28 @@ function render(fromStore){
   if(gateView(fromStore)) return;
   lastRenderKey=key;
   renderTop(); renderTabs();
-  const v=$("#view");
-  v.innerHTML = tab==="hub"&&typeof viewHub==="function"?viewHub(): tab==="home"?trainSwitch()+viewHome(openLogger): tab==="food"||(tab==="plan"&&planView==="food")?viewFoodTab(): tab==="plan"?trainSwitch()+viewPlan(): tab==="progress"?trainSwitch()+viewProgress(): tab==="ranks"?viewRanks(): advSwitch()+(advView==="outlook"?viewOutlook():viewAdvice());
+  const v=$("#view"), sameTab=v.dataset.vtab===tab&&v.firstChild;
+  if(!sameTab&&v.dataset.vtab){ try{ (window.__tabY=window.__tabY||{})[v.dataset.vtab]=window.scrollY }catch(e){} }
+  const html = tab==="hub"&&typeof viewHub==="function"?viewHub(): tab==="home"?trainSwitch()+viewHome(openLogger): tab==="food"||(tab==="plan"&&planView==="food")?viewFoodTab(): tab==="plan"?trainSwitch()+viewPlan(): tab==="progress"?trainSwitch()+viewProgress(): tab==="ranks"?viewRanks(): advSwitch()+(advView==="outlook"?viewOutlook():viewAdvice());
+  if(sameTab) morph(v,html); else { v.innerHTML=html; v.dataset.vtab=tab; window.scrollTo(0,(window.__tabY||{})[tab]||0) }
   applyDrafts();
-  bind(); if(tab==="ranks") bindRanks(); if(tab==="hub"&&typeof hubMaybeTour==="function") hubMaybeTour(); if(tab==="hub"&&typeof maybeRecap==="function") setTimeout(()=>{ maybeRecap(); if(typeof maybeInvite==="function") maybeInvite() },400); else if(typeof HT!=="undefined"&&HT.i>=0) hubTourEnd(); if(typeof gameAfterRender==="function") gameAfterRender();
+  viewBind(v,()=>{ bind(); if(tab==="ranks") bindRanks() }); if(tab==="hub"&&typeof hubMaybeTour==="function") hubMaybeTour(); if(tab==="hub"&&typeof maybeRecap==="function") setTimeout(()=>{ maybeRecap(); if(typeof maybeInvite==="function") maybeInvite() },400); else if(typeof HT!=="undefined"&&HT.i>=0) hubTourEnd(); if(typeof gameAfterRender==="function") gameAfterRender();
   setTimeout(maybeOverload,0); setTimeout(rankNotify,0); if(typeof questNotify==="function") setTimeout(questNotify,0);
 }
 function renderTop(){
   if(tab==="hub"){ if(document.title!==APP_NAME) document.title=APP_NAME; $("#top").innerHTML=""; $("#top").classList.add("hub-top"); return } $("#top").classList.remove("hub-top");
   if(tab==="food"||tab==="ranks"||tab==="advice"||(tab==="plan"&&planView==="food")){ if(document.title!==APP_NAME) document.title=APP_NAME;
     const T={food:"Food",plan:"Food",ranks:"Ranks",advice:"System"}[tab];
-    $("#top").innerHTML=`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}${accountBtn()}</span></div><h1 class="top-week">${T}</h1>`; return }
+    morph($("#top"),`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}${accountBtn()}</span></div><h1 class="top-week">${T}</h1>`); return }
   const w=Math.max(1,weekOf(today)), mon=monOf(w);
   let wkPlan=0, wkDone=0; for(let i=0;i<7;i++){ const d=addDays(mon,i), p=planFor(d); if(p&&p.type!=="rest"&&!preStart(d)){ wkPlan++; if(S.logs[ymd(d)]) wkDone++ } }
   const plannedSoFar=countPlanned(today), done=Object.keys(S.logs).filter(k=>parseYmd(k)<=today&&parseYmd(k)>=countStart()).length;
   const pct=wkPlan? Math.min(100,wkDone/wkPlan*100) : 0;
   if(document.title!==APP_NAME) document.title=APP_NAME;
-  $("#top").innerHTML=`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}${accountBtn()}</span></div>
+  morph($("#top"),`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}${accountBtn()}</span></div>
    <h1 class="top-week">Week ${w}</h1>
    <div class="bar" role="progressbar" aria-label="This week's sessions" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div>
-   <div class="top-meta"><span><b class="num">${wkDone}</b> of ${wkPlan} this week</span><span><b class="num">${done}</b> of ${plannedSoFar} done since you started</span></div>`;
+   <div class="top-meta"><span><b class="num">${wkDone}</b> of ${wkPlan} this week</span><span><b class="num">${done}</b> of ${plannedSoFar} done since you started</span></div>`);
 }
 // days before you signed up aren't "missed": they don't count unless you logged them
 function preStart(d){ const k=typeof d==="string"?d:ymd(d); return !!(CUSTOM&&CUSTOM.su.firstDay&&k<CUSTOM.su.firstDay&&!S.logs[k]) }
@@ -1330,7 +1341,7 @@ function renderTabs(){
   const T=[["hub","Home"],["home","Train"],["food","Food"],["ranks","Ranks"],["advice","System"]];
   const n=unseenAdvice(); let rk=0;
   const cur= tab==="food"||(tab==="plan"&&planView==="food")? "food" : tab==="plan"||tab==="progress"? "home" : tab;
-  $("#tabs").innerHTML=T.map(([id,l])=>`<button data-tab="${id}" class="${cur===id?"on":""}" aria-current="${cur===id}">${TAB_ICON[id]}${l}${id==="advice"&&n&&tab!=="advice"?`<span class="badge">${n}</span>`:""}${id==="ranks"&&tab!=="ranks"&&(rk=rkAlertCount())?`<span class="badge">${rk}</span>`:""}</button>`).join("");
+  morph($("#tabs"),T.map(([id,l])=>`<button data-tab="${id}" class="${cur===id?"on":""}" aria-current="${cur===id}">${TAB_ICON[id]}${l}${id==="advice"&&n&&tab!=="advice"?`<span class="badge">${n}</span>`:""}${id==="ranks"&&tab!=="ranks"&&(rk=rkAlertCount())?`<span class="badge">${rk}</span>`:""}</button>`).join(""));
   document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{if(b.dataset.tab==="progress"&&tab==="progress") runSel=null; tab=b.dataset.tab; try{localStorage.setItem("rd25-tab",tab)}catch(e){} if(tab==="advice"&&S.advice.at>(S.advice.seenAt||0)){S.advice.seenAt=S.advice.at;saveAdvice()} render(); window.scrollTo(0,0)});
 }
 
@@ -1951,7 +1962,7 @@ function openLive(){ if(!liveCtx()) return; liveOpen=true; unlockAudio(); render
 function closeLive(){ liveOpen=false; renderLive(); tick(); lastRenderKey=""; render() }
 function renderLive(){
   const el=document.getElementById("live"), box=document.getElementById("liveIn"); const c=liveCtx();
-  if(!liveOpen||!c){ el.hidden=true; document.body.classList.remove("live-on"); return }
+  if(!liveOpen||!c){ el.hidden=true; document.body.classList.remove("live-on"); if(box) box.innerHTML=""; return }
   el.hidden=false; document.body.classList.add("live-on");
   const {k,p}=c, now=Date.now(), resting=TM.restEnd&&TM.restEnd>now, justDone=TM.restEnd&&TM.restEnd<=now&&now-TM.restEnd<20000;
   let top=`<div class="lv-top"><button class="lv-back" id="lvBack" aria-label="Back to app">‹</button><div class="lv-title"><span class="eyebrow">${p.type==="gym"?"Live workout":"Live run"}</span><b>${esc(p.type==="gym"?p.name:p.t)}</b></div><div style="text-align:right"><div class="lv-el num" id="lvEl">${fmtClock(now-TM.start)}</div><div class="small muted" id="lvProg"></div></div></div>`;
@@ -1996,8 +2007,12 @@ function renderLive(){
     main=`<div class="lv-main"><div class="lv-label">Time</div><div class="lv-clock" id="lvRunClock">${fmtClock(now-TM.start)}</div><p class="small lv-note">${esc(p.d)}</p>${/bpm/.test(p.d)?`<p class="small lv-note">Jog until your watch shows ${HR_HI}, walk until it drops to ${HR_LO}.</p>`:""}<button class="btn lv-cta" id="lvRunDone">Finish run</button></div>`;
     next=`<div class="lv-next"><span class="lv-label">After</span><span>Your time fills in automatically. Import the run's GPX file on the run card for the full breakdown.</span></div>`;
   }
-  box.innerHTML=top+main+next+list;
-  bindLive(k,p); liveTick(); if(typeof gameLive==="function") gameLive(box,{k,type:p.type,state:liveState});
+  const fresh=!box.firstChild, prevState=box.dataset.st; box.dataset.st=liveState;
+  if(fresh) box.innerHTML=top+main+next+list; else morph(box,top+main+next+list);
+  box.classList.toggle("lv-enter",fresh); if(fresh) setTimeout(()=>box.classList.remove("lv-enter"),600);
+  if(!fresh&&prevState!==liveState){ const m=box.querySelector(".lv-main"); if(m){ m.classList.remove("lv-swap"); void m.offsetWidth; m.classList.add("lv-swap") } }
+  { const m=box.querySelector(".lv-main"); if(m){ m.style.minHeight=""; const h=m.offsetHeight, H=Math.max(h,Number(box.dataset.lvh)||0); if(box.dataset.lvk!==k){ box.dataset.lvk=k; box.dataset.lvh=h } else { box.dataset.lvh=H; m.style.minHeight=H+"px" } } }
+  viewBind(box,()=>bindLive(k,p)); liveTick(); if(typeof gameLive==="function") gameLive(box,{k,type:p.type,state:liveState});
 }
 function liveTick(){
   const now=Date.now(); const e=document.getElementById("lvEl"); if(e) e.textContent=fmtClock(now-TM.start);
