@@ -51,7 +51,12 @@
 #authGate .ag-ghost{border-radius:14px;background:rgba(143,139,255,.08);border:1px solid #4A4BA8;color:#DCDAFF}
 #authGate .ag-ghost:hover{background:rgba(143,139,255,.16)}
 #authGate .ag-link{background:none;color:#97A1B8;font-size:13px;padding:2px;font-weight:600}
-#authGate .ag-msg{min-height:1.2em;margin:0;font-size:14px;color:#FF8A73;text-align:center}
+#authGate .ag-msg{display:none;margin:0;font-size:14px;line-height:1.4;text-align:center;padding:10px 12px;border-radius:12px}
+#authGate .ag-msg.on{display:block}#authGate .ag-msg.err{color:#FFB3A3;background:rgba(255,110,90,.12);border:1px solid rgba(255,110,90,.4)}#authGate .ag-msg.ok{color:#B7F5D3;background:rgba(34,160,107,.14);border:1px solid rgba(34,160,107,.45)}#authGate .ag-msg.info{color:#C9C7FF;background:rgba(143,139,255,.1);border:1px solid rgba(143,139,255,.3)}
+#authGate .ag-inline{display:block;width:100%;margin-top:8px;padding:10px;border-radius:10px;background:rgba(143,139,255,.18);border:1px solid #6E6BE8;color:#fff;font-size:14px}
+#authGate .ag-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:14px;background:rgba(10,14,27,.6);border:1px solid #2E3658}
+#authGate .ag-tabs button{padding:10px 6px;border-radius:10px;background:none;color:#97A1B8;font-size:14px;letter-spacing:.04em}
+#authGate .ag-tabs button[aria-selected="true"]{background:linear-gradient(180deg,#8F8BFF,#5A56F0);color:#fff;box-shadow:0 0 14px rgba(110,105,255,.45)}
 #authGate .ag-foot{margin:6px 0 0;font:700 12px var(--body,system-ui);letter-spacing:.16em;text-transform:uppercase;color:#6E7794}
 @media (prefers-reduced-motion:reduce){#authGate .ag-floor,#authGate .ag-motes i,#authGate .ag-ring,#authGate .ag-ladder span,#authGate .ag-cta::after,#authGate .ag-caret{animation:none}#authGate .ag-motes{display:none}}
 @media (max-height:700px){#authGate .ag-emblem{transform:scale(.8);margin:-10px 0 -8px}#authGate h1{font-size:38px}}
