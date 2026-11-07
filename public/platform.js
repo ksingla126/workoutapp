@@ -17,21 +17,19 @@
       el.id = "authGate";
       el.innerHTML = `
         <div class="ag-floor" aria-hidden="true"></div><div class="ag-motes" aria-hidden="true">${Array.from({ length: 18 }, (_, i) => `<i style="--x:${(i * 53) % 100}%;--d:${6 + (i * 7) % 9}s;--t:${(i * 13) % 9}s"></i>`).join("")}</div>
-        <form class="ag-card" autocomplete="on">
+        <form class="ag-card" autocomplete="on" novalidate>
           <div class="ag-emblem" aria-hidden="true"><div class="ag-hex"><span class="ag-letter">E</span></div><svg class="ag-ring" viewBox="0 0 100 110" aria-hidden="true"><polygon points="50,3 96,29 96,81 50,107 4,81 4,29" pathLength="100"/></svg></div>
           <h1>RankUp</h1>
           <p class="ag-sys" aria-label="System: a new player has been detected"><span class="ag-tag">[SYSTEM]</span> <span class="ag-type"></span><span class="ag-caret" aria-hidden="true"></span></p>
           <div class="ag-ladder" aria-label="Ranks from E to S">${["E", "D", "C", "B", "A", "S"].map((l, i) => `<span style="--c:${["#8590A6", "#22A06B", "#3C7BF4", "#7B4DF2", "#F06A1D", "#E2A50C"][i]};--i:${i}">${l}</span>`).join('<b aria-hidden="true"></b>')}</div>
           <div class="ag-panel">
             <span class="ag-corner tl"></span><span class="ag-corner tr"></span><span class="ag-corner bl"></span><span class="ag-corner br"></span>
-            <div class="ag-head">PLAYER LOGIN</div>
+            <div class="ag-tabs" role="tablist"><button type="button" role="tab" data-mode="in" aria-selected="true">Sign in</button><button type="button" role="tab" data-mode="up" aria-selected="false">Create account</button></div>
             <label>Email<input name="email" type="email" autocomplete="email" inputmode="email" required placeholder="you@email.com"></label>
             <label>Password<input name="password" type="password" autocomplete="current-password" minlength="6" required placeholder="6+ characters"></label>
-            <button type="submit" data-act="in" class="ag-cta"><span>Sign in</span><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-            <div class="ag-or"><span>New player?</span></div>
-            <button type="button" class="ag-ghost" data-act="up">Create account</button>
+            <div class="ag-msg" role="status" aria-live="polite"></div>
+            <button type="submit" class="ag-cta"><span class="ag-cta-t">Sign in</span><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
             <button type="button" class="ag-link" data-act="reset">Forgot password?</button>
-            <p class="ag-msg" role="status"></p>
           </div>
           <p class="ag-foot">Train. Get ranked from E to S. Climb.</p>
         </form>`;
@@ -44,35 +42,74 @@
         let i = 0; const t = setInterval(() => { ty.textContent = line.slice(0, ++i); if (i >= line.length) clearInterval(t) }, 38);
         let r = 0; setInterval(() => { if (el.hidden) return; r = (r + 1) % 6; L.textContent = ls[r]; hex.style.setProperty("--rc", cols[r]); hex.classList.remove("pop"); void hex.offsetWidth; hex.classList.add("pop") }, 1400);
       })();
-      const f = el.querySelector("form"), out = el.querySelector(".ag-msg");
-      const say = (t) => (out.textContent = t);
+      const f = el.querySelector("form"), out = el.querySelector(".ag-msg"), cta = el.querySelector(".ag-cta-t");
+      let mode = "in", run = 0;
+      const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+      // kind: "err" | "ok" | "info"; extra: optional action button html
+      const say = (t, kind, extra) => {
+        out.className = "ag-msg" + (t ? " on " + (kind || "err") : "");
+        out.innerHTML = t ? esc(t) + (extra || "") : "";
+        if (t) out.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      };
+      const setMode = (m) => {
+        mode = m;
+        el.querySelectorAll("[data-mode]").forEach((x) => x.setAttribute("aria-selected", String(x.dataset.mode === m)));
+        cta.textContent = m === "up" ? "Create account" : "Sign in";
+        f.password.autocomplete = m === "up" ? "new-password" : "current-password";
+        say("");
+      };
       const busy = (b) => f.querySelectorAll("button").forEach((x) => (x.disabled = b));
       const go = async (act) => {
         const email = f.email.value.trim(), password = f.password.value;
         if (!email) return say("Enter your email.");
-        busy(true); say(act === "in" ? "Signing in…" : "");
-        const timer = setTimeout(() => { say("This is taking too long. The app can't reach your Supabase project: check SUPABASE_URL and SUPABASE_ANON_KEY in Vercel, then redeploy."); busy(false); }, 15000);
+        if (act !== "reset" && !password) return say("Enter a password.");
+        const me = ++run;
+        busy(true); say(act === "in" ? "Signing in…" : act === "up" ? "Creating your account…" : "Sending reset link…", "info");
+        const timer = setTimeout(() => { if (me !== run) return; run++; busy(false); say("Couldn't reach the server. Check your connection and try again."); }, 15000);
         try {
           if (act === "reset") {
             const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin });
             if (error) throw error;
-            say("Check your email for a reset link.");
+            if (me === run) say("Check your email for a reset link.", "ok");
           } else if (act === "up") {
             if (password.length < 6) throw new Error("Use a password with at least 6 characters.");
             const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: location.origin } });
             if (error) throw error;
-            if (!data.session) say("Check your email to confirm your account, then sign in here.");
+            if (me !== run) return;
+            // Supabase returns a user with no identities when the email is already registered
+            if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+              setMode("in"); say("That email already has an account. Sign in, or tap Forgot password.");
+            } else if (!data.session) {
+              setMode("in");
+              say(`Account created! We sent a confirmation link to ${email}. Open it, then come back and sign in.`, "ok", `<button type="button" class="ag-inline" data-resend>Resend email</button>`);
+            }
           } else {
             const { error } = await sb.auth.signInWithPassword({ email, password });
             if (error) throw error;
           }
-        } catch (e) { say(e.message || "Something went wrong. Try again."); }
-        clearTimeout(timer);
-        busy(false);
+        } catch (e) {
+          if (me !== run) return;
+          const m = (e && e.message) || "";
+          if (act === "in" && /invalid login credentials/i.test(m)) say("Wrong email or password. New here?", "err", `<button type="button" class="ag-inline" data-make>Create an account with this email</button>`);
+          else if (/email not confirmed/i.test(m)) say("Confirm your email first. Check your inbox for the link.", "err", `<button type="button" class="ag-inline" data-resend>Resend email</button>`);
+          else if (/already registered/i.test(m)) { setMode("in"); say("That email already has an account. Sign in, or tap Forgot password."); }
+          else if (/fetch|network/i.test(m)) say("Couldn't reach the server. Check your connection and try again.");
+          else say(m || "Something went wrong. Try again.");
+        } finally {
+          clearTimeout(timer);
+          if (me === run) busy(false);
+        }
       };
-      f.addEventListener("submit", (e) => { e.preventDefault(); go("in"); });
-      f.querySelector('[data-act="up"]').onclick = () => go("up");
+      f.addEventListener("submit", (e) => { e.preventDefault(); go(mode); });
+      el.querySelectorAll("[data-mode]").forEach((x) => (x.onclick = () => setMode(x.dataset.mode)));
       f.querySelector('[data-act="reset"]').onclick = () => go("reset");
+      out.addEventListener("click", async (e) => {
+        if (e.target.closest("[data-make]")) { setMode("up"); go("up"); }
+        if (e.target.closest("[data-resend]")) {
+          const { error } = await sb.auth.resend({ type: "signup", email: f.email.value.trim(), options: { emailRedirectTo: location.origin } });
+          say(error ? error.message : "Sent. Check your inbox (and spam).", error ? "err" : "ok");
+        }
+      });
     }
     el.hidden = false;
     if (msg) el.querySelector(".ag-msg").textContent = msg;
