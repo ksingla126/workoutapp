@@ -527,6 +527,7 @@ function runCheck(k, l) {
     if (pw.by === "time" && pw.v && fmt !== "short") { const sh = reps.filter(x => x.d < pw.v * 0.8).length; if (sh) warn(`${sh} rep${sh > 1 ? "s were" : " was"} more than 20% shorter than the planned ${fmtSec(pw.v)}.`, "ok") }
     if (spec.rest && spec.rest.by === "time" && rests.length) { const long = rests.filter(x => x > spec.rest.v * 1.5 + 15).length; if (long) warn(`${long} recover${long > 1 ? "ies ran" : "y ran"} well past the planned ${fmtSec(spec.rest.v)}.`, "ok") }
     const sd = cv(sp);
+    out.m = { fade, sd, sp, rests, n, done: reps.length, dur: reps.map(x => x.d), dist: reps.map(x => x.m), hx: reps.map(x => x.hx || x.hr || null), g: reps.map(x => x.g), avgV: avgOf(reps.map(x => x.v)), topV: Math.max(...reps.map(x => x.vx || x.v)) };
     if (n && reps.length < n) { out.tone = "warn"; out.verdict = `${reps.length} of ${n} reps done${fade > 0.08 ? `, fading ${Math.round(fade * 100)}%` : ""}.` }
     else if (fade > 0.1) { out.tone = "warn"; out.verdict = `All ${reps.length} reps, but you slowed ${Math.round(fade * 100)}% from the first to the last. Start the first two a touch easier.` }
     else if (fade > 0.05 || sd > 0.08) { out.tone = out.tone === "warn" ? "warn" : "ok"; out.verdict = `All ${reps.length} reps with some fade (${Math.round(fade * 100)}%). Aim for even reps.` }
@@ -553,6 +554,7 @@ function runCheck(k, l) {
       out.verdict = (out.verdict ? out.verdict + " " : "") + (neg ? "Negative split: you finished stronger." : d > 0.04 ? `Second half ${Math.round(d * 100)}% slower: start more conservatively next time.` : "Evenly paced.");
       if (!neg && d > 0.04 && out.tone === "good") out.tone = "ok" }
     if (hrOK) add("Avg / max HR", `${st.avgHr || "–"} / ${st.maxHr || "–"}`);
+    out.m = { tt, goal, p1: auto ? null : p1, p2: auto ? null : p2, sp, tgt: tgt || null, maxHr: st.maxHr || null };
     return out;
   }
   if (fmt === "tempo") {
@@ -563,7 +565,7 @@ function runCheck(k, l) {
     add(`Best ${L} min`, paceTxt(bp)); add("Warm-up before it", fmtMin(S2.t[bi])); add("Block drift", `${b > a ? "+" : "−"}${Math.round(Math.abs(b - a) / a * 100)}%`);
     const hs = S2.hr.slice(bi, bi + w + 1).filter(x => x); if (hs.length) add("Block HR", `${Math.round(avgOf(hs))} bpm`);
     const rp = racePace(activeRace(parseYmd(k))); if (rp) add("Vs race pace", `${bp <= rp ? "−" : "+"}${fmtMin(Math.abs(bp - rp))}`);
-    const drift = (b - a) / a;
+    const drift = (b - a) / a; out.m = { bp, drift, L, warmMin: S2.t[bi], hr: hs.length ? avgOf(hs) : null, rp: rp || null };
     out.verdict = drift > 0.05 ? `Tempo faded ${Math.round(drift * 100)}% in the second half. Start it a little slower.` : drift < -0.05 ? "You sped up a lot during the tempo; the start may have been too cautious." : `Steady tempo at ${paceTxt(bp)}.`;
     out.tone = Math.abs(drift) > 0.05 ? "ok" : "good";
     if (S2.t[bi] < 5 && spec.warm) warn("The fast part started within 5 minutes. Warm up longer before tempo work.", "ok");
@@ -589,6 +591,7 @@ function runCheck(k, l) {
   const surges = (st.efforts || []).filter(x => x.d >= 15 && x.d <= 120).length;
   if (spec.strides) add("Strides found", `${(st.efforts || []).filter(x => x.d <= 30).length} of ${spec.strides}`);
   else if (surges >= 3 && !spec.rw && spec.type !== "long") warn(`${surges} fast surges in an easy run. Keep it steady unless strides are planned.`, "ok");
+  out.m = { pace, p1, p2, decoup, D, T, sp, surges, hrIn: spec.effort === "hr" && typeof hrRange === "function" ? hrRange(S2) : null, aboveEasy: (() => { let hi = 0, tt = 0; (S2.hr || []).forEach(v => { if (!v) return; tt++; if (v > HR_HI) hi++ }); return tt ? hi / tt : null })(), avgHr: st.avgHr || null, cad: st.cad || null, elev: st.elevFt || null };
   if (!out.verdict) out.verdict = out.tone === "good" ? (p1 && p2 && p2 <= p1 * 1.03 ? "Steady, controlled run." : "Done. The second half slowed a little, which is normal on longer runs.") : out.notes[0];
   if (out.tone !== "good" && out.notes[0] === out.verdict) out.notes.shift();
   return out;
@@ -602,12 +605,14 @@ function runCheckHtml(k, l) {
   if (c.reps && c.reps.length) { const short = c.fmt === "short", hills = c.spec.type === "hills";
     h += `<div class="rc-reps"><div class="rc-r hd small muted"><span>#</span><span>Time</span><span>${short ? "Top speed" : "Pace"}</span><span>${hills ? "Climb" : "Dist"}</span><span>Rest</span></div>${c.reps.map(r => `<div class="rc-r num"><span>${r.n}</span><span>${r.dur != null ? fmtSec(r.dur) : "–"}</span><span>${short ? (r.top ? mph(r.top) : "–") : r.pace ? paceTxt(r.pace) : "–"}</span><span>${hills ? (r.g != null ? Math.round(r.g * 3.28084) + " ft" : "–") : !r.m ? "–" : r.m >= 1000 ? dTxt(r.m / 1609.344, 2) : r.m + " m"}</span><span>${r.rest != null ? fmtSec(r.rest) : "–"}</span></div>`).join("")}</div>` }
   if (c.notes.length) h += `<ul class="rc-n small">${c.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>`;
+  try { h += runCoachHtml(k, l, c) } catch (e) {}
   return h + `</div>`;
 }
 // plain-text version for the coach's written analysis
 function runCheckText(k, l) {
   let c = null; try { c = runCheck(k, l) } catch (e) { return "" } if (!c) return "";
-  return `Session check (computed from ${c.manual ? "what he typed in" : "the recording"}${c.auto ? `; structure detected automatically: ${c.auto}` : ""}, format ${c.fmt}${c.src ? `, reps from ${c.src}` : ""}): ${c.verdict} ${c.stats.map(([a, b]) => `${a}: ${b}`).join("; ")}.${c.reps ? ` Reps: ${c.reps.map(r => `#${r.n}${r.dur != null ? " " + fmtSec(r.dur) : ""}${r.m ? ` ${r.m} m` : ""}${r.pace ? ` @ ${fmtMin(r.pace)}/mi` : ""}${r.top ? ` top ${trimN(r.top * 2.23694)} mph` : ""}${r.hr ? ` HR ${r.hr}` : ""}${r.rest != null ? ` rest ${fmtSec(r.rest)}` : ""}${r.g != null ? ` climb ${Math.round(r.g * 3.28084)} ft` : ""}`).join("; ")}.` : ""} ${c.notes.join(" ")}`;
+  let co = ""; try { const r = runCoach(k, l, c); if (r) co = ` Coach notes already shown to him: ${r.items.map(([, h, x]) => `${h}: ${x}`).join(" ")} ${r.next.join(" ")}` } catch (e) {}
+  return co + ` Session check (computed from ${c.manual ? "what he typed in" : "the recording"}${c.auto ? `; structure detected automatically: ${c.auto}` : ""}, format ${c.fmt}${c.src ? `, reps from ${c.src}` : ""}): ${c.verdict} ${c.stats.map(([a, b]) => `${a}: ${b}`).join("; ")}.${c.reps ? ` Reps: ${c.reps.map(r => `#${r.n}${r.dur != null ? " " + fmtSec(r.dur) : ""}${r.m ? ` ${r.m} m` : ""}${r.pace ? ` @ ${fmtMin(r.pace)}/mi` : ""}${r.top ? ` top ${trimN(r.top * 2.23694)} mph` : ""}${r.hr ? ` HR ${r.hr}` : ""}${r.rest != null ? ` rest ${fmtSec(r.rest)}` : ""}${r.g != null ? ` climb ${Math.round(r.g * 3.28084)} ft` : ""}`).join("; ")}.` : ""} ${c.notes.join(" ")}`;
 }
 
 /* ======================= Typing a run in by hand ======================= */
@@ -859,4 +864,147 @@ function rlFinish() {
   const work = RL.steps.map((s, i) => ({ s, lap: RL.laps[i] })).filter(x => x.s.k === "work" && x.s.rep != null), done = work.filter(x => x.lap != null && x.lap > 2);
   if (work.length) { drafts[dkey(k, "rx-n")] = done.length; done.forEach((x, j) => { if (x.s.lap) drafts[dkey(k, "rx-r" + j)] = String(x.lap) }) }
   persistDrafts(); RL = null; rlSave();
+}
+
+/* ======================= Run coach (free, on the phone) =======================
+   Reads the session check and comments on what matters for that kind of run, with numbers for next time.
+   Easy/recovery: was it actually easy, aerobic decoupling, cadence. Long: finishing, even pacing, decoupling, fuel.
+   Tempo: threshold pace, holding it steady, HR. Intervals/fartlek: even reps, first-rep discipline, recoveries,
+   quality volume. Sprints/hills: speed kept, full recovery, rep length, grade. Time trial/race: pacing, goal,
+   equivalent race times and training paces. */
+const RIEGEL = (t, d1, d2) => t * Math.pow(d2 / d1, 1.06);
+const pctTxt = x => `${Math.round(Math.abs(x) * 100)}%`;
+const COACH_MEMO = {};
+// training paces (min per mile) from the best recent time trial or race, else the race goal
+function trainPaces(beforeK) {
+  const key = beforeK + "|" + Object.keys(S.logs || {}).length; if (COACH_MEMO[key]) return COACH_MEMO[key];
+  let best = null;
+  Object.entries(S.logs || {}).forEach(([k, l]) => {
+    if (!l || l.type !== "run" || k > beforeK || !(l.mi > 0.9) || !(l.min > 0) || l.est) return;
+    if (parseYmd(beforeK) - parseYmd(k) > 150 * 864e5) return;
+    const sp = (() => { try { return runSpec(l, l.plan) } catch (e) { return {} } })();
+    if (!(l.race || sp.type === "tt" || sp.type === "race")) return;
+    let t = l.min, d = l.mi; try { const c = runCheck(k, l); if (c && c.m && c.m.tt) { t = c.m.tt; d = c.m.goal } } catch (e) {}
+    const t5 = RIEGEL(t, d, 3.107); if (!best || t5 < best.t5) best = { t5, k, d, t };
+  });
+  let src = best ? "best" : null;
+  if (!best) { const R = activeRace(parseYmd(beforeK)); if (R && R.target > 0) { best = { t5: RIEGEL(R.target, R.dist, 3.107) }; src = "goal" } }
+  if (!best) return COACH_MEMO[key] = null;
+  const p5 = best.t5 / 3.107;
+  return COACH_MEMO[key] = { src, p5, easy: [p5 * 1.3, p5 * 1.43], tempo: p5 * 1.07, interval: p5 * 0.985, t5: best.t5,
+    eq: [["5K", 3.107], ["10K", 6.214], ["Half", 13.109], ["Marathon", 26.219]].map(([n, d]) => [n, RIEGEL(best.t5, 3.107, d)]) };
+}
+function lastSame(k, l, fn) { // the previous log of the same routine (or the same run type), with its check
+  const rid = l.plan && l.plan.rid, type = (() => { try { return runSpec(l, l.plan).type } catch (e) { return null } })();
+  const e = Object.entries(S.logs || {}).filter(([kk, x]) => kk < k && x && x.type === "run" && x !== l && ((rid && x.plan && x.plan.rid === rid) || (type && (() => { try { return runSpec(x, x.plan).type === type } catch (e2) { return false } })()))).sort().pop();
+  if (!e) return null; let c = null; try { c = runCheck(e[0], e[1]) } catch (e3) {} return c && c.m ? { k: e[0], l: e[1], c } : null;
+}
+function runCoach(k, l, c) {
+  if (!c) return null;
+  const items = [], next = [], spec = c.spec || {}, m = c.m || {}, type = l.race ? "race" : spec.type || "easy", P = trainPaces(k);
+  const good = (h, t) => items.push(["good", h, t]), watch = (h, t) => items.push(["watch", h, t]), fix = (h, t) => items.push(["fix", h, t]);
+  const pc = x => paceTxt(x), range = (a, b) => `${pc(a)}–${pc(b)}`;
+  const maxHr = Math.max(0, ...Object.values(S.logs || {}).map(x => (x && x.st && x.st.maxHr) || 0)) || null;
+
+  if (c.manual) {
+    if ((c.fmt === "reps" || c.fmt === "short") && c.reps) {
+      const vs = c.reps.filter(r => r.top).map(r => r.top);
+      if (vs.length >= 3) { const f = (avgOf(vs.slice(0, 2)) - avgOf(vs.slice(-2))) / avgOf(vs.slice(0, 2)); f > 0.06 ? fix("Reps faded", `Your last reps were ${pctTxt(f)} slower than the first. Start the first two a little easier so all of them land within about 3%.`) : good("Even reps", "Your rep times stayed close together, which is the main goal of this session.") }
+      else watch("Add rep times", "Type in each rep's time next time and the coach can check how even they were.");
+    } else if (l.hr && (type === "easy" || type === "recovery" || type === "long")) {
+      l.hr > HR_HI + 3 ? fix("Too hard for an easy run", `Average heart rate ${l.hr} is above your easy ceiling of ${HR_HI}. Slow down or take walk breaks until it settles under ${HR_HI}.`) : good("Easy effort", `Average heart rate ${l.hr} sits in your easy zone. That's what builds your aerobic base.`);
+    }
+    if (!l.st) next.push("Connect Strava or import the GPX file for pacing, heart-rate drift and rep-by-rep detail.");
+    return items.length || next.length ? { items, next } : null;
+  }
+
+  if (c.fmt === "steady") {
+    const easyRun = type === "easy" || type === "recovery";
+    if (m.hrIn) { m.hrIn.pctIn >= 70 ? good("Stayed in your zone", `${Math.round(m.hrIn.pctIn)}% of the run was in ${HR_LO}–${HR_HI} bpm.`) : fix("Drifted out of your zone", `Only ${Math.round(m.hrIn.pctIn)}% was in ${HR_LO}–${HR_HI} bpm. Walk as soon as you pass ${HR_HI} and jog again under ${HR_LO}.`) }
+    else if (m.aboveEasy != null && type !== "long") {
+      if (m.aboveEasy > 0.35) fix(type === "recovery" ? "Too hard for a recovery run" : "Easy day ran hard", `${pctTxt(m.aboveEasy)} of it was above ${HR_HI} bpm. Easy runs build your aerobic engine and let your hard days be hard; slow down 30–60 s per ${RU()} or walk the hills.`);
+      else if (m.aboveEasy < 0.15) good("Kept it easy", `Only ${pctTxt(m.aboveEasy)} above ${HR_HI} bpm, so this counted as real easy running.`);
+    } else if (P && m.pace && easyRun) {
+      m.pace < P.easy[0] * 0.97 ? watch("Quicker than easy pace", `${pc(m.pace)} is faster than your easy range of ${range(P.easy[0], P.easy[1])}. Fine if you could talk in full sentences; otherwise ease off.`) : good("Right pace for easy", `${pc(m.pace)} is inside your easy range (${range(P.easy[0], P.easy[1])}).`);
+    }
+    if (type === "recovery" && m.pace) { const ls = lastSame(k, l) || null; const ez = Object.entries(S.logs).filter(([kk, x]) => kk < k && x.type === "run" && x.key === "tue" && x.mi > 0 && x.min > 0).slice(-4).map(([, x]) => x.min / x.mi);
+      if (ez.length && m.pace < avgOf(ez) * 0.98) fix("Recovery should be your slowest run", `${pc(m.pace)} was quicker than your recent easy runs (${pc(avgOf(ez))}). Go slower; the point is blood flow, not fitness.`) }
+    if (m.decoup != null && m.T > 25) {
+      if (m.decoup < 5) good("Aerobic base looks solid", `Heart-rate drift was ${Math.round(m.decoup)}%. Under 5% means your aerobic fitness held for the whole run${type === "long" ? ", so you're ready to go a little longer" : ""}.`);
+      else if (m.decoup <= 10) watch("Some heart-rate drift", `Your heart rate drifted ${Math.round(m.decoup)}% against your pace. Common in heat or when the run is near your current limit.`);
+      else fix("Big heart-rate drift", `Drift of ${Math.round(m.decoup)}% says fatigue, heat or low fuel. Start slower, drink, and ${m.T > 70 ? "take carbs during the run" : "check you're sleeping and eating enough"}.`);
+    }
+    if (type === "long") {
+      if (spec.v && m.D < spec.v * 0.9) fix("Stopped short", `You covered ${dTxt(m.D, 1)} of ${dTxt(spec.v)}. Next time start 15–30 s per ${RU()} slower so the distance is there at the end.`);
+      if (m.p1 && m.p2) { const f = (m.p2 - m.p1) / m.p1; f > 0.05 ? fix("Faded in the second half", `The second half was ${pctTxt(f)} slower. Long runs should finish as strong as they start; begin 15–20 s per ${RU()} slower.`) : f < -0.01 ? good("Negative split", "You finished faster than you started, which is ideal long-run pacing.") : good("Even pacing", "Both halves were within a few percent of each other.") }
+      if (m.T > 75) watch("Fuel for long runs", `At ${fmtMin(m.T)} you need fuel: about 30–60 g of carbs an hour from 30–45 min in, plus fluids to thirst. Practise it now so race day isn't the first time.`);
+      if (spec.v && m.D >= spec.v * 0.95 && (m.decoup == null || m.decoup < 7)) next.push(`Next long run: ${dTxt(Math.round(Math.min(m.D * 1.1, m.D + 1) * 2) / 2)}, same easy effort.`);
+      else next.push(`Repeat ${dTxt(spec.v || m.D)} next time and start slower until it feels controlled to the end.`);
+    }
+    if (m.cad && m.cad < 155) watch("Low cadence", `${m.cad} steps a minute. Shorter, quicker steps (aim for about ${Math.round(m.cad * 1.05)}) reduce impact and overstriding.`);
+    if (easyRun) next.push(P ? `Next easy run: ${range(P.easy[0], P.easy[1])}, or whatever keeps your heart rate under ${HR_HI}.` : `Next easy run: keep your heart rate under ${HR_HI} and the pace conversational.`);
+  }
+
+  if (c.fmt === "tempo" && m.bp) {
+    if (P) { const d = (m.bp - P.tempo) / P.tempo;
+      d < -0.04 ? fix("Tempo ran too fast", `${pc(m.bp)} is quicker than your threshold pace of about ${pc(P.tempo)}. Tempo should feel comfortably hard; faster turns it into a race and costs recovery.`)
+        : d > 0.06 ? watch("Easier than threshold", `${pc(m.bp)} is slower than your threshold pace of about ${pc(P.tempo)}. Fine on a hot or hilly day; otherwise push a little.`)
+        : good("Right on threshold pace", `${pc(m.bp)} sits close to your threshold pace (${pc(P.tempo)}).`) }
+    Math.abs(m.drift) <= 0.03 ? good("Held it steady", `Pace changed ${pctTxt(m.drift)} through the block. Even is the point of tempo work.`)
+      : m.drift > 0.05 ? fix("Tempo faded", `You slowed ${pctTxt(m.drift)} through the block. Start 5–10 s per ${RU()} slower.`) : m.drift < -0.05 ? watch("Sped up a lot", `You finished ${pctTxt(m.drift)} faster than you started; the start was probably too cautious.`) : null;
+    if (m.hr && maxHr) { const r = m.hr / maxHr; r > 0.93 ? fix("Heart rate too high for tempo", `About ${Math.round(r * 100)}% of your max. Threshold work usually sits around 85–90%.`) : r >= 0.82 ? good("Tempo heart rate", `About ${Math.round(r * 100)}% of your max, right for threshold work.`) : null }
+    if (m.warmMin < 8) watch("Short warm-up", `Only ${Math.round(m.warmMin)} min before the hard part. 10–15 min easy plus a few strides makes the first minutes of tempo smoother.`);
+    next.push(Math.abs(m.drift) <= 0.03 ? `Next tempo: ${m.L + 3} min at ${pc(P ? P.tempo : m.bp)}.` : `Next tempo: ${m.L} min again at ${pc(P ? P.tempo : m.bp * 1.01)}, aiming to hold it evenly.`);
+  }
+
+  if ((c.fmt === "reps" || c.fmt === "short") && m.sp && m.sp.length) {
+    const short = c.fmt === "short", hills = type === "hills", first = m.sp[0], avg = avgOf(m.sp);
+    if (!short) {
+      m.sd <= 0.03 && m.fade <= 0.04 ? good("Even reps", `Your reps stayed within ${Math.max(1, Math.round(m.sd * 100))}% of each other. That's the skill this session trains.`)
+        : m.fade > 0.08 ? fix("Reps faded", `The last reps were ${pctTxt(m.fade)} slower than the first. Run the first two at the pace you can hold for all of them.`)
+        : watch("Some unevenness", `Rep pace varied ${Math.round(m.sd * 100)}%. Aim for every rep within about 3%.`);
+      if (first > avg * 1.04 && m.sp.length >= 3) fix("First rep too fast", `Rep 1 was ${pctTxt(first / avg - 1)} faster than your average. A fast first rep is the most common reason later reps fade.`);
+      if (P && type === "intervals") { const rp = paceOfV(avg), d = (rp - P.interval) / P.interval;
+        d < -0.04 ? watch("Faster than interval pace", `Average ${pc(rp)} beat your interval pace (${pc(P.interval)}). Great if they stayed even; if not, slow down to it.`) : d > 0.06 ? watch("Slower than interval pace", `Average ${pc(rp)} vs. interval pace of ${pc(P.interval)}. Normal early on; it should come down as you get fitter.`) : good("On interval pace", `Average ${pc(rp)}, right around your interval pace (${pc(P.interval)}).`) }
+      const workMin = m.dur.reduce((a, b) => a + b, 0) / 60;
+      if (type === "intervals") workMin < 10 ? watch("Light on quality", `${Math.round(workMin)} min of hard running. Most interval sessions aim for 12–20 min in total.`) : workMin > 28 ? watch("A lot of hard running", `${Math.round(workMin)} min of reps is a big session. Make sure the next day is easy.`) : good("Good amount of work", `${Math.round(workMin)} min of hard running, a solid interval session.`);
+      if (m.rests && m.rests.length) { const rr = avgOf(m.rests) / avgOf(m.dur); if (rr < 0.4 && m.fade > 0.05) fix("Recoveries too short", `Recoveries were ${Math.round(rr * 100)}% of the rep length and the reps faded. Try recoveries about half to equal to the rep time.`) }
+      if (type === "fartlek") good("Speed play", "Fartlek is meant to be loose. The goal is a clear change of gear on each surge, then a relaxed float.");
+      const ls = lastSame(k, l); if (ls && ls.c.m && ls.c.m.avgV && m.avgV) { const d = m.avgV / ls.c.m.avgV - 1; Math.abs(d) >= 0.015 && (d > 0 ? good("Faster than last time", `Average rep speed up ${pctTxt(d)} on the same session.`) : watch("Slower than last time", `Average rep speed down ${pctTxt(d)} on the same session. Check sleep, heat and how hard the days before were.`)) }
+      next.push(m.fade <= 0.04 && m.sd <= 0.04 ? `Next time: ${m.done + 1} reps at the same pace and recovery.` : `Next time: the same ${m.done} reps, first two a touch slower, aiming for all within 3%.`);
+    } else {
+      m.fade <= 0.05 ? good("Speed held up", `Speed dropped only ${pctTxt(Math.max(0, m.fade))} from first to last. You kept every sprint high quality.`)
+        : fix("Speed dropped off", `Your last sprints were ${pctTxt(m.fade)} slower. Sprint training only works at top speed; stop the set when you drop more than about 5–7% or rest longer.`);
+      const repS = avgOf(m.dur); if (repS > 30) watch(hills ? "Long hill reps" : "Long sprints", `Reps averaged ${Math.round(repS)} s. True ${hills ? "hill sprints" : "sprints"} are 8–20 s; longer reps train speed endurance instead.`);
+      if (m.rests && m.rests.length) { const ratio = avgOf(m.rests) / repS, need = hills ? 3 : 8;
+        ratio < need && m.fade > 0.03 ? fix("Not enough rest", `You rested about ${Math.round(ratio)}× the sprint time. For full speed every rep, rest ${hills ? "3–6×" : "10–20×"} as long (${fmtSec(Math.round(repS * (hills ? 4 : 12)))} or more).`)
+          : good("Full recoveries", `About ${Math.round(ratio)}× the sprint time, enough to sprint fresh each rep.`) }
+      if (hills) { const gs = m.g.filter(x => x != null), dd = m.dist.filter(x => x > 0); if (gs.length && dd.length) { const grade = avgOf(gs) / avgOf(dd) * 100;
+        grade < 3 ? watch("Shallow hill", `About ${Math.round(grade)}% grade. A 4–8% hill gives the strength benefit without wrecking form.`) : grade > 10 ? watch("Very steep hill", `About ${Math.round(grade)}%. Steep hills shorten your stride; a 4–8% grade lets you run with good form.`) : good("Good hill", `About ${Math.round(grade)}% grade, in the ideal range.`) } }
+      const prevTop = Math.max(0, ...Object.entries(S.logs || {}).filter(([kk, x]) => kk < k && x.type === "run" && x.st && x.st.efforts).map(([, x]) => Math.max(0, ...x.st.efforts.map(e => e.vx || 0))));
+      if (m.topV && prevTop && m.topV > prevTop * 1.01) good("New top speed", `${mph(m.topV)}, your fastest recorded.`);
+      next.push(m.fade <= 0.05 ? `Next time: ${m.done + 1} reps with the same full recoveries.` : `Next time: ${Math.max(3, m.done - 1)} reps with longer walk-backs, and stop if you slow by more than 5%.`);
+    }
+  }
+
+  if (c.fmt === "tt" && m.tt) {
+    if (m.p1 && m.p2) { const d = (m.p2 - m.p1) / m.p1;
+      d < -0.01 ? good("Negative split", "You ran the second half faster, the best way to race.")
+        : d <= 0.02 ? good("Even pacing", `Halves within ${pctTxt(d)} of each other.`)
+        : fix("Went out too fast", `The second half was ${pctTxt(d)} slower. Start about ${fmtMin(Math.abs(pU(m.p2 - m.p1)) / 2)} per ${RU()} slower than you think you can hold.`) }
+    const eq = [["5K", 3.107], ["10K", 6.214], ["Half", 13.109], ["Marathon", 26.219]].filter(([, d]) => Math.abs(d - m.goal) / m.goal > 0.05).map(([n, d]) => `${n} ${fmtMin(RIEGEL(m.tt, m.goal, d))}`);
+    if (eq.length) good("What this predicts", `${eq.join(" · ")} (on matching training).`);
+    const p5 = RIEGEL(m.tt, m.goal, 3.107) / 3.107;
+    next.push(`Training paces from this: easy ${range(p5 * 1.3, p5 * 1.43)}, tempo ${pc(p5 * 1.07)}, intervals ${pc(p5 * 0.985)}.`);
+  }
+
+  if (!items.length && !next.length) return null;
+  return { items: items.filter(Boolean).slice(0, 5), next, P };
+}
+function runCoachHtml(k, l, c) {
+  const r = runCoach(k, l, c); if (!r) return "";
+  const ic = { good: "✓", watch: "!", fix: "↻" };
+  return `<div class="rc-coach"><div class="eyebrow">Coach notes · ${esc(({ steady: "what matters on this run", tempo: "tempo", reps: "intervals", short: "speed work", tt: "time trial" })[c.fmt] || "this run")}</div>
+    ${r.items.map(([t, h, x]) => `<div class="rcc-i ${t}"><span class="rcc-ic" aria-hidden="true">${ic[t]}</span><div><b>${esc(h)}</b><span>${esc(x)}</span></div></div>`).join("")}
+    ${r.next.length ? `<div class="rcc-next"><b>Next time</b>${r.next.map(x => `<span>${esc(x)}</span>`).join("")}</div>` : ""}</div>`;
 }
