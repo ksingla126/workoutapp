@@ -181,7 +181,10 @@ html .lv-list .lv-row span:first-child::before{content:"";width:7px;height:7px;b
 html .lv-list .lv-row.done span:first-child::before{background:var(--good);border-color:var(--good);box-shadow:0 0 8px var(--good);opacity:1}
 html .lv-list .lv-row.cur{color:var(--ink);text-shadow:0 0 12px var(--g-glow)}html .lv-list .lv-row:not(:disabled):not(.cur):active{background:color-mix(in srgb,var(--gym) 10%,transparent)}html .lv-list .lv-row.cur span:first-child::before{background:var(--gym);border-color:var(--gym);box-shadow:0 0 10px var(--gym);opacity:1;animation:g-beat 1.4s ease-in-out infinite}
 html .lv-list .lv-row.done span:first-child::after{content:""}
-html .live .lv-main,html .live .lv-next,html .live .lv-list{animation:g-in .35s cubic-bezier(.2,.8,.3,1) both}html .live .lv-next{animation-delay:.05s}html .live .lv-list{animation-delay:.1s}
+html .live .lv-enter .lv-main,html .live .lv-enter .lv-next,html .live .lv-enter .lv-list{animation:g-in .32s cubic-bezier(.2,.8,.3,1) both}html .live .lv-enter .lv-next{animation-delay:.04s}html .live .lv-enter .lv-list{animation-delay:.08s}
+html .live .lv-main.lv-swap>*{animation:g-swap .28s cubic-bezier(.2,.8,.3,1) both}html .live .lv-main.lv-swap>*:nth-child(2){animation-delay:.03s}html .live .lv-main.lv-swap>*:nth-child(n+3){animation-delay:.06s}
+@keyframes g-swap{from{opacity:0;transform:translateX(14px)}}
+html .lv-list .lv-row{transition:color .2s,background .2s,text-shadow .2s}html .lv-xp i,html .lv-ring i{transition:width .45s cubic-bezier(.2,.8,.3,1)}
 @keyframes g-beat{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 @media (prefers-reduced-motion:reduce){html .live *{animation:none!important;transition:none!important}}
 /* particles */
@@ -190,13 +193,13 @@ html .live .lv-main,html .live .lv-next,html .live .lv-list{animation:g-in .35s 
 .g-burst i:nth-child(3n){background:var(--good);box-shadow:0 0 8px var(--good)}.g-burst i:nth-child(4n){background:var(--warn);box-shadow:0 0 8px var(--warn)}
 .g-burst b{position:absolute;left:0;top:-10px;transform:translateX(-50%);font:800 18px var(--display);color:var(--good);text-shadow:0 0 10px var(--good);animation:g-up .8s ease-out forwards;white-space:nowrap}
 /* a screen slides in, its parts one after another, and its bars fill */
-#view.g-enter>*{animation:g-in .42s cubic-bezier(.2,.8,.3,1) both}
-#view.g-enter>.hub>*{animation:g-in .42s cubic-bezier(.2,.8,.3,1) both}
-#view.g-enter>*:nth-child(2),#view.g-enter>.hub>*:nth-child(2){animation-delay:.05s}#view.g-enter>*:nth-child(3),#view.g-enter>.hub>*:nth-child(3){animation-delay:.1s}
-#view.g-enter>*:nth-child(4),#view.g-enter>.hub>*:nth-child(4){animation-delay:.15s}#view.g-enter>*:nth-child(n+5),#view.g-enter>.hub>*:nth-child(n+5){animation-delay:.2s}
+#view.g-enter>*{animation:g-in .3s cubic-bezier(.2,.8,.3,1) both}
+#view.g-enter>.hub>*{animation:g-in .3s cubic-bezier(.2,.8,.3,1) both}
+#view.g-enter>*:nth-child(2),#view.g-enter>.hub>*:nth-child(2){animation-delay:.03s}#view.g-enter>*:nth-child(3),#view.g-enter>.hub>*:nth-child(3){animation-delay:.06s}
+#view.g-enter>*:nth-child(4),#view.g-enter>.hub>*:nth-child(4){animation-delay:.09s}#view.g-enter>*:nth-child(n+5),#view.g-enter>.hub>*:nth-child(n+5){animation-delay:.12s}
 #view.g-enter .bar i,#view.g-enter .hub-xp i,#view.g-enter .q-bar i,#view.g-enter .rk-bar i{animation:g-fill .9s cubic-bezier(.2,.8,.3,1) .25s both}
 #view.g-enter .hub-wbar i.on{animation:g-pop .3s ease both}#view.g-enter .hub-wbar i.on:nth-child(2){animation-delay:.08s}#view.g-enter .hub-wbar i.on:nth-child(3){animation-delay:.16s}#view.g-enter .hub-wbar i.on:nth-child(n+4){animation-delay:.24s}
-@keyframes g-in{from{opacity:0;transform:translateY(10px)}}
+@keyframes g-in{from{opacity:0;transform:translateY(6px)}}
 @keyframes g-fill{from{transform:scaleX(0)}}
 @keyframes g-pop{from{transform:scaleY(0)}}
 @keyframes g-sheen{0%{transform:translateX(-120%)}35%,100%{transform:translateX(120%)}}

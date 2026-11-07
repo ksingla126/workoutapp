@@ -772,7 +772,7 @@ function rkCarousel(R, sc) {
   return `<div class="rk-car"><div class="rk-track" data-rktrack>
       <div class="rk-slide" aria-label="Rank radar">${rkRadar(R, sc)}</div>
       <div class="rk-slide bd-slide" aria-label="3D muscle rank map">
-        <div class="bd-host" id="bdHost"><div class="bd-msg">${rkBodyErr ? "The 3D body needs WebGL, which this device can't run." : "Swipe here to load your body map"}</div></div>
+        <div class="bd-host" id="bdHost" data-keep><div class="bd-msg">${rkBodyErr ? "The 3D body needs WebGL, which this device can't run." : "Swipe here to load your body map"}</div></div>
         <div class="bd-top"><span class="bd-sys">Muscle ranks</span>${rkPickChip(R, sc)}</div>
         <div class="bd-hint" aria-hidden="true">Drag the body to turn it</div>
       </div></div>
