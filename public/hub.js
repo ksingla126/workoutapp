@@ -5,7 +5,7 @@
 const HUB_TOUR = [
   { sel: "[data-hub-start]", t: "Start here", b: "This starts today's workout. The app walks you through every set, with rest timers." },
   { sel: '[data-tab="home"]', t: "Train", b: "Your full plan: today's sets, other days, editing your routine and your progress." },
-  { sel: '[data-tab="food"]', t: "Food", b: "Log meals, track protein, and auto-generate a meal plan with a grocery list." },
+  ...(FOOD_ON ? [{ sel: '[data-tab="food"]', t: "Food", b: "Log meals, track protein, and auto-generate a meal plan with a grocery list." }] : []),
   { sel: '[data-tab="ranks"]', t: "Ranks", b: "Your E–S ranks in six categories, plus your quest log." },
   { sel: '[data-tab="advice"]', t: "System", b: "Ask the coach anything, or see where your training is heading." },
 ];

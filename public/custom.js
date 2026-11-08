@@ -772,91 +772,6 @@ function groceryList(){ const K=kitchen(), g={};
 }
 
 
-/* ======================= 3-meal batch plan (Oct 26, 2026) ======================= */
-// Three meals that batch-cook and freeze: burritos, pesto chicken bowls, turkey bolognese with protein pasta.
-// Week A (big cook, every other Sunday) makes everything; Week B only makes the chicken bowls.
-const BATCH3={
-  foods:[{id:"cfPP",n:"Protein pasta, dry (e.g. Barilla Protein+)",serving:"2 oz (56 g)",k:190,p:10,c:38,f:1.5}],
-  recipes:[
-    {id:"rcBur",name:"Turkey & egg burritos (batch)",servings:14,
-      items:[{f:"turk93",amt:2.5,unit:"1 lb"},{f:"egg",amt:14,unit:"1 large egg"},{f:"eggwh",amt:850,unit:"g"},{f:"tortf",amt:1008,unit:"g"},{f:"cheddar",amt:98,unit:"g"},{f:"salsa",amt:14,unit:"2 tbsp"}],
-      when:"Week A · about 45 min · makes 14",
-      method:`Mix the seasoning: 2 tsp salt, 1 tsp pepper, 2 tsp garlic powder, 2 tsp smoked paprika, 1 tsp dried sage, ½ tsp chili flakes.
-Brown 2.5 lb ground turkey in a large nonstick pan over medium-high, 8–10 min, breaking it up. Stir in the seasoning and tip it into a big bowl.
-Whisk 14 eggs with 3½ cups liquid egg whites and a pinch of salt. Scramble in the same pan over medium-low, stirring slowly. Take them off while still a little wet: they finish cooking when you reheat.
-Fold the eggs into the turkey. Let the filling cool 10 minutes so the tortillas don't steam and tear.
-Warm the 10-inch tortillas 15 seconds in the microwave so they bend without cracking.
-Lay ¾ cup filling in a line on each tortilla and top with 1 tbsp shredded cheese. Fold in the sides, then roll tight away from you.
-Wrap each burrito in foil and freeze flat in gallon bags, labeled with the date. Keep salsa in the fridge and add it when you eat (2 tbsp each).`,
-      store:`Freezer up to 2 months. Reheat: take off the foil, wrap in a damp paper towel and microwave 2–2½ min, flipping halfway, then rest 1 min. Air fryer: 350 °F for 12–14 min from frozen, still in foil for the first 8 min.`},
-    {id:"rcPes",name:"Pesto chicken rice bowls (batch)",servings:7,
-      items:[{f:"chkbr",amt:4,unit:"lb"},{f:"ricewd",amt:6,unit:"¼ cup"},{f:"broc",amt:14,unit:"1 cup"},{f:"pesto",amt:9,unit:"1 tbsp"}],
-      when:"Every Sunday · about 40 min · makes 7",
-      method:`Heat the oven to 425 °F and line a sheet pan with foil.
-Pat 4 lb chicken breasts dry. Slice any piece thicker than an inch in half horizontally so everything cooks evenly.
-Rub with 2 tbsp pesto (2 thawed cubes), 1½ tsp salt and ½ tsp pepper. Spread out on the pan.
-Bake 18–22 min, until the thickest piece reads 160 °F. Rest 10 min (it climbs to 165 °F), then slice.
-While it bakes, rinse 1½ cups rice. Bring it to a boil with 2¼ cups water and ½ tsp salt, cover, cook on the lowest heat 15 min, then off the heat 10 min. Fluff and spread on a tray to cool.
-Split the chicken and rice across 7 containers (about ¾ cup rice each) with 1 tbsp pesto on top.
-Keep 2 cups frozen broccoli per bowl in the freezer bag until you eat.`,
-      store:`Fridge 4 days, so freeze 3 bowls for Thu–Sat and move one to the fridge the night before. Reheat: add 2 cups frozen broccoli, cover, microwave 3–4 min, stirring halfway.`},
-    {id:"rcBol",name:"Turkey bolognese with protein pasta (batch)",servings:14,
-      items:[{f:"turk93",amt:6,unit:"1 lb"},{f:"onion",amt:2,unit:"1 medium"},{f:"carrot",amt:2,unit:"1 medium"},{f:"garlic",amt:6,unit:"1 clove"},{f:"crtom",amt:9.8,unit:"1 cup"},{f:"tompaste",amt:170,unit:"g"},{f:"spinach",amt:14,unit:"1 cup"},{f:"cfPP",amt:14,unit:"2 oz (56 g)"}],
-      when:"Week A · about 50 min, mostly simmering · makes 14",
-      method:`Finely chop 2 onions and 2 carrots (a few pulses in a food processor works) and mince 6 garlic cloves.
-In your biggest pot (7 qt or more) over medium-high, brown 6 lb ground turkey in two batches with 1 tsp salt each, 8–10 min per batch, breaking it up. Keep the first batch in a bowl while you do the second.
-Put all the turkey back. Add the onion and carrot and cook 6–8 min until soft, then the garlic for 1 min.
-Stir in a 6 oz can of tomato paste and cook 2 min until it darkens.
-Add 3 × 28 oz cans crushed tomatoes, 2 tbsp Italian seasoning, 1 tsp salt, ½ tsp pepper and 1 tbsp balsamic vinegar. Bring to a simmer.
-Simmer uncovered 30 min, stirring every 5–10 min, until thick. Stir in 14 cups spinach for the last 2 min (it wilts down to almost nothing).
-Cool 20 min, then portion into 14 containers (about 1½ cups each).
-Pasta, per dinner: boil 2 oz protein pasta in salted water for the time on the box (about 10 min). Or cook 7 portions on Sunday, toss with 1 tsp oil and keep in the fridge up to 4 days.`,
-      store:`4 portions in the fridge (4 days), 10 in the freezer (3 months). Reheat sauce from frozen 4–5 min in the microwave, stirring halfway (2–3 min if thawed overnight), then toss with the pasta.`}
-  ],
-  plan:{b:[{t:"r",id:"rcBur",qty:1}],l:[{t:"r",id:"rcPes",qty:1}],d:[{t:"r",id:"rcBol",qty:1}],s:[]},
-  prep:{start:"2026-11-01",
-    weeks:[
-      {name:"Week A: big cook",time:"about 2½ hours",steps:[
-        "0:00 Chop the bolognese vegetables. Start browning the first 3 lb of turkey in the big pot.",
-        "0:15 Oven to 425 °F. Season the chicken. Brown the second batch of bolognese turkey.",
-        "0:30 Chicken in the oven. Rice on the stove. Vegetables, garlic and paste into the pot, then tomatoes: simmer 30 min.",
-        "0:35 Burrito turkey in a skillet, then the eggs.",
-        "0:52 Chicken out to rest. Put 6 eggs on to boil (12 min, then ice water).",
-        "1:00 Roll and wrap 14 burritos.",
-        "1:30 Spinach into the sauce. Slice the chicken.",
-        "1:40 Portion 7 chicken bowls (freeze 3) and 14 bolognese (freeze 10). Burritos into the freezer."],
-       shop:[["chicken","Chicken breast","4 lb",{q:4,u:"lb"}],["turkey","93% lean ground turkey","8.5 lb (three 3-lb packs)",{q:8.5,u:"lb"}],["eggs","Eggs","2½ dozen",{q:30,u:"count"}],["whites","Liquid egg whites","32 oz carton",{q:32,u:"fl oz"}],["tort","10-inch flour tortillas","14",{q:14,u:"count"}],["cheese","Shredded cheddar or Mexican blend","8 oz",{q:8,u:"oz"}],["salsa","Salsa","1 jar (16 oz)",{q:16,u:"oz"}],["crtom","Crushed tomatoes","3 × 28 oz cans",{q:84,u:"oz"}],["paste","Tomato paste","1 × 6 oz can",{q:6,u:"oz"}],["veg","Onions, carrots, garlic","2 + 2 + 1 head"],["spin","Baby spinach","1 lb",{q:16,u:"oz"}],["pasta","Protein pasta","1 box",{q:14,u:"oz"}],["broc","Frozen broccoli","2 × 32 oz",{q:64,u:"oz"}],["banana","Bananas","for long runs",{q:2,u:"count"}],["rice","Rice","if you're low (1½ cups a week)",{q:11,u:"oz"}]]},
-      {name:"Week B: quick cook",time:"about 40 minutes",steps:[
-        "Oven to 425 °F. Season and bake the chicken (18–22 min).",
-        "Rice on the stove while it bakes. Boil 6 eggs for run days.",
-        "Rest and slice the chicken, then portion 7 bowls (freeze 3).",
-        "Burritos and bolognese come out of the freezer: move 4 bolognese and a few burritos to the fridge."],
-       shop:[["chicken","Chicken breast","4 lb",{q:4,u:"lb"}],["eggs","Eggs","1 dozen",{q:12,u:"count"}],["pasta","Protein pasta","1 box",{q:14,u:"oz"}],["broc","Frozen broccoli","2 × 32 oz",{q:64,u:"oz"}],["salsa","Salsa","if you're out"],["banana","Bananas","for long runs",{q:2,u:"count"}]]}],
-    every:[{name:"Walnut pesto",time:"every 4–5 weeks · 15 min",shop:[["basil","Fresh basil","4 oz container (2 packed cups)",{q:2.5,u:"oz"}],["walnuts","Walnuts","8 oz bag",{q:4,u:"oz"}],["parm","Parmesan","5 oz wedge or tub",{q:3,u:"oz"}],["lemon","Lemon","1",{q:1,u:"count"}],["oil","Olive oil","500 ml bottle (lasts ~3 batches)",{q:6,u:"fl oz"}],["garlic","Garlic","4 cloves from your head"],["spin","Baby spinach","2 cups from the Week A bag"],["tray","Ice-cube tray and freezer bags","if you don't have them"]],steps:[
-        "Toast 1 cup walnuts in a dry pan 3 min until fragrant; let them cool.",
-        "Blend 2 packed cups basil, 2 cups baby spinach, the walnuts, 1 cup grated parmesan, 4 garlic cloves, juice of 1 lemon and 1 tsp salt until chopped.",
-        "With the blender running, stream in ¾ cup olive oil until smooth. Taste for salt and lemon.",
-        "Freeze in an ice-cube tray (1 tbsp per cube), then bag the cubes. Keeps 3 months; keep a week's worth in the fridge."]},
-      {name:"Run-day eggs",time:"with each Sunday prep",steps:["Boil 6 eggs 12 min, then ice water 5 min. Two each for Tue, Thu and Sat. Add a banana 30–45 min before the Saturday long run."]}]}
-};
-function maybeMealsV3(){
-  if(!window.__platform||!loaded.profile||!CUSTOM||!CUSTOM.su.fromLegacy) return false;
-  const K=kitchen();
-  if(K.v3){ if(!K.shop){ K.shop=prepToShop(BATCH3.prep); delete K.prep; delete K.prepV; saveProfile(); return true } return false }
-  BATCH3.foods.forEach(f=>{ if(!K.foods.some(x=>x.id===f.id)) K.foods.push({...f}) });
-  const ids=new Set(BATCH3.recipes.map(r=>r.id));
-  K.recipes=[...BATCH3.recipes.map(r=>JSON.parse(JSON.stringify(r))),...K.recipes.filter(r=>!ids.has(r.id)&&r.id!=="rcYog")];
-  K.plan=JSON.parse(JSON.stringify(BATCH3.plan)); K.shop=prepToShop(BATCH3.prep); K.v3=Date.now();
-  saveProfile(); return true;
-}
-// The old two-week prep (Week A / Week B + a separate pesto list) as general lists on a rotation; pesto now shops with Week A.
-function prepToShop(P){ const simple=(t,n)=>n&&(t===`${n.q} ${n.u}`||t===`${n.q}`);
-  const item=([id,name,txt,need])=>({id,name,amt:need?need.q:null,unit:need?need.u:"",note:simple(txt,need)?"":txt});
-  const pe=(P.every||[]).find(e=>e.name==="Walnut pesto");
-  const pesto=pe&&pe.shop? pe.shop.filter(([id])=>!["garlic","spin","tray"].includes(id)).map(x=>item(x)).map(x=>({...x,id:"pesto-"+x.id,name:x.name+(x.name.includes("basil")?"":" (pesto)")})) : [];
-  const lists=P.weeks.map((w,i)=>({id:i===0?"la":"lb",name:w.name.split(":")[0],items:w.shop.map(item),steps:[...w.steps]}));
-  if(lists[0]&&pe){ lists[0].items.push(...pesto); lists[0].steps.push(...pe.steps.map(x=>"Pesto: "+x)) }
-  return {day:0,start:P.start,cycle:lists.map(l=>l.id),lists} }
 function recipeMethod(r){ if(!r.method&&!r.store) return "";
   const lines=scaledMethod(r).split("\n").map(x=>x.trim()).filter(Boolean), sc=recipeScales(r);
   return `<details class="method"><summary>How to make it${r.when?` <span class="muted">· ${esc(r.when)}</span>`:""}</summary>${sc.length?`<p class="small adj">Adjusted to what you buy at ${esc(storeName())}: ${sc.map(x=>`${esc(SHOPLABEL[x.key]||x.key)} ${esc(x.P.totTxt)}`).join(", ")}. Same number of portions, a little more in each.</p>`:""}${lines.length?`<ol class="steps small">${lines.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`:""}${r.store?`<p class="small"><b>Storing and reheating:</b> ${esc(r.store)}</p>`:""}</details>` }
@@ -1054,46 +969,6 @@ function applySwaps(g,dayKey,d,routineOnly){
   return ex===g.ex&&name===g.name? g : {...g,name,ex};
 }
 /* ----- One-time move of the original hand-built plan onto routines (reversible: delete profile.setup) ----- */
-function legacyToSetup(){
-  const P=S.profile, about=String(P.about||""), nm=(about.match(/^\s*([A-Za-z][A-Za-z'-]{1,30})\s*,/)||[])[1]||"You";
-  const wts=(P.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1), wt=wts.length?Number(wts[wts.length-1].lb):(Number((about.match(/(\d{3})\s*lb/)||[])[1])||270);
-  const E2=(id,sets,lo,hi,ss)=>({id,sets,lo,hi,rest:REST[id]||90,note:X[id]&&X[id].alt,...(ss?{ss}:{})});
-  const routines=[
-    {id:"rA",name:"Day A · Bench & Leg Press",ex:[E2("bench",4,6,8),E2("legpress45",4,8,12),E2("pulldown",3,8,12),E2("backext",3,10,15),E2("declinecrunch",3,10,15),E2("fly",3,12,15,"a1"),E2("revfly",2,12,15,"a1"),E2("lateral",3,12,15)]},
-    {id:"rB",name:"Day B · Press & Core",ex:[E2("ohp",3,6,10),E2("cablerow",3,8,12),E2("legcurl",3,10,15),E2("legext1",2,10,15),E2("facepull",3,12,15,"b1"),E2("ohtri",2,10,15,"b1"),E2("pallof",3,10,12,"b2"),E2("tiltcalf",3,10,15,"b2")]},
-    {id:"rC",name:"Day C · Incline & Glutes",ex:[E2("incline",4,8,12),E2("dbrow",3,8,12),E2("hipthrust",3,8,12),E2("legcurl",3,10,15),E2("ezcurl",2,10,15,"c1"),E2("pushdown",2,10,15,"c1"),E2("hammer",2,10,15,"c2"),{...E2("calfraise",2,10,15,"c2"),note:"Pair with hammer curls. Full stretch at the bottom, 1 s pause at the top."}]}];
-  // swaps already made with the swap button
-  const sw=P.swaps||{}, keep=[];
-  (sw.routine||[]).forEach(r=>{ const rid="r"+r.day, R=routines.find(x=>x.id===rid); if(!R) return;
-    if(r.since<=ymd(today)){ const e=R.ex.find(x=>x.id===r.from); if(e) e.id=r.to } else keep.push({...r,day:rid}) });
-  // Nov 9: the core block ends and the deadlifts return
-  keep.push({day:"rA",since:"2026-11-09",from:"declinecrunch",to:"rdl",sets:3,lo:8,hi:10,rest:120,at:3});
-  keep.push({day:"rB",since:"2026-11-09",name:"Day B · Press & Deadlift",from:"pallof",to:"tbdl",sets:3,lo:5,hi:8,rest:150,ss:null,at:1});
-  P.swaps={once:sw.once||{},routine:keep};
-  // the meal plan becomes recipes in My meals + a daily plan
-  const K=kitchen(); if(!K.recipes.length){
-    K.recipes=[
-      {id:"rcYog",name:"Yogurt berry bowl",servings:1,items:[{f:"gyog0",amt:1,unit:"1 cup"},{f:"oats",amt:27,unit:"g"},{f:"berries",amt:0.75,unit:"1 cup"}]},
-      {id:"rcPes",name:"Pesto chicken rice bowl",servings:1,items:[{f:"chkbrc",amt:6,unit:"oz"},{f:"ricew",amt:0.5,unit:"1 cup"},{f:"broc",amt:2,unit:"1 cup"},{f:"pesto",amt:1,unit:"1 tbsp"}]},
-      {id:"rcBol",name:"Turkey bolognese pasta (batch)",servings:14,items:[{f:"turk93",amt:4,unit:"1 lb"},{f:"onion",amt:2,unit:"1 medium"},{f:"carrot",amt:2,unit:"1 medium"},{f:"garlic",amt:6,unit:"1 clove"},{f:"crtom",amt:3,unit:"1 can (28 oz)"},{f:"tompaste",amt:170,unit:"g"},{f:"spinach",amt:14,unit:"1 cup"},{f:"pastad",amt:28,unit:"oz"}]},
-      {id:"rcCot",name:"Cottage cheese + berries",servings:1,items:[{f:"cott1",amt:0.75,unit:"1 cup"},{f:"berries",amt:0.5,unit:"1 cup"}]}];
-    K.plan={b:[{t:"r",id:"rcYog",qty:1}],l:[{t:"r",id:"rcPes",qty:1}],d:[{t:"r",id:"rcBol",qty:1}],s:[{t:"r",id:"rcCot",qty:1}]} }
-  return {v:2,name:nm,sex:"male",age:21,weight:wt,goal:"fit",race:null,ongoing:1,start:"2026-10-12",firstDay:"2026-10-12",split:"own",
-    routines,week:["rA","run","rB","run","rC","run","rest"],customEx:[],runLevel:"new",exp:"new",kcal:1600,food:{kcal:1600,protein:140},
-    legacyRuns:true,rope:true,fromLegacy:ymd(today),at:Date.now(),
-    coachNotes:"Core block Oct 19–Nov 8: deadlift patterns were swapped for weighted core work because his core couldn't support his lower back; from Nov 9 the RDL and trap-bar deadlift return at reduced weight (trap bar around 135 lb with straps). Pressing is his weakest area, grip limits his pulls (use straps), and he dislikes split squats. Runs: Tuesday easy by heart rate (jog to 150 bpm, walk to 130), Thursday intervals, Saturday long run building to 11 mi, then cycling with a lighter week every 4th week. Jump-rope rounds finish each gym day as prep for a Muay Thai camp right after Dec 25. He chose an aggressive calorie deficit, so watch for under-fueling. No race on the calendar: the plan is ongoing, focused on getting steadily stronger and healthier."};
-}
-// Oct 28: his Pallof press becomes a Pallof hold (weight × seconds), in his plan only
-function maybePallofHold(){
-  const su=S.profile&&S.profile.setup; if(!su||!su.fromLegacy||su.pallofHold) return false;
-  const NOTE="Stand side-on to the cable, arms locked straight out at chest height, and don't let it twist you. Seconds are per side.";
-  (su.routines||[]).forEach(r=>(r.ex||[]).forEach(e=>{ if(e.id==="pallof"){ e.id="pallofhold"; e.lo=20; e.hi=30; e.rest=60; e.note=NOTE } }));
-  const sw=S.profile.swaps; if(sw&&sw.routine) sw.routine.forEach(r=>{ if(r.from==="pallof") r.from="pallofhold"; if(r.to==="pallof") r.to="pallofhold" });
-  su.pallofHold=1; su.at=Date.now(); saveProfile(); return true }
-function maybeMigrateLegacy(){
-  if(!window.__platform||!loaded.profile||S.profile.setup||!S.profile.about||S.profile.legacyKept) return false;
-  S.profile.setup=legacyToSetup(); saveProfile(); return true;
-}
 const SWAP_ICON=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h9.5M10 2.5 12.5 5 10 7.5"/><path d="M13 11H3.5M6 8.5 3.5 11 6 13.5"/></svg>`;
 function swapBtn(ex,log){ if(ex.fixed||ex.travel) return "";
   if(log) return `<button type="button" class="swapb" data-swap="${esc(ex.id)}" aria-label="Logged the wrong exercise? Change ${esc(ex.name)}" title="Logged the wrong exercise? Change it">${SWAP_ICON}</button>`;
@@ -1321,152 +1196,31 @@ function accountHtml(){
    <h3>Units</h3>
    <div class="seg" style="grid-template-columns:1fr 1fr">${[["lb","Pounds (lb)"],["kg","Kilograms (kg)"]].map(([k,l])=>`<button type="button" class="${UNIT()===k?"on":""}" data-acct-unit="${k}" aria-pressed="${UNIT()===k}">${l}</button>`).join("")}</div>
    ${typeof RU==="function"?`<div class="seg" style="grid-template-columns:1fr 1fr;margin-top:8px">${[["mi","Miles (mi)"],["km","Kilometres (km)"]].map(([k,l])=>`<button type="button" class="${RU()===k?"on":""}" data-acct-dist="${k}" aria-pressed="${RU()===k}">${l}</button>`).join("")}</div>`:""}
-   ${CUSTOM?`<h3>About you</h3><label class="setrow"><span><b>Birth month</b><span class="small muted">Keeps your age current for ranks</span></span><input class="setnum" type="month" data-acct-birth="1" value="${esc(CUSTOM.su.birth||"")}" max="${ymd(today).slice(0,7)}" style="width:150px"></label>`:""}
+   ${CUSTOM?`<h3>About you</h3><label class="setrow"><span><b>Birth month</b><span class="small muted">Keeps your age current for ranks</span></span><input class="setnum" type="month" data-acct-birth="1" value="${esc(CUSTOM.su.birth||"")}" max="${ymd(today).slice(0,7)}" style="width:150px"></label>${typeof rkDetailsLine==="function"?rkDetailsLine():""}`:""}
    <h3>Workouts</h3>
    ${tog("sound","Rest timer sound","Beep when rest is over")}
    ${tog("awake","Keep screen on","While a workout timer is running")}
    <label class="setrow"><span><b>Resting heart rate</b><span class="small muted">Used for fitness estimates</span></span><input class="setnum" inputmode="numeric" data-acct-rhr="1" value="${esc(S.profile.restHr||"")}" placeholder="70"></label>
-   ${stravaRows()}
    ${CUSTOM&&typeof RU==="function"?`<h3>Running</h3><button type="button" class="setlink" data-run-race="1">${(()=>{const R=CUSTOM.su.race; return R&&R.date&&R.date>=ymd(today)?`Race: ${esc(R.label||dTxt(R.dist))} · ${fmtShort(parseYmd(R.date))}`:"Add a race"})()}<span>›</span></button><button type="button" class="setlink" data-acct-runs="1">Edit your runs<span>›</span></button>`:""}
    ${typeof friendsRows==="function"?friendsRows():""}
-   ${CUSTOM?`<h3>Ranks</h3><button type="button" class="setlink" data-acct-pause="1">Pause ranks (travel or illness)<span>›</span></button>`:""}
+   ${typeof rkSettingsHtml==="function"?rkSettingsHtml():""}
    ${CUSTOM&&typeof openShare==="function"?`<h3>Friends</h3><button type="button" class="setlink" data-share="">Share RankUp with a friend<span>›</span></button>`:""}
    <h3>Account</h3>
    ${CUSTOM?`<button type="button" class="setlink" data-acct-edit="1">Edit plan & goals<span>›</span></button>`:""}
    <button type="button" class="setlink" data-acct-export="1">Download my data<span>›</span></button>
-   <button type="button" class="btn ghost" data-acct-out="1" style="margin-top:8px">Sign out</button>`;
+   <button type="button" class="btn ghost" data-acct-out="1" style="margin-top:8px">Sign out</button>
+   ${typeof rkCreditsHtml==="function"?rkCreditsHtml():""}`;
 }
-/* ----- Strava auto-import -----
-   The server is the source of truth for "connected": on iPhone the Strava approval happens in a Safari sheet,
-   so the app asks /api/strava-status when it opens and when it comes back to the foreground. */
-let stravaBusy=false, stravaChecked=0;
-const STRAVA_ERR={not_signed_in:"Sign in again, then connect Strava.",strava_keys_missing:"Setup: add STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET in Vercel, then redeploy.",
-  strava_client_id_invalid:"Setup: STRAVA_CLIENT_ID in Vercel should be just the number from your Strava API page.",service_key_missing:"Setup: add SUPABASE_SERVICE_ROLE_KEY in Vercel, then redeploy.",
-  service_key_is_anon:"Setup: SUPABASE_SERVICE_ROLE_KEY is set to the anon key. Use the service_role key instead.",service_key_invalid:"Setup: SUPABASE_SERVICE_ROLE_KEY in Vercel isn't valid. Copy the service_role key again.",
-  table_missing:"Setup: run the Strava SQL in Supabase first.",database_error:"The database didn't answer. Try again in a minute.",rate_limited:"Strava is busy. Try again in 15 minutes.",
-  revoked:"Strava access was removed. Connect again.",strava_error:"Strava didn't answer. Try again later.",network:"You're offline. Try again when you're connected."};
+/* ----- Runs imported from Strava before sync was removed -----
+   Sync is gone (runs come from GPX/TCX files). Anyone still connected is disconnected once, which revokes the app's
+   access at Strava and deletes the stored tokens. Extra runs already saved on a day still show. */
 function stravaState(){ return (userPrefs().strava)||{} }
-function setStrava(patch){ setPref({strava:{...stravaState(),...patch}}) }
-async function api(path,opt){ const tok=window.appAuthToken? await appAuthToken() : null; let r;
-  try{ r=await fetch(path,{...(opt||{}),headers:{...(tok?{authorization:"Bearer "+tok}:{})}}) }catch(e){ throw Object.assign(new Error("network"),{code:"network"}) }
-  const j=await r.json().catch(()=>({})); if(!r.ok) throw Object.assign(new Error(j.code||"error"),{status:r.status,code:j.code||"strava_error"}); return j }
-function stravaMsg(e){ return STRAVA_ERR[e&&e.code]||"Couldn't reach Strava. Try again." }
-async function stravaConnect(){
-  if(SH&&SH.kind==="account"){ SH.stravaErr=""; SH.connecting=true; paintSheet() }
-  try{ const j=await api("/api/strava-start"); setStrava({pending:Date.now()}); if(SH&&SH.kind==="account"){ SH.connecting=false; paintSheet() } location.href=j.url }
-  catch(e){ if(SH&&SH.kind==="account"){ SH.connecting=false; SH.stravaErr=stravaMsg(e); paintSheet() } else toast(stravaMsg(e)) } }
-async function stravaDisconnect(){ try{ await api("/api/strava-disconnect",{method:"POST"}) }catch(e){ if(e.code==="network"){ toast(stravaMsg(e)); return } }
-  setStrava({connected:false,pending:0,cursor:null,lastSync:null}); if(SH&&SH.kind==="account") paintSheet(); toast("Strava disconnected") }
-async function stravaCheck(force){
-  const ss=stravaState(); if(!force&&Date.now()-stravaChecked<20000) return; stravaChecked=Date.now();
-  try{ const j=await api("/api/strava-status");
-    if(j.connected&&!ss.connected){ setStrava({connected:true,pending:0}); toast("Strava connected. Importing your runs…"); stravaSync(true) }
-    else if(!j.connected&&(ss.connected||ss.pending)){ setStrava({connected:false,pending:0}) }
-    else if(j.connected&&(!ss.lastSync||Date.now()-ss.lastSync>30*60000)) stravaSync(false);
-    if(SH&&SH.kind==="account") paintSheet();
-  }catch(e){} }
-// Strava activity → the same run breakdown a GPX file gives; runs without GPS/streams keep Strava's summary
-function stravaToSt(run){ const S2=run.streams||{}, t0=Date.parse(run.start), k=String(run.startLocal||run.start||"").slice(0,10);
-  let st=null;
-  if(S2.time&&S2.time.length>=10&&isFinite(t0)){
-    const pts=S2.time.map((sec,i)=>({t:t0+sec*1000,lat:S2.latlng&&S2.latlng[i]?S2.latlng[i][0]:null,lon:S2.latlng&&S2.latlng[i]?S2.latlng[i][1]:null,ele:S2.altitude?S2.altitude[i]:null,d:S2.distance?S2.distance[i]:null,hr:S2.heartrate?S2.heartrate[i]:null,cad:S2.cadence?S2.cadence[i]:null}));
-    try{ st=trackFromPoints(pts,run.name) }catch(e){ st=null } }
-  if(!st){ const mi=(Number(run.distance)||0)/1609.344; if(mi<0.05) return null; let cad=run.cadence; if(cad&&cad<120) cad*=2;
-    st={name:String(run.name||"").slice(0,80),mi:+mi.toFixed(2),movingMin:run.moving?+(run.moving/60).toFixed(2):null,elapsedMin:run.elapsed?+(run.elapsed/60).toFixed(2):null,
-      elevFt:run.elevM!=null?Math.round(run.elevM*3.28084):null,avgHr:run.avgHr?Math.round(run.avgHr):null,maxHr:run.maxHr?Math.round(run.maxHr):null,cad:cad?Math.round(cad):null,splits:[]} }
-  if(st&&Array.isArray(run.laps)&&run.laps.length>1){ let acc=0; st.laps=run.laps.map(x=>{ const s0=S2.time&&S2.time[x.i]!=null? S2.time[x.i] : acc; acc=s0+(Number(x.t)||0);
-      return {s:Math.round(s0),d:Math.round(Number(x.t)||0),m:Math.round(Number(x.m)||0),v:+(Number(x.v)||0).toFixed(2),vx:+(Number(x.vx)||0).toFixed(2),hr:x.hr?Math.round(x.hr):null,hx:x.hx?Math.round(x.hx):null,g:x.g!=null?Math.round(x.g):null} }) }
-  st.src="strava"; st.stravaId=run.id; st.date=k; if(run.type==="VirtualRun") st.treadmill=true; return st }
-async function stravaSync(manual){
-  const ss=stravaState(); if(!ss.connected||stravaBusy) return; stravaBusy=true;
-  if(SH&&SH.kind==="account"){ SH.syncing=true; SH.stravaErr=""; paintSheet() }
-  let n=0, asks=0; const ana=[], got=[];
-  try{
-    let cursor=ss.cursor||Math.floor(START.getTime()/1000);
-    for(let round=0;round<5;round++){
-      const j=await api("/api/strava-sync?after="+Math.max(0,cursor-2*86400));
-      (j.runs||[]).forEach(run=>{ got.push(run); cursor=Math.max(cursor,Math.floor(Date.parse(run.start)/1000)||0) });
-      if(!j.more) break; cursor=Math.max(cursor,j.next||0) }
-    // group by day, oldest first, skipping anything already recorded
-    const byDay={};
-    got.forEach(run=>{ const k=String(run.startLocal||run.start||"").slice(0,10); if(!/^\d{4}-\d{2}-\d{2}$/.test(k)||knownStrava(k).has(run.id)) return;
-      const st=stravaToSt(run); if(!st) return; (byDay[k]=byDay[k]||[]).push(candidate(run,st)) });
-    const inbox=stravaInbox(); let inboxChanged=false;
-    for(const k of Object.keys(byDay).sort()){
-      const fresh=byDay[k].sort((a,b)=>a.start<b.start?-1:1), log=S.logs[k], p=planFor(parseYmd(k)), gymDay=(log&&log.type==="gym")||(!log&&p&&p.type==="gym");
-      if(log&&(log.type==="gym"||log.st)){                       // day already has its session → these are extras
-        // a run you already imported from a GPX file shows up on Strava too: recognise it instead of adding it twice
-        let same=null; if(log.st&&!log.st.stravaId) same=fresh.find(c=>sameRun(log,c));
-        const add=fresh.filter(c=>c!==same).map(slim), upd={...log};
-        if(same) upd.st={...log.st,stravaId:same.stravaId};
-        if(add.length) upd.extraRuns=[...(log.extraRuns||[]),...add];
-        if(same||add.length){ await saveLog(k,upd); n+=add.length } continue }
-      const waiting=(inbox[k]&&inbox[k].runs)||[];
-      if(gymDay||waiting.length+fresh.length>1||(inbox[k]&&inbox[k].allExtra)){ // let the user choose (gym days: extras)
-        inbox[k]={runs:[...waiting,...fresh],allExtra:gymDay||!!(inbox[k]&&inbox[k].allExtra)}; inboxChanged=true; if(!gymDay) asks++; continue }
-      const c=fresh[0]; await useStravaRun(k,c,[]); n++; if(k>=ymd(addDays(today,-7))) ana.push(k) }
-    if(inboxChanged){ S.profile.stravaInbox=inbox; saveProfile() }
-    setStrava({connected:true,pending:0,cursor,lastSync:Date.now()});
-    if(asks) toast(asks===1?"More than one Strava run on a day. Pick which one counts on that day's card.":`Several days have more than one Strava run. Pick which one counts on each day.`);
-    else if(n) toast(`Imported ${n} run${n>1?"s":""} from Strava`); else if(manual) toast("You're up to date with Strava");
-    if(typeof analyzeRun==="function"&&sampleFn) ana.forEach((k,i)=>setTimeout(()=>analyzeRun(k),1500*(i+1)));
-    if(n||inboxChanged){ lastRenderKey=""; render() }
-  }catch(e){
-    if(e.code==="not_connected"||e.code==="revoked") setStrava({connected:false,pending:0});
-    if(SH&&SH.kind==="account") SH.stravaErr=stravaMsg(e); else if(manual||e.code==="revoked") toast(stravaMsg(e));
-    if(n){ lastRenderKey=""; render() }
-  }finally{ stravaBusy=false; if(SH&&SH.kind==="account"){ SH.syncing=false; paintSheet() } } }
-/* ----- several Strava runs on one day: you choose which is the day's run, the rest become extra runs ----- */
-function stravaInbox(){ return {...((S.profile&&S.profile.stravaInbox)||{})} }
-function candidate(run,st){ return {stravaId:run.id,name:String(run.name||"Run").slice(0,80),start:run.startLocal||run.start,mi:st.mi,min:st.movingMin||st.elapsedMin,st} }
-function knownStrava(k){ const ids=new Set(), l=S.logs[k], ib=((S.profile&&S.profile.stravaInbox)||{})[k];
-  if(l&&l.st&&l.st.stravaId) ids.add(l.st.stravaId); (l&&l.extraRuns||[]).forEach(x=>ids.add(x.stravaId)); (ib&&ib.runs||[]).forEach(x=>ids.add(x.stravaId)); return ids }
-function sameRun(log,c){ const a=Number(log.st.mi||log.mi)||0, b=Number(c.mi)||0, ta=Number(log.st.movingMin||log.st.elapsedMin||log.min)||0, tb=Number(c.min)||0;
-  return a>0&&b>0&&Math.abs(a-b)/Math.max(a,b)<0.15&&(!ta||!tb||Math.abs(ta-tb)/Math.max(ta,tb)<0.2) }
-const slim=c=>({stravaId:c.stravaId,name:c.name,start:c.start,mi:c.mi,min:c.min,avgHr:c.st&&c.st.avgHr||null,...(c.st&&c.st.best&&c.st.gps!==false&&!c.st.treadmill?{best:c.st.best}:{})});
-async function useStravaRun(k,c,extras){
-  const log=S.logs[k], p=planFor(parseYmd(k));
-  const base=log||{type:"run",key:p&&p.type==="run"?p.key:"extra",rpe:"",notes:"Imported from Strava"};
-  const extra=!(p&&p.type==="run")&&!(base.plan)? {plan:{type:"run",key:"extra",t:"Run",d:"Extra run · imported from Strava"}} : {};
-  const xr=[...(log&&log.extraRuns||[]),...extras.map(slim)];
-  await saveLog(k,{...base,...extra,type:"run",mi:base.mi||c.mi,min:base.min||c.min,st:c.st,...(xr.length?{extraRuns:xr}:{}),savedAt:Date.now()});
-}
-function stravaChooser(k,log){ const ib=((S.profile&&S.profile.stravaInbox)||{})[k]; if(!ib||!ib.runs||!ib.runs.length||ib.allExtra||(log&&log.st)) return "";
-  const t=x=>{ const d=new Date(x.start); return isFinite(d)? d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit",timeZone:"UTC"}) : "" };
-  return `<div class="schoose"><b>Which Strava run is ${k===ymd(today)?"today's":"this day's"} run?</b><span class="small muted">The others are saved as extra runs on this day.</span>
-    ${ib.runs.map(x=>`<button type="button" class="opt" data-spick="${k}|${x.stravaId}"><span><b>${esc(x.name)}</b><span class="small muted num">${t(x)} · ${x.mi} mi · ${x.min?fmtMin(x.min):"–"}${x.mi&&x.min?` · ${fmtMin(x.min/x.mi)}/mi`:""}</span></span><span class="xs-plus">✓</span></button>`).join("")}
-    <button type="button" class="link small" data-snone="${k}" style="align-self:flex-start">They're all extra runs</button></div>` }
-function extraRunsBlock(k,log){ const ib=((S.profile&&S.profile.stravaInbox)||{})[k];
-  const list=[...(log&&log.extraRuns||[]),...(ib&&ib.allExtra?ib.runs.map(slim):[])]; if(!list.length) return "";
+function maybeStravaInit(){ if(window.__stravaInit||!window.__platform||!loaded.profile) return; window.__stravaInit=true;
+  const ss=stravaState(); if(!ss.connected&&!ss.pending) return; const tok=window.appAuthToken? appAuthToken() : Promise.resolve(null);
+  tok.then(t=>fetch("/api/strava-disconnect",{method:"POST",headers:t?{authorization:"Bearer "+t}:{}})).then(()=>setPref({strava:{connected:false,pending:0,off:Date.now()}})).catch(()=>{}) }
+function extraRunsBlock(k,log){ const list=log&&log.extraRuns||[]; if(!list.length) return "";
   return `<div class="xruns"><div class="eyebrow">Extra run${list.length>1?"s":""} this day</div>${list.map(x=>`<div class="xr"><span>${esc(x.name||"Run")}</span><span class="num muted">${x.mi} mi${x.min?` · ${fmtMin(x.min)}`:""}${x.avgHr?` · ${x.avgHr} bpm`:""}</span></div>`).join("")}</div>` }
-// when a run is logged by hand, runs marked "all extra" come along as extras
-function extrasForSave(k,log){ const ib=((S.profile&&S.profile.stravaInbox)||{})[k]; const xr=[...(log&&log.extraRuns||[])];
-  if(ib&&ib.runs){ ib.runs.forEach(x=>{ if(!xr.some(y=>y.stravaId===x.stravaId)) xr.push(slim(x)) }); const inbox=stravaInbox(); delete inbox[k]; S.profile.stravaInbox=inbox; saveProfile() }
-  return xr }
-function maybeStravaInit(){ if(!window.__stravaInit&&window.__platform&&loaded.profile&&loaded.logs){ window.__stravaInit=true; stravaOnLoad() } }
-// Strava sync is off for now: runs come from GPX/TCX files. Anyone who connected before is disconnected once,
-// which revokes the app's access at Strava and deletes the stored tokens.
-const STRAVA_ON=false;
-function stravaOnLoad(){
-  if(!STRAVA_ON){ const ss=stravaState(); if(ss.connected||ss.pending){ api("/api/strava-disconnect",{method:"POST"}).then(()=>setStrava({connected:false,pending:0,cursor:null,lastSync:null,off:Date.now()})).catch(()=>{}) } return }
-  const q=new URLSearchParams(location.search), r=q.get("strava");
-  if(r){ history.replaceState(null,"",location.pathname); if(r!=="connected") toast(r==="denied"?"Strava connection cancelled.":r==="scope"?"Tick “View data about your activities” so runs can import.":r==="expired"?"That Strava link expired. Connect again.":"Strava didn't finish connecting. Try again.") }
-  stravaCheck(true);
-  document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"){ const ss=stravaState(); if(ss.pending&&Date.now()-ss.pending<30*60000) stravaCheck(true); else if(ss.connected) stravaCheck(false) } }) }
-function stravaRows(){ if(!STRAVA_ON||!(window.appConfig&&appConfig().strava)) return ""; const ss=stravaState(), busy=SH&&SH.syncing;
-  const err=SH&&SH.stravaErr?`<p class="note">${esc(SH.stravaErr)}</p>`:"";
-  if(ss.connected) return `<h3>Strava</h3><div class="setrow"><span><b>Connected</b><span class="small muted">${busy?"Syncing…":ss.lastSync?"Last synced "+new Date(ss.lastSync).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"Runs import automatically"}</span></span><span class="row" style="gap:6px;flex-wrap:nowrap"><button type="button" class="btn sm" data-acct-ssync="1" ${busy?"disabled":""}>Sync</button><button type="button" class="btn ghost sm" data-acct-sdisc="1">Disconnect</button></span></div>${err}`;
-  if(ss.pending&&Date.now()-ss.pending<30*60000) return `<h3>Strava</h3><div class="setrow"><span><b>Finishing on Strava…</b><span class="small muted">Approve on the Strava screen, then come back here.</span></span><button type="button" class="btn sm" data-acct-scheck="1">Check</button></div><button type="button" class="link small" data-acct-sconn="1">Start over</button>${err}`;
-  return `<h3>Strava</h3><button type="button" class="setlink" data-acct-sconn="1" ${SH&&SH.connecting?"disabled":""}>${SH&&SH.connecting?"Opening Strava…":"Connect Strava"}<span>›</span></button><p class="small muted">Runs you record on Strava import by themselves, with pace, splits and heart rate.</p>${err}` }
-
-// Strava where runs happen, not only in the account sheet
-const STRAVA_MARK=`<svg viewBox="0 0 24 24" aria-hidden="true" class="sv-mark"><path fill="#FC4C02" d="M10.1 1 4.3 12.4h3.5l2.3-4.5 2.2 4.5h3.5z"/><path fill="#FC4C02" opacity=".6" d="m15.8 12.4-1.7 3.4-1.8-3.4H9.8l4.3 8.4 4.2-8.4z"/></svg>`;
-function stravaPrompt(where){
-  if(!STRAVA_ON||!(window.appConfig&&appConfig().strava)) return ""; const ss=stravaState();
-  if(ss.connected||(ss.pending&&Date.now()-ss.pending<30*60000)) return "";
-  if(where==="home"&&userPrefs().stravaHide) return "";
-  return `<div class="strava-cta">${STRAVA_MARK}<div style="flex:1;min-width:0"><b>Record runs on Strava?</b><div class="small muted">Connect it once and your runs import by themselves, with the route, splits and heart rate.</div>
-    <div class="row" style="margin-top:8px;gap:10px;align-items:center"><button type="button" class="btn sm" data-strava-go="1">Connect Strava</button>${where==="home"?'<button type="button" class="link small" data-strava-hide="1">Not now</button>':""}</div></div></div>` }
+function extrasForSave(k,log){ return [...(log&&log.extraRuns||[])] }
 function exportData(){ const data={exportedAt:new Date().toISOString(),profile:S.profile,logs:S.logs,meals:S.meals,photos:S.photos,chat:S.chat,advice:S.advice};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}), url=URL.createObjectURL(blob), a=document.createElement("a");
   a.href=url; a.download=`training-data-${ymd(today)}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000) }
@@ -1475,11 +1229,6 @@ function exportData(){ const data={exportedAt:new Date().toISOString(),profile:S
 function numIn(v){ const n=Number(String(v).replace(/,/g,"")); return isFinite(n)?n:0 }
 document.addEventListener("click",e=>{
   const t=e.target.closest&&e.target.closest("button,[data-xs]"); if(!t) return; const d=t.dataset;
-  // --- Strava: pick the day's run
-  if(d.spick){ const [k,id]=d.spick.split("|"), ib=stravaInbox()[k]; if(!ib) return; const c=ib.runs.find(x=>String(x.stravaId)===id); if(!c) return;
-    const others=ib.runs.filter(x=>x!==c), inbox=stravaInbox(); delete inbox[k]; S.profile.stravaInbox=inbox; saveProfile();
-    useStravaRun(k,c,others).then(()=>{ lastRenderKey=""; render(); toast(others.length?`Logged ${c.name}. ${others.length} extra run${others.length>1?"s":""} saved.`:`Logged ${c.name}`); if(typeof analyzeRun==="function"&&sampleFn) setTimeout(()=>analyzeRun(k),800) }); return }
-  if(d.snone){ const inbox=stravaInbox(); if(inbox[d.snone]){ inbox[d.snone]={...inbox[d.snone],allExtra:true}; S.profile.stravaInbox=inbox; saveProfile(); lastRenderKey=""; render(); toast("Saved as extra runs. Log today's run when you do it.") } return }
   // --- swaps
   if(d.swap){ const p=planFor(sel), ex=p&&p.ex&&p.ex.find(e=>e.id===d.swap); if(!ex) return;
     openSheet({kind:"swap",from:ex.id,fromName:ex.name,day:p.day,dayName:(p.name||("Day "+p.day)).split(" · ")[0],k:ymd(sel),q:"",mu:muscleOfEx(ex.id),fix:!!S.logs[ymd(sel)]}); return }
@@ -1501,20 +1250,15 @@ document.addEventListener("click",e=>{
   if(d.dayskip){ if(t.dataset.armed){ const lab=sessLabel(srcOf(d.dayskip)); setSrc(d.dayskip,null); saveProfile(); lastRenderKey=""; render(); toast(`${lab} skipped. ${dayName(d.dayskip)} is a rest day`) } else { const was=t.textContent; t.dataset.armed="1"; t.textContent="Tap again to confirm"; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.armed; t.textContent=was } },3000) } return }
   if(d.exhist){ const p=planFor(sel), ex=p&&p.ex&&p.ex.find(e=>e.id===d.exhist); openSheet({kind:"hist",id:d.exhist,name:ex&&ex.name}); return }
   // --- account
-  if(d.acct){ openSheet({kind:"account"}); if(STRAVA_ON&&window.appConfig&&appConfig().strava) stravaCheck(false); return }
+  if(d.acct){ openSheet({kind:"account"}); return }
   if(d.acctUnit){ setUnit(d.acctUnit); paintSheet(); return }
   if(d.acctDist){ S.profile.distU=d.acctDist; saveProfile(); paintSheet(); lastRenderKey=""; render(); return }
   if(d.acctRuns){ xsClose(); tab="plan"; planView="training"; lastRenderKey=""; render(); setTimeout(()=>{ const el=document.querySelector(".runr")||document.querySelector("[data-run-new]"); if(el) el.scrollIntoView({block:"center"}) },60); return }
-  if(d.acctPause){ xsClose(); tab="ranks"; lastRenderKey=""; render(); setTimeout(()=>{ const el=[...document.querySelectorAll(".card h2")].find(x=>x.textContent.trim()==="Pause"); if(el) el.scrollIntoView({block:"center"}) },300); return }
+  if(d.acctPauseon||d.acctPauseoff){ rkPauseSet(!!d.acctPauseon); paintSheet(); return }
   if(d.acctMode){ setPref({mode:d.acctMode}); paintSheet(); return }
   if(d.acctPal){ setPref({palette:d.acctPal}); paintSheet(); return }
   if(d.acctEdit){ xsClose(); setupOpen=true; SUW=null; render(); window.scrollTo(0,0); return }
   if(d.acctExport){ exportData(); return }
-  if((d.acctSconn||d.stravaGo)&&STRAVA_ON){ stravaConnect(); return }
-  if(d.stravaHide){ setPref({stravaHide:Date.now()}); lastRenderKey=""; render(); toast("Hidden. You can connect any time from your account."); return }
-  if(d.acctSsync&&STRAVA_ON){ stravaSync(true); return }
-  if(d.acctSdisc){ stravaDisconnect(); return }
-  if(d.acctScheck){ stravaCheck(true); return }
   if(d.acctOut){ xsClose(); if(window.appSignOut) appSignOut(); return }
   // --- routine editor
   if(d.cGotoplan){ tab="plan"; planView="training"; try{localStorage.setItem("rd25-tab","plan")}catch(_){} render(); window.scrollTo(0,0); return }
@@ -1608,7 +1352,7 @@ document.addEventListener("click",e=>{
   if(d.xs==="sssave"){ const W=SH, K=kitchen(), nd=nextShopDay({day:W.day}); K.shop.day=W.day; K.shop.cycle=[...W.cycle]; K.shop.start=ymd(addDays(nd,-7*W.pos)); saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Schedule saved"); return }
   if(SH.kind==="form"){
     if(d.xs==="formagain"){ if(SH.track) URL.revokeObjectURL(SH.track.url); SH.step="pick"; SH.err=""; SH.track=null; SH.res=null; paintSheet(true); return }
-    if(d.xs==="formchat"){ xsClose(); tab="advice"; advView="advice"; lastRenderKey=""; render(); setTimeout(()=>{ const ta=document.getElementById("chatIn"); if(ta){ ta.value="About that form check: "; ta.focus(); ta.scrollIntoView({block:"center"}) } },60); return } }
+    if(d.xs==="formchat"){ xsClose(); tab="advice"; lastRenderKey=""; render(); setTimeout(()=>{ const ta=document.getElementById("chatIn"); if(ta){ ta.value="About that form check: "; ta.focus(); ta.scrollIntoView({block:"center"}) } },60); return } }
   if(SH.kind==="autogen"){ const f=SH.f;
     if(d.xsGstyle){ const k=d.xsGstyle; f.styles=f.styles.includes(k)? f.styles.filter(x=>x!==k) : [...f.styles,k]; paintSheet(); return }
     if(d.xsGcook){ f.cook=d.xsGcook; paintSheet(); return }

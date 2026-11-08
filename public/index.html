@@ -581,9 +581,6 @@ details.tip summary{font-size:12px;color:var(--muted);cursor:pointer}
 #syncPill{position:fixed;top:calc(6px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:950;background:var(--ink);color:var(--bg);font:600 12px var(--body);padding:5px 12px;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.25);pointer-events:none}
 #syncPill[hidden]{display:none}
 
-.schoose{border:1px solid var(--run);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--run-soft)}
-.schoose .opt{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
-.schoose .opt span{display:flex;flex-direction:column}
 .xruns{display:flex;flex-direction:column;gap:4px}.xruns .xr{display:flex;justify-content:space-between;gap:8px;font-size:14px;padding:6px 0;border-top:1px solid var(--line)}
 
 .plates:empty{display:none}
@@ -704,12 +701,10 @@ nav.tabs button.on{background:var(--ink);color:var(--bg)}
 nav.tabs .badge{top:3px;right:calc(50% - 20px);box-shadow:0 0 0 2px var(--surface)}
 .wrap{padding-bottom:120px}
 
-/* new-user food, Strava, outlook and rest days */
+/* new-user food and rest days */
 .starter{border:1px solid color-mix(in srgb,var(--food) 40%,var(--edge))}.starter-list{margin:4px 0 10px;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14px}
 details.card.needs summary{cursor:pointer;list-style:none}details.card.needs summary::-webkit-details-marker{display:none}details.card.needs[open] summary{margin-bottom:8px}
 .gpx-how summary{cursor:pointer;color:var(--accent,#5B6CFF);font-weight:600}.gpx-how ul{margin:6px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
-.strava-cta{display:flex;gap:12px;align-items:flex-start;border:1px solid color-mix(in srgb,#FC4C02 35%,var(--edge));background:color-mix(in srgb,#FC4C02 7%,var(--surface));border-radius:14px;padding:12px 14px;margin:10px 0}
-.sv-mark{width:26px;height:26px;flex:none;margin-top:2px}
 .needs-list{list-style:none;margin:0 0 6px;padding:0;display:flex;flex-direction:column;gap:12px}.needs-list li{display:flex;gap:12px;align-items:flex-start}.needs-list li>span:last-child{display:flex;flex-direction:column;gap:2px}
 .nl-dot{width:22px;height:22px;border-radius:50%;flex:none;border:2px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff}.needs-list li.done .nl-dot{background:var(--good);border-color:var(--good)}.needs-list li.done b{text-decoration:line-through;color:var(--muted)}
 .rest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}.rest-item{background:var(--surface-2);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;font-size:14px}
@@ -867,6 +862,8 @@ nav.tabs button svg{transition:transform .2s cubic-bezier(.3,1.4,.5,1)}nav.tabs 
   </div>
 </div>
 <script>
+// Food (meal plan, diary, grocery list) is switched off for now; the code stays so it can come back.
+const FOOD_ON = !!window.__foodOn; // off in the app; the test harness can turn it on to keep the food code tested
 // Splash: shown from the first paint until the app has your data (or the sign-in screen is up). Never longer than 10 s.
 (function(){ var t0=Date.now(), done=false, msgs=["[SYSTEM] INITIALIZING","[SYSTEM] SYNCING YOUR LOGS","[SYSTEM] CALCULATING RANKS","[SYSTEM] PREPARING TODAY'S QUEST"], i=0;
   var tick=setInterval(function(){ var el=document.getElementById("spSys"); if(!el||done){clearInterval(tick);return} i=Math.min(i+1,msgs.length-1); el.textContent=msgs[i] },900);
@@ -1301,9 +1298,10 @@ function render(fromStore){
   if(gateView(fromStore)) return;
   lastRenderKey=key;
   renderTop(); renderTabs();
+  if(!FOOD_ON&&(tab==="food"||(tab==="plan"&&planView==="food"))){ tab="hub"; if(typeof planView!=="undefined") planView="training" }
   const v=$("#view"), sameTab=v.dataset.vtab===tab&&v.firstChild;
   if(!sameTab&&v.dataset.vtab){ try{ (window.__tabY=window.__tabY||{})[v.dataset.vtab]=window.scrollY }catch(e){} }
-  const html = tab==="hub"&&typeof viewHub==="function"?viewHub(): tab==="home"?trainSwitch()+viewHome(openLogger): tab==="food"||(tab==="plan"&&planView==="food")?viewFoodTab(): tab==="plan"?trainSwitch()+viewPlan(): tab==="progress"?trainSwitch()+viewProgress(): tab==="ranks"?viewRanks(): advSwitch()+(advView==="outlook"?viewOutlook():viewAdvice());
+  const html = tab==="hub"&&typeof viewHub==="function"?viewHub(): tab==="home"?trainSwitch()+viewHome(openLogger): tab==="food"||(tab==="plan"&&planView==="food")?viewFoodTab(): tab==="plan"?trainSwitch()+viewPlan(): tab==="progress"?trainSwitch()+viewProgress(): tab==="ranks"?viewRanks(): viewAdvice();
   if(sameTab) morph(v,html); else { v.innerHTML=html; v.dataset.vtab=tab; window.scrollTo(0,(window.__tabY||{})[tab]||0) }
   applyDrafts();
   viewBind(v,()=>{ bind(); if(tab==="ranks") bindRanks() }); if(tab==="hub"&&typeof hubMaybeTour==="function") hubMaybeTour(); if(tab==="hub"&&typeof maybeRecap==="function") setTimeout(()=>{ maybeRecap(); if(typeof maybeInvite==="function") maybeInvite() },400); else if(typeof HT!=="undefined"&&HT.i>=0) hubTourEnd(); if(typeof gameAfterRender==="function") gameAfterRender();
@@ -1316,13 +1314,12 @@ function renderTop(){
     morph($("#top"),`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}${accountBtn()}</span></div><h1 class="top-week">${T}</h1>`); return }
   const w=Math.max(1,weekOf(today)), mon=monOf(w);
   let wkPlan=0, wkDone=0; for(let i=0;i<7;i++){ const d=addDays(mon,i), p=planFor(d); if(p&&p.type!=="rest"&&!preStart(d)){ wkPlan++; if(S.logs[ymd(d)]) wkDone++ } }
-  const plannedSoFar=countPlanned(today), done=Object.keys(S.logs).filter(k=>parseYmd(k)<=today&&parseYmd(k)>=countStart()).length;
   const pct=wkPlan? Math.min(100,wkDone/wkPlan*100) : 0;
   if(document.title!==APP_NAME) document.title=APP_NAME;
   morph($("#top"),`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}${accountBtn()}</span></div>
-   <h1 class="top-week">Week ${w}</h1>
+   <h1 class="top-week">Train</h1>
    <div class="bar" role="progressbar" aria-label="This week's sessions" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div>
-   <div class="top-meta"><span><b class="num">${wkDone}</b> of ${wkPlan} this week</span><span><b class="num">${done}</b> of ${plannedSoFar} done since you started</span></div>`);
+   <div class="top-meta"><span><b class="num">${wkDone}</b> of ${wkPlan} this week</span></div>`);
 }
 // days before you signed up aren't "missed": they don't count unless you logged them
 function preStart(d){ const k=typeof d==="string"?d:ymd(d); return !!(CUSTOM&&CUSTOM.su.firstDay&&k<CUSTOM.su.firstDay&&!S.logs[k]) }
@@ -1338,7 +1335,7 @@ const TAB_ICON=(()=>{ const sv=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="
     ranks:sv('<path d="M12 3l7.5 4.3v9.4L12 21l-7.5-4.3V7.3z"/><path d="M9.2 14.5 12 8l2.8 6.5M10.2 12.3h3.6"/>'),
     advice:sv('<path d="M5 18.5V7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H8.5z"/><path d="M9 9.5h6M9 12.5h4"/>') } })();
 function renderTabs(){
-  const T=[["hub","Home"],["home","Train"],["food","Food"],["ranks","Ranks"],["advice","System"]];
+  const T=[["hub","Home"],["home","Train"],...(FOOD_ON?[["food","Food"]]:[]),["ranks","Ranks"],["advice","System"]];
   const n=unseenAdvice(); let rk=0;
   const cur= tab==="food"||(tab==="plan"&&planView==="food")? "food" : tab==="plan"||tab==="progress"? "home" : tab;
   morph($("#tabs"),T.map(([id,l])=>`<button data-tab="${id}" class="${cur===id?"on":""}" aria-current="${cur===id}">${TAB_ICON[id]}${l}${id==="advice"&&n&&tab!=="advice"?`<span class="badge">${n}</span>`:""}${id==="ranks"&&tab!=="ranks"&&(rk=rkAlertCount())?`<span class="badge">${rk}</span>`:""}</button>`).join(""));
@@ -1363,7 +1360,7 @@ function viewHome(openLogger){
   let h=weekStrip();
   if(mode==="local" && userReady && !window.__platform) h+=`<p class="note">Entries stay in this browser only.</p>`;
   if(!p){return h+`<div class="card"><h2>Your plan starts ${fmtDate(START)}</h2><p>Check back then for your first session.</p></div>`}
-  h+=`<div><div class="eyebrow" style="margin-bottom:6px">${isToday?"Today":"Day view"} · ${fmtDate(sel)} · Week ${p.w}${p.moved?(p.src?` · moved from ${DOW[dowOf(parseYmd(p.src))]}`:" · rest day (schedule shifted)"):""}${runWeek(p.w).tag?" · "+esc(runWeek(p.w).tag):""}</div></div>`;
+  h+=`<div><div class="eyebrow" style="margin-bottom:6px">${isToday?"Today":"Day view"} · ${fmtDate(sel)}${p.moved?(p.src?` · moved from ${DOW[dowOf(parseYmd(p.src))]}`:" · rest day (schedule shifted)"):""}${runWeek(p.w).tag?" · "+esc(runWeek(p.w).tag):""}</div></div>`;
   if(isToday) h+=missedCard();
   h+=trainingCard(p,k,log,openLogger);
   h+=weekSnapshot(p.w);
@@ -1382,7 +1379,7 @@ function viewFoodTab(){
   return h+mealsCard(d)+viewFood();
 }
 function trainingCard(p,k,log,openLogger){
-  if(p.type==="rest") return `<div class="card"><div class="row between"><h2>Rest day</h2><span class="chip">Recovery</span></div>${restDayHtml(sel,k)}${dayMenu(p,k,log)}${stravaChooser(k,log)}${extraRunsBlock(k,log)}${weekResetBtn(k)}${mondayWeighIn()}</div>`;
+  if(p.type==="rest") return `<div class="card"><div class="row between"><h2>Rest day</h2><span class="chip">Recovery</span></div>${restDayHtml(sel,k)}${dayMenu(p,k,log)}${extraRunsBlock(k,log)}${weekResetBtn(k)}${mondayWeighIn()}</div>`;
   if(p.type==="gym"&&!(p.ex&&p.ex.length)) return `<div class="card"><div class="eyebrow">Gym</div><h2>${esc(p.name)}</h2><p>This routine has no exercises yet.</p><button type="button" class="btn sm" data-c-gotoplan="1">Add exercises</button></div>`;
   if(p.type==="gym"){
     let h=`<div class="card gymcard"><div class="row between"><div><div class="eyebrow">Gym · ~${CUSTOM?estMin(p.ex):"55–60"} min</div><h2>${esc(p.name)}</h2></div>${log?`<span class="chip gym">Logged ✓${log.durMin?` · ${Math.round(log.durMin)} min`:""}${log.prs&&log.prs.length?` · ${log.prs.length} PR${log.prs.length>1?"s":""}`:""}</span>`:""}</div>`;
@@ -1409,7 +1406,7 @@ function trainingCard(p,k,log,openLogger){
   const goal = p.hint? p.hint : p.key==="tue"? (/bpm/.test(p.d)? `Keep your heart rate between ${HR_LO} and ${HR_HI}: jog slowly until it reaches ${HR_HI}, walk until it drops to ${HR_LO}, repeat. Pace doesn't matter.${/strides/.test(p.d)?" Finish with the strides: 15–20 s fast and relaxed (about 85%), walking 60–90 s between each.":""}` : /strides/.test(p.d)? "Keep the run/walk easy and conversational, then do the strides: 15–20 s smooth and fast (about 85%, not all-out), walk 60–90 s back between each." : "Cover a little more ground than last week in the same time.") : p.key==="thu"? "Hold each run segment a touch quicker than last week; keep the walks easy." : "Finish the distance. Pace doesn't matter; time on feet does.";
   return `<div class="card"><div class="row between"><div><div class="eyebrow">Run${p.tag?` · ${esc(p.tag)}`:""}</div><h2>${esc(p.t)}</h2></div>${log?'<span class="chip run">Logged ✓</span>':""}</div>
     <div class="plan-box"><div style="font-weight:700">${esc(p.d)}</div><div class="small muted">${goal}</div>${p.swapped?`<div class="small muted" style="margin-top:4px">Changed for today (planned: ${esc(p.from)}). <button type="button" class="link small" data-runswap="${k}">Change</button></div>`:""}</div>
-    ${stravaChooser(k,log)}${log?"":stravaPrompt("home")}${timerBox(k)}${dayMenu(p,k,log)}
+    ${timerBox(k)}${dayMenu(p,k,log)}
     ${prevTxt?`<div class="small num" style="color:var(--run);font-weight:600">${esc(prevTxt)}</div>`:""}
     <details class="logger" id="trainLog" ${openLogger?"open":""}><summary>${hasDraft(k,TRAIN_RE)?"Unsaved entries · tap to finish":log?`Logged: ${log.est?"≈":""}${dTxt(log.mi,2)} · ${log.est==="both"?"≈":""}${fmtMin(log.min)}${log.est?"":` · ${paceTxt(log.min/log.mi)}`}${log.reps?` · ${log.reps} reps`:""}`:"Log this run"}</summary><div class="stack" style="gap:10px;margin-top:12px">
     ${importerHtml(k)}
@@ -1558,35 +1555,15 @@ function weekSnapshot(w){
 function planSwitch(){
   return `<div class="seg two" role="tablist" aria-label="Plan view"><button role="tab" data-plv="training" aria-selected="${planView==="training"}" class="${planView==="training"?"on":""}"><span class="plate p-gym"></span>Training</button><button role="tab" data-plv="food" aria-selected="${planView==="food"}" class="${planView==="food"?"on":""}"><span class="plate p-food"></span>Food</button></div>`;
 }
-let planPast=false, planMore=0;
-document.addEventListener("click",e=>{ const b=e.target.closest&&e.target.closest("[data-planpast],[data-planmore]"); if(!b) return; if(b.dataset.planpast) planPast=true; else planMore+=4; render() });
 function viewPlan(){
-  const cw=weekOf(today);
-  let h= CUSTOM? customPlanIntro() : `<div class="card"><h2>How the block works</h2>
-   <p><span class="chip gym">Mon · Wed · Fri</span> Gym, about an hour. Three fixed workouts (A, B, C). Beat last session by a rep; when every set reaches the top of the range, add weight.</p>
-   <p><span class="chip run">Tue · Thu · Sat</span> Run/walk. Tuesday easy, Thursday intervals, Saturday long. Run segments get longer and the long run builds to 11 miles, then keeps cycling with a lighter week every 4th week.</p>
-   <p><span class="chip run">Tuesdays from week 2</span> Easy runs go by heart rate, not the clock: jog slowly until you reach 150 bpm, walk until you drop to 130, and repeat for the set time. As you get fitter, the jogs get longer on their own.</p>
-   <p><span class="chip coach">From week 4</span> Tuesday ends with 4–6 strides: 15–20 seconds of fast, relaxed running at about 85% effort (not a sprint), with a 60–90 second walk between each. They sharpen form and leg turnover with little injury risk.</p>
-   </div>`;
+  let h= CUSTOM? customPlanIntro() : "";
   if(CUSTOM) h+=routinesEditor(); else {
   h+=`<div class="card"><h2>Gym workouts</h2>`;
-  if(!CUSTOM) h+=`<p class="note"><b>Core block, ${fmtShort(parseYmd(CORE_SWAP.from))}–${fmtShort(parseYmd(CORE_SWAP.to))}:</b> deadlifts are paused for core work. They return Nov 9.</p>`;
   const ph=curPhase();
   h+=`<p class="small muted">Paired exercises are done back-to-back, then rest.</p>`;
   Object.values(ph).forEach(d=>{h+=`<div><h3>${esc(d.name)}</h3><div class="small num">${d.ex.map(e=>`${esc(e.name)} <span class="muted">${e.sets}×${e.lo}–${e.hi}${isSec(e)?"s":""}${e.inc?` · +${e.inc} lb`:""}</span>`).join("<br>")}</div></div>`});
   h+=`</div>`;
   }
-  const wFirst=planPast?1:Math.max(1,cw-1), wLast=Math.min(WEEKS,Math.max(1,cw)+3+planMore);
-  if(wFirst>1) h+=`<button type="button" class="btn ghost sm" data-planpast="1">Show earlier weeks</button>`;
-  for(let w=wFirst;w<=wLast;w++){
-    const mon=monOf(w), r={tag:CUSTOM&&typeof runTagFor==="function"?runTagFor(w):runWeek(w).tag};
-    h+=`<div class="card wk ${w===cw?"cur":""}"><div class="row between"><h3>Week ${w} <span class="muted small" style="font-family:var(--body);font-weight:500">${fmtShort(mon)} – ${fmtShort(addDays(mon,6))}</span></h3><div class="row" style="gap:6px">${r.tag?`<span class="chip">${esc(r.tag)}</span>`:""}${w===cw?'<span class="chip run">This week</span>':""}</div></div><div class="days">`;
-    for(let i=0;i<7;i++){const d=addDays(mon,i),p=planFor(d); if(!p||p.type==="rest") continue; const k=ymd(d);
-      const txt=(p.type==="gym"?(CUSTOM?p.name:`Gym ${p.day}`):`${p.t}: ${p.d}`)+(p.src?` (moved from ${DOW[dowOf(parseYmd(p.src))]})`:"");
-      h+=`<button class="dayline ${S.logs[k]?"done":""}" data-goto="${k}"><span class="dn">${DOW[i]} ${d.getDate()}</span><span class="plate ${p.type==="gym"?"p-gym":"p-run"}"></span><span class="txt">${esc(txt)}</span></button>`}
-    h+=`</div></div>`;
-  }
-  if(wLast<WEEKS) h+=`<button type="button" class="btn ghost sm" data-planmore="1">Show more weeks</button>`;
   return h;
 }
 
@@ -1641,7 +1618,7 @@ function viewProgress(){
   rows=rows.slice(-12); // charts and the weekly table show the last 12 weeks
   const wts=(S.profile.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1);
   const wchg=wts.length>1? (wts[wts.length-1].lb-wts[0].lb):null;
-  let h=`<div class="seg" role="tablist" aria-label="Progress view"><button role="tab" data-pv="lifts" aria-selected="${progView==="lifts"}" class="${progView==="lifts"?"on":""}"><span class="plate p-gym"></span>Lifts</button><button role="tab" data-pv="runs" aria-selected="${progView==="runs"}" class="${progView==="runs"?"on":""}"><span class="plate p-run"></span>Runs</button><button role="tab" data-pv="body" aria-selected="${progView==="body"}" class="${progView==="body"?"on":""}"><span class="plate p-food"></span>Body &amp; Food</button></div>`;
+  let h=`<div class="seg" role="tablist" aria-label="Progress view"><button role="tab" data-pv="lifts" aria-selected="${progView==="lifts"}" class="${progView==="lifts"?"on":""}"><span class="plate p-gym"></span>Lifts</button><button role="tab" data-pv="runs" aria-selected="${progView==="runs"}" class="${progView==="runs"?"on":""}"><span class="plate p-run"></span>Runs</button><button role="tab" data-pv="body" aria-selected="${progView==="body"}" class="${progView==="body"?"on":""}"><span class="plate p-food"></span>${FOOD_ON?"Body &amp; Food":"Body"}</button></div>`;
   if(progView==="runs" && runSel && S.logs[runSel] && S.logs[runSel].type==="run") return h+runDetail(runSel);
   if(progView==="lifts") h+=`<div class="kpis"><div class="kpi"><div class="v num">${tot.gym}</div><div class="l">gym sessions</div></div>
    <div class="kpi"><div class="v num">${dU(tot.mi)}</div><div class="l">${RU()==="km"?"km":"miles"} run</div></div>
@@ -1662,23 +1639,23 @@ function viewProgress(){
   const os=liftSeries(progEx);
   lifts+= os.length? `${lineChart(os.map(x=>({...x,y:toUd(x.y)})),"var(--gym)",v=>Math.round(v),false)}<p class="small num">Top set ${toU(os[os.length-1].top)} ${uL()} · est. 1RM ${Math.round(toUd(os[os.length-1].y))} ${uL()}</p>` : `<p class="small muted">No sessions logged for this lift yet.</p>`;
   lifts+=`</div>`;
-  lifts+=`<div class="card"><h2>Lifting volume</h2><div class="eyebrow">Total weight × reps per week</div>${barChart(rows.map(r=>toUd(r.vol)),rows.map(r=>"W"+r.w),"var(--gym)",v=>v>=1000?(v/1000).toFixed(0)+"k":String(Math.round(v)))}</div>`;
+  lifts+=`<div class="card"><h2>Lifting volume</h2><div class="eyebrow">Total weight × reps per week</div>${barChart(rows.map(r=>toUd(r.vol)),rows.map(r=>fmtShort(monOf(r.w))),"var(--gym)",v=>v>=1000?(v/1000).toFixed(0)+"k":String(Math.round(v)))}</div>`;
   shared+=photosCard();
   // weekly table
-  shared+=`<div class="card"><div class="row between"><h2>Week by week</h2><span class="chip">Week ${cw}</span></div><div class="tablewrap"><table>
-   <thead><tr><th>Wk</th><th>Gym</th><th>Runs</th><th>${RU()==="km"?"Km":"Miles"}</th><th>Long</th><th>Easy pace</th><th>Volume</th><th>Calories</th></tr></thead><tbody>
-   ${rows.map(r=>`<tr class="${r.w===cw?"cur":""}"><td>${r.w}</td><td>${r.gym}/${perWeek("gym",r.w)}</td><td>${r.runs}/${perWeek("run",r.w)}</td><td>${r.mi?dU(r.mi):"–"}</td><td>${r.long?dTxt(r.long):"–"}</td><td>${r.easy?fmtMin(pU(r.easy)):"–"}</td><td>${r.vol?Math.round(toUd(r.vol)/1000)+"k "+uL():"–"}</td><td>${r.kcal?fmtN(r.kcal)+" / "+fmtN(r.ktarget):"–"}</td></tr>`).join("")}
+  shared+=`<div class="card"><div class="row between"><h2>Week by week</h2></div><div class="tablewrap"><table>
+   <thead><tr><th>Week of</th><th>Gym</th><th>Runs</th><th>${RU()==="km"?"Km":"Miles"}</th><th>Long</th><th>Easy pace</th><th>Volume</th>${FOOD_ON?"<th>Calories</th>":""}</tr></thead><tbody>
+   ${rows.map(r=>`<tr class="${r.w===cw?"cur":""}"><td>${fmtShort(monOf(r.w))}</td><td>${r.gym}/${perWeek("gym",r.w)}</td><td>${r.runs}/${perWeek("run",r.w)}</td><td>${r.mi?dU(r.mi):"–"}</td><td>${r.long?dTxt(r.long):"–"}</td><td>${r.easy?fmtMin(pU(r.easy)):"–"}</td><td>${r.vol?Math.round(toUd(r.vol)/1000)+"k "+uL():"–"}</td>${FOOD_ON?`<td>${r.kcal?fmtN(r.kcal)+" / "+fmtN(r.ktarget):"–"}</td>`:""}</tr>`).join("")}
    </tbody></table></div></div>`;
   let runsH=runsIndex();
   // running
-  runsH+=`<div class="card"><h2>Running</h2><div><div class="eyebrow">Miles per week</div>${barChart(rows.map(r=>r.mi),rows.map(r=>"W"+r.w),"var(--run)",v=>v.toFixed(0))}</div>`;
-  const pacePts=rows.filter(r=>r.easy).map(r=>({x:"W"+r.w,y:r.easy}));
+  runsH+=`<div class="card"><h2>Running</h2><div><div class="eyebrow">Miles per week</div>${barChart(rows.map(r=>r.mi),rows.map(r=>fmtShort(monOf(r.w))),"var(--run)",v=>v.toFixed(0))}</div>`;
+  const pacePts=rows.filter(r=>r.easy).map(r=>({x:fmtShort(monOf(r.w)),y:r.easy}));
   runsH+=pacePts.length? `<div><div class="eyebrow">Easy-run pace (higher on chart = faster)</div>${lineChart(pacePts,"var(--run)",v=>fmtMin(v),true)}</div>` : `<p class="small muted">Log an easy run to start the pace trend.</p>`;
   runsH+=`</div>`;
   runsH+=runTrends();
   // calories
   const avgTarget=rows.length?rows[rows.length-1].ktarget:0;
-  shared+=`<div class="card"><h2>Calories</h2><div class="eyebrow">Logged per week vs plan</div>${barChart(rows.map(r=>r.kcal),rows.map(r=>"W"+r.w),"var(--food)",v=>v>=1000?(v/1000).toFixed(0)+"k":String(Math.round(v)),avgTarget)}</div>`;
+  if(FOOD_ON) shared+=`<div class="card"><h2>Calories</h2><div class="eyebrow">Logged per week vs plan</div>${barChart(rows.map(r=>r.kcal),rows.map(r=>fmtShort(monOf(r.w))),"var(--food)",v=>v>=1000?(v/1000).toFixed(0)+"k":String(Math.round(v)),avgTarget)}</div>`;
   return h + (progView==="runs"? runsH : progView==="body"? shared : lifts);
 }
 
@@ -1691,7 +1668,7 @@ function viewFood(){
   let h=`<div class="card"><div class="row between"><h2>Daily plan</h2><span class="chip food">1,505–1,750 kcal</span></div>
    <div class="tablewrap"><table><thead><tr><th>Day type</th><th>Calories</th><th>Protein</th></tr></thead><tbody>${dayRows.map(([n,ids])=>`<tr><td>${n}</td><td>${fmtN(ids.reduce((t,i)=>t+MEALS[i].kcal,0))}</td><td>${ids.reduce((t,i)=>t+MEALS[i].p,0)} g</td></tr>`).join("")}</tbody></table></div>
    <div>${Object.values(MEALS).map(m=>`<div class="mealrow" style="grid-template-columns:1fr auto;cursor:default"><span class="m">${esc(m.n)}</span><span class="k">${m.kcal} kcal · ${m.p} g</span><span class="ds" style="grid-column:1/-1">${esc(m.d)}</span></div>`).join("")}</div>
-   <p class="note">This is a big deficit for your size and training load. Eat the run-day add-ons. If you feel dizzy or wiped out, or your lifts drop two sessions in a row, add 200–300 kcal (an extra ½ cup rice and a banana). Your coach watches for this.</p></div>`;
+   <p class="note">Eat the run-day add-ons. If you feel dizzy or wiped out, or your lifts drop two sessions in a row, add 200–300 kcal (an extra ½ cup rice and a banana). Your coach watches for this.</p></div>`;
   BATCH.forEach(b=>{h+=`<div class="card"><div class="row between"><h2>${esc(b.name)}</h2><span class="chip">${esc(b.when)}</span></div>
    <p class="small"><b>Makes:</b> ${esc(b.yld)}</p><ul class="ing small">${b.ing.map(i=>`<li>${esc(i)}</li>`).join("")}</ul>
    <ol class="steps small">${b.steps.map(i=>`<li>${esc(i)}</li>`).join("")}</ol><p class="note">${esc(b.store)}</p></div>`});
@@ -1743,14 +1720,15 @@ function signals(){
   if(stalls.length) out.push({kind:"problem",title:"Lifts stalling",detail:stalls.join(", ")+" didn't improve two sessions in a row.",action:"Take the 10% drop shown on Home, sleep 7+ hours, and eat your full plan."});
   if(wins.length) out.push({kind:"win",title:"Strength is climbing",detail:wins.slice(0,3).join(", ")+" (estimated 1-rep max).",action:"Keep the same rest times so the progress stays honest."});
   const wts=(S.profile.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1);
+  const wantLoss=!!(CUSTOM&&CUSTOM.su.goal==="lose");
   if(wts.length>=2){const days=Math.round((parseYmd(wts[wts.length-1].d)-parseYmd(wts[0].d))/DAYMS); if(days>=10){const rate=(wts[wts.length-1].lb-wts[0].lb)/(days/7);
-    if(rate<-2.5) out.push({kind:"problem",title:"Weight dropping fast",detail:`${toUd(rate).toFixed(1)} ${uL()}/week. Faster than ~${UNIT()==="kg"?"1.1 kg":"2.5 lb"}/week risks losing muscle and stalling your runs.`,action:CUSTOM?"Add 200–300 kcal a day, mostly from carbs around your workouts.":"Add 200–300 kcal a day: extra ½ cup rice at lunch and a banana."});
-    else if(rate>-0.3&&days>=14) out.push({kind:"opportunity",title:"Weight holding steady",detail:`${rate>0?"+":""}${toUd(rate).toFixed(1)} ${uL()}/week over ${days} days.`,action:CUSTOM?"Log everything you eat for a week so you can see where extra calories come from.":"Tick off every meal for a week so you can see where extra calories come from."});
-    else if(rate<=-0.5) out.push({kind:"win",title:"Weight trending down",detail:`${toUd(rate).toFixed(1)} ${uL()}/week. Right in the useful range.`,action:"Keep weighing in every Monday morning."})}}
-  let kd=0,ksum=0,psum=0,tsum=0; for(let n=1;n<=7;n++){const d=addDays(today,-n); if(!inProgram(d)) continue; const e=dayEaten(ymd(d)); if(e.any){kd++;ksum+=e.kcal;psum+=e.p;tsum+=dayTarget(d)}}
+    if(rate<-2.5) out.push({kind:"problem",title:"Weight dropping fast",detail:`${toUd(rate).toFixed(1)} ${uL()}/week. Faster than ~${UNIT()==="kg"?"1.1 kg":"2.5 lb"}/week risks losing muscle and stalling your runs.`,action:"Add 200–300 kcal a day, mostly from carbs around your workouts."});
+    else if(wantLoss&&rate>-0.3&&days>=14) out.push({kind:"opportunity",title:"Weight holding steady",detail:`${rate>0?"+":""}${toUd(rate).toFixed(1)} ${uL()}/week over ${days} days.`,action:"Check portions and snacks for a week; small changes add up."});
+    else if(wantLoss&&rate<=-0.5) out.push({kind:"win",title:"Weight trending down",detail:`${toUd(rate).toFixed(1)} ${uL()}/week. Right in the useful range.`,action:"Keep weighing in every Monday morning."})}}
+  let kd=0,ksum=0,psum=0,tsum=0; if(FOOD_ON) for(let n=1;n<=7;n++){const d=addDays(today,-n); if(!inProgram(d)) continue; const e=dayEaten(ymd(d)); if(e.any){kd++;ksum+=e.kcal;psum+=e.p;tsum+=dayTarget(d)}}
   if(kd>=3){const avg=ksum/kd, tavg=tsum/kd, pavg=psum/kd;
     if(avg<tavg-300) out.push({kind:"problem",title:"Eating under the plan",detail:`About ${fmtN(avg)} kcal/day logged vs ${fmtN(tavg)} planned.`,action:"Eat every planned meal, especially before long runs."});
-    const pGoal=CUSTOM?foodGoals().p:140; if(pavg<pGoal*0.85) out.push({kind:"opportunity",title:"Protein running low",detail:`About ${Math.round(pavg)} g/day logged${CUSTOM?` vs your ${pGoal} g goal`:""}.`,action:CUSTOM?"Add a protein source to every meal: chicken, eggs, Greek yogurt, cottage cheese or a shake.":"Don't skip the cottage cheese snack or the run-day eggs."});}
+    const pGoal=CUSTOM?foodGoals().p:0; if(pGoal&&pavg<pGoal*0.85) out.push({kind:"opportunity",title:"Protein running low",detail:`About ${Math.round(pavg)} g/day logged${CUSTOM?` vs your ${pGoal} g goal`:""}.`,action:CUSTOM?"Add a protein source to every meal: chicken, eggs, Greek yogurt, cottage cheese or a shake.":"Don't skip the cottage cheese snack or the run-day eggs."});}
   const hardEasy=Object.entries(S.logs).filter(([k,l])=>k>=ymd(addDays(today,-14))&&l.type==="run"&&l.key==="tue"&&Number(l.rpe)>=8);
   if(hardEasy.length) out.push({kind:"opportunity",title:"Easy runs feel hard",detail:`Effort ${hardEasy.map(([k,l])=>l.rpe).join(", ")}/10 on easy runs.`,action:"Slow the run segments down until you could talk in full sentences."});
   const hot=Object.entries(S.logs).filter(([k,l])=>k>=ymd(addDays(today,-14))&&l.type==="run"&&isHrRun(k)&&l.st&&l.st.series).map(([k,l])=>[k,hrRange(l.st.series)]).filter(([k,r])=>r&&r.pctAbove>30);
@@ -1778,23 +1756,21 @@ function coachContext(){
   const wts=(S.profile.weights||[]).slice(-6).map(x=>`${x.d}: ${x.lb} lb`).join(", ")||"none";
   const food=[...Array(7)].map((_,n)=>{const d=addDays(today,-n); if(!inProgram(d)) return null; const e=dayEaten(ymd(d)); return e.any?`${ymd(d)}: ${fmtN(e.kcal)}/${fmtN(dayTarget(d))} kcal, ${Math.round(e.p)} g protein`:`${ymd(d)}: not logged`}).filter(Boolean).join("\n");
   const wf=weekFood(w);
-  const intro = CUSTOM? customCoachIntro(w) : `You are the personal trainer and nutrition coach inside ${APP_NAME}, a training app with an E-to-S rank system. This user is on an ongoing plan that started Oct 12, 2026, with no end date and no race: the aim is getting steadily stronger and healthier.
+  const intro = CUSTOM? customCoachIntro(w) : `You are the personal trainer and nutrition coach inside ${APP_NAME}, a training app with an E-to-S rank system. The plan is ongoing with no end date.
 Be direct, encouraging and practical. Keep replies under ~150 words unless asked for a full plan. Plain text with short lines; **bold** is fine, no tables.
-TEMPORARY CORE BLOCK Oct 19–Nov 8: he asked to drop deadlift patterns because his core is too weak to support his lower back; Romanian deadlift → weighted decline crunch (holding a plate; switched from cable crunch Oct 19), trap-bar deadlift → Pallof press. After Nov 8, deadlifts return at reduced weight. Program v2 from Oct 20 (he approved it; built from his logs: pressing weakest, pulling and legs stronger, grip limits pulls, he dislikes split squats): gym Mon/Wed/Fri ~1 hr. Through Nov 8: Day A bench 4×6–8 / angled leg press 4×8–12 / lat pulldown / 45° back extension / weighted decline crunch / chest fly 3×12–15 + reverse pec deck 2×12–15 for rear delts (paired) / lateral raise 3×12–15 on its own; Day B overhead press / cable row (straps) / leg curl / single-leg leg extension 2×10–15 / face pull 3 sets + overhead triceps ext (paired) / Pallof + tilt-seat calf raise (paired; standing calf raise before Oct 21); Day C incline DB press 4×8–12 / chest-supported DB row / hip thrust 3×8–12 / leg curl / EZ curl + pushdown (paired) / hammer curl + standing calf raise 2 sets (paired). From Nov 9: RDL replaces decline crunch (Day A); trap-bar deadlift replaces Pallof (Day B), restarting ~135 lb with straps. Uses double progression (beat reps; at top of range on every set, add weight; 10% deload after two stalled sessions). Runs Tue easy run/walk, from week 2 heart-rate based (jog until 150 bpm, walk until 130 bpm, target zone 130–150) (plus 4–6 strides of 15–20 s at ~85% from week 4; no all-out sprinting, chosen over sprint intervals to limit injury risk), Thu intervals, Sat long run building to 11 mi in week 10, then cycling (a lighter week, then 8.5 → 10 → 11 mi); no race.
-Meal plan (~1,505 kcal / 139 g protein base; +2 eggs Tue/Thu = 1,645; +eggs and banana Sat = 1,750): yogurt-oat-berry bowl, pesto chicken breast rice bowl, turkey bolognese pasta, cottage cheese + berries. Batch pesto + bolognese. Groceries ≈$79/week, cap $100. He chose this low intake; it's an aggressive deficit for his size and training, so watch for under-fueling (stalled lifts, fast weight loss, hard easy runs) and recommend adding 200–300 kcal when you see it.
-If he reports sharp pain, swelling, chest pain, dizziness or fainting, tell him to stop and get it checked by a professional. You're not a doctor.
-Today: ${fmtDate(today)} (week ${w}).
+If the user reports sharp pain, swelling, chest pain, dizziness or fainting, tell them to stop and get it checked by a professional. You're not a doctor.
+Today: ${fmtDate(today)}.
 `;
-  return `${intro}${UNIT()==="kg"?"Units: the user views weights in kg. Logged numbers below are in lb (1 kg = 2.2046 lb); answer in kg.\n":""}${swapsText()}About ${CUSTOM?"them":"him"}: ${S.profile.about||"(not filled in)"}
+  return `${intro}${UNIT()==="kg"?"Units: the user views weights in kg. Logged numbers below are in lb (1 kg = 2.2046 lb); answer in kg.\n":""}${swapsText()}About them: ${S.profile.about||"(not filled in)"}
 This week's plan:
 ${weekPlan}
 ${targets}
 Training logs, last 21 days:
 ${logs}
-Food logged, last 7 days (only ticked meals count):
+${FOOD_ON?`Food logged, last 7 days (only ticked meals count):
 ${food}
 This week so far: ${fmtN(wf.eaten)} of ${fmtN(wf.target)} kcal.
-Weigh-ins: ${wts}`;
+`:"The app doesn't track food right now; don't ask them to log meals.\n"}Weigh-ins: ${wts}`;
 }
 
 /* ---------- Automatic advice ---------- */
@@ -1818,13 +1794,13 @@ async function runAdvice(){
   const sig=signals();
   const prompt=`${coachContext()}
 
-Automatic check-in. The app computed these signals from his logs:
+Automatic check-in. The app computed these signals from their logs:
 ${sig.length?sig.map(s=>`- [${s.kind}] ${s.title}: ${s.detail}`).join("\n"):"- (none)"}
 
-Review how he's reporting his training, runs, weight and eating. Look for problems (missed sessions, stalls, pain, under-fueling, pacing too hard) and opportunities (ready to push a lift, run going well, small habit fixes), plus genuine wins.
+Review how they're reporting their training, runs, weight and eating. Look for problems (missed sessions, stalls, pain, under-fueling, pacing too hard) and opportunities (ready to push a lift, run going well, small habit fixes), plus genuine wins.
 Reply with ONLY a JSON array of 2 to 5 objects, problems first:
-{"kind":"problem"|"opportunity"|"win","title":"max 8 words","detail":"max 45 words, cite his actual numbers","action":"one concrete next step, max 20 words"}
-Use only data he has logged. Never invent numbers.`;
+{"kind":"problem"|"opportunity"|"win","title":"max 8 words","detail":"max 45 words, cite their actual numbers","action":"one concrete next step, max 20 words"}
+Use only data they have logged. Never invent numbers.`;
   try{
     const res=await sampleFn.json(prompt,{cache:false});
     const kinds=["problem","opportunity","win"];
@@ -2117,18 +2093,19 @@ async function maybeOverload(){
   if(overBusy[k] || (overTried[k+stamp] && Date.now()-overTried[k+stamp]<120000)) return;
   overBusy[k]=true; overTried[k+stamp]=Date.now(); renderIfIdle();
   const lines=p.ex.filter(e=>!e.fixed&&COACH_FMT.includes(fmtOf(e))).map(e=>{const h=exHistory(e.id,k,fmtOf(e)).slice(0,2); if(!h.length) return null; const r=targetFor(e,k), db=dbNow(e.id,S.logs[k]);
-    const sess=h.map(x=>{const l=S.logs[x.k]; return `${x.k}: ${x.sets.map(s=>!hasW(e)?`${s.r}s`:`${s.w}×${s.r}${isSec(e)?"s":""}`).join(", ")}${logDb(e.id,l)?" (lb per dumbbell)":""}${l.notes?` | his session note: "${l.notes}"`:""}`}).join("\n    ");
-    return `- id "${e.id}": ${e.name}. Prescribed ${e.sets} sets of ${e.lo}-${e.hi} ${isSec(e)?"seconds":"reps"}${!hasW(e)?"":`${fmtOf(e)==="wbr"?" (weight is ADDED to bodyweight, 0 = bodyweight)":""}, weight step ${e.inc} lb${db?" (he logs weight PER DUMBBELL)":""}`}.
+    const sess=h.map(x=>{const l=S.logs[x.k]; return `${x.k}: ${x.sets.map(s=>!hasW(e)?`${s.r}s`:`${s.w}×${s.r}${isSec(e)?"s":""}`).join(", ")}${logDb(e.id,l)?" (lb per dumbbell)":""}${l.notes?` | session note: "${l.notes}"`:""}`}).join("\n    ");
+    return `- id "${e.id}": ${e.name}. Prescribed ${e.sets} sets of ${e.lo}-${e.hi} ${isSec(e)?"seconds":"reps"}${!hasW(e)?"":`${fmtOf(e)==="wbr"?" (weight is ADDED to bodyweight, 0 = bodyweight)":""}, weight step ${e.inc} lb${db?" (weight is logged PER DUMBBELL)":""}`}.
     History (newest first):
     ${sess}
     Default progression rule says: ${r.w?`${r.w} lb × ${r.reps.join(",")}`:r.reps.join(",")+"s"} (${r.msg})`}).filter(Boolean).join("\n");
-  const prompt=`You are his strength coach inside his training app. Today is ${fmtDate(sel)}, ${p.name}. For each exercise below, decide how he should progressively overload today based on how his last session went (all sets hit the top of the range, reps dropping across sets, missed sets, swaps or difficulty mentioned in his notes, an exercise that felt too light).
-He is a beginner on a calorie deficit, so prefer adding reps until the top of the range is hit on every set, then add weight. If he says a lift felt light or easy, or he cleared the range easily, jump weight. If he struggled or missed sets, hold or add a single rep. Deload ~10% only after a clear stall.
+  const prompt=`You are the strength coach inside ${APP_NAME}, a training app. ${personLine()} ${expLine()}
+Today is ${fmtDate(sel)}, ${p.name}. For each exercise below, decide how to progressively overload today based on how the last session went (all sets hit the top of the range, reps dropping across sets, missed sets, swaps or difficulty mentioned in the notes, an exercise that felt too light).
+Default: add reps until the top of the range is hit on every set, then add weight. If the notes say a lift felt light or easy, or the range was cleared easily, jump weight. If they struggled or missed sets, hold or add a single rep. Deload ~10% only after a clear stall.
 Exercises:
 ${lines}
 
-${UNIT()==="kg"?"He views weights in kg: keep \"weight\" in lb as above, but write any weight inside \"note\" in kg rounded to 0.5 kg.\n":""}Reply with ONLY a JSON object: {"exercises":[{"id":"<id>","mode":"add_weight"|"add_reps"|"hold"|"deload"|"form","weight":number|null,"reps":[one number per set],"note":"one or two sentences, max 35 words, that explain why using his actual numbers and say exactly what to do"}]}
-Weight is in the same unit he logs (per dumbbell where noted); use null for timed holds. Start from his exact logged weight and change it only by whole weight steps (121 stays 121, +1 step of 10 is 131); never round to a multiple of 5. Reps must stay within the prescribed range.`;
+${UNIT()==="kg"?"The user views weights in kg: keep \"weight\" in lb as above, but write any weight inside \"note\" in kg rounded to 0.5 kg.\n":""}Reply with ONLY a JSON object: {"exercises":[{"id":"<id>","mode":"add_weight"|"add_reps"|"hold"|"deload"|"form","weight":number|null,"reps":[one number per set],"note":"one or two sentences, max 35 words, that explain why using their actual numbers and say exactly what to do"}]}
+Weight is in the same unit they log (per dumbbell where noted); use null for timed holds. Start from their exact logged weight and change it only by whole weight steps (121 stays 121, +1 step of 10 is 131); never round to a multiple of 5. Reps must stay within the prescribed range.`;
   try{
     const r=await sampleFn.json(prompt,{modelTier:"default",cache:false});
     const items={};
@@ -2248,143 +2225,7 @@ function standings(cut){
   return out;
 }
 let openMuscle=null, openTier=null;
-/* ---------- Outlook (projections) ---------- */
-let advView="advice", outH="3m", openOut=null;
-try{const v=localStorage.getItem("rd25-advview"); if(v==="advice"||v==="outlook") advView=v; const h=localStorage.getItem("rd25-outh"); if(["4w","3m","6m"].includes(h)) outH=h}catch(e){}
-function advSwitch(){ return `<div class="seg two" role="tablist" aria-label="Advice view"><button role="tab" data-adv="advice" class="${advView==="advice"?"on":""}" aria-selected="${advView==="advice"}"><span class="plate p-coach"></span>Advice</button><button role="tab" data-adv="outlook" class="${advView==="outlook"?"on":""}" aria-selected="${advView==="outlook"}"><span class="plate p-gym"></span>Outlook</button></div>` }
-function adherence(){ let gp=0,gd=0,rp=0,rd=0; const t=ymd(today);
-  for(let d=new Date(START); d<=today; d=addDays(d,1)){ const k=ymd(d), p=planFor(d); if(!p||p.type==="rest") continue; if(k===t&&!S.logs[k]) continue;
-    if(p.type==="gym"){gp++; if(S.logs[k]) gd++} else {rp++; if(S.logs[k]) rd++} }
-  return {gp,gd,rp,rd,gym:gp?gd/gp:1,run:rp?rd/rp:1} }
-const COMPOUND=new Set(["bench","incline","ohp","pulldown","cablerow","dbrow","legpress45","legpress","hipthrust","rdl","tbdl"]);
-function exRate(id){
-  const all=Object.entries(S.logs).filter(([k,l])=>l.type==="gym"&&l.ex&&WS(l.ex[id]).length).sort((a,b)=>a[0]<b[0]?-1:1), fl=all.length? logFmt(id,all[all.length-1][1]) : "wr"; // compare like with like
-  const pts=all.filter(([k,l])=>logFmt(id,l)===fl).map(([k,l])=>[k,Math.max(...WS(l.ex[id]).map(s=>fl==="wd"?(Number(s.w)||0)*(Number(s.m)||0):fl==="dt"?(Number(s.m)||0)/Math.max(1,Number(s.r)||1):(Number(s.w)||0)*(1+(Number(s.r)||0)/30)||Number(s.r)||0))]).filter(p=>p[1]>0);
-  // Typical weekly gain by training level: novice ≈ 2% (compound) / 1.2% (isolation); intermediate ≈ 0.75% / 0.5%
-  const cmp=COMPOUND.has(id), nov=cmp?0.02:0.012, mid=cmp?0.0075:0.005;
-  const firstLog=Object.keys(S.logs).filter(k=>S.logs[k].type==="gym").sort()[0], ageWk=firstLog?(today-parseYmd(firstLog))/DAYMS/7:0;
-  const lp=(lifterPctOf&&lifterPctOf(id))??25, t=Math.max(0,Math.min(ageWk<26?0.5:1,(lp-35)/30)), /* under ~6 months of training you're still mostly a novice */ typ=nov+(mid-nov)*t, level=t<0.34?"novice":t<0.67?"novice–intermediate":"intermediate";
-  let obs=null, n=pts.length;
-  if(n>=2){ const span=(parseYmd(pts[n-1][0])-parseYmd(pts[0][0]))/DAYMS; if(span>=6) obs=Math.max(-0.01,Math.min(0.06,Math.pow(pts[n-1][1]/pts[0][1],7/span)-1)) }
-  const w= obs==null?0: Math.min(0.7,(n-1)/(n+3)); // your own trend counts more as sessions pile up
-  return {r:Math.max(0.002, w*(obs??0)+(1-w)*typ), obs, typ, w, level, n} }
-let lifterPctOf=null;
-function grow(r,weeks,adh){ let g=1, w=0; for(;w+1<=weeks;w++) g*=1+r*adh*Math.pow(0.96,w); g*=1+r*adh*Math.pow(0.96,w)*(weeks-w); return g }
-function horizon(){ const end= outH==="4w"? addDays(today,28) : outH==="6m"? addDays(today,182) : addDays(today,91); return {end,weeks:Math.max(0,(end-today)/DAYMS/7),label: outH==="4w"?"in 4 weeks":outH==="6m"?"in 6 months":"in 3 months"} }
-function bwTrend(){ const ws=(S.profile.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1); if(ws.length>=2){ const days=(parseYmd(ws[ws.length-1].d)-parseYmd(ws[0].d))/DAYMS; if(days>=7) return {rate:Math.max(-2.5,Math.min(0.5,(ws[ws.length-1].lb-ws[0].lb)/(days/7))),obs:true} } return {rate:-1,obs:false} }
-function aggRegion(key,exs){
-  const R=REGIONS[key], inPlan=currentPlanIds();
-  const muscles=R.muscles.map(([m,label,mass])=>{ let wz=0,wt=0; const used=[];
-    Object.entries(EX_MUSCLES).forEach(([id,mm])=>{ if(!mm[m]) return; const e=exs[id]; if(e){ wz+=mm[m]*nInv(e.pct/100); wt+=mm[m]; used.push({...e,wt:mm[m]}) } });
-    return {m,label,mass,pct:wt?Math.max(1,Math.min(99,Math.round(ncdf(wz/wt)*100))):null,used,planned:Object.entries(EX_MUSCLES).some(([id,mm])=>mm[m]&&inPlan.has(id))} });
-  const have=muscles.filter(x=>x.pct!=null); if(!have.length) return {muscles,pct:null};
-  const tm=have.reduce((a,x)=>a+x.mass,0), z=have.reduce((a,x)=>a+x.mass*nInv(x.pct/100),0)/tm;
-  return {muscles,pct:Math.max(1,Math.min(99,Math.round(ncdf(z)*100)))} }
 function solveRace(vdotV,miles){ const m=miles*M_PER_MI; let lo=2,hi=600; for(let i=0;i<60;i++){ const t=(lo+hi)/2; vdot(m,t)>vdotV?lo=t:hi=t } return (lo+hi)/2 }
-const RACES=[["1 mile",1],["5K",3.107],["10K",6.214],["Half marathon",13.109],["Marathon",26.219]];
-function project(full){
-  const st=standings(), hz=horizon(), adh=adherence(), A={gym:1, run:1}; // every future session assumed done
-  const bt=bwTrend(), bwNow=st.bw0?st.bw0.lb:null, bwRate=bt.rate, bwProjReal=bwNow? Math.max(bwNow*0.8, bwNow+bwRate*hz.weeks) : null;
-  const bwN= standMode==="raw"? REF_BW : bwNow, bwP= standMode==="raw"? REF_BW : bwProjReal;
-  const out={hz,adh,bt,bwNow,bwProj:bwProjReal,st};
-  if(bwN){ const plan=currentPlanIds(), exsNow={}, exsP={};
-    plan.forEach(id=>{ if(!EX_MUSCLES[id]) return; const e=exStanding(id,null,bwN); if(!e) return; exsNow[id]=e;
-      lifterPctOf=x=>x===id?e.lifterPct:null; const rr=exRate(id); lifterPctOf=null; const g=grow(rr.r,hz.weeks,A.gym), std=STD[id];
-      const val= e.kind==="sec"? e.val*g : e.val*g*bwN/bwP;
-      const lp=pctFrom(LVL.map((p,i)=>[p,std[e.kind][i]]),val), pct= e.kind==="sec"? lp : pctFrom(BENCH_NORM, valAt(BENCH_LIFTER,lp));
-      const step= e.db&&e.w*g<30?2.5:5;
-      exsP[id]={...e,val,pct,now:e,g,rate:rr, w2: e.kind==="sec"? null : Math.round(e.w*g/step)*step, r2: e.kind==="sec"? Math.round(e.r*g/5)*5 : e.r} });
-    out.upperN=aggRegion("upper",exsNow); out.lowerN=aggRegion("lower",exsNow); out.upperP=aggRegion("upper",exsP); out.lowerP=aggRegion("lower",exsP) }
-  // speed
-  if(st.speed){ const v0=st.speed.vo2; const gV=Math.min(1.3,grow(0.012,hz.weeks,A.run)); const v1=v0*gV*(bwNow&&bwProjReal?bwNow/bwProjReal:1);
-    out.vo2N=v0; out.vo2P=v1; out.speedN=pctFrom(VO2_NORM,v0); out.speedP=pctFrom(VO2_NORM,v1);
-    // stamina
-    let cap=2, walk=[], rwPace=null, longest=0;
-    Object.entries(S.logs).forEach(([k,l])=>{ if(l.type!=="run") return; longest=Math.max(longest,Number(l.mi)||0); if(l.mi&&l.min) rwPace=(l.st&&l.st.movingMin||l.min)/l.mi;
-      if(l.st&&l.st.series) segmentsOf(l.st).forEach(g=>{ if(g.r===1) cap=Math.max(cap,g.dur); if(g.r===0&&g.pace&&g.dur>=1) walk.push(g.pace) }) });
-    if(/5K\s*~?\s*\d+\s*min/i.test(S.profile.about||"")) longest=Math.max(longest,3.107); // he has finished a 5K before
-    walk.sort((a,b)=>a-b); const walkPace=walk.length?walk[Math.floor(walk.length/2)]:18.5;
-    const effW=hz.weeks*A.run, capP=Math.min(150,cap*Math.pow(2,effW/2.5));
-    const endWeek=Math.max(1,weekOf(hz.end)); let planLong=0; for(let w=Math.max(1,weekOf(today));w<=endWeek;w++){ const sr=runWeek(w).sat; const m=sr&&sr.d.match(/([\d.]+) mi/); if(m) planLong=Math.max(planLong,Number(m[1])) } if(!planLong) planLong=3;
-    const longP=longest+(Math.max(longest,planLong)-longest)*A.run;
-    const rwP=(rwPace||16)*v0/v1;
-    const race=(vd,capMin,longMi,rw,mi)=>{ const run=solveRace(vd,mi); const walkT=walkPace*(1+0.02*Math.log2(Math.max(1,mi/3)))*mi;
-      if(run<=capMin) return {mode:"Running",t:run};
-      if(mi<=longMi*1.3){ const f=capMin/(capMin+2.5), pRun=run/mi*1.05, t=Math.min(walkT, Math.max(run, mi/(f/pRun+(1-f)/walkPace))); return {mode:"Run/walk",t} }
-      return {mode:"Walking",t:walkT} };
-    // Race times use a performance level calibrated to his running economy: oxygen cost of his actual running pace
-    // (ACSM, used for the fitness estimate) vs. the race-prediction formula's assumed cost at the same pace.
-    const runSegs=[]; Object.values(S.logs).forEach(l=>{ if(l.type==="run"&&l.st&&l.st.series) segmentsOf(l.st).forEach(g=>{ if(g.r===1&&g.pace) runSegs.push(g.pace) }) });
-    runSegs.sort((a,b)=>a-b); const rp=runSegs.length?runSegs[Math.floor(runSegs.length/2)]:13.5, vm=M_PER_MI/rp;
-    const econ=Math.max(0.55,Math.min(1,(-4.6+0.182258*vm+0.000104*vm*vm)/(0.2*vm+3.5)));
-    out.races=RACES.map(([n,mi])=>({n,mi,now:race(v0*econ,cap,Math.max(longest,1),rwPace||16,mi),proj:race(v1*econ,capP,longP,rwP,mi)}));
-    out.stamina={cap,capP,longest,longP,walkPace};
-  }
-  const parts=[out.upperP&&out.upperP.pct,out.lowerP&&out.lowerP.pct,out.speedP].filter(x=>x!=null);
-  if(parts.length) out.overallP=Math.max(1,Math.min(99,Math.round(ncdf(parts.reduce((a,p)=>a+nInv(p/100),0)/parts.length)*100)));
-  const partsN=[out.upperN&&out.upperN.pct,out.lowerN&&out.lowerN.pct,out.speedN].filter(x=>x!=null);
-  if(partsN.length) out.overallN=Math.max(1,Math.min(99,Math.round(ncdf(partsN.reduce((a,p)=>a+nInv(p/100),0)/partsN.length)*100)));
-  return out;
-}
-const chip=p=>p==null?`<span class="small muted">–</span>`:`<span class="tchip" style="background:${tierColor(p)}">${tier(p)}</span>`;
-function nowToProj(n,p){ return `<div class="ntp">${chip(n)}<span class="arrow">→</span>${chip(p)}</div>` }
-// what the Outlook needs before it can project anything
-function outlookNeeds(P){
-  const logs=Object.values(S.logs), ex=new Set(); logs.forEach(l=>{ if(l&&l.type==="gym"&&l.ex) Object.keys(l.ex).forEach(id=>ex.add(id)) });
-  const reg=key=>[...ex].some(id=>{ const mm=EX_MUSCLES[id]; return mm&&REGIONS[key].muscles.some(([m])=>mm[m]) });
-  const ws=(S.profile.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1), wOK=ws.length>=2&&(parseYmd(ws[ws.length-1].d)-parseYmd(ws[0].d))/DAYMS>=7;
-  const runsPlanned=!CUSTOM||CUSTOM.su.runDays.length>0;
-  return [
-    {done:!!(P.upperN&&P.upperN.pct!=null)||reg("upper"),t:"Log a workout with upper-body lifts",s:"Sets your upper-body starting point."},
-    {done:!!(P.lowerN&&P.lowerN.pct!=null)||reg("lower"),t:"Log a workout with lower-body lifts",s:"Sets your lower-body starting point."},
-    {done:!!P.vo2N,t:"Log a run with heart rate",s:"Import its GPX file. It estimates your fitness and race times.",opt:!runsPlanned,strava:true},
-    {done:wOK,t:"Weigh in twice, a week apart",s:"So the projections follow your real body-weight trend."}] }
-function viewOutlook(){
-  const P=project(), hz=P.hz, a=P.adh;
-  if(P.overallN==null&&P.overallP==null){ const N=outlookNeeds(P);
-    return `<div class="card"><div class="eyebrow">If you keep going like this</div><h2>Outlook</h2>
-      <p class="small">Outlook projects your strength, fitness and race times 4 weeks, 3 months and 6 months out if you keep hitting your sessions. At first it uses typical rates for your training level. After a few weeks it uses your own rate of progress.</p></div>
-      <div class="card"><h2>Unlock your outlook</h2><ol class="needs-list">${N.map(n=>`<li class="${n.done?"done":""}"><span class="nl-dot" aria-hidden="true">${n.done?"✓":""}</span><span><b>${esc(n.t)}</b>${n.opt?' <span class="small muted">(optional)</span>':""}<span class="small muted">${esc(n.s)}</span></span></li>`).join("")}</ol>
-      ${stravaPrompt("outlook")}<p class="small muted">Projections appear as soon as one of these is done.</p></div>` }
-  let h=`<div class="card"><div><div class="eyebrow">If you keep going like this</div><h2>Outlook</h2></div>
-    <div class="seg three" role="tablist" aria-label="Time frame">${[["4w","4 weeks"],["3m","3 months"],["6m","6 months"]].map(([k,l])=>`<button role="tab" data-outh="${k}" class="${outH===k?"on":""}" aria-selected="${outH===k}">${l}</button>`).join("")}</div>
-    <p class="small muted">If you hit every session from here.</p></div>`;
-  h+=`<div class="card"><div class="row between"><h2>Overall fitness</h2></div><div class="pct"><span class="n tier" style="color:${P.overallP!=null?tierColor(P.overallP):"var(--muted)"}">${P.overallP!=null?tier(P.overallP):"–"}</span><span class="u">${hz.label}</span></div>
-    <div class="row" style="gap:8px"><span class="small muted">Now</span>${chip(P.overallN)}</div></div>`;
-  ["upper","lower"].forEach(key=>{ const N=P[key+"N"], Pp=P[key+"P"];
-    h+=`<div class="card"><div class="row between"><h2>${REGIONS[key].name} strength</h2></div>`;
-    if(!Pp||Pp.pct==null){ h+=`<p class="small muted">Log your ${REGIONS[key].name.toLowerCase()} exercises to see a projection.</p></div>`; return }
-    h+=`<div class="pct"><span class="n tier" style="color:${tierColor(Pp.pct)}">${tier(Pp.pct)}</span><span class="u">${hz.label}</span></div>
-      <div class="row" style="gap:8px"><span class="small muted">Now</span>${chip(N.pct)}</div>
-      <div class="mus">${Pp.muscles.map((x,i)=>`<button class="mrow" data-outm="${key}|${x.m}" aria-haspopup="dialog"><div class="mtop"><b>${x.label}</b>${x.pct!=null?nowToProj(N.muscles[i].pct,x.pct):`<span class="mp muted">${x.planned?"Not logged":"–"}</span>`}<span class="chev">›</span></div></button>`).join("")}</div></div>`; });
-  h+=`<div class="card"><div class="row between"><h2>Speed &amp; endurance</h2></div>`;
-  if(P.vo2P){ h+=`<div class="pct"><span class="n tier" style="color:${tierColor(P.speedP)}">${tier(P.speedP)}</span><span class="u">${hz.label}</span></div>
-      <div class="row" style="gap:8px"><span class="small muted">Now</span>${chip(P.speedN)}</div>
-      <p class="small"><span class="muted">Estimated VO₂max</span> <b class="num">${P.vo2N.toFixed(1)} → ${P.vo2P.toFixed(1)}</b></p>
-      <div class="eyebrow">Race times ${hz.label}</div>
-      <div class="races">${P.races.map(r=>`<div class="race"><div class="rn"><b>${r.n}</b><span class="mode ${r.proj.mode==="Running"?"run":r.proj.mode==="Walking"?"walk":"rw"}">${r.proj.mode}</span></div>
-        <div class="rt num"><b>${fmtMin(r.proj.t)}</b><span class="small muted">${paceTxt(r.proj.t/r.mi)} · now ${fmtMin(r.now.t)}</span></div></div>`).join("")}</div>
-`;
-  } else h+=`<p class="small muted">Log a run with heart-rate data to see a projection.</p>`;
-  h+=`</div>`;
-  if(openOut) h+=outSheet(P);
-  return h;
-}
-function outSheet(P){
-  const [rk,m]=openOut.split("|"), Pp=P[rk+"P"], N=P[rk+"N"]; if(!Pp) return ""; const x=Pp.muscles.find(q=>q.m===m), xn=N.muscles.find(q=>q.m===m); if(!x) return "";
-  const tot=x.used.reduce((a,e)=>a+e.wt,0)||1;
-  const rows=x.used.slice().sort((a,b)=>b.wt-a.wt||b.pct-a.pct).map(e=>{ const share=Math.round(e.wt/tot*100), n=e.now;
-    const nowTxt= e.kind==="sec"?`${n.r} s`:`${toU(n.w)} ${uL()}${n.db?" each":""} × ${n.r}`, pTxt= e.kind==="sec"?`${e.r2} s`:`${toU(e.w2)} ${uL()}${n.db?" each":""} × ${e.r2}`;
-    return `<div class="exr"><div class="exh"><b>${esc(exName(e.id))}</b>${nowToProj(n.pct,e.pct)}</div>
-      <div class="exm"><span class="muted">Best set</span> <b class="num">${nowTxt}</b> <span class="muted">→</span> <b class="num">~${pTxt}</b></div>
-      <div class="imp"><div class="impbar"><i style="width:${share}%"></i></div><span class="num"><b>${share}%</b> of ${x.label.toLowerCase()} score</span></div></div>` }).join("");
-  return `<div class="sheet-bg" id="sheetBg"></div><div class="sheet" role="dialog" aria-modal="true" aria-label="${x.label} outlook">
-    <div class="sheet-grab"></div>
-    <div class="row between"><div><div class="eyebrow">${REGIONS[rk].name} · ${P.hz.label}</div><h2>${x.label}</h2></div><button class="sheet-x" id="sheetX" aria-label="Close">✕</button></div>
-    ${nowToProj(xn&&xn.pct,x.pct)}
-    ${rows?`<div class="eyebrow" style="margin-top:4px">Projected by exercise · biggest impact first</div><div class="exl">${rows}</div>`:`<p class="small muted">Log these exercises to see a projection.</p>`}
-  </div>`;
-}
 function zNorm(norm,v){ const pts=norm.map(([p,val])=>[val,nInv(p/100)]);
   const seg=v<=pts[0][0]?[pts[0],pts[1]]:v>=pts[pts.length-1][0]?[pts[pts.length-2],pts[pts.length-1]]:(()=>{for(let i=1;i<pts.length;i++) if(v<=pts[i][0]) return [pts[i-1],pts[i]]})();
   const [[v0,z0],[v1,z1]]=seg; return z0+(v-v0)*(z1-z0)/(v1-v0) }
@@ -2549,7 +2390,7 @@ async function comparePhoto(id){
   const wts=(S.profile.weights||[]).map(w=>`${w.d}: ${w.lb} lb`).join(", ")||"none logged";
   const days=Math.round((parseYmd(cur.date)-parseYmd(list[0][1].date))/DAYMS);
   photoBusy[id]=true; render(true); renderIfIdle();
-  const prompt=`You are the coach in his training app, comparing his ${cur.pose}-view progress photos. ${personLine()}
+  const prompt=`You are the coach in ${APP_NAME}, comparing the user's ${cur.pose}-view progress photos. ${personLine()}
 The ${imgs.length} images, in order: ${labels.map((l,i)=>`Image ${i+1} = ${l}`).join("; ")}. ${days} days between baseline and the new photo.
 Weigh-ins: ${wts}.
 
@@ -2621,12 +2462,12 @@ function viewRuns(){ return runSel&&S.logs[runSel]&&S.logs[runSel].type==="run"?
 function runsIndex(){
   const L=runList();
   let h=`<div class="card"><div><div class="eyebrow">Every run you've logged · tap one for the full breakdown</div><h2>Runs</h2></div>`;
-  if(!L.length) return h+`<p class="small muted">No runs yet. Log one from Train on a run day${CUSTOM&&CUSTOM.su.runDays.length?` (${CUSTOM.su.runDays.map(i=>DOW[i]).join(", ")})`:""}, or import from Strava for maps and splits, and it'll show up here.</p>${stravaPrompt("runs")}</div>`;
+  if(!L.length) return h+`<p class="small muted">No runs yet. Log one from Train on a run day${CUSTOM&&CUSTOM.su.runDays.length?` (${CUSTOM.su.runDays.map(i=>DOW[i]).join(", ")})`:""}, or import from Strava for maps and splits, and it'll show up here.</p></div>`;
   const tot=L.reduce((a,[k,l])=>a+(Number(l.mi)||0),0), longest=Math.max(...L.map(([k,l])=>Number(l.mi)||0)), best=Math.min(...L.filter(([k,l])=>l.mi&&l.min).map(([k,l])=>l.min/l.mi));
   h+=`<div class="kpis"><div class="kpi"><div class="v num">${L.length}</div><div class="l">runs</div></div><div class="kpi"><div class="v num">${dU(tot)}</div><div class="l">total ${RU()==="km"?"km":"miles"}</div></div><div class="kpi"><div class="v num">${longest.toFixed(1)}</div><div class="l">longest (mi)</div></div></div>`;
   if(isFinite(best)) h+=`<p class="small muted">Fastest average pace so far: <b class="num" style="color:var(--ink)">${paceTxt(best)}</b></p>`;
   h+=`<div>${L.map(([k,l])=>{const d=parseYmd(k), p=l.mi&&l.min?l.min/l.mi:null;
-    return `<button class="runrow" data-run="${k}"><span class="rd"><b>${fmtDate(d)}</b><span class="small muted">${esc(runLabel(k,l))} · Week ${weekOf(d)}</span><span class="tags">${l.st?`<span class="chip run">${l.st.src==="gpx"?"GPX":"Screenshots"}</span>`:""}${l.analysis?`<span class="chip coach">Analyzed</span>`:""}${l.st&&l.st.avgHr?`<span class="chip num">♥ ${l.st.avgHr}</span>`:""}</span></span>
+    return `<button class="runrow" data-run="${k}"><span class="rd"><b>${fmtDate(d)}</b><span class="small muted">${esc(runLabel(k,l))}</span><span class="tags">${l.st?`<span class="chip run">${l.st.src==="gpx"?"GPX":"Screenshots"}</span>`:""}${l.analysis?`<span class="chip coach">Analyzed</span>`:""}${l.st&&l.st.avgHr?`<span class="chip num">♥ ${l.st.avgHr}</span>`:""}</span></span>
       <span class="rm"><b>${dTxt(l.mi,2)}</b><span class="small muted num">${fmtMin(l.min)} · ${p?paceTxt(p):"–"}${l.reps?` · ${l.reps} reps`:""}</span></span><span class="chev">›</span></button>`}).join("")}</div></div>`;
   return h;
 }
@@ -2634,7 +2475,7 @@ function zoneTimes(S2){ const z=[0,0,0,0,0]; let any=false; const mx=HR_MAX_EST;
 function runDetail(k){
   const l=S.logs[k], d=parseYmd(k), p=planFor(d), st=l.st, pace=l.mi&&l.min?l.min/l.mi:null;
   let h=`<button class="link small" id="runBack" style="align-self:flex-start">‹ All runs</button>`;
-  h+=`<div class="card"><div class="row between"><div><div class="eyebrow">${fmtDate(d)} · Week ${weekOf(d)}</div><h2>${esc(runLabel(k,l))}</h2></div>${l.rpe?`<span class="chip num">Effort ${l.rpe}/10</span>`:""}</div>
+  h+=`<div class="card"><div class="row between"><div><div class="eyebrow">${fmtDate(d)}</div><h2>${esc(runLabel(k,l))}</h2></div>${l.rpe?`<span class="chip num">Effort ${l.rpe}/10</span>`:""}</div>
     ${p&&p.type==="run"?`<div class="plan-box"><div class="small"><b>Plan:</b> ${esc(p.d)}</div></div>`:""}`;
   if(st) h+=stravaBlock(st);
   else h+=`<div class="stv"><div><span class="l">Distance</span><span class="v num">${dTxt(l.mi,2)}</span></div><div><span class="l">Time</span><span class="v num">${fmtMin(l.min)}</span></div><div><span class="l">Avg pace</span><span class="v num">${pace?fmtMin(pace)+"/mi":"–"}</span></div></div><p class="note">Typed-in run. Import the Strava GPX on this day's run card (Home) to get graphs and an analysis.</p>`;
@@ -2696,7 +2537,7 @@ function runTrends(){
   return h+`</div>`;
 }
 
-/* ---------- Strava import + run analysis ---------- */
+/* ---------- Run file import + run analysis ---------- */
 let imgOK=false, imgMax=4; const imports={}, anaBusy={};
 const M_PER_MI=1609.344;
 const byL=(el,n)=>Array.from(el.getElementsByTagNameNS("*",n));
@@ -2796,20 +2637,6 @@ function bestEfforts(pts){
     if(best) out[key]=Math.round(best) });
   return Object.keys(out).length?out:null;
 }
-async function readShots(files){
-  const r=await sampleFn.json(`These images are screenshots of ONE Strava activity (summary, splits and/or heart-rate screens). Extract only what is visible.
-Reply with ONLY a JSON object in this shape:
-{"name":string|null,"date":"YYYY-MM-DD"|null,"distance_mi":number|null,"moving_time":"h:mm:ss or mm:ss"|null,"elapsed_time":"h:mm:ss or mm:ss"|null,"elevation_gain_ft":number|null,"avg_hr":number|null,"max_hr":number|null,"cadence_spm":number|null,"calories":number|null,"splits":[{"mile":number,"distance_mi":number,"pace":"mm:ss","elev_ft":number|null,"hr":number|null}]}
-If the screens use km, convert distances to miles and paces to per-mile. Use null for anything not shown. Never guess or invent values.`,{images:files,cache:false});
-  if(!r||typeof r!=="object") throw new Error("Couldn't find run stats in those screenshots.");
-  const T=v=>{const m=parseTime(v); return m>0?+m.toFixed(2):null};
-  const splits=(Array.isArray(r.splits)?r.splits:[]).slice(0,30).map((x,i)=>({n:Number(x.mile)||i+1,mi:Number(x.distance_mi)||1,pace:T(x.pace),hr:numOr(x.hr)?Math.round(x.hr):null,elev:numOr(x.elev_ft)!=null?Math.round(x.elev_ft):null})).filter(x=>x.pace);
-  const out={src:"screenshot",name:String(r.name||"").slice(0,80),date:/^\d{4}-\d{2}-\d{2}$/.test(r.date||"")?r.date:null,mi:numOr(r.distance_mi)?+Number(r.distance_mi).toFixed(2):null,
-    movingMin:T(r.moving_time),elapsedMin:T(r.elapsed_time),elevFt:numOr(r.elevation_gain_ft)!=null?Math.round(r.elevation_gain_ft):null,avgHr:numOr(r.avg_hr)?Math.round(r.avg_hr):null,maxHr:numOr(r.max_hr)?Math.round(r.max_hr):null,
-    cad:numOr(r.cadence_spm)?Math.round(r.cadence_spm):null,cal:numOr(r.calories)?Math.round(r.calories):null,splits};
-  if(!out.mi && !out.movingMin) throw new Error("Couldn't find distance or time in those screenshots. Include the activity summary screen.");
-  return out;
-}
 function getImport(k){ if(imports[k]) return imports[k]; const d=drafts[k+"|strava"]; if(d){try{return imports[k]=JSON.parse(d)}catch(e){}} return null }
 function cleanJSON(o){return JSON.parse(JSON.stringify(o,(key,v)=>typeof v==="number"&&!isFinite(v)?null:v===undefined?null:v))}
 function finishImport(k,st){
@@ -2864,18 +2691,18 @@ async function analyzeRun(k){
 
 DETAILED RUN ANALYSIS
 Planned session for ${fmtDate(d)}: ${p&&p.type==="run"?`${p.t} — ${p.d}`:"(not a planned run day)"}
-What he logged: ${logLine(k,log)}
+What they logged: ${logLine(k,log)}
 ${isHrRun(k)?(()=>{const r=hrRange(st.series); return `This was a HEART-RATE-BASED easy run: target ${HR_LO}–${HR_HI} bpm (jog until ${HR_HI}, walk until ${HR_LO}).${r?` Time in range ${Math.round(r.pctIn)}%, above ${HR_HI}: ${fmtMin(r.above)}, below ${HR_LO}: ${fmtMin(r.below)}.`:" (No heart-rate trace available.)"} Judge execution mainly on staying in range, not on pace.`})():""}
 ${(()=>{const sg=segmentsOf(st); return sg.length?`Detected intervals in order (from GPS speed): ${sg.slice(0,40).map(x=>`${x.type} ${fmtMin(x.dur)}${x.pace?` @ ${fmtMin(x.pace)}/mi`:""}${x.hr?` HR ${x.hr}`:""}`).join("; ")}`:""})()}
 ${typeof runCheckText==="function"?runCheckText(k,log):""}
-Recording data (${st.src==="gpx"?`computed from his GPX file; running vs walking time is estimated from speed, counting anything faster than ${st.runThrPace?fmtMin(st.runThrPace):"14:00"}/mi as running; split paces include paused time`:"read from his Strava screenshots"}):
+Recording data (${st.src==="gpx"?`computed from their GPX file; running vs walking time is estimated from speed, counting anything faster than ${st.runThrPace?fmtMin(st.runThrPace):"14:00"}/mi as running; split paces include paused time`:"read from their Strava screenshots"}):
 ${detail}
-His previous runs (newest first):
+Their previous runs (newest first):
 ${prev}
 
-Write a detailed but easy-to-read analysis for him, about 250–350 words, with these bold section headers on their own lines:
+Write a detailed but easy-to-read analysis for them, about 250–350 words, with these bold section headers on their own lines:
 **Verdict** — one or two sentences.
-**Pacing & splits** — consistency, fade or negative split; quote his actual split paces.
+**Pacing & splits** — consistency, fade or negative split; quote their actual split paces.
 **Effort** — heart rate and drift from first to last splits, and whether the effort fit the session type. Skip this section if there is no HR data.
 **Session execution** — judge it as the session type it was (steady run, tempo, intervals, sprints or hill sprints, time trial or race) using the session check above: reps completed, rep-to-rep consistency, recoveries, climb per hill rep, or run/walk adherence.
 **Vs. last time** — compare with the same session last week if there is one.
@@ -2944,22 +2771,13 @@ function bind(){
     let st; try{ st=parseTrack(text) }catch(err){ impStatus(esc((err&&err.message)||"That file couldn't be read.")); return }
     try{ finishImport(k,st) }catch(err){ impStatus(`Read your run (${st.mi} mi), but couldn't show it: ${esc(String((err&&err.message)||err))}`) }
   });
-  $("#shotIn")?.addEventListener("change",async e=>{
-    const files=[...(e.target.files||[])]; e.target.value=""; if(!files.length||!sampleFn) return;
-    impStatus(`<span class="pulse"></span> Reading ${files.length>1?`${Math.min(files.length,imgMax)} screenshots`:"your screenshot"}…`);
-    try{ finishImport(k,await readShots(files.slice(0,imgMax))) }
-    catch(err){ const c=err&&err.code; impStatus(esc(c==="not_granted"||c==="sampling_disabled"?"Reading screenshots needs you to be signed in.":c==="image_rejected"?"One of those images couldn't be read. Use regular screenshots.":c==="rate_limited"?"Too many requests right now. Try again in a minute.":(!c&&err&&err.message)?err.message:"Couldn't read those screenshots. Try again, or type the numbers in.")) }
-  });
   $("#impClear")?.addEventListener("click",()=>{delete imports[k]; delete drafts[k+"|strava"]; persistDrafts(); lastRenderKey=""; render()});
   $("#anaBtn")?.addEventListener("click",e=>analyzeRun(e.currentTarget.dataset.ana));
   document.querySelectorAll("[data-run]").forEach(b=>b.onclick=()=>{runSel=b.dataset.run; render(); window.scrollTo(0,0)});
   document.querySelectorAll("[data-openrun]").forEach(b=>b.onclick=()=>{runSel=b.dataset.openrun; tab="progress"; progView="runs"; try{localStorage.setItem("rd25-tab",tab);localStorage.setItem("rd25-pview",progView)}catch(e){} render(); window.scrollTo(0,0)});
-  document.querySelectorAll("[data-adv]").forEach(b=>b.onclick=()=>{advView=b.dataset.adv; openOut=null; try{localStorage.setItem("rd25-advview",advView)}catch(e){} render(); window.scrollTo(0,0)});
-  document.querySelectorAll("[data-outh]").forEach(b=>b.onclick=()=>{outH=b.dataset.outh; try{localStorage.setItem("rd25-outh",outH)}catch(e){} render()});
-  document.querySelectorAll("[data-outm]").forEach(b=>b.onclick=()=>{openOut=b.dataset.outm; render()});
   document.querySelectorAll("[data-mus]").forEach(b=>b.onclick=()=>{openMuscle=b.dataset.mus; openTier=null; render()});
   document.querySelectorAll("[data-tierv]").forEach(b=>b.onclick=()=>{openTier=b.dataset.tierv; openMuscle=null; render()});
-  const closeSheet=()=>{openMuscle=null; openTier=null; openOut=null; render()};
+  const closeSheet=()=>{openMuscle=null; openTier=null; render()};
   $("#sheetX")?.addEventListener("click",closeSheet); $("#sheetBg")?.addEventListener("click",closeSheet);
   document.querySelectorAll("[data-stand]").forEach(b=>b.onclick=()=>{standMode=b.dataset.stand; try{localStorage.setItem("rd25-stand",standMode)}catch(e){} render()});
   $("#restHr")?.addEventListener("change",e=>{const v=Number(e.target.value); if(v>=35&&v<=110){S.profile.restHr=v; saveProfile(); render()} else if(!e.target.value){delete S.profile.restHr; saveProfile(); render()} else toast("Enter a resting heart rate between 35 and 110")});
@@ -3015,7 +2833,7 @@ function bind(){
   $("#groReset")?.addEventListener("click",()=>{S.profile.grocery={}; saveProfile(); render()});
   $("#about")?.addEventListener("input",e=>{S.profile.about=e.target.value; saveProfile()});
   $("#advRefresh")?.addEventListener("click",()=>{adviceDisabled=false; runAdvice()});
-  if(tab==="advice"&&advView==="advice"){
+  if(tab==="advice"){
     renderChatList();
     const inp=$("#chatIn");
     $("#chatSend").onclick=()=>{const t=inp.value; inp.value=""; delete drafts["global|chatIn"]; persistDrafts(); sendChat(t)};
@@ -3087,20 +2905,8 @@ function applySetup(raw){
   if(!inProgram(sel)) sel=inProgram(today)?today:START;
 }
 let appliedStamp="";
-// Plans no longer end: drop goal dates and races from existing setups (once)
-function maybeOngoing(){
-  const su=S.profile&&S.profile.setup; if(!su) return false;
-  if(!S.profile.aboutOngoing&&S.profile.about){ // the plan's About text: drop race goals and the end date
-    S.profile.about=S.profile.about.split(/(?<=\.)\s+/).filter(x=>!/half marathon|\b(5|10)K\b.*\bby\b/i.test(x)).join(" ").replace(/ by Dec(ember)? 25(, 2026)?/,"").replace(/ by (Mon|Tue|Wed|Thu|Fri|Sat|Sun), [A-Z][a-z]{2} \d{1,2}\./,".");
-    S.profile.aboutOngoing=1; if(su.ongoing){ saveProfile(); return true } }
-  if(su.ongoing) return false;
-  const n={...su,ongoing:1,race:null}; delete n.goalDate; if(n.goal==="race") n.goal="fit";
-  if(n.coachNotes) n.coachNotes=n.coachNotes.replace(/; half marathon Dec 25 with a 2:30–2:40 run\/walk goal/,"").replace("Saturday long run building to 11 mi with lighter weeks 4 and 8","Saturday long run building to 11 mi, then cycling with a lighter week every 4th week").replace(/ No race on the calendar[^]*$/,"")+" No race on the calendar: the plan is ongoing, focused on getting steadily stronger and healthier.";
-  S.profile.setup=n; S.profile.raceDate="";
-  saveProfile(); return true;
-}
 function onProfile(){
-  syncPrefs(); initStdAliases(); maybeMigrateLegacy(); maybePallofHold(); maybeOngoing(); maybeMealsV3(); maybeStravaInit();
+  syncPrefs(); initStdAliases(); maybeStravaInit();
   let su=S.profile&&S.profile.setup;
   if(su&&!(su.routines&&su.week)){ su=S.profile.setup=normalizeSetup(su); saveProfile() }
   if(su&&typeof maybeRunRoutines==="function"&&maybeRunRoutines()) saveProfile();
@@ -3113,14 +2919,15 @@ const BRAND_MARK=`<svg class="brandmark" viewBox="0 0 24 26" aria-hidden="true">
 function progName(){ return APP_NAME }
 function perWeek(kind,w){ let n=0; const mon=monOf(w); for(let i=0;i<7;i++){ const p=basePlan(addDays(mon,i)); if(p&&p.type===kind) n++ } return n }
 function personLine(){
-  if(!CUSTOM) return "He is 21, lifting 3x/week and running 3x/week on a calorie deficit; his goal is getting steadily stronger and healthier, with no end date.";
+  if(!CUSTOM) return "The user's profile isn't set up yet: don't assume their age, sex, experience or diet; ask if it matters.";
   const su=CUSTOM.su; return `The user is ${su.name}, a ${su.age}-year-old ${su.sex==="female"?"woman":"man"} (use matching pronouns), lifting ${su.gymDays.length}x/week and running ${su.runDays.length}x/week; goal: ${goalText(su)} (ongoing, no end date).`;
 }
+function expLine(){ const su=CUSTOM&&CUSTOM.su; if(!su) return ""; return `Lifting experience: ${{new:"new to lifting",some:"under a year",exp:"1+ years"}[su.exp]||"unknown"}.` }
 function goalText(su){ return su.goal==="muscle"?"build strength and muscle": su.goal==="lose"?"lose fat and get fitter":"get stronger and fitter overall" }
 // conversation starters that fit this person's plan
 function coachSuggestions(){
   const runs=CUSTOM? CUSTOM.su.runDays.length>0 : true;
-  return ["How should today go?","I only have 35 minutes today", runs?"My legs feel heavy after runs":"Something feels sore after lifting","Give me a high-protein meal idea","How am I doing this week?"] }
+  return ["How should today go?","I only have 35 minutes today", runs?"My legs feel heavy after runs":"Something feels sore after lifting",...(FOOD_ON?["Give me a high-protein meal idea"]:[]),"How am I doing this week?"] }
 function customCoachIntro(w){
   const su=CUSTOM.su, g=foodGoals(), K=kitchen();
   const sched=su.week.map((x,i)=>`${DOW[i]}: ${x==="run"?"run":x==="rest"?"rest":(CUSTOM.gym[x]||{}).name||"rest"}`).join(", ");
@@ -3133,10 +2940,10 @@ Weekly schedule (they built it): ${sched}.
 Their routines (they chose these exercises; suggest changes only when useful):
 ${routines}
 Progression: double progression (beat reps; at the top of the range on every set, add weight; 10% deload after two stalled sessions). Runs: easy runs by heart rate, intervals, and a weekly long run that builds over about 10 weeks, then holds, with a lighter week every 4th week.
-Daily food goals: ${fmtN(g.kcal)} kcal, ${g.p} g protein, ${g.c} g carbs, ${g.f} g fat. Their saved meals: ${meals}.
-If they report sharp pain, swelling, chest pain, dizziness or fainting, tell them to stop and get it checked by a professional. You're not a doctor.
+${FOOD_ON?`Daily food goals: ${fmtN(g.kcal)} kcal, ${g.p} g protein, ${g.c} g carbs, ${g.f} g fat. Their saved meals: ${meals}.
+`:""}If they report sharp pain, swelling, chest pain, dizziness or fainting, tell them to stop and get it checked by a professional. You're not a doctor.
 ${su.coachNotes?`Background: ${su.coachNotes}
-`:""}Today: ${fmtDate(today)} (week ${w}).
+`:""}Today: ${fmtDate(today)}.
 `;
 }
 function customPlanIntro(){
@@ -3150,7 +2957,7 @@ function customPlanIntro(){
 /* ---------- Setup screen ---------- */
 let setupOpen=false, SUW=null;
 function isLegacy(){ const p=S.profile||{}; return !p.setup && !!(p.about || (p.moves&&Object.keys(p.moves).length) || Object.keys(S.logs).length) }
-function needsSetup(){ return !!window.__platform && loaded.profile && !(S.profile&&S.profile.setup) && !isLegacy() }
+function needsSetup(){ return !!window.__platform && loaded.profile && !(S.profile&&S.profile.setup) }
 function suggestKcal(s){ const lb=fromU(Number(s.weight))||0; if(!lb) return ""; const fem=s.sex==="female";
   const k= s.goal==="muscle"? lb*15 : s.goal==="lose"? lb*11 : lb*13;
   return Math.round(Math.min(fem?2800:3400,Math.max(fem?1300:1500,k))/50)*50 }
@@ -3200,10 +3007,10 @@ function viewSetup(){
     <div class="suopts">${opt("runLevel","new","I can't run a mile without walking","Run/walk plan")}${opt("runLevel","some","I can jog 20–30 minutes")}${opt("runLevel","regular","I run regularly")}</div></div>`:""}
   <div class="card"><h2>Lifting experience</h2>
     <div class="suopts three">${opt("exp","new","New")}${opt("exp","some","Under a year")}${opt("exp","exp","1+ years")}</div></div>
-  <div class="card"><h2>Food goals</h2>
+  ${FOOD_ON?`<div class="card"><h2>Food goals</h2>
     <div class="row"><div class="field"><label for="suKcal">Daily calories</label><input id="suKcal" inputmode="numeric" value="${esc(s.kcalTouched?s.kcal:sug)}"></div>
     <div class="field"><label for="suProt">Protein (g)</label><input id="suProt" inputmode="numeric" value="${esc(s.proteinTouched?s.protein:sugP)}"></div></div>
-    <p class="small muted" id="suKcalHint">${sug?`Suggested for your weight and goal: ${fmtN(sug)} kcal and ${sugP} g protein.`:"Enter your weight for a suggestion."} You'll build meals and log food in the app.</p></div>
+    <p class="small muted" id="suKcalHint">${sug?`Suggested for your weight and goal: ${fmtN(sug)} kcal and ${sugP} g protein.`:"Enter your weight for a suggestion."} You'll build meals and log food in the app.</p></div>`:""}
   <p class="note" id="suErr" hidden></p>
   <div class="row"><button type="button" class="btn" id="suSave">${S.profile.setup?"Save my plan":"Build my plan"}</button>${S.profile.setup?`<button type="button" class="btn ghost" id="suCancel">Cancel</button>`:""}</div>
   <p class="small muted">Not medical advice. Check with a doctor before starting a new training or diet plan.</p>
@@ -3212,12 +3019,12 @@ function viewSetup(){
 function bindSetup(){
   const s=SUW, val=id=>$(id).value.trim();
   const hint=()=>{ const h=$("#suKcalHint"), g=suggestKcal(s), gp=suggestProtein(s); if(h) h.textContent=(g?`Suggested for your weight and goal: ${fmtN(g)} kcal and ${gp} g protein.`:"Enter your weight for a suggestion.")+" You'll build meals and log food in the app.";
-    if(!s.kcalTouched) $("#suKcal").value=g||""; if(!s.proteinTouched) $("#suProt").value=gp||"" };
+    if(!s.kcalTouched&&$("#suKcal")) $("#suKcal").value=g||""; if(!s.proteinTouched&&$("#suProt")) $("#suProt").value=gp||"" };
   const birthAge=b=>{ if(!/^\d{4}-\d{2}$/.test(b||"")) return null; const [y,m]=b.split("-").map(Number); let a=today.getFullYear()-y; if(today.getMonth()+1<m) a--; return a };
   const sync=()=>{ s.name=val("#suName"); s.birth=$("#suBirth").value||""; const ba=birthAge(s.birth); if(ba!=null){ s.age=String(ba); $("#suAge").value=s.age } else s.age=val("#suAge"); s.weight=val("#suWt"); hint() };
   ["#suName","#suAge","#suWt","#suBirth"].forEach(id=>$(id).addEventListener("input",sync)); $("#suBirth").addEventListener("change",sync);
-  $("#suKcal").addEventListener("input",e=>{s.kcalTouched=true; s.kcal=e.target.value.trim()});
-  $("#suProt").addEventListener("input",e=>{s.proteinTouched=true; s.protein=e.target.value.trim()});
+  $("#suKcal")?.addEventListener("input",e=>{s.kcalTouched=true; s.kcal=e.target.value.trim()});
+  $("#suProt")?.addEventListener("input",e=>{s.proteinTouched=true; s.protein=e.target.value.trim()});
   const rerender=()=>{ sync(); const y=window.scrollY; $("#view").innerHTML=viewSetup(); bindSetup(); window.scrollTo(0,y) };
   document.querySelectorAll("[data-su-opt]").forEach(b=>b.onclick=()=>{const [k,v]=b.dataset.suOpt.split("|"); const was=s[k]; s[k]=v;
     if(k==="split"&&v!==was){ const runN=s.weekTouched? s.week.filter(w=>w==="run").length : GOAL_RUNS[s.goal]; s.week= v==="keep"? [...normalizeSetup(S.profile.setup).week] : weekFor(v,runN) }
