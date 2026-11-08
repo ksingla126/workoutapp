@@ -82,12 +82,25 @@ const EXLIB_RAW = [
   ["pullthrough","Cable Pull-Through","Glutes","Cable","w"],["smithhip","Hip Thrust (Smith Machine)","Glutes","Smith machine","w"],["cableabd","Hip Abduction (Cable)","Glutes","Cable","w"],
   ["smithcalf","Calf Raise (Smith Machine)","Calves","Smith machine","w"],["donkeycalf","Donkey Calf Raise (Machine)","Calves","Machine","w"],
   ["bicycle","Bicycle Crunch","Core","Bodyweight","bw"],["situp","Sit-Up","Core","Bodyweight","bw"],["hollow","Hollow Body Hold","Core","Bodyweight","t"],["kneeraise","Hanging Knee Raise","Core","Bodyweight","bw"],["toestobar","Toes to Bar","Core","Bodyweight","bw"],
+  // Isometric holds: "tw" = weight × seconds, "t" = seconds only
+  ["curlhold","Bicep Curl Hold (Dumbbell)","Biceps","Dumbbell","tw"],["cablecurlhold","Bicep Curl Hold (Cable)","Biceps","Cable","tw"],["bbcurlhold","Bicep Curl Hold (Barbell)","Biceps","Barbell","tw"],["hammerhold","Hammer Curl Hold (Dumbbell)","Biceps","Dumbbell","tw"],
+  ["pushdownhold","Triceps Pushdown Hold (Cable)","Triceps","Cable","tw"],["dipholdtop","Dip Hold (Top)","Triceps","Bodyweight","t"],
+  ["pushuphold","Push-Up Hold (Bottom)","Chest","Bodyweight","t"],["platesqueeze","Plate Squeeze Press Hold","Chest","Other","tw"],["flyhold","Cable Fly Hold (Squeeze)","Chest","Cable","tw"],
+  ["chinhold","Chin-Up Hold (Top)","Back","Bodyweight","t"],["rowhold","Row Hold (Cable)","Back","Cable","tw"],["scaphang","Active Hang (Scapular)","Back","Bodyweight","t"],
+  ["lathold","Lateral Raise Hold (Dumbbell)","Shoulders","Dumbbell","tw"],["ohhold","Overhead Hold (Dumbbell)","Shoulders","Dumbbell","tw"],["ytwhold","Prone Y Hold","Shoulders","Bodyweight","t"],
+  ["squathold","Squat Hold (Bottom)","Quads","Bodyweight","t"],["gobhold","Goblet Squat Hold","Quads","Dumbbell","tw",1],["splithold","Split Squat Hold (Dumbbell)","Quads","Dumbbell","tw"],["spanish","Spanish Squat Hold (Band)","Quads","Other","t"],
+  ["hamhold","Hamstring Bridge Hold","Hamstrings","Bodyweight","t"],["sllhold","Single-Leg RDL Hold","Hamstrings","Dumbbell","tw",1],
+  ["bridgehold","Glute Bridge Hold","Glutes","Bodyweight","t"],["slbridgehold","Single-Leg Glute Bridge Hold","Glutes","Bodyweight","t"],["thrusthold","Hip Thrust Hold (Barbell)","Glutes","Barbell","tw"],
+  ["calfhold","Calf Raise Hold (Top)","Calves","Bodyweight","t"],["calfholdw","Calf Raise Hold (Weighted)","Calves","Dumbbell","tw"],
+  ["lsit","L-Sit","Core","Bodyweight","t"],["boathold","Boat Hold","Core","Bodyweight","t"],["revplank","Reverse Plank","Core","Bodyweight","t"],["plankw","Weighted Plank","Core","Other","tw"],
+  ["platepinch","Plate Pinch Hold","Forearms","Other","tw"],["towelhang","Towel Hang","Forearms","Bodyweight","t"],
   ["boxjump","Box Jump","Cardio","Bodyweight","bw"],["battlerope","Battle Ropes (seconds)","Cardio","Other","t"],["sledpush","Sled Push","Cardio","Other","wd"],["airbike","Air Bike (seconds)","Cardio","Machine","t"],
 ];
 const MUSCLES=["Chest","Back","Shoulders","Biceps","Triceps","Quads","Hamstrings","Glutes","Calves","Core","Forearms","Cardio"];
 const EQUIP=["Barbell","Dumbbell","Machine","Cable","Bodyweight","EZ bar","Smith machine","Kettlebell","Other"];
 function exLib(){ const pr=(typeof S!=="undefined"&&S.profile)||{}; const custom=[...((pr.setup&&pr.setup.customEx)||[]),...(pr.customEx||[])];
   return [...EXLIB_RAW.map(([id,name,muscle,equip,type,uni])=>({id,name,muscle,equip,type,uni:!!uni})), ...custom.map(c=>({...c,custom:true}))] }
+const exHay=e=>(e.name+" "+e.muscle+" "+e.equip+(e.type==="t"||e.type==="tw"?" isometric iso static hold":"")).toLowerCase();
 function libEx(id){ return exLib().find(e=>e.id===id) }
 // Map onto the app's existing standings/muscle model where it applies
 const LIB_MUSCLE_MAP={Chest:{chest:1},Back:{back:1},Shoulders:{shoulders:1},Biceps:{arms:1},Triceps:{arms:1},Quads:{quads:1},Hamstrings:{hamstrings:1},Glutes:{glutes:1},Calves:{calves:1},Core:{core:1},Forearms:{arms:1}};
@@ -360,7 +373,7 @@ function suMut(fn){ const su=S.profile.setup; fn(su); su.at=Date.now(); commitPl
 /* ----- Exercise picker ----- */
 function exPickerHtml(){
   const q=(SH.q||"").toLowerCase().trim(), mu=SH.mu||"", r=routineById(SH.rid), have=new Set((r&&r.ex||[]).map(e=>e.id));
-  const list=exLib().filter(e=>(!mu||e.muscle===mu)&&(!q||e.name.toLowerCase().includes(q)||e.muscle.toLowerCase().includes(q)||e.equip.toLowerCase().includes(q)));
+  const list=exLib().filter(e=>(!mu||e.muscle===mu)&&(!q||exHay(e).includes(q)));
   return `<div class="xs-head"><h2>Add exercises</h2><button type="button" class="btn sm" data-xs="close">Done</button></div>
    <input class="xs-search" type="search" placeholder="Search exercises" value="${esc(SH.q||"")}" data-xs-q="1" data-xs-focus="q" autocomplete="off">
    <div class="xs-chips"><button type="button" class="${!mu?"on":""}" data-xs-mu="">All</button>${MUSCLES.map(m=>`<button type="button" class="${mu===m?"on":""}" data-xs-mu="${m}">${m}</button>`).join("")}</div>
@@ -1105,7 +1118,7 @@ function swapHtml(){
      <button type="button" class="swapopt" data-xs-swapmode="routine"><b>Every ${esc(W.dayName)} from now on</b><span>Changes your routine for all future workouts${isToday?" starting today":" starting "+fmtShort(parseYmd(W.k))}. Logged workouts keep what you did, and Standings update to match.</span></button>` }
   const q=(W.q||"").toLowerCase().trim(), mu=W.mu||"";
   const timed=id=>{ const L=libEx(id); return L? L.type==="t" : !!(typeof X!=="undefined"&&X[id]&&X[id].unit==="sec") };
-  const list=exLib().filter(e=>e.id!==W.from&&(!W.fix||timed(e.id)===timed(W.from))&&(!mu||e.muscle===mu)&&(!q||e.name.toLowerCase().includes(q)||e.muscle.toLowerCase().includes(q)||e.equip.toLowerCase().includes(q)));
+  const list=exLib().filter(e=>e.id!==W.from&&(!W.fix||timed(e.id)===timed(W.from))&&(!mu||e.muscle===mu)&&(!q||exHay(e).includes(q)));
   return `<div class="xs-head"><h2>${W.fix?`Change ${esc(W.fromName)} to…`:`Swap ${esc(W.fromName)}`}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>
    ${W.fix?`<p class="small muted">Logged the wrong exercise on ${fmtDate(parseYmd(W.k))}? Pick what you actually did. Your sets stay as logged.</p>`:""}
    <input class="xs-search" type="search" placeholder="Search exercises" value="${esc(W.q||"")}" data-xs-q="1" data-xs-focus="q" autocomplete="off">
@@ -1115,7 +1128,7 @@ function swapHtml(){
 }
 function addExHtml(W,inDay){
   const q=(W.q||"").toLowerCase().trim(), mu=W.mu||"";
-  const list=exLib().filter(e=>(!mu||e.muscle===mu)&&(!q||e.name.toLowerCase().includes(q)||e.muscle.toLowerCase().includes(q)||e.equip.toLowerCase().includes(q)));
+  const list=exLib().filter(e=>(!mu||e.muscle===mu)&&(!q||exHay(e).includes(q)));
   return `<div class="xs-head"><h2>Add to today</h2><button type="button" class="btn sm" data-xs="close">Done</button></div>
    <p class="small muted">Adds to ${fmtDate(parseYmd(W.k))}. When you save the workout, you can keep it in your routine.</p>
    <input class="xs-search" type="search" placeholder="Search exercises" value="${esc(W.q||"")}" data-xs-q="1" data-xs-focus="q" autocomplete="off">
