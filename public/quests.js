@@ -29,7 +29,7 @@ const PATHS = {
   creatine: { name: "Creatine", obj: "Take 5 g of creatine", note: "Creatine monohydrate, any time of day, with water. Talk to a doctor first if you have kidney problems.",
     kw: /\bcreatine\b/i, checks: { 1: "Same time each day makes it automatic. No loading phase needed.", 7: "Up 1–3 lb on the scale? That's water stored in your muscles, not fat. Normal.", 21: "Most people notice an extra rep or two around now.", 30: "30 days in. Creatine works as long as you keep taking it." } },
   shake: { name: "Protein shake", obj: "Have a protein shake (about 25–30 g protein)", note: "Easiest after training or with breakfast. Counts toward your protein goal.",
-    kw: /\bprotein (shakes?|powder)\b|\bwhey\b/i, checks: { 7: "Log it in Food so it counts toward your protein goal.", 30: "A shake a day is about 800 g of extra protein a month." } },
+    kw: /\bprotein (shakes?|powder)\b|\bwhey\b/i, checks: { 7: FOOD_ON ? "Log it in Food so it counts toward your protein goal." : "Keep a shaker and a scoop at the gym so it's automatic.", 30: "A shake a day is about 800 g of extra protein a month." } },
   protein: { name: "Protein goal", obj: "Hit your protein goal", auto: "protein", note: "Checks itself from your food log.",
     kw: /\b(more protein|hit(ting)? (my )?protein|protein goal|eat(ing)? enough protein)\b/i, checks: { 7: "Spread it out: 30–40 g a meal is easier than one huge one.", 30: "A month of hitting protein is what makes the training stick." } },
   sleep: { name: "Sleep", obj: "Get 7–9 hours of sleep", note: "Same bedtime every night, phone away 30 minutes before.",
@@ -49,7 +49,7 @@ const PATHS = {
   cook: { name: "Cook at home", obj: "Cook one meal at home", note: "Batch-cook twice a week and it's mostly reheating.",
     kw: /\b(cook(ing)? (more|at home|my own)|meal ?prep(ping)?|stop eating out|eat(ing)? out less)\b/i, checks: { 7: "Pick 2 recipes you like and rotate them.", 30: "A month of home cooking." } },
 };
-const PATH_ORDER = ["creatine", "shake", "protein", "sleep", "water", "nosoda", "walk", "pushups", "pullup", "mobility", "cook"];
+const PATH_ORDER = ["creatine", "shake", "protein", "sleep", "water", "nosoda", "walk", "pushups", "pullup", "mobility", "cook"].filter(id => FOOD_ON || id !== "protein");
 // never offered, and refused for custom paths
 const Q_BLOCK = /\b(steroids?|sarms?|test(osterone)? (boost|cycle|e\b)|trt|tren|anavar|clen(buterol)?|hgh|peptides?|fat ?burners?|diet pills?|laxatives?|diuretics?|water fast|dry fast|(\d+)[- ]?(day|hour) fast|starv\w*|purg\w*|ephedrin\w*|dnp|stimulants?|caffeine pills?|pre-?workout|800 calories|500 calories|under 1,?000 calories)\b/i;
 const Q_DOSE = /\b\d+(\.\d+)?\s?(mg|mcg|µg|iu|g|grams?|ml|capsules?|caps|pills?|tablets?|scoops?|servings?)\b|\b(vitamin|supplement|melatonin|ashwagandha|magnesium|zinc|caffeine|fish oil|omega|nootropic|bcaa|glutamine|beta-alanine)\b/i;
@@ -63,7 +63,7 @@ function qPathObj(P, k) {
 }
 const qDayNo = (P, k) => Math.max(0, Math.round((parseYmd(k) - parseYmd(P.start)) / 864e5)); // 0-based
 const qPathLen = P => P.status === "habit" ? 0 : ((qPathDef(P) || {}).days || Q_PATH_DAYS);
-function qPathDone(P, k) { const D = qPathDef(P); if (D && D.auto === "protein") return dayEaten(k).p >= dayProtein(parseYmd(k)) * 0.98; return qTick(k, "path:" + P.id) }
+function qPathDone(P, k) { const D = qPathDef(P); if (FOOD_ON && D && D.auto === "protein") return dayEaten(k).p >= dayProtein(parseYmd(k)) * 0.98; return qTick(k, "path:" + P.id) }
 function qActivePaths(k) { return qState().paths.filter(P => (P.status === "active" || P.status === "habit") && P.start <= k) }
 function qPathEnded(P, k) { const n = qPathLen(P); return n && qDayNo(P, k) >= n }
 
@@ -79,8 +79,8 @@ function dailyQuest(k) {
     const f = MOBILITY[mobilityFocus(d)];
     out.push({ id: "mob", t: `10-minute mobility · ${f.t}`, done: qTick(k, "mob"), tick: true, go: "mob" });
   }
-  const ptg = Math.round(dayProtein(d)), pe = dayEaten(k).p;
-  out.push({ id: "protein", t: `Hit ${ptg} g protein`, done: pe >= ptg * 0.98, prog: Math.min(1, pe / ptg), progTxt: `${Math.round(pe)} / ${ptg} g`, go: "food" });
+  const ptg = FOOD_ON ? Math.round(dayProtein(d)) : 0, pe = FOOD_ON ? dayEaten(k).p : 0;
+  if (FOOD_ON) out.push({ id: "protein", t: `Hit ${ptg} g protein`, done: pe >= ptg * 0.98, prog: Math.min(1, pe / ptg), progTxt: `${Math.round(pe)} / ${ptg} g`, go: "food" });
   // rotating bonus, picked the same way all day
   const pool = [];
   if (p.type === "gym") { const ex = (p.ex || []).find(e => !e.fixed && !finalTarget(e, k).first); if (ex) pool.push("target:" + ex.id); pool.push("notes") }
@@ -185,7 +185,7 @@ function qRow(x, k) {
   return `<div class="q-row ${x.done ? "done" : ""}">${box}<div class="q-tx"><span>${esc(x.t)}</span>${x.sub ? `<span class="small muted">${esc(x.sub)}</span>` : ""}${x.prog != null && !x.done ? `<div class="q-bar"><i style="width:${Math.round(x.prog * 100)}%"></i></div>` : ""}</div>${x.progTxt ? `<span class="q-n num">${esc(x.progTxt)}</span>` : ""}</div>`;
 }
 function qPathRow(P, k) {
-  const D = qPathDef(P), n = qPathLen(P), day = qDayNo(P, k) + 1, done = qPathDone(P, k), auto = D.auto === "protein";
+  const D = qPathDef(P), n = qPathLen(P), day = qDayNo(P, k) + 1, done = qPathDone(P, k), auto = FOOD_ON && D.auto === "protein";
   const box = auto ? qDot(done) : qChk(done, `data-qtick="${k}|path:${P.id}"`, qPathObj(P, k));
   return `<div class="q-row path ${done ? "done" : ""}">${box}<div class="q-tx"><span>${esc(qPathObj(P, k))}</span><span class="small muted">Path · ${esc(D.name)} · ${n ? `day ${Math.min(day, n)} of ${n}` : "daily habit"}</span></div></div>`;
 }

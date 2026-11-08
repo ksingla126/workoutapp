@@ -611,8 +611,8 @@ function runCheckHtml(k, l) {
 // plain-text version for the coach's written analysis
 function runCheckText(k, l) {
   let c = null; try { c = runCheck(k, l) } catch (e) { return "" } if (!c) return "";
-  let co = ""; try { const r = runCoach(k, l, c); if (r) co = ` Coach notes already shown to him: ${r.items.map(([, h, x]) => `${h}: ${x}`).join(" ")} ${r.next.join(" ")}` } catch (e) {}
-  return co + ` Session check (computed from ${c.manual ? "what he typed in" : "the recording"}${c.auto ? `; structure detected automatically: ${c.auto}` : ""}, format ${c.fmt}${c.src ? `, reps from ${c.src}` : ""}): ${c.verdict} ${c.stats.map(([a, b]) => `${a}: ${b}`).join("; ")}.${c.reps ? ` Reps: ${c.reps.map(r => `#${r.n}${r.dur != null ? " " + fmtSec(r.dur) : ""}${r.m ? ` ${r.m} m` : ""}${r.pace ? ` @ ${fmtMin(r.pace)}/mi` : ""}${r.top ? ` top ${trimN(r.top * 2.23694)} mph` : ""}${r.hr ? ` HR ${r.hr}` : ""}${r.rest != null ? ` rest ${fmtSec(r.rest)}` : ""}${r.g != null ? ` climb ${Math.round(r.g * 3.28084)} ft` : ""}`).join("; ")}.` : ""} ${c.notes.join(" ")}`;
+  let co = ""; try { const r = runCoach(k, l, c); if (r) co = ` Coach notes already shown to the user: ${r.items.map(([, h, x]) => `${h}: ${x}`).join(" ")} ${r.next.join(" ")}` } catch (e) {}
+  return co + ` Session check (computed from ${c.manual ? "what they typed in" : "the recording"}${c.auto ? `; structure detected automatically: ${c.auto}` : ""}, format ${c.fmt}${c.src ? `, reps from ${c.src}` : ""}): ${c.verdict} ${c.stats.map(([a, b]) => `${a}: ${b}`).join("; ")}.${c.reps ? ` Reps: ${c.reps.map(r => `#${r.n}${r.dur != null ? " " + fmtSec(r.dur) : ""}${r.m ? ` ${r.m} m` : ""}${r.pace ? ` @ ${fmtMin(r.pace)}/mi` : ""}${r.top ? ` top ${trimN(r.top * 2.23694)} mph` : ""}${r.hr ? ` HR ${r.hr}` : ""}${r.rest != null ? ` rest ${fmtSec(r.rest)}` : ""}${r.g != null ? ` climb ${Math.round(r.g * 3.28084)} ft` : ""}`).join("; ")}.` : ""} ${c.notes.join(" ")}`;
 }
 
 /* ======================= Typing a run in by hand ======================= */

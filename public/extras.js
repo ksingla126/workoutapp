@@ -17,8 +17,7 @@ function ckItems() {
   return [
     { id: "gym", t: "Log your first workout", done: L.some(l => l && l.type === "gym"), go: "train" },
     ...(runs ? [{ id: "run", t: "Log your first run", done: L.some(l => l && l.type === "run"), go: "run" }] : []),
-    { id: "food", t: "Plan a meal or log what you ate", done: ate, go: "food" },
-    ...(runs && typeof STRAVA_ON !== "undefined" && STRAVA_ON ? [{ id: "strava", t: "Connect Strava so runs import themselves", done: !!(st.connected || ck.strava), go: "settings", skip: "I don't use Strava" }] : []),
+    ...(FOOD_ON ? [{ id: "food", t: "Plan a meal or log what you ate", done: ate, go: "food" }] : []),
     { id: "birth", t: "Add your birth month", done: !!su.birth, go: "settings" },
     { id: "friend", t: "Add a friend to compare ranks", done: !!(FR.list && FR.list.length) || !!ck.friend, go: "friends", skip: "Not now" }
   ];
@@ -64,7 +63,7 @@ function recapHtml() {
   const x = SH.rec, G = { upper: "Upper Body", lower: "Lower Body", core: "Core", speed: "Speed", endur: "Endurance", disc: "Discipline" };
   const nextMon = addDays(parseYmd(x.mon), 7); let nn = 0; for (let i = 0; i < 7; i++) { const p = planFor(addDays(nextMon, i)); if (p && p.type !== "rest") nn++ }
   const tile = (l, v) => `<div><span class="l">${l}</span><span class="v num">${v}</span></div>`;
-  return `<div class="recap"><span class="hub-sys">[SYSTEM] WEEK ${x.w} ${x.hit ? "CLEARED" : "COMPLETE"}</span>
+  return `<div class="recap"><span class="hub-sys">[SYSTEM] WEEKLY REPORT · ${x.hit ? "CLEARED" : "COMPLETE"}</span>
     <h2>${x.hit ? "Week cleared" : x.done ? "Week done" : "A quiet week"}</h2><p class="small muted" style="margin:0">${fmtShort(parseYmd(x.mon))} – ${fmtShort(parseYmd(x.sun))}</p>
     <div class="recap-big num"><b>${x.done}</b><span>/ ${x.plan} sessions</span></div><div class="hub-xp"><i style="width:${x.plan ? Math.min(100, Math.round(x.done / x.plan * 100)) : 0}%"></i></div>
     <p class="small" style="margin:0">${x.hit ? "On target: Discipline counts this week." : x.plan ? `Discipline needed ${Math.ceil(x.plan * 0.75)}. This week is a fresh start.` : ""}</p>
@@ -289,7 +288,7 @@ function inviteHtml() {
 function myRankWord() { try { const R = rankState(), V = rkShown(R); return R.place && !R.place.pending ? rkLetter(Math.floor(V.ov)) : null } catch (e) { return null } }
 function defaultShareMsg(kind) {
   const L = myRankWord();
-  if (kind === "recap" && SH && SH.rec) { const x = SH.rec; return `Week ${x.w} on RankUp: ${x.done} of ${x.plan} sessions${x.mi ? `, ${dTxt(x.mi)} run` : ""}${x.prs.length ? `, ${x.prs.length} new PR${x.prs.length > 1 ? "s" : ""}` : ""}. Join me and let's see who ranks up first.` }
+  if (kind === "recap" && SH && SH.rec) { const x = SH.rec; return `My week on RankUp: ${x.done} of ${x.plan} sessions${x.mi ? `, ${dTxt(x.mi)} run` : ""}${x.prs.length ? `, ${x.prs.length} new PR${x.prs.length > 1 ? "s" : ""}` : ""}. Join me and let's see who ranks up first.` }
   return `I'm training on RankUp${L ? ` and I'm ${L}-rank so far` : ""}. Add me as a friend and let's see who ranks up first.`;
 }
 function shareLink(msg) {

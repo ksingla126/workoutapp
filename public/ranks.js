@@ -673,11 +673,27 @@ function rkMuscleCard(R, sc) {
     <p class="small muted">Every exercise counts toward each muscle it works, weighted by how much it works it. Side exercises can only nudge a muscle above your main lifts for it. "Estimate" means only side work has hit that muscle so far. Letters show your current strength; your ranks still come from the parts above and their Gates.</p>
     <div class="rk-mus-g">${rows}</div></details>`;
 }
-function rkPauseCard(R) {
-  const C = RKC(), P = rkPauses(), open = P.find(x => x.open), used = P.filter(x => rkDays(x.to, R.td) < 365).reduce((t, x) => t + rkDays(x.from, x.to) + 1, 0), left = Math.max(0, C.pauseDaysPerYear - used);
-  return `<div class="card"><div class="row between"><h2>Pause</h2><span class="small muted num">${left} of ${C.pauseDaysPerYear} days left this year</span></div>
-    <p class="small muted">Going away or ill? Pausing freezes fading, demotion and Discipline. Turn it on before or during the break — it can't be added afterwards.</p>
-    ${open ? `<div class="row between"><b>Paused since ${fmtShort(parseYmd(open.from))}</b><button type="button" class="btn sm" id="rkPauseEnd">End pause</button></div>` : `<button type="button" class="btn ghost sm" id="rkPause" ${left ? "" : "disabled"} style="align-self:flex-start">Pause from today</button>`}</div>`;
+// Settings sheet: pause and your details (moved out of the Ranks tab)
+function rkSettingsHtml() {
+  if (!CUSTOM) return "";
+  const R = rankState(), C = RKC(), P = rkPauses(), open = P.find(x => x.open), used = P.filter(x => rkDays(x.to, R.td) < 365).reduce((t, x) => t + rkDays(x.from, x.to) + 1, 0), left = Math.max(0, C.pauseDaysPerYear - used);
+  return `<h3>Ranks</h3>
+   <div class="setrow" style="align-items:flex-start"><span><b>${open ? `Paused since ${fmtShort(parseYmd(open.from))}` : "Pause ranks"}</b><span class="small muted">Going away or ill? Pausing freezes fading, demotion and Discipline. Turn it on before or during the break; it can't be added afterwards. ${left} of ${C.pauseDaysPerYear} days left this year.</span></span>
+    ${open ? `<button type="button" class="btn sm" data-acct-pauseoff="1">End pause</button>` : `<button type="button" class="btn ghost sm" data-acct-pauseon="1" ${left ? "" : "disabled"}>Pause</button>`}</div>`;
+}
+function rkDetailsLine() {
+  if (!CUSTOM) return ""; const su = CUSTOM.su, R = rankState();
+  return `<p class="small muted" style="margin:6px 0 0">Ranks use: ${su.sex === "female" ? "female" : "male"} · age ${rkAgeAt(R.td)}${su.birth ? "" : " (set your birth month so this stays current)"}. Strength standards ease from 40 on (masters' age multiples), and running targets too.</p>`;
+}
+function rkCreditsHtml() {
+  return `<h3>Credits</h3>
+    <p class="small muted">Strength standards: <a href="https://fitnessvolt.com/strength-standards/strength-data/" target="_blank" rel="noopener">FitnessVolt</a> / <a href="https://symmetricstrength.com/standards" target="_blank" rel="noopener">Symmetric Strength</a> member data (CC BY 4.0). Biceps and triceps are set from bench ratios; calves and core from the app's own scales.</p>
+    <p class="small muted">3D body: adapted from <a href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/" target="_blank" rel="noopener">BodyParts3D</a> © The Database Center for Life Science (<a href="https://creativecommons.org/licenses/by-sa/2.1/jp/deed.en" target="_blank" rel="noopener">CC BY-SA 2.1 JP</a>). The adapted model is shared under the same license.</p>`;
+}
+function rkPauseSet(on) {
+  if (on) rkData().pauses = [...(rkData().pauses || []), { from: ymd(today) }];
+  else { const P = (rkData().pauses || []).find(x => x && !x.to); if (P) P.to = ymd(today) }
+  saveProfile(); toast(on ? "Paused. Fading and demotion are frozen." : "Pause ended"); lastRenderKey = ""; render();
 }
 function rkUnrated() {
   const td = ymd(today), from = rkAdd(td, -RKC().fade.maxDays), seen = new Map();
@@ -751,11 +767,6 @@ function viewRanks() {
   if (R.place && typeof questLog === "function") h += questLog();
   const un = rkUnrated();
   if (un.length) h += `<div class="card"><h2>Unrated exercises</h2><p class="small muted">Pick a similar exercise so these count. They count up to B and can't be Gates.</p>${un.map(([id, L]) => `<div class="row between" style="align-items:center"><span>${esc(L.name)}</span><select data-rkmap="${esc(id)}"><option value="">Counts like…</option>${Object.keys(C.conv).map(x => `<option value="${x}">${esc(rkExName(x))}</option>`).join("")}</select></div>`).join("")}</div>`;
-  h += rkPauseCard(R);
-  h += `<div class="card"><h2>Your details</h2><p class="small muted">${su.sex === "female" ? "Female" : "Male"} · age ${rkAgeAt(R.td)}${su.birth ? "" : " (set your birth month so this stays current)"}. Strength standards ease from 40 on (masters' age multiples), and running targets too.</p>
-    <p class="small muted">Standards: <a href="https://fitnessvolt.com/strength-standards/strength-data/" target="_blank" rel="noopener">FitnessVolt</a> / <a href="https://symmetricstrength.com/standards" target="_blank" rel="noopener">Symmetric Strength</a> member data (CC BY 4.0). Biceps and triceps are set from bench ratios; calves and core from the app's own scales.</p>
-    <p class="small muted">3D body: adapted from <a href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/" target="_blank" rel="noopener">BodyParts3D</a> © The Database Center for Life Science (<a href="https://creativecommons.org/licenses/by-sa/2.1/jp/deed.en" target="_blank" rel="noopener">CC BY-SA 2.1 JP</a>). The adapted model is shared under the same license.</p>
-    <div class="field" style="max-width:220px"><label for="rkBirth">Birth month</label><input id="rkBirth" type="month" value="${esc(su.birth || "")}" max="${ymd(today).slice(0, 7)}"></div></div>`;
   return h;
 }
 /* ---------- radar + 3D body: a two-slide carousel in the status panel ---------- */
@@ -829,10 +840,6 @@ function bindRanks() {
     rkData().trials = [...(rkData().trials || []), { id: "t" + Date.now().toString(36), d, dist, sec: Math.round(m * 60), surface, incline: surface === "treadmill" ? incline : undefined, gate: gate || undefined }];
     rkTrialOpen = false; saveProfile(); toast("Time trial saved"); redo();
   });
-  $("#rkPause")?.addEventListener("click", () => { rkData().pauses = [...(rkData().pauses || []), { from: ymd(today) }]; saveProfile(); toast("Paused. Fading and demotion are frozen."); redo() });
-  $("#rkPauseEnd")?.addEventListener("click", () => { const P = (rkData().pauses || []).find(x => x && !x.to); if (P) P.to = ymd(today); saveProfile(); toast("Pause ended"); redo() });
-  $("#rkBirth")?.addEventListener("change", e => { const v = e.target.value; if (!/^\d{4}-\d{2}$/.test(v)) return; const [y] = v.split("-").map(Number), a = new Date().getFullYear() - y; if (a < 18 || a > 100) { toast("Enter a birth month for an adult (18+)"); return }
-    if (!S.profile.setup) { toast("Finish setup first"); return } S.profile.setup.birth = v; S.profile.setup.age = rkAgeAt(ymd(today)); saveProfile(); toast("Saved"); redo() });
 }
 
 /* ---------- rank-up moment and other notices ---------- */
