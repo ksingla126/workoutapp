@@ -146,10 +146,13 @@ function viewHub() {
   const H = hubRank();
   let h = hubIdHead(H);
   if (H.fresh) h += `<section class="hub-welcome"><span class="hub-sys">[SYSTEM] WELCOME, ${esc(hubName().toUpperCase())}</span><p>Train this week and the System will rank you from E to S. Your first workout is ready below. Just press start.</p></section>`;
+  const seals = typeof hubSeals === "function" ? hubSeals() : "";
+  if (!H.fresh) h += seals;                                   // your day first, then today's workout
   h += hubMain(H);
   if (H.fresh) h += hubPlacement(H);
   if (typeof hubChecklist === "function") h += hubChecklist();
-  if (!H.fresh) { h += hubQuest(); h += hubStatus(H) }
+  if (H.fresh) h += seals;
+  if (!H.fresh) h += hubQuest();                              // rank letters now live on the Ranks tab
   if (!H.fresh && typeof weekRecap === "function" && CUSTOM && CUSTOM.su.firstDay && CUSTOM.su.firstDay < ymd(mondayOf(today))) h += `<button type="button" class="link small hub-recap" data-recap="1">Last week's recap ›</button>`;
   return `<div class="hub">${h}</div>`;
 }
