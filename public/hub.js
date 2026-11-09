@@ -18,19 +18,20 @@ function hubMuscles(p) {
 }
 function hubRank() {
   try { const R = rankState(), un = !R.place || R.place.pending, fresh = !Object.values(S.logs).some(l => l && (l.type === "gym" || l.type === "run"));
-    const V = rkShown(R); return { R, V, un, fresh, ov: V.ov, prog: un ? 0 : rkOverallProg(V.avg, V.ov) } } catch (e) { return { R: null, un: true, fresh: true, ov: 0, prog: 0 } }
+    const V = rkShown(R); return { R, V, un, fresh, ov: V.ov, ovn: V.ovn, prog: un ? 0 : rkOverallProg(V.avg, V.ov) } } catch (e) { return { R: null, un: true, fresh: true, ov: 0, ovn: 0, prog: 0 } }
 }
 function hubWeek() { const k = ymd(today), d = parseYmd(k), mon = addDays(d, -((d.getDay() + 6) % 7)); let plan = 0, done = 0;
   for (let i = 0; i < 7; i++) { const x = addDays(mon, i), p = planFor(x); if (p && p.type !== "rest") { plan++; if (S.logs[ymd(x)]) done++ } } return { plan, done } }
 
 function hubPlayer(H) {
-  const L = H.un ? "?" : rkLetter(H.ov), col = H.un ? "#5B6378" : RK_COL[Math.min(5, H.ov)];
+  const L = H.un ? "?" : rkStep(H.ovn), col = H.un ? "#5B6378" : RK_COL[Math.min(5, H.ov)];
   const streak = typeof qStreak === "function" ? qStreak() : 0;
   let sub = H.un ? (H.fresh ? "Unranked" : "Placement week") : `${L} Rank`;
   let barTxt = "";
   if (H.un) { const R = H.R; barTxt = !H.fresh && R && R.place && R.place.first ? `Placement · day ${Math.min(RKC().placementDays, rkDays(R.place.first, R.td) + 1)} of ${RKC().placementDays}` : "Train this week to get your rank" }
   else barTxt = H.ov >= 5 ? "Top rank" : `${Math.round(H.prog * 100)}% to ${rkLetter(H.ov + 1)}`;
-  return `<div class="hub-player"><span class="hub-hexwrap" style="--rc:${col}"><svg viewBox="0 0 62 68" aria-hidden="true"><path d="M31 1l29 16v34L31 67 2 51V17z"/></svg><button type="button" class="hub-hex" data-tab-go="ranks" style="--rc:${col}" aria-label="${H.un ? "Unranked" : "Overall rank " + L}. Open Ranks">${L}</button></span>
+  return `<div class="hub-player">${H.un ? `<span class="hub-hexwrap" style="--rc:${col}"><svg viewBox="0 0 62 68" aria-hidden="true"><path d="M31 1l29 16v34L31 67 2 51V17z"/></svg><button type="button" class="hub-hex" data-tab-go="ranks" style="--rc:${col}" aria-label="Unranked. Open Ranks">?</button></span>`
+      : `<button type="button" class="hub-emb" data-tab-go="ranks" aria-label="Overall rank ${L}. Open Ranks">${rkBadge(H.ovn, true)}</button>`}
     <div class="hub-who"><div><b>${esc(hubName())}</b><span>${esc(sub)}</span></div><div class="hub-xp" role="progressbar" aria-label="Progress to next rank" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(H.prog * 100)}"><i style="width:${Math.round(H.prog * 100)}%"></i></div><small>${esc(barTxt)}</small></div>
     ${streak ? `<span class="hub-streak" aria-label="${streak}-day streak"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-6 1-9.5z"/></svg>${streak}</span>` : ""}
     ${typeof accountBtn === "function" ? accountBtn() : ""}</div>`;
@@ -88,7 +89,7 @@ function hubQuest() {
 function hubStatus(H) {
   if (!H.R) return "";
   const gs = H.R.groups, w = hubWeek();
-  const tiles = gs.map(g => { const n = H.V.group(g), r = n == null ? null : Math.floor(Math.min(5, n)), L = H.un || r == null ? "?" : rkLetter(r), col = H.un || r == null ? "var(--muted)" : RK_COL[r];
+  const tiles = gs.map(g => { const n = H.V.group(g), r = n == null ? null : Math.floor(Math.min(5, n)), L = H.un || r == null ? "?" : rkStep(Math.min(5, n)), col = H.un || r == null ? "var(--muted)" : RK_COL[r];
     return `<button type="button" class="hub-stat" data-hub-rank="${g.id}" aria-label="${esc(g.name)}: ${H.un || r == null ? "unranked" : L}"><b style="color:${col}">${L}</b><span>${esc(HUB_SHORT[g.id] || g.name)}</span></button>` }).join("");
   const bars = w.plan ? Array.from({ length: w.plan }, (_, i) => `<i class="${i < w.done ? "on" : ""}"></i>`).join("") : "";
   return `<section class="hub-block"><div class="hub-row"><span class="hub-sys">STATUS</span><button type="button" class="link small" data-tab-go="ranks">All ranks</button></div>
@@ -166,6 +167,7 @@ addEventListener("resize", () => { if (HT.i >= 0) hubTourStep(HT.i) });
 .hub-sys{font:700 11px var(--body);letter-spacing:.16em;color:var(--gym);text-transform:uppercase}
 .hub-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .hub-player{display:flex;align-items:center;gap:12px}
+.hub-emb{flex-shrink:0;border:0;padding:0;background:none;cursor:pointer;display:grid;place-items:center;width:66px;height:68px}.hub-emb .rk-l.rk-b.big{width:62px;height:64px}
 .hub-hex{width:54px;height:60px;flex-shrink:0;border:0;padding:0;cursor:pointer;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:linear-gradient(160deg,color-mix(in srgb,var(--rc) 70%,#fff),var(--rc));color:#fff;font:800 27px var(--display)}
 .hub-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.hub-who>div:first-child{display:flex;align-items:baseline;gap:8px;min-width:0}
 .hub-who b{font:700 19px var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hub-who span{font-size:13px;color:var(--muted);white-space:nowrap}.hub-who small{font-size:12px;color:var(--muted)}

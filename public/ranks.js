@@ -11,6 +11,10 @@
 const RKC = () => window.RANK_CFG;
 const RK_PARTS = () => Object.keys(RKC().parts);
 const rkLetter = n => RKC().letters[Math.max(0, Math.min(5, Math.floor(n)))];
+// Divisions: D to A each split into thirds of their bar, 3 (bottom) → 2 → 1 (top). E and S have none.
+// The letter is still earned through Gates; the division follows your current numbers inside it, up or down.
+const rkDiv = n => { const i = Math.max(0, Math.min(5, Math.floor(n))); return i === 0 || i >= 5 ? 0 : 3 - Math.min(2, Math.floor((n - i) * 3 + 1e-9)) };
+const rkStep = n => rkLetter(n) + (rkDiv(n) || "");
 const rkDays = (a, b) => Math.round((parseYmd(b) - parseYmd(a)) / 86400000);
 const rkAdd = (k, n) => ymd(addDays(parseYmd(k), n));
 const rkMon = k => ymd(addDays(parseYmd(k), -((parseYmd(k).getDay() + 6) % 7)));
@@ -564,14 +568,63 @@ function rkAlertCount() {
 /* ---------- screen ---------- */
 let rkOpen = null, rkMode = "raw", rkTrialOpen = false;
 // What the Ranks tab shows right now (raw or bodyweight-scaled). Home and the header chip read from here so they always match.
-function rkShown(R) { const sc = rkMode === "scaled";
-  return { sc, ov: sc ? R.overallScaled : R.overall, avg: sc ? R.overallAvgScaled : R.overallAvg,
+function rkShown(R) { const sc = rkMode === "scaled", ov = sc ? R.overallScaled : R.overall, avg = sc ? R.overallAvgScaled : R.overallAvg;
+  return { sc, ov, avg, ovn: rkOvNum(avg, ov),
     group: g => g.num == null ? null : sc ? Math.min(5, g.scaled) : g.num } }
 try { const v = localStorage.getItem("rd25-rkmode"); if (v === "raw" || v === "scaled") rkMode = v } catch (e) {}
 const RK_COL = ["#8590A6", "#22A06B", "#3C7BF4", "#7B4DF2", "#F06A1D", "#E2A50C"];
 // Big badges sit in an emblem whose aura grows with the rank: E plain, D–C a soft glow, B a ring, A embers, S gold rays and sparks.
+/* The rank badge: an engraved shield with swords behind it.
+   Letter → shield colour and its metal (D bronze, C iron, B silver, A gold, S platinum): blades, rim and studs are forged
+   from it; the engraving gets richer (inner line, double border and set gem, cross-hatching and gold scrollwork) and S
+   grows a crown out of the shield's own rim. Division → number of swords (3 = one, 2 = two crossed, 1 = three; S has four).
+   Big badges get the full detail; small ones a simpler shape that still reads at chip size. Gradients live once in the page. */
+const RK_METAL = [null, ["#6B3F17", "#F4C48E", "#B47A3F"], ["#3A4049", "#B4BBC5", "#707884"], ["#7A8391", "#FFFFFF", "#CAD1DB"], ["#785209", "#FFEBA6", "#E0AD33"], ["#7A8896", "#FFFFFF", "#DCE7F0"]];
+const rkMix = (h, t, a) => "#" + [1, 3, 5].map(i => Math.round(parseInt(h.slice(i, i + 2), 16) * (1 - a) + parseInt(t.slice(i, i + 2), 16) * a).toString(16).padStart(2, "0")).join("");
+const RKB_SHIELD = "M60 26 L86 34 L84 64 Q79 82 60 94 Q41 82 36 64 L34 34 Z", RKB_SHIELD_SM = "M60 22 L90 31 L88 64 Q82 86 60 99 Q38 86 32 64 L30 31 Z";
+const RKB_SWORD = "M-3.5 -48 L0 -58 L3.5 -48 L3.5 24 L-3.5 24 Z M-12 24 H12 V29 H-12 Z M-2.5 29 H2.5 V40 H-2.5 Z M-4.5 44 A4.5 4.5 0 1 0 4.5 44 A4.5 4.5 0 1 0 -4.5 44 Z";
+const RKB_ANG = [[], [0], [-36, 36], [-36, 36, 0], [-74, 74, -36, 36]];
+function rkbDefs() {
+  if (document.getElementById("rkbDefs")) return;
+  let g = "";
+  for (let i = 0; i < 6; i++) { const c = RK_COL[i];
+    g += `<linearGradient id="rkbS${i}" x1="0" y1="0" x2=".5" y2="1"><stop offset="0" stop-color="${rkMix(c, "#ffffff", .45)}"/><stop offset=".55" stop-color="${c}"/><stop offset="1" stop-color="${rkMix(c, "#000000", .45)}"/></linearGradient>`;
+    const M = RK_METAL[i]; if (!M) continue;
+    g += `<linearGradient id="rkbM${i}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${M[0]}"/><stop offset=".42" stop-color="${M[1]}"/><stop offset=".58" stop-color="${M[2]}"/><stop offset="1" stop-color="${M[0]}"/></linearGradient>`
+      + `<linearGradient id="rkbR${i}" x1="0" y1="0" x2=".4" y2="1"><stop offset="0" stop-color="${M[1]}"/><stop offset=".45" stop-color="${M[2]}"/><stop offset="1" stop-color="${M[0]}"/></linearGradient>`;
+  }
+  g += `<clipPath id="rkbClip"><path d="${RKB_SHIELD}"/></clipPath>`;
+  const s = document.createElement("div"); s.id = "rkbDefs"; s.setAttribute("aria-hidden", "true"); s.style.cssText = "position:absolute;width:0;height:0;overflow:hidden";
+  s.innerHTML = `<svg width="0" height="0" focusable="false"><defs>${g}</defs></svg>`; (document.body || document.documentElement).appendChild(s);
+}
+let RKB_HATCH = ""; for (let k = -60; k <= 100; k += 6) RKB_HATCH += `M${k} 20 L${k + 80} 100 M${k + 80} 20 L${k} 100 `;
+function rkbSvg(i, d, big) {
+  const M = RK_METAL[i], sw = i === 5 ? 4 : d ? 4 - d : 0, lt = rkMix(RK_COL[i], "#ffffff", .45), D = "#0C1120";
+  let h = `<svg viewBox="0 0 120 124" aria-hidden="true" focusable="false">`;
+  if (!big) {
+    if (sw) h += `<g fill="${M[2]}">${RKB_ANG[sw].map(a => `<path transform="translate(60 60) rotate(${a}) scale(1.1)" d="${RKB_SWORD}"/>`).join("")}</g>`;
+    if (i === 0) return h + `<circle cx="60" cy="60" r="34" fill="url(#rkbS0)"/><text x="60" y="78" text-anchor="middle" class="rkb-t" font-size="50" fill="#fff">E</text></svg>`;
+    if (i === 5) h += `<path d="M38 30 L40 10 L49.5 20 L60 4 L70.5 20 L80 10 L82 30 Z" fill="url(#rkbS5)" stroke="url(#rkbR5)" stroke-width="6" stroke-linejoin="round"/>`;
+    return h + `<path d="${RKB_SHIELD_SM}" fill="url(#rkbS${i})" stroke="url(#rkbR${i})" stroke-width="6"/><text x="60" y="78" text-anchor="middle" class="rkb-t" font-size="48" fill="${i === 5 ? "#3B2600" : "#fff"}">${RKC().letters[i]}</text></svg>`;
+  }
+  if (sw) h += RKB_ANG[sw].map(a => `<g transform="translate(60 60) rotate(${a})"><path d="M-3.8 -47 L0 -58 L3.8 -47 L3.8 24 L-3.8 24 Z" fill="url(#rkbM${i})" stroke="${D}" stroke-width="1.2"/><path d="M0 -45 V20" stroke="${M[0]}" stroke-width="1.1" opacity=".6"/><path d="M-13 23 Q-14.5 26.5 -12 30 H12 Q14.5 26.5 13 23 Z" fill="url(#rkbR${i})" stroke="${D}" stroke-width="1.2"/><path d="M-2.6 30 H2.6 V40 H-2.6 Z" fill="#4A3426" stroke="${D}" stroke-width="1"/><circle cy="44" r="4.6" fill="${M[2]}" stroke="${D}" stroke-width="1.2"/></g>`).join("");
+  if (i === 0) return h + `<circle cx="60" cy="60" r="28" fill="url(#rkbS0)" stroke="#fff" stroke-opacity=".25" stroke-width="2"/><text x="60" y="72" text-anchor="middle" class="rkb-t" font-size="34" fill="#fff">E</text></svg>`;
+  if (i >= 4) h += `<g fill="${lt}" stroke="${D}" stroke-width="1.5"><polygon points="34,36 18,30 34,48"/><polygon points="86,36 102,30 86,48"/></g>`;
+  if (i === 5) h += `<path d="M40 33 L42 15 L50.5 23.5 L60 9 L69.5 23.5 L78 15 L80 33 Z" fill="url(#rkbS5)" stroke="url(#rkbR5)" stroke-width="4" stroke-linejoin="round"/><path d="M44.5 30 L45.5 21.5 L50.5 26.5 L60 14.5 L69.5 26.5 L74.5 21.5 L75.5 30" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="1.2" stroke-linejoin="round"/>`;
+  h += `<path d="${RKB_SHIELD}" fill="url(#rkbS${i})"/>`;
+  if (i >= 4) h += `<path clip-path="url(#rkbClip)" d="${RKB_HATCH}" stroke="#fff" stroke-opacity=".13" stroke-width="1"/>`;
+  const b1 = i === 1 ? ["#fff", .18, 2, "none"] : i <= 3 ? ["#fff", .7, 1.5, "none"] : i === 4 ? ["#F5C531", 1, 1.5, "none"] : ["#F5C531", 1, 3.2, "0 5.5"];
+  h += `<path d="${RKB_SHIELD}" fill="none" stroke="${b1[0]}" stroke-opacity="${b1[1]}" stroke-width="${b1[2]}" stroke-dasharray="${b1[3]}" stroke-linecap="round" transform="translate(60 60) scale(.84) translate(-60 -60)"/>`;
+  if (i === 3 || i === 4) h += `<path d="${RKB_SHIELD}" fill="none" stroke="${i === 4 ? "#F5C531" : lt}" stroke-width="1.2" transform="translate(60 60) scale(.72) translate(-60 -60)"/>`;
+  if (i >= 4) h += `<g fill="none" stroke="#F5C531" stroke-width="1.6"><path d="M41 40 a4 4 0 1 1 4 4 a2 2 0 1 1 -2 -2"/><path d="M79 40 a4 4 0 1 0 -4 4 a2 2 0 1 0 2 -2"/><path d="M47 70 a3.5 3.5 0 1 1 3.5 3.5"/><path d="M73 70 a3.5 3.5 0 1 0 -3.5 3.5"/></g>`;
+  h += `<path d="${RKB_SHIELD}" fill="none" stroke="url(#rkbR${i})" stroke-width="4"/>`;
+  if (i === 2 || i === 3) h += `<g fill="${M[1]}"><circle cx="40" cy="36" r="2.6"/><circle cx="80" cy="36" r="2.6"/></g>`;
+  if (i === 3 || i === 4) h += `<polygon points="60,35 66,41 60,47 54,41" fill="${RK_COL[i]}" stroke="url(#rkbR${i})" stroke-width="2.4" stroke-linejoin="round"/>`;
+  return h + `<text x="60" y="76" text-anchor="middle" class="rkb-t" font-size="30" fill="${i === 5 ? "#FFF1B8" : "#fff"}" stroke="${D}" stroke-opacity=".45" stroke-width="3" paint-order="stroke">${RKC().letters[i]}</text></svg>`;
+}
 const rkBadge = (n, big) => { const i = Math.max(0, Math.min(5, Math.floor(n)));
-  const hex = `<span class="rk-l${big ? " big" : ""}${i === 5 ? " s" : ""} g${i}" style="--rc:${RK_COL[i]}" role="img" aria-label="Rank ${rkLetter(n)}">${rkLetter(n)}</span>`;
+  try { rkbDefs() } catch (e) {}
+  const hex = `<span class="rk-l rk-b${big ? " big" : ""}${i === 5 ? " s" : ""} g${i}" style="--rc:${RK_COL[i]}" role="img" aria-label="Rank ${rkStep(n)}">${rkbSvg(i, rkDiv(n), big)}</span>`;
   if (!big) return hex;
   const fx = (i >= 1 ? '<i class="fx-aura"></i>' : "") + (i >= 3 ? '<i class="fx-ring"></i>' : "") + (i >= 4 ? '<i class="fx-emb"><b></b><b></b><b></b><b></b></i>' : "") + (i >= 5 ? '<i class="fx-rays"></i>' : "");
   return `<span class="fx-em e${i}" style="--rc:${RK_COL[i]}">${fx}${hex}</span>` };
@@ -579,8 +632,8 @@ const rkBadge = (n, big) => { const i = Math.max(0, Math.min(5, Math.floor(n)));
 function rankChip() {
   try { if (!(S.profile && (S.profile.setup || Object.keys(S.logs).length))) return ""; const R = rankState(), n = rkAlertCount();
     const un = !R.place || R.place.pending;
-    const ov = rkShown(R).ov;
-    return `<button type="button" class="rk-chip" data-tab-go="ranks" aria-label="${un ? "Unranked" : "Overall rank " + rkLetter(ov)}. Open Ranks">${un ? '<span class="rk-l rk-q" style="--rc:#5B6378;font-size:15px" role="img" aria-label="Unranked">?</span>' : rkBadge(ov)}<span>Rank</span>${n ? `<i class="rk-dot" aria-hidden="true"></i>` : ""}</button>` } catch (e) { return "" }
+    const ov = rkShown(R).ovn;
+    return `<button type="button" class="rk-chip" data-tab-go="ranks" aria-label="${un ? "Unranked" : "Overall rank " + rkStep(ov)}. Open Ranks">${un ? '<span class="rk-l rk-q" style="--rc:#5B6378;font-size:15px" role="img" aria-label="Unranked">?</span>' : rkBadge(ov)}<span>Rank</span>${n ? `<i class="rk-dot" aria-hidden="true"></i>` : ""}</button>` } catch (e) { return "" }
 }
 document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-tab-go]"); if (!b) return; tab = b.dataset.tabGo; try { localStorage.setItem("rd25-tab", tab) } catch (_) {} lastRenderKey = ""; render(); window.scrollTo(0, 0) });
 const rkBar = (prog, col) => `<div class="rk-bar"><i style="width:${Math.round(Math.max(0, Math.min(1, prog)) * 100)}%;background:${col || "var(--gym)"}"></i></div>`;
@@ -611,7 +664,7 @@ function rkPartRow(p, R) {
   const P = R.part[p], C = RKC(), sc = rkMode === "scaled", num = sc ? Math.min(5, P.scaled.v) : P.num;
   const cons = P.cons.weeks.map(h => `<i class="${h ? "on" : ""}"></i>`).join("");
   const exBtn = C.parts[p].run ? "" : `<button type="button" class="rk-excl" data-rkexcl="${p}">${P.excl ? "Include again" : "Injured? Exclude this part"}</button>`;
-  return `<div class="rk-part ${P.excl ? "excl" : ""}"><div class="row between" style="align-items:center;gap:10px">${rkBadge(num)}<div style="flex:1;min-width:0"><div class="row between"><b>${esc(C.parts[p].name)}</b><span class="small muted num">${P.rank >= 5 && !sc ? "" : Math.round((sc ? num - Math.floor(num) : P.prog) * 100) + "%"}</span></div>
+  return `<div class="rk-part ${P.excl ? "excl" : ""}"><div class="row between" style="align-items:center;gap:10px">${rkBadge(num)}<div style="flex:1;min-width:0"><div class="row between"><b>${esc(C.parts[p].name)}<span class="rk-stp" style="--rc:${RK_COL[Math.max(0, Math.min(5, Math.floor(num)))]}">${rkStep(num)}</span></b><span class="small muted num">${P.rank >= 5 && !sc ? "" : Math.round((sc ? num - Math.floor(num) : P.prog) * 100) + "%"}</span></div>
     ${rkBar(sc ? num - Math.floor(num) : P.prog, RK_COL[Math.min(5, Math.floor(num) + 1)])}</div></div>
     <div class="small">${P.has ? rkSrcText(sc ? P.scaled : P) : `<span class="muted">Not trained yet${C.parts[p].run ? "" : " — counts as E"}.</span>`}</div>
     <div class="row between small"><span class="muted">${rkNextText(p, sc ? { rank: Math.floor(num) } : P)}</span><span class="rk-cons" title="Weeks trained, last ${C.consistencyWeeks}" aria-label="Trained ${P.cons.n} of the last ${C.consistencyWeeks} weeks">${cons}</span></div>
@@ -622,16 +675,16 @@ function rkPartRow(p, R) {
 function rkGroupCard(g, R) {
   const sc = rkMode === "scaled", num = g.num == null ? null : sc ? Math.min(5, g.scaled) : g.num, open = rkOpen === g.id;
   const ti = num == null ? 0 : Math.max(0, Math.min(5, Math.floor(num)));
-  let h = `<div class="card rk-group tint" style="--tc:${RK_COL[ti]}">${num == null ? "" : `<span class="fx-wm" aria-hidden="true">${rkLetter(num)}</span>`}<button type="button" class="rk-head" data-rkgroup="${g.id}" aria-expanded="${open}">${num == null ? '<span class="rk-l" style="--rc:var(--muted)">–</span>' : rkBadge(num, true)}<span style="flex:1;min-width:0;text-align:left"><span class="row between"><b class="rk-name">${esc(g.name)}</b><span class="small muted">${open ? "Hide" : "Details"} ›</span></span>
+  let h = `<div class="card rk-group tint" style="--tc:${RK_COL[ti]}">${num == null ? "" : `<span class="fx-wm" aria-hidden="true">${rkLetter(num)}</span>`}<button type="button" class="rk-head" data-rkgroup="${g.id}" aria-expanded="${open}">${num == null ? '<span class="rk-l" style="--rc:var(--muted)">–</span>' : rkBadge(num, true)}<span style="flex:1;min-width:0;text-align:left"><span class="row between"><b class="rk-name">${esc(g.name)}${num == null ? "" : `<span class="rk-stp" style="--rc:${RK_COL[ti]}">${rkStep(num)}</span>`}</b><span class="small muted">${open ? "Hide" : "Details"} ›</span></span>
     ${num == null ? '<span class="small muted">Excluded</span>' : rkBar(num >= 5 ? 1 : num - Math.floor(num), RK_COL[Math.min(5, Math.floor(num) + 1)])}
-    <span class="fx-chips">${Object.keys(g.parts).map(p => { const P = R.part[p], v = sc ? Math.min(5, P.scaled.v) : P.num; return `<span class="fx-chip${P.gate.open && !sc ? " gate" : ""}" style="--rc:${RK_COL[Math.max(0, Math.min(5, Math.floor(v)))]}"><b>${rkLetter(v)}</b>${esc(RKC().parts[p].name)}</span>` }).join("")}</span></span></button>`;
+    <span class="fx-chips">${Object.keys(g.parts).map(p => { const P = R.part[p], v = sc ? Math.min(5, P.scaled.v) : P.num; return `<span class="fx-chip${P.gate.open && !sc ? " gate" : ""}" style="--rc:${RK_COL[Math.max(0, Math.min(5, Math.floor(v)))]}"><b>${rkStep(v)}</b>${esc(RKC().parts[p].name)}</span>` }).join("")}</span></span></button>`;
   if (open) { h += `<div class="stack" style="gap:10px">${Object.keys(g.parts).map(p => rkPartRow(p, R)).join("")}</div>`; if (g.id === "speed" || g.id === "endur") h += rkTrialBlock() }
   return h + `</div>`;
 }
 function rkDiscCard(R) {
   const D = R.disc, C = RKC().discipline, open = rkOpen === "disc", wk = D.week;
   const sq = D.weeks.map(x => `<i class="${x.hit ? "on" : ""}" title="Week of ${fmtShort(parseYmd(x.w))}: ${x.done} of ${x.plan}"></i>`).join("");
-  let h = `<div class="card rk-group tint" style="--tc:${RK_COL[Math.min(5, D.rank)]}"><span class="fx-wm" aria-hidden="true">${rkLetter(D.num)}</span><button type="button" class="rk-head" data-rkgroup="disc" aria-expanded="${open}">${rkBadge(D.num, true)}<span style="flex:1;min-width:0;text-align:left"><span class="row between"><b class="rk-name">Discipline</b><span class="small muted">${open ? "Hide" : "Details"} ›</span></span>
+  let h = `<div class="card rk-group tint" style="--tc:${RK_COL[Math.min(5, D.rank)]}"><span class="fx-wm" aria-hidden="true">${rkLetter(D.num)}</span><button type="button" class="rk-head" data-rkgroup="disc" aria-expanded="${open}">${rkBadge(D.num, true)}<span style="flex:1;min-width:0;text-align:left"><span class="row between"><b class="rk-name">Discipline<span class="rk-stp" style="--rc:${RK_COL[Math.min(5, D.rank)]}">${rkStep(D.num)}</span></b><span class="small muted">${open ? "Hide" : "Details"} ›</span></span>
     ${rkBar(D.rank >= 5 ? 1 : D.prog, RK_COL[Math.min(5, D.rank + 1)])}
     <span class="small muted">${D.weeks.length < 2 ? `${D.week ? `${D.week.done} of ${D.week.need} sessions this week to put it on target` : "Hit 75% of your sessions this week"}` : `${D.n} of the last ${Math.min(C.weeks, D.weeks.length)} weeks on target`}${D.next ? ` · ${rkLetter(D.rank + 1)} at ${D.next} weeks` : ""}</span></span></button>`;
   if (open) h += `<div class="rk-part"><div class="small">A week is on target when you log ${Math.round(C.hitPct * 100)}% of its planned sessions. Discipline rises with on-target weeks in your last ${C.weeks} and needs no Gates. Miss weeks and it slips on its own.</div>
@@ -705,13 +758,15 @@ const RK_SHORT = { upper: "Upper", lower: "Lower", core: "Core", speed: "Speed",
 let rkHudT = 0;
 function rkOverallProg(avg, ov) { // progress toward the next Overall rank (it moves up once the average is 70% of the way)
   if (ov >= 5) return 1; const at = RKC().overallRoundAt, lo = ov ? ov - 1 + at : 0, hi = ov + at; return Math.max(0, Math.min(1, (avg - lo) / (hi - lo))) }
+// the Overall as one number (letter + progress through it), so it gets a division like everything else
+function rkOvNum(avg, ov) { return ov >= 5 ? 5 : ov + Math.min(0.999, rkOverallProg(avg, ov)) }
 function rkRadar(R, sc) {
   const W = 340, H = 300, cx = 170, cy = 148, RR = 104, gs = R.groups, n = gs.length;
   const val = g => g.num == null ? 0 : Math.min(5, sc ? g.scaled : g.num);
   const rad = v => RR * (0.12 + 0.88 * v / 5); // E sits just off the centre so progress inside E still shows
   const pt = (i, r) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return [cx + r * Math.cos(a), cy + r * Math.sin(a)] };
   const poly = r => gs.map((_, i) => pt(i, typeof r === "function" ? r(i) : r).map(x => x.toFixed(1)).join(",")).join(" ");
-  let h = `<svg class="rk-radar" viewBox="0 0 ${W} ${H}" role="img" aria-label="${gs.map(g => `${RK_SHORT[g.id] || g.name} ${g.num == null ? "excluded" : rkLetter(val(g))}`).join(", ")}">
+  let h = `<svg class="rk-radar" viewBox="0 0 ${W} ${H}" role="img" aria-label="${gs.map(g => `${RK_SHORT[g.id] || g.name} ${g.num == null ? "excluded" : rkStep(val(g))}`).join(", ")}">
     <defs><radialGradient id="rkFill" cx="50%" cy="50%" r="60%"><stop offset="0" stop-color="#7DE3FF" stop-opacity=".75"/><stop offset="1" stop-color="#6A5CFF" stop-opacity=".55"/></radialGradient>
     <filter id="rkGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
   for (let k = 5; k >= 0; k--) h += `<polygon class="rk-ring${k === 5 ? " out" : ""}" points="${poly(rad(k))}"/>`;
@@ -723,19 +778,19 @@ function rkRadar(R, sc) {
   gs.forEach((g, i) => {
     const [x, y] = pt(i, rad(5) + 24), side = Math.abs(x - cx) < 4 ? "middle" : x > cx ? "start" : "end", dy = y < cy - 20 ? -2 : y > cy + 20 ? 12 : 4;
     const lx = side === "middle" ? x : x + (side === "start" ? -6 : 6);
-    h += `<text class="rk-lab" x="${lx.toFixed(1)}" y="${(y + dy).toFixed(1)}" text-anchor="${side}">${esc(RK_SHORT[g.id] || g.name)} <tspan class="rk-lab-r" style="fill:${g.num == null ? "#8590A6" : RK_COL[Math.floor(val(g))] === RK_COL[0] ? "#AEB7CC" : RK_COL[Math.floor(val(g))]}">${g.num == null ? "–" : rkLetter(val(g))}</tspan></text>`;
+    h += `<text class="rk-lab" x="${lx.toFixed(1)}" y="${(y + dy).toFixed(1)}" text-anchor="${side}">${esc(RK_SHORT[g.id] || g.name)} <tspan class="rk-lab-r" style="fill:${g.num == null ? "#8590A6" : RK_COL[Math.floor(val(g))] === RK_COL[0] ? "#AEB7CC" : RK_COL[Math.floor(val(g))]}">${g.num == null ? "–" : rkStep(val(g))}</tspan></text>`;
   });
   rkHudT = Date.now();
   return h + `</svg>`;
 }
 function rkHud(R, sc, su) {
-  const ov = sc ? R.overallScaled : R.overall, avg = sc ? R.overallAvgScaled : R.overallAvg, prog = rkOverallProg(avg, ov);
+  const ov = sc ? R.overallScaled : R.overall, avg = sc ? R.overallAvgScaled : R.overallAvg, prog = rkOverallProg(avg, ov), ovn = rkOvNum(avg, ov);
   const fresh = !Object.values(S.logs).some(l => l && (l.type === "gym" || l.type === "run")) && !(rkData().trials || []).length, pend = !fresh && R.place && R.place.pending;
   const C = RKC(), pDay = pend ? Math.min(C.placementDays, rkDays(R.place.first, R.td) + 1) : 0;
   const ovHtml = fresh || pend
     ? `<div class="rk-ov"><span class="rk-l big rk-q" style="--rc:#5B6378" role="img" aria-label="Unranked">?</span><div style="flex:1;min-width:0"><div class="rk-ov-l">Overall rank</div><div class="rk-ov-v">Unranked</div>
       <div class="rk-xp"><i style="width:${Math.round(pDay / C.placementDays * 100)}%"></i></div><div class="rk-ov-s">${fresh ? "Log your first workout to start placement week." : `Placement week: day ${pDay} of ${C.placementDays}. Ranks set ${fmtShort(parseYmd(R.place.ready))}.`}</div></div></div>`
-    : `<div class="rk-ov">${rkBadge(ov, true)}<div style="flex:1;min-width:0"><div class="rk-ov-l">Overall rank</div><div class="rk-ov-v">${rkLetter(ov)}-Rank</div>
+    : `<div class="rk-ov">${rkBadge(ovn, true)}<div style="flex:1;min-width:0"><div class="rk-ov-l">Overall rank</div><div class="rk-ov-v">${rkStep(ovn)}-Rank</div>
       <div class="rk-xp"><i style="width:${Math.round(prog * 100)}%"></i></div><div class="rk-ov-s">${ov >= 5 ? "Max rank" : `${Math.round(prog * 100)}% to ${rkLetter(ov + 1)}-Rank`}</div></div></div>`;
   const how = fresh || pend ? `<div class="rk-how"><div class="rk-how-t">${fresh ? "How you rank up" : "While you place"}</div>
     <ol>
@@ -777,7 +832,7 @@ function rkPickChip(R, sc) {
   const nm = rkPicked && ((RKC().muscles || []).find(x => x[0] === rkPicked) || [])[1];
   if (!nm) return `<span class="bd-pick" id="bdPick">Tap a muscle</span>`;
   const v = rkMuscleRanks(R, sc)[rkPicked];
-  return `<span class="bd-pick" id="bdPick" style="--rc:${v == null ? "#5B6378" : RK_COL[Math.floor(v)]}">${esc(nm)} · ${v == null ? "not trained yet" : rkLetter(v)}</span>`;
+  return `<span class="bd-pick" id="bdPick" style="--rc:${v == null ? "#5B6378" : RK_COL[Math.floor(v)]}">${esc(nm)} · ${v == null ? "not trained yet" : rkStep(v)}</span>`;
 }
 function rkCarousel(R, sc) {
   return `<div class="rk-car"><div class="rk-track" data-rktrack>
@@ -905,6 +960,16 @@ function rkCelebrate(ev, n) {
 .rk-up{position:fixed;inset:0;z-index:50;background:rgba(5,8,12,.82);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s}.rk-up.on{opacity:1}
 .rk-up-in{display:flex;flex-direction:column;align-items:center;gap:12px;color:#fff;text-align:center;padding:24px;transform:scale(.8);transition:transform .45s cubic-bezier(.2,1.4,.4,1)}.rk-up.on .rk-up-in{transform:scale(1)}
 .rk-up .rk-l.big{width:116px;height:128px;font-size:64px;filter:drop-shadow(0 0 28px var(--rc))}
+.rk-l.rk-b{background:none!important;clip-path:none!important;text-shadow:none;overflow:visible;width:36px;height:37px}
+.rk-l.rk-b.big{width:62px;height:64px}
+.rk-l.rk-b.sm,.rk-mu .rk-l.rk-b,.rk-chip .rk-l.rk-b,.gate-banner .rk-l.rk-b{width:28px;height:29px}
+.rk-up .rk-l.rk-b.big{width:124px;height:128px}
+.rk-l.rk-b svg{width:100%;height:100%;display:block;overflow:visible}
+.rkb-t{font-family:var(--display);font-weight:900;letter-spacing:-.02em}
+.fx-em .rk-l.rk-b::after{display:none!important}
+.rk-bar,.rk-xp,.rk-tbar{position:relative}
+.rk-bar::before,.rk-xp::before,.rk-tbar::before,html .hub-who .hub-xp::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,transparent calc(33.333% - 1px),var(--bg) calc(33.333% - 1px) calc(33.333% + 1px),transparent calc(33.333% + 1px) calc(66.667% - 1px),var(--bg) calc(66.667% - 1px) calc(66.667% + 1px),transparent calc(66.667% + 1px))!important}
+.rk-stp{font:800 12px/1 var(--display);letter-spacing:.04em;color:var(--rc);margin-left:6px}
 .rk-chip .rk-dot{width:7px;height:7px;border-radius:50%;background:var(--bad);margin-left:-2px}.rk-up h2{color:#fff;margin:0}
 .rk-l.sm{width:24px;height:27px;font-size:13px}
 .rk-hud{position:relative;overflow:hidden;border-radius:22px;padding:16px 16px 14px;color:#E6ECFF;display:flex;flex-direction:column;gap:12px;
