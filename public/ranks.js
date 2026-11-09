@@ -603,12 +603,12 @@ function rkbSvg(i, d, big) {
   let h = `<svg viewBox="0 0 120 124" aria-hidden="true" focusable="false">`;
   if (!big) {
     if (sw) h += `<g fill="${M[2]}">${RKB_ANG[sw].map(a => `<path transform="translate(60 60) rotate(${a}) scale(1.1)" d="${RKB_SWORD}"/>`).join("")}</g>`;
-    if (i === 0) return h + `<circle cx="60" cy="60" r="34" fill="url(#rkbS0)"/><text x="60" y="78" text-anchor="middle" class="rkb-t" font-size="50" fill="#fff">E</text></svg>`;
+    if (i === 0) return h + `<circle cx="60" cy="60" r="34" fill="url(#rkbS0)"/></svg>`;
     if (i === 5) h += `<path d="M38 30 L40 10 L49.5 20 L60 4 L70.5 20 L80 10 L82 30 Z" fill="url(#rkbS5)" stroke="url(#rkbR5)" stroke-width="6" stroke-linejoin="round"/>`;
-    return h + `<path d="${RKB_SHIELD_SM}" fill="url(#rkbS${i})" stroke="url(#rkbR${i})" stroke-width="6"/><text x="60" y="78" text-anchor="middle" class="rkb-t" font-size="48" fill="${i === 5 ? "#3B2600" : "#fff"}">${RKC().letters[i]}</text></svg>`;
+    return h + `<path d="${RKB_SHIELD_SM}" fill="url(#rkbS${i})" stroke="url(#rkbR${i})" stroke-width="6"/></svg>`;
   }
   if (sw) h += RKB_ANG[sw].map(a => `<g transform="translate(60 60) rotate(${a})"><path d="M-3.8 -47 L0 -58 L3.8 -47 L3.8 24 L-3.8 24 Z" fill="url(#rkbM${i})" stroke="${D}" stroke-width="1.2"/><path d="M0 -45 V20" stroke="${M[0]}" stroke-width="1.1" opacity=".6"/><path d="M-13 23 Q-14.5 26.5 -12 30 H12 Q14.5 26.5 13 23 Z" fill="url(#rkbR${i})" stroke="${D}" stroke-width="1.2"/><path d="M-2.6 30 H2.6 V40 H-2.6 Z" fill="#4A3426" stroke="${D}" stroke-width="1"/><circle cy="44" r="4.6" fill="${M[2]}" stroke="${D}" stroke-width="1.2"/></g>`).join("");
-  if (i === 0) return h + `<circle cx="60" cy="60" r="28" fill="url(#rkbS0)" stroke="#fff" stroke-opacity=".25" stroke-width="2"/><text x="60" y="72" text-anchor="middle" class="rkb-t" font-size="34" fill="#fff">E</text></svg>`;
+  if (i === 0) return h + `<circle cx="60" cy="60" r="28" fill="url(#rkbS0)" stroke="#fff" stroke-opacity=".25" stroke-width="2"/></svg>`;
   if (i >= 4) h += `<g fill="${lt}" stroke="${D}" stroke-width="1.5"><polygon points="34,36 18,30 34,48"/><polygon points="86,36 102,30 86,48"/></g>`;
   if (i === 5) h += `<path d="M40 33 L42 15 L50.5 23.5 L60 9 L69.5 23.5 L78 15 L80 33 Z" fill="url(#rkbS5)" stroke="url(#rkbR5)" stroke-width="4" stroke-linejoin="round"/><path d="M44.5 30 L45.5 21.5 L50.5 26.5 L60 14.5 L69.5 26.5 L74.5 21.5 L75.5 30" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="1.2" stroke-linejoin="round"/>`;
   h += `<path d="${RKB_SHIELD}" fill="url(#rkbS${i})"/>`;
@@ -620,7 +620,7 @@ function rkbSvg(i, d, big) {
   h += `<path d="${RKB_SHIELD}" fill="none" stroke="url(#rkbR${i})" stroke-width="4"/>`;
   if (i === 2 || i === 3) h += `<g fill="${M[1]}"><circle cx="40" cy="36" r="2.6"/><circle cx="80" cy="36" r="2.6"/></g>`;
   if (i === 3 || i === 4) h += `<polygon points="60,35 66,41 60,47 54,41" fill="${RK_COL[i]}" stroke="url(#rkbR${i})" stroke-width="2.4" stroke-linejoin="round"/>`;
-  return h + `<text x="60" y="76" text-anchor="middle" class="rkb-t" font-size="30" fill="${i === 5 ? "#FFF1B8" : "#fff"}" stroke="${D}" stroke-opacity=".45" stroke-width="3" paint-order="stroke">${RKC().letters[i]}</text></svg>`;
+  return h + `</svg>`;
 }
 const rkBadge = (n, big) => { const i = Math.max(0, Math.min(5, Math.floor(n)));
   try { rkbDefs() } catch (e) {}
