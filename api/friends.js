@@ -6,12 +6,12 @@ export const config = { runtime: "edge" };
 
 const ABC = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const newCode = () => Array.from(crypto.getRandomValues(new Uint8Array(6)), (b) => ABC[b % ABC.length]).join("");
-const num = (v, lo, hi) => (typeof v === "number" && isFinite(v) ? Math.max(lo, Math.min(hi, Math.round(v * 10) / 10)) : null);
+const num = (v, lo, hi) => (typeof v === "number" && isFinite(v) ? Math.max(lo, Math.min(hi, Math.floor(v * 1000) / 1000)) : null); // 3 decimals so divisions (thirds) come through intact
 function cleanCard(c) {
   if (!c || typeof c !== "object") return null;
   const g = {}; ["upper", "lower", "core", "speed", "endur", "disc"].forEach((k) => { g[k] = num(c.g && c.g[k], 0, 5) });
   const wk = c.wk && typeof c.wk === "object" ? { done: num(c.wk.done, 0, 14), plan: num(c.wk.plan, 0, 14) } : null;
-  return { ov: num(c.ov, 0, 5), g, wk, streak: num(c.streak, 0, 3650) };
+  return { ov: num(c.ov, 0, 5), ovn: num(c.ovn, 0, 5), g, wk, streak: num(c.streak, 0, 3650) };
 }
 async function rows(path) { const r = await admin(path); if (r.status === 404 || r.status === 400) { const t = await r.text(); if (/does not exist|relation|schema cache/i.test(t)) throw Object.assign(new Error("not_set_up"), { code: "not_set_up" }) } if (!r.ok) throw new Error("db"); return r.json() }
 async function friendsOf(uid) {

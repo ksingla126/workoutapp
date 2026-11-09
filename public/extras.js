@@ -172,7 +172,7 @@ const FR = { list: null, me: null, at: 0, busy: false, err: "" };
 function myCard() {
   let R = null; try { R = rankState() } catch (e) {}
   const V = R ? rkShown(R) : null, un = !R || !R.place || R.place.pending;
-  return { ov: un ? null : V.ov, g: R ? Object.fromEntries(R.groups.map(g => [g.id, g.num == null ? null : Math.round(g.num * 10) / 10])) : {}, wk: typeof hubWeek === "function" ? hubWeek() : null,
+  return { ov: un ? null : V.ov, ovn: un ? null : Math.floor(V.ovn * 1000) / 1000, g: R ? Object.fromEntries(R.groups.map(g => [g.id, g.num == null ? null : Math.floor(g.num * 1000) / 1000])) : {}, wk: typeof hubWeek === "function" ? hubWeek() : null,
     streak: typeof qStreak === "function" ? qStreak() : 0 };
 }
 async function friendsLoad(force) {
@@ -187,11 +187,11 @@ function friendsCard() {
   const on = !!S.profile.friendsOn;
   if (!on) return `<div class="card" id="friends"><h2>Friends</h2><p class="small muted">Compare ranks with friends. They see your name, your rank letters and how many sessions you did this week. Nothing else.</p><div class="row" style="gap:8px"><button type="button" class="btn sm" data-fr-on="1">Turn on friends</button><button type="button" class="btn ghost sm" data-share="">Invite with a link</button></div></div>`;
   if (FR.list == null) { setTimeout(() => friendsLoad(), 0); return `<div class="card" id="friends"><h2>Friends</h2><p class="small muted"><span class="pulse"></span> Loading…</p></div>` }
-  const L = (x) => x == null ? "?" : rkLetter(x), me = myCard(), rows = [{ name: hubName() + " (you)", card: me, you: true }, ...FR.list].sort((a, b) => ((b.card && b.card.ov) ?? -1) - ((a.card && a.card.ov) ?? -1));
+  const ovOf = c => !c ? -1 : c.ovn != null ? c.ovn : c.ov != null ? c.ov : -1, me = myCard(), rows = [{ name: hubName() + " (you)", card: me, you: true }, ...FR.list].sort((a, b) => ovOf(b.card) - ovOf(a.card));
   return `<div class="card" id="friends"><div class="row between"><h2>Friends</h2>${FR.me ? `<button type="button" class="btn ghost sm" data-fr-share="1">Your code: <b class="num">${esc(FR.me.code)}</b></button>` : ""}</div>
     ${FR.err ? `<p class="note">${esc(FR.err)}</p>` : ""}
-    <div class="fr-list">${rows.map(f => { const c = f.card || {}; return `<div class="fr-row ${f.you ? "you" : ""}"><span class="fr-rank" style="background:${c.ov == null ? "#5B6378" : RK_COL[Math.min(5, Math.floor(c.ov))]}">${L(c.ov == null ? null : Math.floor(c.ov))}</span>
-      <span class="fr-who"><b>${esc(f.name || "Friend")}</b><span class="fr-gs">${["upper", "lower", "core", "speed", "endur"].map(g => `<span>${RK_SHORT[g] === "Endurance" ? "Endur." : RK_SHORT[g]} <b>${c.g && c.g[g] != null ? rkLetter(Math.floor(c.g[g])) : "–"}</b></span>`).join("")}</span><span class="small muted num">${c.wk ? `${c.wk.done}/${c.wk.plan} this week` : ""}${c.streak ? ` · ${c.streak}-day streak` : ""}</span></span>
+    <div class="fr-list">${rows.map(f => { const c = f.card || {}; return `<div class="fr-row ${f.you ? "you" : ""}">${c.ov == null ? '<span class="fr-rank" style="background:#5B6378">?</span>' : `<span class="fr-emb">${rkBadge(c.ovn != null ? c.ovn : c.ov)}</span>`}
+      <span class="fr-who"><b>${esc(f.name || "Friend")}</b><span class="fr-gs">${["upper", "lower", "core", "speed", "endur"].map(g => `<span>${RK_SHORT[g] === "Endurance" ? "Endur." : RK_SHORT[g]} <b>${c.g && c.g[g] != null ? rkStep(Math.min(5, c.g[g])) : "–"}</b></span>`).join("")}</span><span class="small muted num">${c.wk ? `${c.wk.done}/${c.wk.plan} this week` : ""}${c.streak ? ` · ${c.streak}-day streak` : ""}</span></span>
       ${f.you ? "" : `<button type="button" class="fp-x" data-fr-del="${esc(f.code)}" aria-label="Remove ${esc(f.name || "friend")}">×</button>`}</div>` }).join("")}</div>
     <div class="row" style="gap:8px;flex-wrap:nowrap"><input id="frCode" class="xs-search" autocomplete="off" autocapitalize="characters" placeholder="Friend's code" maxlength="8" style="flex:1;min-width:0"><button type="button" class="btn sm" data-fr-add="1">Add</button></div>
     <button type="button" class="btn ghost sm" data-share="" style="align-self:flex-start">Invite with a link</button>
@@ -246,6 +246,7 @@ document.addEventListener("input", e => { const t = e.target; if (t.dataset && t
 .ri-pend{display:flex;flex-direction:column;gap:6px;border:1px dashed var(--line);border-radius:12px;padding:10px 12px;margin-top:8px}.ri-p{display:flex;align-items:center;gap:8px}.ri-p span{flex:1;min-width:0;font-size:14px}
 .fp-start{gap:10px}.fp-start h2{margin:0}.fp-start-btns{display:flex;flex-wrap:wrap;gap:8px}
 .fr-list{display:flex;flex-direction:column;gap:6px}.fr-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:12px}.fr-row.you{border-color:color-mix(in srgb,var(--accent,#8F8BFF) 60%,var(--line))}
+.fr-emb{flex:none;display:grid;place-items:center;width:38px}.fr-emb .rk-l.rk-b{width:38px;height:39px}
 .fr-rank{flex:none;width:34px;height:38px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);display:grid;place-items:center;font:800 17px var(--display);color:#fff}
 .fr-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.fr-gs{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:12px;color:var(--muted)}.fr-gs b{color:var(--ink)}.fr-who b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fp-x.armed{width:auto;padding:0 8px;font-size:12px}
 `; document.head.appendChild(s);
@@ -285,7 +286,7 @@ function inviteHtml() {
       <button type="button" class="btn" data-inv-add="1" ${SH.busy ? "disabled" : ""}>${SH.busy ? "Adding…" : `Add ${esc(v.from || "friend")}`}</button>` : ""}
     <button type="button" class="btn ghost" data-inv-no="1">Not now</button></div>`;
 }
-function myRankWord() { try { const R = rankState(), V = rkShown(R); return R.place && !R.place.pending ? rkLetter(Math.floor(V.ov)) : null } catch (e) { return null } }
+function myRankWord() { try { const R = rankState(), V = rkShown(R); return R.place && !R.place.pending ? rkStep(V.ovn) : null } catch (e) { return null } }
 function defaultShareMsg(kind) {
   const L = myRankWord();
   if (kind === "recap" && SH && SH.rec) { const x = SH.rec; return `My week on RankUp: ${x.done} of ${x.plan} sessions${x.mi ? `, ${dTxt(x.mi)} run` : ""}${x.prs.length ? `, ${x.prs.length} new PR${x.prs.length > 1 ? "s" : ""}` : ""}. Join me and let's see who ranks up first.` }

@@ -35,7 +35,7 @@ function fxXp() {
   document.querySelectorAll(".fx-xpbox").forEach(e => e.remove());
   const box = document.createElement("div"); box.className = "fx-xpbox"; box.setAttribute("role", "status");
   box.innerHTML = ups.slice(0, 3).map((k, i) => { const a = before[k].v, b = now[k].v, f0 = a - Math.floor(a), f1 = b - Math.floor(b), r = Math.floor(b), col = RK_COL[Math.min(5, r + 1)];
-    return `<div class="fx-xp" style="--rc:${col};--f0:${f0};--f1:${f1};animation-delay:${i * 120}ms">${rkBadge(b)}<div class="fx-xp-m"><div class="fx-xp-t"><b>${esc(now[k].name)}</b><span>+${Math.max(1, Math.round((b - a) * 100))}% XP</span></div><div class="fx-xp-bar"><i></i></div><div class="fx-xp-s">${Math.round(f1 * 100)}% to ${rkLetter(r + 1)}</div></div></div>` }).join("");
+    return `<div class="fx-xp" style="--rc:${col};--f0:${f0};--f1:${f1};animation-delay:${i * 120}ms">${rkBadge(b)}<div class="fx-xp-m"><div class="fx-xp-t"><b>${esc(now[k].name)}</b>${rkDiv(b) && rkDiv(b) < rkDiv(a) ? `<span class="fx-tier">Tier up · ${rkStep(b)}</span>` : `<span>+${Math.max(1, Math.round((b - a) * 100))}% XP</span>`}</div><div class="fx-xp-bar"><i></i></div><div class="fx-xp-s">${Math.round(f1 * 100)}% to ${rkLetter(r + 1)}</div></div></div>` }).join("");
   document.body.appendChild(box);
   try { if (typeof gTone === "function") gTone([[660, 0, .08], [990, .07, .1], [1320, .14, .14]], .07) } catch (e) {}
   const close = () => { box.classList.add("out"); setTimeout(() => box.remove(), 350) }; box.onclick = close; setTimeout(close, 4200);
@@ -50,6 +50,7 @@ function fxXp() {
 (() => { const st = document.createElement("style"); st.id = "fxStyles"; st.textContent = `
 @property --fxa{syntax:"<angle>";inherits:false;initial-value:0deg}
 /* emblems */
+.fx-tier{font:800 12px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--rc);padding:3px 7px;border-radius:99px;box-shadow:0 0 12px color-mix(in srgb,var(--rc) 70%,transparent)}
 .fx-em{position:relative;display:inline-grid;place-items:center;flex:none;isolation:isolate}
 .fx-em>i{position:absolute;pointer-events:none}
 .fx-em .fx-aura{inset:-22%;border-radius:50%;background:radial-gradient(closest-side,color-mix(in srgb,var(--rc) 55%,transparent),transparent 75%);z-index:-1;opacity:.75}
