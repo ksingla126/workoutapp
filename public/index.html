@@ -439,7 +439,7 @@ ol.steps,ul.ing{margin:0;padding-left:20px;display:flex;flex-direction:column;ga
 
 /* tabbar */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
-nav.tabs .in{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+nav.tabs .in{max-width:640px;margin:0 auto;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px}
 nav.tabs button{position:relative;font:inherit;font-size:12px;font-weight:600;background:none;border:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;border-radius:8px;cursor:pointer}
 nav.tabs button.on{color:var(--ink);background:var(--surface-2)}
 nav.tabs .badge{position:absolute;top:2px;right:calc(50% - 22px);min-width:16px;height:16px;border-radius:8px;background:var(--bad);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;padding:0 4px}
@@ -1311,12 +1311,12 @@ function renderTop(){
   if(tab==="hub"){ if(document.title!==APP_NAME) document.title=APP_NAME; $("#top").innerHTML=""; $("#top").classList.add("hub-top"); return } $("#top").classList.remove("hub-top");
   if(tab==="food"||tab==="ranks"||tab==="advice"||(tab==="plan"&&planView==="food")){ if(document.title!==APP_NAME) document.title=APP_NAME;
     const T={food:"Food",plan:"Food",ranks:"Ranks",advice:"System"}[tab];
-    morph($("#top"),`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}${accountBtn()}</span></div><h1 class="top-week">${T}</h1>`); return }
+    morph($("#top"),`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}</span></div><h1 class="top-week">${T}</h1>`); return }
   const w=Math.max(1,weekOf(today)), mon=monOf(w);
   let wkPlan=0, wkDone=0; for(let i=0;i<7;i++){ const d=addDays(mon,i), p=planFor(d); if(p&&p.type!=="rest"&&!preStart(d)){ wkPlan++; if(S.logs[ymd(d)]) wkDone++ } }
   const pct=wkPlan? Math.min(100,wkDone/wkPlan*100) : 0;
   if(document.title!==APP_NAME) document.title=APP_NAME;
-  morph($("#top"),`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}${accountBtn()}</span></div>
+  morph($("#top"),`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}</span></div>
    <h1 class="top-week">Train</h1>
    <div class="bar" role="progressbar" aria-label="This week's sessions" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct}%"></i></div>
    <div class="top-meta"><span><b class="num">${wkDone}</b> of ${wkPlan} this week</span></div>`);
@@ -1333,12 +1333,13 @@ const TAB_ICON=(()=>{ const sv=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="
     plan:sv('<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'),
     progress:sv('<path d="M4 19h16"/><path d="M6 15l4-4 3 3 5-6"/><path d="M15 8h3v3"/>'),
     ranks:sv('<path d="M12 3l7.5 4.3v9.4L12 21l-7.5-4.3V7.3z"/><path d="M9.2 14.5 12 8l2.8 6.5M10.2 12.3h3.6"/>'),
+    me:sv('<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>'),
     advice:sv('<path d="M5 18.5V7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H8.5z"/><path d="M9 9.5h6M9 12.5h4"/>') } })();
 function renderTabs(){
   const T=[["hub","Home"],["home","Train"],...(FOOD_ON?[["food","Food"]]:[]),["ranks","Ranks"],["advice","System"]];
   const n=unseenAdvice(); let rk=0;
   const cur= tab==="food"||(tab==="plan"&&planView==="food")? "food" : tab==="plan"||tab==="progress"? "home" : tab;
-  morph($("#tabs"),T.map(([id,l])=>`<button data-tab="${id}" class="${cur===id?"on":""}" aria-current="${cur===id}">${TAB_ICON[id]}${l}${id==="advice"&&n&&tab!=="advice"?`<span class="badge">${n}</span>`:""}${id==="ranks"&&tab!=="ranks"&&(rk=rkAlertCount())?`<span class="badge">${rk}</span>`:""}</button>`).join(""));
+  morph($("#tabs"),T.map(([id,l])=>`<button data-tab="${id}" class="${cur===id?"on":""}" aria-current="${cur===id}">${TAB_ICON[id]}${l}${id==="advice"&&n&&tab!=="advice"?`<span class="badge">${n}</span>`:""}${id==="ranks"&&tab!=="ranks"&&(rk=rkAlertCount())?`<span class="badge">${rk}</span>`:""}</button>`).join("")+(window.__platform?`<button type="button" data-acct="1">${TAB_ICON.me}Profile</button>`:""));
   document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{if(b.dataset.tab==="progress"&&tab==="progress") runSel=null; tab=b.dataset.tab; try{localStorage.setItem("rd25-tab",tab)}catch(e){} if(tab==="advice"&&S.advice.at>(S.advice.seenAt||0)){S.advice.seenAt=S.advice.at;saveAdvice()} render(); window.scrollTo(0,0)});
 }
 
