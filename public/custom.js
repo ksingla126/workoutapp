@@ -1104,10 +1104,28 @@ function setExFmt(id,f){ if(!id||!FMT[f]) return; const k=SH.k, name=SH.name, pr
   Object.keys(drafts).forEach(x=>{ if(x.startsWith(k+"|")&&new RegExp(`^(w|r|m)-${id}-\\d+$`).test(x.slice(k.length+1))) delete drafts[x] }); persistDrafts();
   lastRenderKey=""; render(); toast(`${name}: ${FMT[f].name.toLowerCase()}${S.logs[k]&&S.logs[k].ex&&S.logs[k].ex[id]?" from your next session":""}`) }
 function closeStMenu(){ document.querySelectorAll(".st-menu").forEach(e=>e.remove()) }
+/* Delete one set from today's workout: later sets move up a place (values, ticks and set types), then the count drops by one.
+   Works for planned sets, added sets and sets in an already-saved workout (saving again writes the shorter list). */
+function deleteSet(id,i){
+  const k=ymd(sel), ex=(planFor(sel).ex||[]).find(e=>e.id===id); if(!ex) return; const n=setCount(ex,k);
+  if(n<=1){ toast("An exercise needs at least one set. Swap or remove the exercise instead"); return }
+  const val=(f,j)=>{ const el=document.getElementById(`${f}-${id}-${j}`); return el? el.value : drafts[dkey(k,`${f}-${id}-${j}`)] };
+  const done=j=>{ const el=document.getElementById(`set-${id}-${j}`); return el? el.classList.contains("done") : setDoneK(k,id,j) };
+  for(let j=i;j<n-1;j++){
+    ["w","r","m"].forEach(f=>{ const v=val(f,j+1), key=dkey(k,`${f}-${id}-${j}`); if(v===undefined) delete drafts[key]; else drafts[key]=v });
+    drafts[dkey(k,`c-${id}-${j}`)]=done(j+1);
+    drafts[dkey(k,`st-${id}-${j}`)]=setTypeK(k,id,j+1);
+  }
+  ["w","r","m","c","st"].forEach(f=>delete drafts[dkey(k,`${f}-${id}-${n-1}`)]);
+  const key=dkey(k,`xs-${id}`); drafts[key]=(Number(drafts[key])||0)-1; if(!drafts[key]) delete drafts[key];
+  persistDrafts(); lastRenderKey=""; render();
+  toast(S.logs[k]&&S.logs[k].ex&&S.logs[k].ex[id]? `Set ${i+1} deleted. Save the workout to keep it` : `Set ${i+1} deleted`);
+}
 function setTypeMenu(btn,key){ const open=document.querySelector(".st-menu"); closeStMenu(); if(open&&open.dataset.for===key) return;
   const [id,i]=key.split("|"), cur=setTypeK(ymd(sel),id,i), m=document.createElement("div"); m.className="st-menu"; m.setAttribute("role","menu"); m.dataset.for=key; m.dataset.at=Date.now();
   m.innerHTML=[["","#",`Normal`,"Counts toward progress, PRs and ranks"],["w","W","Warm-up",SET_TYPES.w.d],["d","D","Drop set",SET_TYPES.d.d],["f","F","Failure",SET_TYPES.f.d]]
     .map(([ty,l,n,dd])=>`<button type="button" role="menuitemradio" aria-checked="${ty===cur}" class="${ty===cur?"on":""}" data-stpick="${id}|${i}|${ty}"><span class="setno ${ty}">${l==="#"?Number(i)+1:l}</span><span><b>${n}</b><span class="small muted">${dd}</span></span></button>`).join("");
+  { const ex=(planFor(sel).ex||[]).find(e=>e.id===id); if(ex&&!ex.fixed&&setCount(ex,ymd(sel))>1) m.innerHTML+=`<button type="button" role="menuitem" class="st-del" data-stdel="${id}|${i}"><span class="setno">✕</span><span><b>Delete set ${Number(i)+1}</b><span class="small muted">Remove it from today's workout</span></span></button>` }
   document.body.appendChild(m); const r=btn.getBoundingClientRect(), mw=Math.min(280,innerWidth-24);
   m.style.width=mw+"px"; m.style.left=Math.max(12,Math.min(r.left,innerWidth-mw-12))+"px";
   const below=r.bottom+8, h=m.offsetHeight; m.style.top=(below+h>innerHeight-12? Math.max(12,r.top-h-8) : below)+"px";
@@ -1237,11 +1255,12 @@ document.addEventListener("click",e=>{
   if(d.unitflip){ setUnit(UNIT()==="kg"?"lb":"kg"); return }
   if(d.plates){ const [id,w]=d.plates.split("|"), p=planFor(sel), ex=(p&&p.ex&&p.ex.find(e=>e.id===id))||{id}; openSheet({kind:"plates",ex,w:w||""}); return }
   if(d.settype){ setTypeMenu(t,d.settype); return }
+  if(d.stdel){ const [id,i]=d.stdel.split("|"); closeStMenu(); deleteSet(id,Number(i)); return }
   if(d.stpick!=null){ const [id,i,ty]=d.stpick.split("|"), k=ymd(sel); drafts[dkey(k,`st-${id}-${i}`)]=ty; persistDrafts(); closeStMenu(); lastRenderKey=""; render(); return }
   if(d.fmt){ const p=planFor(sel), ex=p&&p.ex&&p.ex.find(e=>e.id===d.fmt); if(!ex) return; openSheet({kind:"fmt",id:ex.id,name:ex.name,k:ymd(sel)}); return }
   if(d.fmtpick){ setExFmt(SH&&SH.id,d.fmtpick); return }
   if(d.addset){ const k=ymd(sel), key=dkey(k,`xs-${d.addset}`); drafts[key]=(Number(drafts[key])||0)+1; persistDrafts(); lastRenderKey=""; render(); return }
-  if(d.rmset){ const k=ymd(sel), key=dkey(k,`xs-${d.rmset}`), n=Number(drafts[key])||0; if(n>0){ const ex=(planFor(sel).ex||[]).find(e=>e.id===d.rmset), last=ex?setCount(ex,k)-1:-1; ["w","r","m","c","st"].forEach(f=>delete drafts[dkey(k,`${f}-${d.rmset}-${last}`)]); drafts[key]=n-1; if(!drafts[key]) delete drafts[key]; persistDrafts(); lastRenderKey=""; render() } return }
+  if(d.rmset){ const ex=(planFor(sel).ex||[]).find(e=>e.id===d.rmset); if(ex) deleteSet(d.rmset, setCount(ex,ymd(sel))-1); return }
   if(d.addex){ openSheet({kind:"swap",adding:true,k:d.addex,q:"",mu:""}); return }
   if(d.addrm){ const k=ymd(sel), sw=S.profile.swaps, a=sw&&sw.add&&sw.add[k]; if(a){ sw.add[k]=a.filter(x=>x.id!==d.addrm); if(!sw.add[k].length) delete sw.add[k]; saveProfile(); lastRenderKey=""; render() } return }
   if(d.openlive){ openLive(); return }
