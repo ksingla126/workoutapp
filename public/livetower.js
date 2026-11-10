@@ -51,7 +51,7 @@ function lvtInfo(k, p, steps, idx) {
     tower() {
       const fl = p.ex.map((ex, i) => {
         const n = steps.filter(x => x.ex.id === ex.id && x.done).length, tot = steps.filter(x => x.ex.id === ex.id).length, done = tot && n === tot, on = cur && cur.ex.id === ex.id;
-        return `<button type="button" class="lvt-floor ${done ? "done" : ""} ${on ? "on" : ""}" data-lvjump="${esc(ex.id)}" ${done ? "disabled" : ""} aria-label="Floor ${i + 1}: ${esc(ex.name)}, ${n} of ${tot} sets${done ? ", cleared" : on ? ", current" : ". Tap to go there"}">${on ? `<i class="lvt-em"></i><i class="lvt-em b"></i>` : ""}${lvtRune(i, done || on ? P.core : "#3A3631")}<span>${i + 1}</span></button>`;
+        return `<button type="button" class="lvt-floor ${done ? "done" : ""} ${on ? "on" : ""}" data-lvjump="${esc(ex.id)}" ${done ? "disabled" : ""} ${on ? 'aria-current="step"' : ""} aria-label="Floor ${i + 1}: ${esc(ex.name)}, ${n} of ${tot} sets${done ? ", cleared" : on ? ", current" : ". Tap to go there"}">${on ? `<i class="lvt-em"></i><i class="lvt-em b"></i>` : ""}${lvtRune(i, done || on ? P.core : "#3A3631")}<span>${i + 1}</span></button>`;
       }).reverse().join("");
       return `<nav class="lvt-tower" aria-label="Tower: one floor per exercise"><svg class="lvt-spire" viewBox="0 0 56 30" aria-hidden="true"><path d="M28 2 L50 28 H6 Z" fill="#0E0F12" stroke="#2E2A26" stroke-width="1.5"/><path d="M28 10 V22" stroke="#77736A" stroke-width="2" stroke-linecap="round"/></svg><div class="lvt-floors">${fl}</div><i class="lvt-base"></i></nav>`;
     },
