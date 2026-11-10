@@ -1097,6 +1097,7 @@ function fmtSheetHtml(){ const id=SH.id, cur=fmtPref(id)||baseFmtId(id), base=ba
     <p class="small muted" style="margin:0">Applies every time ${esc(SH.name)} comes up.${logged?" This saved workout keeps the format it was logged in.":""}</p>
     <div class="fmt-list" role="radiogroup" aria-label="Logging format">${FMT_ORDER.map(f=>`<button type="button" class="fmt-opt ${f===cur?"on":""}" role="radio" aria-checked="${f===cur}" data-fmtpick="${f}">
       <span class="fmt-eg num">${esc(FMT_EG[f])}</span><span class="fmt-tx"><b>${esc(FMT[f].name)}${f===base?` <span class="fmt-def">default</span>`:""}</b><span class="small muted">${esc(FMT[f].eg)}</span></span></button>`).join("")}</div>
+    ${(()=>{ const a=base==="bt"||base==="abt"?"abt":base==="br"||base==="wbr"||base==="abr"?"abr":null; return a&&cur!==a? `<p class="small fmt-assist" style="margin:0"><b>Too hard right now?</b> Pick <button type="button" class="link small" data-fmtpick="${a}">${esc(FMT[a].name)}</button>: log how much the band, machine or your feet take off. Less assistance means more work, and the coach lowers it as you get stronger.</p>` : "" })()}
     ${fmtRanks(id,cur)?"":`<p class="small muted" style="margin:0">Sets in this format don't count toward Ranks for this exercise. Switch back to ${esc(FMT[base].name)} for that.</p>`}`; }
 function setExFmt(id,f){ if(!id||!FMT[f]) return; const k=SH.k, name=SH.name, prev=fmtPref(id)||baseFmtId(id); xsClose(); if(f===prev) return;
   const m={...(S.profile.exFmt||{})}; if(f===baseFmtId(id)) delete m[id]; else m[id]=f; S.profile.exFmt=m; saveProfile();
@@ -1137,7 +1138,7 @@ addEventListener("scroll",()=>{ const m=document.querySelector(".st-menu"); if(m
 /* ======================= Exercise history & PRs ======================= */
 // one set's score in its own format (bigger is better), for PRs and "best set"
 function setScore(f,id,l,x){ const w=loadW(id,l,x.w), r=Number(x.r)||0, m=Number(x.m)||0, B=(typeof rkBW==="function"&&rkBW(ymd(today)))||180;
-  switch(f){ case "bt": case "br": return r; case "wt": return (w+1)*r; case "wbr": return r? e1rm(B+w,r)-B : 0; case "abr": return r? e1rm(Math.max(1,B-w),r) : 0;
+  switch(f){ case "bt": case "br": return r; case "wt": return (w+1)*r; case "wbr": return r? e1rm(B+w,r)-B : 0; case "abr": return r? e1rm(Math.max(1,B-w),r) : 0; case "abt": return r*Math.max(1,B-w)/B;
     case "wd": return (w+1)*m; case "dt": return m>0&&r>0? m/r : 0; default: return e1rm(w,r) } }
 function sessBest(id,l){ const sets=WS(l&&l.ex&&l.ex[id]); if(!sets.length) return 0; const f=logFmt(id,l); return Math.max(...sets.map(x=>setScore(f,id,l,x))) }
 function priorBest(id,k,f){ let b=0; Object.entries(S.logs).forEach(([kk,l])=>{ if(kk<k&&l.type==="gym"&&(!f||logFmt(id,l)===f)) b=Math.max(b,sessBest(id,l)) }); return b }
@@ -1152,7 +1153,7 @@ function historyHtml(){ const id=SH.id, L=libEx(id)||(typeof X!=="undefined"&&X[
     if(FMT[f].w==="req"&&(!heavy||w>heavy.w||(w===heavy.w&&valOf(f,x)>valOf(f,heavy.x)))) heavy={w,x,db:logDb(id,l)} }));
   const series=f==="wr"? liftSeries(id) : [];
   h+=`<div class="small muted">Logged as <b>${esc(FMT[f].name)}</b>${rows.length>same.length?` · ${rows.length-same.length} session${rows.length-same.length>1?"s":""} in other formats`:""}</div>`;
-  h+=`<div class="statrow">${best? f==="wr"? `<div><b class="num">${fmtN(toUd(best.v))} ${uL()}</b><span>Best est. 1-rep max</span></div>` : `<div><b class="num">${esc(setTxt(f,best.x,best.db))}</b><span>${f==="bt"?"Longest hold":f==="wt"?"Best hold":f==="dt"?"Fastest pace":f==="br"?"Most reps":"Best set"}</span></div>` : ""}${heavy&&f!=="wt"?`<div><b class="num">${esc(setTxt(f,heavy.x,heavy.db))}</b><span>Heaviest set</span></div>`:""}<div><b class="num">${same.length||rows.length}</b><span>Sessions</span></div></div>`;
+  h+=`<div class="statrow">${best? f==="wr"? `<div><b class="num">${fmtN(toUd(best.v))} ${uL()}</b><span>Best est. 1-rep max</span></div>` : `<div><b class="num">${esc(setTxt(f,best.x,best.db))}</b><span>${f==="bt"?"Longest hold":f==="abt"?"Best hold":f==="wt"?"Best hold":f==="dt"?"Fastest pace":f==="br"?"Most reps":"Best set"}</span></div>` : ""}${heavy&&f!=="wt"?`<div><b class="num">${esc(setTxt(f,heavy.x,heavy.db))}</b><span>Heaviest set</span></div>`:""}<div><b class="num">${same.length||rows.length}</b><span>Sessions</span></div></div>`;
   if(series.length>1) h+=`<div class="eyebrow">Estimated 1-rep max</div>${lineChart(series.map(x=>({...x,y:toUd(x.y)})),"var(--gym)",v=>Math.round(v),false)}`;
   h+=`<div class="eyebrow" style="margin-top:6px">History</div><div class="xs-list">${rows.map(([k,l])=>{ const pr=(l.prs||[]).includes(id), db=logDb(id,l), lf=logFmt(id,l);
     return `<div class="histrow"><div class="row between"><b>${fmtDate(parseYmd(k))}</b>${pr?`<span class="prbadge">PR</span>`:""}</div><div class="small num muted">${l.ex[id].map(x=>`${typeTag(x)}${esc(setTxt(lf,x,db))}`).join(" · ")}${lf!==f?` <span class="fmt-tag">${esc(FMT[lf].short)}</span>`:""}</div></div>` }).join("")}</div>`;

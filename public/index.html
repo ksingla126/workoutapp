@@ -1196,9 +1196,10 @@ const FMT={
   abr:{name:"Assisted bodyweight",short:"Assisted reps",eg:"Assisted pull-up or dip machine",w:"assist",b:"reps"},
   wt:{name:"Weight × time",short:"Weight × time",eg:"Weighted plank, Pallof hold, farmer's hold",w:"req",b:"sec"},
   bt:{name:"Bodyweight for time",short:"Hold for time",eg:"Plank, dead hang, wall sit",w:null,b:"sec"},
+  abt:{name:"Assisted hold",short:"Assisted hold",eg:"Dead hang with feet on a box, band-assisted hold",w:"assist",b:"sec"},
   wd:{name:"Weight × distance",short:"Weight × distance",eg:"Farmer's carry, sled push",w:"req",b:"m"},
   dt:{name:"Distance & time",short:"Distance & time",eg:"Rower, bike, ski erg",w:null,b:"m",time:true}};
-const FMT_ORDER=["wr","wbr","br","abr","wt","bt","wd","dt"];
+const FMT_ORDER=["wr","wbr","br","abr","wt","bt","abt","wd","dt"];
 const FMT_RANGE={reps:[8,12],sec:[30,60],wt:[20,40],m:[20,40],dt:[500,500]};
 // the format an exercise definition implies on its own
 function natFmt(ex){ if(!ex) return "wr"; if(ex.fmt0) return ex.fmt0; if(ex.bw&&ex.unit==="sec") return "bt"; if(ex.bw) return "br"; if(ex.unit==="sec") return "wt"; if(ex.optW) return "wbr"; return "wr" }
@@ -1234,7 +1235,7 @@ const fmtDur=s=>{ s=Math.round(Number(s)||0); return s>=3600? `${Math.floor(s/36
 // one set as text, e.g. "135 × 8", "+25 × 6", "−40 × 8", "45 s", "40 × 30 s", "50 × 30 m", "500 m · 1:52"
 function setTxt(f,s,db){ const w=Number(s.w)||0, wt=`${toU(w)}${db?"/DB":""}`;
   switch(f){ case "br": return `${s.r}`; case "bt": return `${s.r} s`; case "wbr": return w? `+${wt} × ${s.r}` : `BW × ${s.r}`;
-    case "abr": return w? `−${wt} × ${s.r}` : `BW × ${s.r}`; case "wt": return `${wt} × ${s.r} s`; case "wd": return `${wt} × ${s.m} m`;
+    case "abr": return w? `−${wt} × ${s.r}` : `BW × ${s.r}`; case "abt": return w? `−${wt} × ${s.r} s` : `${s.r} s`; case "wt": return `${wt} × ${s.r} s`; case "wd": return `${wt} × ${s.m} m`;
     case "dt": return `${s.m} m · ${fmtDur(s.r)}`; default: return `${wt} × ${s.r}` } }
 // is a set complete enough to save?
 function setOk(f,v){ const F=FMT[f]; if(F.w==="req"&&!(v.w>0)) return false; if(F.b==="m") return v.m>0&&(!F.time||v.r>0); return v.r>0 }
@@ -1248,7 +1249,7 @@ function targetFor(ex, key){
   if(!h.length&&ex.travel) return {w:ex.sugW||null,reps:fill(ex.lo),msg:ex.travel.msg||(hasW(ex)?`Pick a weight you can do ${ex.lo}–${ex.hi} reps with.`:`Aim for ${ex.lo}–${ex.hi} clean reps.`)};
   if(!h.length){ const msg={wr:`First session: pick a weight you can lift ${ex.lo}× with ~2 reps left. Log it.`, wt:`First session: pick a weight you can hold ${ex.lo} s with good form. Log it.`,
       bt:`Start: hold ${ex.lo}s × ${N}`, br:`First session: do ${ex.lo}–${ex.hi} clean reps per set. Log them.`,
-      wbr:`Start with bodyweight (leave weight blank). Add weight once you hit ${ex.hi} on every set.`, abr:`First session: pick the assistance that lets you do ${ex.lo} clean reps. Log it.`,
+      wbr:`Start with bodyweight (leave weight blank). Add weight once you hit ${ex.hi} on every set.`, abr:`First session: pick the assistance that lets you do ${ex.lo} clean reps. Log it.`, abt:`First session: pick the assistance that lets you hold ${ex.lo} s with good form. Log it.`,
       wd:`First session: pick a weight you can carry ${ex.lo} m with good posture. Log it.`, dt:`First session: go ${ex.lo} m at a hard, steady effort. Log the distance and time.`}[f];
     return {first:true,msg,w:null,reps:fill(ex.lo)} }
   const last=h[0].sets, w=Number(last[0].w)||0, db=logDb(ex.id,S.logs[h[0].k]), lastTxt=last.map(s=>setTxt(f,s,db)).join(", ");
@@ -1258,6 +1259,8 @@ function targetFor(ex, key){
   if(f==="dt"){ const d=v(last[0])||ex.lo, best=Math.min(...last.filter(s=>v(s)===d).map(s=>Number(s.r)||1e9)); return {w:null,reps:fill(d),time:best<1e9?best:null,last:lastTxt,msg:best<1e9?`Same distance, beat ${fmtDur(best)}`:"Same distance, a little faster"} }
   if(f==="abr"){ if(allTop){ const nw=Math.max(0,w-incU(ex.inc||5)); return {w:nw,reps:fill(ex.lo),last:lastTxt,msg: nw>0? `Use ${incTxt(ex.inc||5)} less assistance — you hit ${ex.hi} on every set` : "Try it with no assistance (log 0)"} }
     return {w,reps:step(1),last:lastTxt,msg:"Same assistance, beat last time by a rep"} }
+  if(f==="abt"){ if(allTop){ const nw=Math.max(0,w-incU(ex.inc||5)); return {w:nw,reps:fill(ex.lo),last:lastTxt,msg: nw>0? `Use ${incTxt(ex.inc||5)} less assistance — you held ${ex.hi} s on every set` : "Try it with no assistance (log 0)"} }
+    return {w,reps:step(5),last:lastTxt,msg:"Same assistance, hold 5 s longer"} }
   if(allTop) return {w:w+incU(ex.inc),reps:fill(ex.lo),last:lastTxt,msg:`Add ${incTxt(ex.inc)} — you ${f==="wt"?`held ${ex.hi} s`:f==="wd"?`carried ${ex.hi} m`:`hit ${ex.hi}`} on every set`};
   if(f==="wt") return {w,reps:step(5),last:lastTxt,msg:"Same weight, hold 5 s longer"};
   if(f==="wd") return {w,reps:step(5),last:lastTxt,msg:"Same weight, carry it 5 m further"};
@@ -1431,8 +1434,8 @@ function setValsDom(ex,i){ const g=p=>{const el=document.getElementById(`${p}-${
 // the input boxes for one set, in the exercise's format
 const SET_TYPES={w:{l:"W",name:"warm-up",d:"Doesn't count toward progress, PRs or ranks"},d:{l:"D",name:"drop set",d:"Lighter set straight after a working set"},f:{l:"F",name:"failure",d:"Taken to failure. Counts as a working set"},g:{l:"G",name:"Gate set",d:""}};
 function fmtRanks(id,f){ const b=baseFmtId(id); return f===b||(f==="br"&&b==="wbr")||(f==="wbr"&&b==="br") }
-const FMT_EG={wr:"135 × 8",wbr:"+25 × 6",br:"12 reps",abr:"−40 × 8",wt:"50 × 30 s",bt:"45 s",wd:"70 × 30 m",dt:"500 m · 1:52"};
-const FMT_NEED={wr:"Enter the weight and reps you did",wbr:"Enter the reps you did",br:"Enter the reps you did",abr:"Enter the reps you did",wt:"Enter the weight and seconds you held",bt:"Enter the seconds you held",wd:"Enter the weight and distance",dt:"Enter the distance and time"};
+const FMT_EG={wr:"135 × 8",wbr:"+25 × 6",br:"12 reps",abr:"−40 × 8",wt:"50 × 30 s",bt:"45 s",abt:"−20 × 30 s",wd:"70 × 30 m",dt:"500 m · 1:52"};
+const FMT_NEED={wr:"Enter the weight and reps you did",wbr:"Enter the reps you did",br:"Enter the reps you did",abr:"Enter the reps you did",wt:"Enter the weight and seconds you held",bt:"Enter the seconds you held",abt:"Enter the seconds you held",wd:"Enter the weight and distance",dt:"Enter the distance and time"};
 function fmtChip(ex,k,log){ if(ex.fixed) return ""; const f=fmtOf(ex);
   return `<button type="button" class="fmt-chip" data-fmt="${esc(ex.id)}" aria-label="Logging format: ${esc(FMT[f].name)}. Tap to change">${esc(FMT[f].short)}<svg viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>` }
 function setBoxes(ex,i,vals,ph,db){ const f=fmtOf(ex), F=FMT[f], nm=esc(ex.name), n=i+1, out=[];
