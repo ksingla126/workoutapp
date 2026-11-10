@@ -1,6 +1,6 @@
 /* Offline support: the app shell works without a connection. API calls always go to the network. */
-const VERSION = "v71";
-const SHELL = ["/", "/index.html", "/custom.js", "/formcheck.js", "/rank-config.js", "/ranks.js", "/quests.js", "/travel.js", "/hub.js", "/foodplan.js", "/game.js", "/runs.js", "/extras.js", "/seals.js", "/fx.js", "/morph.js", "/platform.js", "/look.js", "/manifest.webmanifest", "/icon-192.png", "/apple-touch-icon.png"];
+const VERSION = "v72";
+const SHELL = ["/", "/index.html", "/custom.js", "/formcheck.js", "/rank-config.js", "/ranks.js", "/quests.js", "/travel.js", "/hub.js", "/foodplan.js", "/game.js", "/runs.js", "/extras.js", "/seals.js", "/livetower.js", "/fx.js", "/morph.js", "/platform.js", "/look.js", "/manifest.webmanifest", "/icon-192.png", "/apple-touch-icon.png"];
 const CDN = ["https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"];
 
 self.addEventListener("install", (e) => {
