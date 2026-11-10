@@ -1945,13 +1945,14 @@ function renderLive(){
   el.hidden=false; document.body.classList.add("live-on");
   const {k,p}=c, now=Date.now(), resting=TM.restEnd&&TM.restEnd>now, justDone=TM.restEnd&&TM.restEnd<=now&&now-TM.restEnd<20000;
   let top=`<div class="lv-top"><button class="lv-back" id="lvBack" aria-label="Back to app">‹</button><div class="lv-title"><span class="eyebrow">${p.type==="gym"?"Live workout":"Live run"}</span><b>${esc(p.type==="gym"?p.name:p.t)}</b></div><div style="text-align:right"><div class="lv-el num" id="lvEl">${fmtClock(now-TM.start)}</div><div class="small muted" id="lvProg"></div></div></div>`;
-  let main="", next="", list="", T=null;
-  if(p.type==="gym"){
+  let main="", next="", list="";
+  const LT= p.type==="gym"&&typeof lvtHtml==="function"? lvtHtml(k,p,now,resting,justDone) : null;
+  if(LT){ liveState=LT.state }
+  else if(p.type==="gym"){
     const steps=gymSteps(k,p), idx=liveIdx(steps), cur=idx>=0?steps[idx]:null, doneN=steps.filter(x=>x.done).length;
     liveState=`${idx}|${resting?"r":justDone?"g":"x"}`;
-    T=typeof lvtInfo==="function"? lvtInfo(k,p,steps,idx) : null;
     if(!cur){
-      main=`<div class="lv-main go${T?" lvt-enc":""}"><div class="lv-label">All ${steps.length} sets done${T?` · ${p.ex.length} floors cleared`:""}</div><div class="lv-ex">${T?"Gate cleared":"Workout complete"}</div><button class="btn lv-cta" id="lvFinish" data-go="1">Review &amp; save</button></div>`;
+      main=`<div class="lv-main go"><div class="lv-label">All ${steps.length} sets done</div><div class="lv-ex">Workout complete</div><button class="btn lv-cta" id="lvFinish" data-go="1">Review &amp; save</button></div>`;
       next=`<div class="lv-next"><span class="lv-label">Next</span><span>Check your numbers and tap Save. Your workout time is recorded.</span></div>`;
     } else {
       const db=dbNow(cur.ex.id,S.logs[k]), v=setValsK(k,cur), f=fmtOf(cur.ex), F=FMT[f], unit=F.b==="sec"?"sec":F.b==="m"?"m":"reps";
@@ -1962,16 +1963,15 @@ function renderLive(){
         + (F.b==="m"? lvBox("lvM",v.m,cur.ex.lo,"metres","decimal") : "")
         + (F.b!=="m"||F.time? lvBox("lvR",v.r,F.time?(cur.t.time?fmtDur(cur.t.time):"min"):cur.ex.lo,F.time?"min":unit,F.time?"decimal":"numeric",F.time?"Time":unit) : "");
       if(resting||justDone){
-        const clock=`<div class="lv-clock" id="lvRest">${resting?fmtClock(TM.restEnd-now):"Go"}</div>`;
-        main=`${T?T.cleared():""}<div class="lv-main ${resting?"rest":"go"}${T?" lvt-enc":""}"><div class="lv-label">${resting?(T?"Recovering":"Rest"):"Rest over"}</div>${T?`<div class="lvt-rw">${T.ring()}${clock}</div>`:clock}<div class="lv-ring"><i id="lvRestFill"></i></div>
+        main=`<div class="lv-main ${resting?"rest":"go"}"><div class="lv-label">${resting?"Rest":"Rest over"}</div><div class="lv-clock" id="lvRest">${resting?fmtClock(TM.restEnd-now):"Go"}</div><div class="lv-ring"><i id="lvRestFill"></i></div>
           <div class="row lv-btns">${resting?`<button class="btn ghost" id="lvPlus">+30 s</button><button class="btn ghost" id="lvSkip">Skip rest</button>`:`<button class="btn lv-cta" id="lvStart" data-go="1">Start set</button>`}</div></div>`;
         next=`<div class="lv-next"><span class="lv-label">Up next</span><span class="nm">${esc(cur.ex.name)}</span><span class="num">Set ${cur.i+1} of ${cur.n} · ${esc(tgt)}</span></div>`;
       } else {
-        main=`<div class="lv-main${T?` lvt-enc${T.boss?" boss":""}`:""}"><div class="lv-label">${T?T.floorLabel()+" · ":""}${cur.inSS?"Superset · ":""}Set ${cur.i+1} of ${cur.n}</div>${T?T.mob(F.b==="reps"?(v.r||cur.ex.lo):0):""}<div class="lv-ex">${esc(cur.ex.name)}</div>
+        main=`<div class="lv-main"><div class="lv-label">${cur.inSS?"Superset · ":""}Set ${cur.i+1} of ${cur.n}</div><div class="lv-ex">${esc(cur.ex.name)}</div>
           <div class="lv-inputs">${lvIns}</div>
           ${plateable(cur.ex,db)?`<div class="lv-plates" id="lvPlates">${esc(platesText(v.w,cur.ex))}</div>`:""}
           <p class="small lv-note">${esc(cur.t.first?cur.t.msg:(cur.t.coach?"Coach: ":"")+cur.t.msg)}</p>
-          <button class="btn lv-cta" id="lvDone">${T?(T.boss?"Challenge the boss ✓":"Strike · set done ✓"):"Set done ✓"}</button></div>${T?T.queue():""}`;
+          <button class="btn lv-cta" id="lvDone">Set done ✓</button></div>`;
         const nx=steps[liveNext(steps,idx)];
         next= nx? `<div class="lv-next"><span class="lv-label">Then</span><span class="nm">${cur.inSS&&!cur.ssLast?"No rest, straight to":"Rest "+fmtClock(restFor(cur.ex.id)*1000)}</span><span>→ ${nx.ex.id===cur.ex.id?`${esc(cur.ex.name)}, set ${nx.i+1}`:`${esc(nx.ex.name)}, set 1`}</span></div>`
                 : `<div class="lv-next"><span class="lv-label">Then</span><span class="nm">Last set</span><span>Then review and save your workout.</span></div>`;
@@ -1988,8 +1988,7 @@ function renderLive(){
     main=`<div class="lv-main"><div class="lv-label">Time</div><div class="lv-clock" id="lvRunClock">${fmtClock(now-TM.start)}</div><p class="small lv-note">${esc(p.d)}</p>${/bpm/.test(p.d)?`<p class="small lv-note">Jog until your watch shows ${HR_HI}, walk until it drops to ${HR_LO}.</p>`:""}<button class="btn lv-cta" id="lvRunDone">Finish run</button></div>`;
     next=`<div class="lv-next"><span class="lv-label">After</span><span>Your time fills in automatically. Import the run's GPX file on the run card for the full breakdown.</span></div>`;
   }
-  const html= T? top+`<div class="lvt-row" style="${T.style()}">${T.tower()}<div class="lvt-col">${main}${next}</div></div>`+list : top+main+next+list;
-  box.classList.toggle("lvt",!!T); if(T) box.setAttribute("style",T.style()); else box.removeAttribute("style");
+  const html= LT? LT.html : top+main+next+list; box.classList.toggle("lvt",!!LT); el.classList.toggle("lvt-on",!!LT); if(LT) box.setAttribute("style",LT.style); else box.removeAttribute("style");
   const fresh=!box.firstChild, prevState=box.dataset.st; box.dataset.st=liveState;
   if(fresh) box.innerHTML=html; else morph(box,html);
   box.classList.toggle("lv-enter",fresh); if(fresh) setTimeout(()=>box.classList.remove("lv-enter"),600);
