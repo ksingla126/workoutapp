@@ -4,10 +4,10 @@
 
 const HUB_TOUR = [
   { sel: "[data-hub-start]", t: "Start here", b: "This starts today's workout. The app walks you through every set, with rest timers." },
-  { sel: '[data-tab="home"]', t: "Train", b: "Your full plan: today's sets, other days, editing your routine and your progress." },
-  ...(FOOD_ON ? [{ sel: '[data-tab="food"]', t: "Food", b: "Log meals, track protein, and auto-generate a meal plan with a grocery list." }] : []),
+  { sel: '[data-tab="home"]', t: "Train", b: "Your week as islands: swipe through the days, then enter today's Gate or trail." },
   { sel: '[data-tab="ranks"]', t: "Ranks", b: "Your E–S ranks in six categories, plus your quest log." },
   { sel: '[data-tab="advice"]', t: "System", b: "Ask the coach anything, or see where your training is heading." },
+  { sel: "#tabs [data-acct]", t: "Profile", b: FOOD_ON ? "Settings, your plan and food all live here, each on its own tab." : "Settings and your plan live here, each on its own tab." },
 ];
 
 const HUB_SHORT = { upper: "Upper", lower: "Lower", core: "Core", speed: "Speed", endur: "Endur.", disc: "Disc." };
@@ -177,7 +177,7 @@ document.addEventListener("click", e => {
 // Train's sub-switch: Today · Plan · Progress
 function trainSwitch() {
   const cur = tab === "progress" ? "progress" : tab === "plan" ? "plan" : "today";
-  return `<div class="seg three" role="tablist" aria-label="Train view">${[["today", "Today"], ["plan", "Plan"], ["progress", "Progress"]].map(([v, n]) => `<button role="tab" data-trv="${v}" aria-selected="${cur === v}" class="${cur === v ? "on" : ""}">${n}</button>`).join("")}</div>`;
+  return `<div class="seg" style="grid-template-columns:1fr 1fr" role="tablist" aria-label="Train view">${[["today", "Today"], ["progress", "Progress"]].map(([v, n]) => `<button role="tab" data-trv="${v}" aria-selected="${cur === v}" class="${cur === v ? "on" : ""}">${n}</button>`).join("")}</div>`;
 }
 
 /* ---------- first-open tour ---------- */

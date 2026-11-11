@@ -1204,11 +1204,13 @@ function userPrefs(){ const local=(window.LOOK&&LOOK.read())||{}; const p=(S.pro
 function setPref(patch){ const cur={...userPrefs(),...patch}; if(window.LOOK) LOOK.save({mode:cur.mode,palette:cur.palette,sound:cur.sound,awake:cur.awake}); S.profile.prefs=cur; saveProfile(); }
 function syncPrefs(){ const p=S.profile&&S.profile.prefs; if(p&&window.LOOK) LOOK.save(p) }
 function accountName(){ const su=S.profile&&S.profile.setup; return (su&&su.name)||(window.appUserEmail&&appUserEmail().split("@")[0])||"You" }
+// Settings, Plan and Food share one set of tabs (Profile in the bottom bar)
+function setTabs(cur){ const T=[["acct","Settings"],["plan","Plan"],...(typeof FOOD_ON!=="undefined"&&FOOD_ON?[["food","Food"]]:[])]; return `<div class="seg set-tabs" style="grid-template-columns:repeat(${T.length},1fr);margin-bottom:12px" role="tablist" aria-label="Settings">${T.map(([k,l])=>`<button type="button" role="tab" data-settab="${k}" aria-selected="${cur===k}" class="${cur===k?"on":""}">${l}</button>`).join("")}</div>` }
 function accountBtn(){ if(!window.__platform) return ""; const n=accountName(); return `<button type="button" class="acct" data-acct="1" aria-label="Account and settings">${esc((n[0]||"?").toUpperCase())}</button>` }
 function accountHtml(){
   const pr=userPrefs(), P=window.LOOK?LOOK.presets:{}, email=window.appUserEmail?appUserEmail():"";
   const tog=(k,label,sub)=>`<label class="setrow"><span><b>${label}</b>${sub?`<span class="small muted">${sub}</span>`:""}</span><input type="checkbox" class="switch" data-acct-tog="${k}" ${pr[k]?"checked":""}></label>`;
-  return `<div class="xs-head"><div class="acct-id"><span class="acct big">${esc((accountName()[0]||"?").toUpperCase())}</span><span><span class="eyebrow">Settings</span><b>${esc(accountName())}</b>${email?`<span class="small muted">${esc(email)}</span>`:""}</span></div><button type="button" class="btn ghost sm" data-xs="close">Close</button></div>
+  return setTabs("acct")+`<div class="xs-head"><div class="acct-id"><span class="acct big">${esc((accountName()[0]||"?").toUpperCase())}</span><span><span class="eyebrow">Settings</span><b>${esc(accountName())}</b>${email?`<span class="small muted">${esc(email)}</span>`:""}</span></div><button type="button" class="btn ghost sm" data-xs="close">Close</button></div>
    <h3>Appearance</h3>
    <div class="seg three">${[["system","System"],["light","Light"],["dark","Dark"]].map(([k,l])=>`<button type="button" class="${pr.mode===k?"on":""}" data-acct-mode="${k}" aria-pressed="${pr.mode===k}">${l}</button>`).join("")}</div>
    <div class="palettes">${Object.entries(P).map(([k,v])=>`<button type="button" class="pal ${pr.palette===k?"on":""}" data-acct-pal="${k}" aria-pressed="${pr.palette===k}"><span class="dots">${v.dots.map(c=>`<i style="background:${c}"></i>`).join("")}</span>${esc(v.name)}</button>`).join("")}</div>
@@ -1271,6 +1273,7 @@ document.addEventListener("click",e=>{
   if(d.exhist){ const p=planFor(sel), ex=p&&p.ex&&p.ex.find(e=>e.id===d.exhist); openSheet({kind:"hist",id:d.exhist,name:ex&&ex.name}); return }
   // --- account
   if(d.acct){ openSheet({kind:"account"}); return }
+  if(d.settab){ const t=d.settab; if(t==="acct"){ if(!(SH&&SH.kind==="account")) openSheet({kind:"account"}); return } xsClose(); tab=t; if(t==="plan"&&typeof planView!=="undefined") planView="training"; try{localStorage.setItem("rd25-tab",tab)}catch(_){} lastRenderKey=""; render(); window.scrollTo(0,0); return }
   if(d.acctUnit){ setUnit(d.acctUnit); paintSheet(); return }
   if(d.acctDist){ S.profile.distU=d.acctDist; saveProfile(); paintSheet(); lastRenderKey=""; render(); return }
   if(d.acctRuns){ xsClose(); tab="plan"; planView="training"; lastRenderKey=""; render(); setTimeout(()=>{ const el=document.querySelector(".runr")||document.querySelector("[data-run-new]"); if(el) el.scrollIntoView({block:"center"}) },60); return }
