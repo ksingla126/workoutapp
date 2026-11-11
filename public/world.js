@@ -59,7 +59,7 @@ function wsTop() {
 }
 function viewWorld(openLogger) {
   wsSeenSet();
-  if (wsLog) return `<div class="ws-back"><button type="button" class="btn ghost sm" data-wslog="0">‹ Back to the island</button></div>` + viewHome(openLogger);
+  if (wsLog) { wsPop = null; return `<div class="ws-back"><button type="button" class="btn ghost sm" data-wslog="0">‹ Back to the island</button></div>` + viewHome(openLogger) }
   const days = wsWeek(), k = ymd(sel), p = inProgram(sel) ? planFor(sel) : null, pick = wsPick(p, k), idx = days.findIndex(d => ymd(d) === k);
   const slides = days.map((d, i) => {
     const kk = ymd(d), pp = inProgram(d) ? planFor(d) : null, pk = wsPick(pp, kk);
@@ -76,6 +76,8 @@ function viewWorld(openLogger) {
     <div class="ws-stage">${side(pd, "l")}${side(nd, "r")}<div class="ws-track" id="wsTrack">${slides}</div><div class="ws-clouds" aria-hidden="true"></div></div></div>`;
   h += `<div class="ws-daybar"><button type="button" data-wsgo="${ymd(pd)}">◀ ${wsDayTxt(pd)}</button><span>${wsDayTxt(sel)} · ${k === ymd(today) ? "TODAY" : kind === "gym" ? "GATE" : kind === "run" ? (WS_RUNTAG[pick.type] || "TRAIL") : "CAMP"}</span><button type="button" data-wsgo="${ymd(nd)}">${wsDayTxt(nd)} ▶</button></div>`;
   h += wsCard(p, k, pick);
+  if (wsPop && wsPop.k !== k) wsPop = null;
+  if (wsPop && p && p.type !== "rest") h += wsbHtml(p, k, pick);
   return h + `</div>`;
 }
 const WS_RUNTAG = { easy: "EASY TRAIL", long: "LONG TRAIL", hills: "HILL TRAIL", intervals: "INTERVALS", sprints: "SPRINTS", tempo: "TEMPO", tt: "TIME TRIAL", fartlek: "FARTLEK", recovery: "RECOVERY", race: "RACE DAY" };
@@ -125,6 +127,7 @@ function wsCard(p, k, pick) {
 }
 // after each render: put the selected island in view and pick the day that ends in the middle after a swipe
 function wsAfter() {
+  wsbAfter();
   const tr = document.getElementById("wsTrack"); if (!tr) return;
   const wk = ymd(mondayOf(sel)), on = tr.querySelector(".ws-slide.on");
   const pos = el => el.offsetLeft;
@@ -149,7 +152,7 @@ document.addEventListener("click", e => {
 });
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-wslog]"); if (!b) return;
-  wsLog = b.dataset.wslog === "1"; lastRenderKey = ""; render(); window.scrollTo(0, 0);
+  wsLog = b.dataset.wslog === "1"; wsPop = null; lastRenderKey = ""; render(); window.scrollTo(0, 0);
 });
 
 // Lit islands: a workout day stays grey until it is logged. The first time a logged day is shown,
@@ -295,3 +298,267 @@ body.ws-page .seg button{color:#97A1B8}
 body.ws-page .seg button.on{background:linear-gradient(180deg,rgba(34,160,107,.4),rgba(34,160,107,.16));color:#DEF1E9;box-shadow:inset 0 0 0 1px rgba(127,200,169,.5)}`;
   const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
 })();
+
+/* ---------- Bounty: tap the island to see the day's workout or run plan ----------
+   A view over the Train page. The header (title, totals, "Objectives") stays put; only the list scrolls.
+   Tapping a row opens it in place: for gym days the old exercise card (target, Gate banner, sets with
+   their types, dumbbells, plates, add/remove set, swap, form check, history) plus sets/reps/rest for the
+   routine; for runs the matching fields of the run. */
+let wsPop = null;  // {k, open: row index or null, top: list scroll}
+const WSB_REST = [30, 45, 60, 75, 90, 120, 150, 180, 240];
+const WSB_EFF = { easy: "Easy", tempo: "Tempo", hard: "Hard", allout: "All-out", hr: "Zone 2", race: "Race pace" };
+function wsbRoutine(su, p) { const rs = (su && su.routines) || []; return rs.find(r => r.id === p.day) || rs.find(r => r.name === p.name) || null }
+function wsbLast(ex, k) {
+  try { const h = exHistory(ex.id, k, fmtOf(ex)); if (!h.length) return ""; const s = h[0].sets.filter(x => x.t !== "w"), l = S.logs[h[0].k];
+    const top = (s.length ? s : h[0].sets).reduce((a, b) => (Number(b.w) || 0) > (Number(a.w) || 0) ? b : a);
+    return setTxt(fmtOf(ex), top, logDb(ex.id, l)) } catch (_) { return "" }
+}
+function wsbDia(c, fill) { return `<i class="wsb-dia" style="--c:${c}"${fill ? ' data-fill="1"' : ""}></i>` }
+function wsbStep(lab, attr, val) { return `<div class="wsb-st"><span>${lab}</span><div><button type="button" data-wsbstep="${attr}|-1" aria-label="Less ${lab.toLowerCase()}">−</button><b>${val}</b><button type="button" data-wsbstep="${attr}|1" aria-label="More ${lab.toLowerCase()}">+</button></div></div>` }
+function wsbHtml(p, k, pick) {
+  const d = parseYmd(k), when = k === ymd(today) ? "TODAY" : wsDayTxt(d), log = S.logs[k];
+  let title, plain, boxes, rows = [];
+  if (p.type === "gym") {
+    const ex = p.ex || [], sets = ex.reduce((t, e) => t + (e.sets || 0), 0);
+    const boss = id => { try { return typeof rkGateFor === "function" && rkGateFor(id) } catch (_) { return false } };
+    const nb = ex.filter(e => !e.fixed && boss(e.id)).length, mins = typeof estMin === "function" ? estMin(ex) : 50;
+    const su = typeof CUSTOM !== "undefined" && CUSTOM && S.profile && S.profile.setup, R = su ? wsbRoutine(su, p) : null;
+    title = `${String(p.name || "Gym").toUpperCase()} GATE`;
+    plain = `${esc(p.name || "Gym")} · ${ex.length} exercise${ex.length === 1 ? "" : "s"} · ${sets} sets · ~${mins} min`;
+    boxes = [[sets, "Sets"], [nb, nb === 1 ? "Gate boss" : "Gate bosses"], [`~${mins}m`, "Estimated"]];
+    rows = ex.map((e, i) => {
+      const b = !e.fixed && boss(e.id), last = wsbLast(e, k), rr = e.lo === e.hi ? e.lo : `${e.lo}–${e.hi}`, key = e.id, open = wsPop.open === key;
+      const rest = typeof restFor === "function" ? restFor(e.id) : e.rest || 90;
+      let h = `<button type="button" class="wsb-row${open ? " open" : ""}" data-wsbrow="${esc(key)}" aria-expanded="${open}">${wsbDia(b ? "#6EA8FF" : "#B47A3F", b)}<span class="wsb-rt"><span class="wsb-l1"><b>${esc(e.name)}</b><em>${e.sets} × ${rr}<i class="wsb-chev">▾</i></em></span>
+        <span class="wsb-l2"><span>${esc(e.equip || "")}${e.equip ? " · " : ""}rest ${fmtClock(rest * 1000)}</span>${last ? `<span>last ${esc(last)}</span>` : ""}</span>${b && !open ? `<span class="wsb-boss">♛ GATE BOSS</span>` : ""}</span></button>`;
+      if (open) {
+        let pan = "";
+        if (log) {
+          const cur = log.ex && log.ex[e.id];
+          pan = cur && cur.length ? `<div class="wsb-done">${cur.map((s, j) => `<span><i>${s.t ? String(s.t).toUpperCase() : j + 1}</i>${esc(setTxt(fmtOf(e), s, logDb(e.id, log)))}</span>`).join("")}</div>` : `<p class="wsb-note">Not logged in this session.</p>`;
+          pan += `<div class="wsb-acts"><button type="button" data-wslog="1">VIEW THE FULL LOG</button></div>`;
+        } else {
+          const re = R && R.ex.find(x => x.id === e.id);
+          if (re) pan += `<div class="wsb-steps">${wsbStep("SETS", `${e.id}|sets`, re.sets)}${wsbStep(isSec(e) ? "SECONDS" : "REPS", `${e.id}|reps`, re.lo === re.hi ? re.lo : `${re.lo}–${re.hi}`)}${wsbStep("REST", `${e.id}|rest`, fmtClock((re.rest || rest) * 1000))}</div>`;
+          try { pan += exerciseBlock(e, k, null) } catch (err) { pan += `<p class="wsb-note">This exercise can't be shown here.</p>` }
+        }
+        h += `<div class="wsb-pan">${pan}</div>`;
+      }
+      return `<div class="wsb-item">${h}</div>`;
+    });
+  } else {
+    const spec = p.spec || {}, parts = [];
+    String(p.d || "").split(", ").forEach((s, i) => { if (i && parts.length && !/^(\d|then \d+ strides)|to finish$/.test(s)) parts[parts.length - 1] += `, ${s}`; else parts.push(s) });  // a new stage starts with an amount
+    const r = p.rid && typeof runById === "function" ? runById(p.rid) : null, swapped = (S.profile.runSwap || {})[k];
+    const auto = r && typeof isAuto === "function" && isAuto(r), edit = r && !r.follow && !auto && !swapped && !log;
+    const amt = (String(p.d).match(/(\d+(?:\.\d+)?) ?(mi|km|min)\b/) || [])[0] || "";
+    title = String(pick.name || "Trail").toUpperCase();
+    plain = `${esc(p.t || "Run")}${p.tag ? ` · ${esc(p.tag)}` : ""}`;
+    boxes = [[spec.n ? `×${spec.n}` : amt || "—", spec.n ? "Reps" : /min/.test(amt) ? "Main part" : "Distance"], [WSB_EFF[spec.effort] || "Easy", "Effort"], [(WS_RUNTAG[pick.type] || "TRAIL").replace(" TRAIL", ""), "Type"]];
+    const sel_ = (attr, v, opts) => `<select data-run-sel="${r.id}|${attr}">${opts.map(([a, n]) => `<option value="${a}" ${String(v) === String(a) ? "selected" : ""}>${esc(n)}</option>`).join("")}</select>`;
+    rows = parts.map((s, i) => {
+      const kind = i === 0 && /^\d+-min (walk|easy jog)$/.test(s) ? "warm" : /to finish$/.test(s) ? "cool" : /^then \d+ strides/.test(s) ? "strides" : "main";
+      const name = { warm: "Warm-up", cool: "Cool-down", strides: "Strides", main: p.t || "Main part" }[kind];
+      const a = kind === "strides" ? `${(s.match(/\d+/) || [""])[0]} strides` : (s.match(/^(\d+ × |\d+(?:\.\d+)? ?(?:mi|km|min)\b|\d+-min)/) || [""])[0].replace("-min", " min").replace(" × ", " reps");
+      const key = kind, open = wsPop.open === key;
+      let h = `<button type="button" class="wsb-row${open ? " open" : ""}" data-wsbrow="${key}" aria-expanded="${open}">${wsbDia("#B47A3F")}<span class="wsb-rt"><span class="wsb-l1"><b>${esc(name)}</b><em>${esc(a)}<i class="wsb-chev">▾</i></em></span><span class="wsb-l2"><span>${esc(s.charAt(0).toUpperCase() + s.slice(1))}</span></span></span></button>`;
+      if (open) {
+        let pan = "";
+        if (edit) {
+          const m = r.main;
+          if (kind === "warm") pan += `<div class="runf">${stepper("Warm-up", `${r.id}|warm`, r.warm, " min")}<label>As${sel_("warmHow", r.warmHow || "jog", [["jog", "Easy jog"], ["walk", "Walk"]])}</label></div>`;
+          else if (kind === "cool") pan += `<div class="runf">${stepper("Cool-down", `${r.id}|cool`, r.cool, " min")}</div>`;
+          else if (kind === "strides") pan += `<div class="runf">${stepper("Strides", `${r.id}|strides`, r.strides || 0)}</div>`;
+          else {
+            if (m.kind === "rep") pan += `<div class="runf">${stepper("Reps", `${r.id}|n`, m.n)}<label>Each rep${sel_("workBy", m.work.by, [["time", "By time"], ["dist", "By distance"]])}</label><label>${m.work.by === "dist" ? "Metres" : "Seconds"}<input inputmode="numeric" data-run-in="${r.id}|work" value="${m.work.v}"></label></div>
+              <div class="runf"><label>Recovery${sel_("restBy", m.rest.by, [["time", "By time"], ...(r.type === "hills" ? [["back", "Back down the hill"]] : r.type === "sprints" ? [["back", "Back to the start"]] : [])])}</label>${m.rest.by === "time" ? `<label>Seconds<input inputmode="numeric" data-run-in="${r.id}|rest" value="${m.rest.v}"></label>` : ""}<label>As${sel_("restHow", m.rest.how || "jog", [["jog", "Easy jog"], ["walk", "Walk"]])}</label></div>`;
+            else pan += `<div class="runf"><label>Main part${sel_("by", m.by, [["time", "By time"], ["dist", "By distance"]])}</label><label>${m.by === "dist" ? (RU() === "km" ? "Kilometres" : "Miles") : "Minutes"}<input inputmode="decimal" data-run-in="${r.id}|v" value="${m.by === "dist" ? dU(m.v) : m.v}"></label></div>
+              <div class="runf"><label class="rk-check"><input type="checkbox" data-run-rw="${r.id}" ${m.rw && m.rw.run > 0 ? "checked" : ""}> Run/walk</label>${m.rw && m.rw.run > 0 ? `${stepper("Run", `${r.id}|rwrun`, m.rw.run, " min")}${stepper("Walk", `${r.id}|rwwalk`, m.rw.walk, " min")}` : ""}</div>`;
+            pan += `<div class="runf"><label>Effort${sel_("effort", r.effort, EFFORTS)}</label></div>`;
+            if (!(r.warm > 0)) pan += `<div class="runf">${stepper("Warm-up", `${r.id}|warm`, 0, " min")}</div>`;
+            if (!(r.cool > 0)) pan += `<div class="runf">${stepper("Cool-down", `${r.id}|cool`, 0, " min")}</div>`;
+            if (m.kind !== "rep" && !(r.strides > 0)) pan += `<div class="runf">${stepper("Strides after", `${r.id}|strides`, 0)}</div>`;
+          }
+          pan += `<p class="wsb-note">Changes apply to ${esc(r.name || "this run")} every week.</p>`;
+        } else {
+          pan += `<p class="wsb-note">${log ? "This run is logged." : r && r.follow ? "Your program sets this run week by week." : auto ? "Auto run: the structure is read from your recording." : swapped ? "Changed for this day only." : "This run comes from your program."}</p>`;
+        }
+        const acts = [];
+        if (log) acts.push(`<button type="button" data-wslog="1">VIEW THE FULL LOG</button>`);
+        else {
+          if (r && r.follow) acts.push(`<button type="button" data-run-custom="${r.id}">CUSTOMIZE THIS RUN</button>`);
+          if (!p.race && typeof runNewHtml === "function") acts.push(`<button type="button" data-runswap="${k}">CHANGE FOR THIS DAY</button>`);
+        }
+        if (acts.length) pan += `<div class="wsb-acts">${acts.join("")}</div>`;
+        h += `<div class="wsb-pan">${pan}</div>`;
+      }
+      return `<div class="wsb-item">${h}</div>`;
+    });
+    if (p.hint) rows.push(`<p class="wsb-hint">${esc(p.hint)}</p>`);
+  }
+  const n = rows.filter(x => x.startsWith('<div class="wsb-item')).length;
+  return `<div class="wsb" role="dialog" aria-modal="true" aria-label="${esc(title)}"><button type="button" class="wsb-bg" data-wsbx="1" aria-label="Close"></button>
+    <div class="wsb-card"><div class="wsb-in"><div class="wsb-top"><div class="wsb-eb"><span>BOUNTY · ${when}</span><button type="button" class="wsb-x" data-wsbx="1" aria-label="Close">✕</button></div>
+      <div class="wsb-title">${esc(title)}</div><div class="wsb-plain">${plain}</div>
+      <div class="wsb-boxes">${boxes.map(([v, l]) => `<div><b>${esc(String(v))}</b><span>${esc(l)}</span></div>`).join("")}</div>
+      <div class="wsb-obj"><span>OBJECTIVES</span><span>${n}</span></div></div>
+      <div class="wsb-lw"><div class="wsb-list" id="wsbList">${rows.join("") || `<p class="wsb-note">Nothing planned yet.</p>`}</div><div class="wsb-bar" aria-hidden="true"><i id="wsbThumb"></i></div></div></div></div>
+    <div class="wsb-hint2">TAP OUTSIDE TO CLOSE</div></div>`;
+}
+function wsbPaintBar() {
+  const L = document.getElementById("wsbList"), t = document.getElementById("wsbThumb"); if (!L || !t) return;
+  const over = L.scrollHeight - L.clientHeight; t.parentElement.style.opacity = over > 4 ? 1 : 0;
+  const h = Math.max(.12, L.clientHeight / L.scrollHeight); t.style.height = h * 100 + "%"; t.style.top = (over > 0 ? L.scrollTop / over : 0) * (1 - h) * 100 + "%";
+  L.classList.toggle("at-top", L.scrollTop < 4); L.classList.toggle("at-end", L.scrollTop > over - 4);
+}
+function wsbAfter() {
+  // the popup is drawn with the page, then lifted onto <body> so it sits above the tab bar
+  document.querySelectorAll("body > .wsb").forEach(x => x.remove());
+  const W = document.querySelector("#view .wsb"); if (W) { document.body.appendChild(W);
+    W.addEventListener("input", e => { const el = e.target; if (!el.id || el.type === "checkbox" || el.type === "file" || NO_DRAFT.has(el.id)) return; drafts[draftKey(el.id)] = el.value; persistDrafts() }) }
+  const L = document.getElementById("wsbList"); if (!L || !wsPop) return;
+  L.scrollTop = wsPop.top || 0;
+  if (wsPop.reveal != null) { const rb = L.querySelector(`[data-wsbrow="${CSS.escape(wsPop.reveal)}"]`), it = rb && rb.parentElement; wsPop.reveal = null;
+    if (it) { const lo = it.offsetTop - 6, hi = it.offsetTop + it.offsetHeight - L.clientHeight + 6; if (L.scrollTop > lo) L.scrollTop = lo; else if (L.scrollTop < hi) L.scrollTop = Math.min(lo, hi) } }
+  wsPop.top = L.scrollTop; wsbPaintBar();
+  L.addEventListener("scroll", () => { if (wsPop) wsPop.top = L.scrollTop; wsbPaintBar() }, { passive: true });
+}
+function wsbClose() { wsPop = null; document.querySelectorAll("body > .wsb").forEach(x => x.remove()); if (typeof closeStMenu === "function") closeStMenu(); lastRenderKey = ""; render() }
+document.addEventListener("click", e => {
+  if (!WS_ON || tab !== "home" || wsLog) return;
+  const t = e.target;
+  if (t.closest("[data-wsbx]")) { wsbClose(); return }
+  const row = t.closest("[data-wsbrow]");
+  if (row) { const i = row.dataset.wsbrow; wsPop.open = wsPop.open === i ? null : i; wsPop.reveal = wsPop.open; lastRenderKey = ""; render(); return }
+  const st = t.closest("[data-wsbstep]");
+  if (st) { const [id, f, dir] = st.dataset.wsbstep.split("|"), s = +dir, p = planFor(sel);
+    suMut(su => { const r = wsbRoutine(su, p), x = r && r.ex.find(e => e.id === id); if (!x) return;
+      if (f === "sets") x.sets = Math.max(1, Math.min(10, (x.sets || 3) + s));
+      else if (f === "reps") { const w = Math.max(0, (x.hi || x.lo) - x.lo), st_ = isSec(x) ? 5 : 1; x.lo = Math.max(1, x.lo + s * st_); x.hi = x.lo + w }
+      else if (f === "rest") { const cur = Number(x.rest) || (typeof restFor === "function" ? restFor(id) : 90), i = WSB_REST.findIndex(v => v >= cur); x.rest = WSB_REST[Math.max(0, Math.min(WSB_REST.length - 1, (i < 0 ? WSB_REST.length - 1 : i) + s))] } });
+    return }
+  const sl = t.closest(".ws-slide");
+  if (sl && !t.closest(".ws-ign")) { const k = sl.dataset.wsday, p = inProgram(parseYmd(k)) ? planFor(parseYmd(k)) : null;
+    if (!p || p.type === "rest" || (p.type === "gym" && !(p.ex || []).length)) return;
+    if (k !== ymd(sel)) return;
+    wsPop = { k, open: null, top: 0 }; lastRenderKey = ""; render() }
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && wsPop && !document.querySelector(".st-menu")) wsbClose() });
+{ const st = document.createElement("style"); st.id = "wsbCss"; st.textContent = `body:has(.wsb){overflow:hidden}
+.wsb{position:fixed;inset:0;z-index:880;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 72px) max(16px,env(safe-area-inset-left,0px)) calc(env(safe-area-inset-bottom,0px) + 18px) max(16px,env(safe-area-inset-right,0px));--m0:#6B3F17;--m1:#B47A3F;--m2:#F4C48E;--mid:#7FC8A9;--core:#DEF1E9;--mut:#8F97A6;--boss:#6EA8FF;animation:wsbIn .22s ease-out}
+@keyframes wsbIn{from{opacity:0}to{opacity:1}}
+.wsb-bg{all:unset;position:absolute;inset:0;background:rgba(2,4,8,.8);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);cursor:default}
+.wsb-card{position:relative;flex:1;min-height:0;max-width:480px;width:100%;margin:0 auto;border-radius:22px;padding:3px;background:linear-gradient(90deg,var(--m0),var(--m1) 40%,var(--m2) 60%,var(--m0));box-shadow:0 30px 60px #000;animation:wsbUp .26s cubic-bezier(.2,.9,.3,1)}
+@keyframes wsbUp{from{transform:translateY(18px) scale(.98)}to{transform:none}}
+.wsb-in{height:100%;box-sizing:border-box;border-radius:19px;padding:18px 18px 12px;display:flex;flex-direction:column;color:#F5F1E6;font-family:Barlow,system-ui,sans-serif;background:radial-gradient(70% 60% at 90% 0%,rgba(34,160,107,.18),transparent 65%),repeating-linear-gradient(135deg,rgba(34,160,107,.03) 0 1px,transparent 1px 7px),#0A0A0D}
+.wsb-top{flex-shrink:0}
+.wsb-eb{display:flex;justify-content:space-between;align-items:center;font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.3em;color:var(--m2)}
+.wsb-x{all:unset;cursor:pointer;width:30px;height:30px;border-radius:50%;border:1px solid rgba(244,196,142,.35);display:grid;place-items:center;color:var(--m2);font-size:13px;letter-spacing:0}
+.wsb-title{margin-top:8px;font:900 30px/1.05 "Barlow Semi Condensed",sans-serif;background:linear-gradient(180deg,var(--core),var(--mid) 55%,#18704B);-webkit-background-clip:text;background-clip:text;color:transparent;text-wrap:balance}
+.wsb-plain{font-size:13px;color:#B9BFCA;margin:4px 0 14px}
+.wsb-boxes{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.wsb-boxes div{padding:10px 6px;text-align:center;border-radius:10px;background:linear-gradient(180deg,#1A140E,#0D0A07);border:1px solid var(--m0);min-width:0}
+.wsb-boxes b{display:block;font:900 18px/1 "Barlow Semi Condensed",sans-serif;color:var(--m2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wsb-boxes span{display:block;font:700 9px/1.2 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;color:#A08060;margin-top:5px;text-transform:uppercase}
+.wsb-obj{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-bottom:6px;border-bottom:1px solid rgba(180,122,63,.45);font:800 9.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.3em;color:var(--mid)}
+.wsb-obj span+span{color:#6E6960;letter-spacing:.2em}
+.wsb-lw{position:relative;flex:1;min-height:0}
+.wsb-list{height:100%;overflow-y:auto;overscroll-behavior:contain;padding-right:12px;scrollbar-width:none;-webkit-mask-image:linear-gradient(180deg,transparent,#000 18px,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(180deg,transparent,#000 18px,#000 calc(100% - 30px),transparent)}
+.wsb-list::-webkit-scrollbar{display:none}
+.wsb-list.at-top{-webkit-mask-image:linear-gradient(180deg,#000,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(180deg,#000,#000 calc(100% - 30px),transparent)}
+.wsb-list.at-end{-webkit-mask-image:linear-gradient(180deg,transparent,#000 18px);mask-image:linear-gradient(180deg,transparent,#000 18px)}
+.wsb-list.at-top.at-end{-webkit-mask-image:none;mask-image:none}
+.wsb-bar{position:absolute;right:0;top:6px;bottom:6px;width:3px;border-radius:2px;background:rgba(180,122,63,.12);pointer-events:none;transition:opacity .2s}
+.wsb-bar i{position:absolute;left:0;right:0;border-radius:2px;background:linear-gradient(180deg,var(--m2),var(--m1))}
+.wsb-item{border-bottom:1px solid rgba(180,122,63,.18)}
+.wsb-row{all:unset;box-sizing:border-box;cursor:pointer;display:flex;gap:12px;align-items:flex-start;width:100%;padding:11px 0}
+.wsb-row:focus-visible{outline:2px solid var(--m2);outline-offset:2px;border-radius:6px}
+.wsb-dia{flex-shrink:0;margin-top:4px;width:12px;height:12px;transform:rotate(45deg);border:1.5px solid var(--c)}
+.wsb-dia[data-fill]{background:rgba(110,168,255,.25)}
+.wsb-rt{flex:1;min-width:0;display:flex;flex-direction:column}
+.wsb-l1{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.wsb-l1 b{font:700 14.5px/1.25 Barlow,sans-serif;color:#F5F1E6}
+.wsb-row.open .wsb-l1 b{color:var(--core)}
+.wsb-l1 em{font:800 13px/1.25 "Barlow Semi Condensed",sans-serif;font-style:normal;white-space:nowrap;color:#F5F1E6}
+.wsb-chev{font-style:normal;display:inline-block;margin-left:6px;font-size:11px;color:#6E6960;transition:transform .2s}
+.wsb-row.open .wsb-chev{transform:rotate(180deg);color:var(--m2)}
+.wsb-l2{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--mut);margin-top:2px}
+.wsb-l2 span:last-child{text-align:right}
+.wsb-boss{margin-top:5px;font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;color:var(--boss)}
+.wsb-pan{margin:0 0 12px 24px;padding:12px;border-radius:12px;background:linear-gradient(180deg,#121014,#0B0B0E);border:1px solid rgba(180,122,63,.4);animation:wsbIn .18s ease-out}
+.wsb-steps{display:flex;gap:8px;margin-bottom:12px}
+.wsb-st{flex:1;min-width:0}
+.wsb-st>span{display:block;font:800 8.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.18em;color:#A08060;margin-bottom:5px}
+.wsb-st>div{display:flex;align-items:center;height:34px;border-radius:9px;border:1px solid rgba(180,122,63,.35);background:#0B0B0E}
+.wsb-st button{all:unset;cursor:pointer;width:26px;height:100%;text-align:center;color:var(--m2);font:700 16px/34px "Barlow Semi Condensed",sans-serif}
+.wsb-st b{flex:1;text-align:center;font:800 14px/1 "Barlow Semi Condensed",sans-serif;white-space:nowrap}
+.wsb-note{margin:4px 0 0;font-size:12px;color:var(--mut)}
+.wsb-hint{margin:14px 0 6px;font-size:12.5px;line-height:1.5;color:#B9BFCA}
+.wsb-hint2{position:relative;text-align:center;margin-top:12px;font:700 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.22em;color:#6E6960;pointer-events:none}
+.wsb-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.wsb-acts button,.wsb .setbtns .link{all:unset;cursor:pointer;font:800 10.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;color:var(--m2);padding:8px 10px;border-radius:8px;border:1px solid rgba(180,122,63,.28);text-transform:uppercase}
+.wsb-done{display:flex;flex-wrap:wrap;gap:6px}
+.wsb-done span{display:flex;gap:6px;align-items:center;padding:6px 9px;border-radius:8px;border:1px solid rgba(245,241,230,.12);font:700 12.5px/1 "Barlow Semi Condensed",sans-serif}
+.wsb-done i{font-style:normal;color:var(--m1);font-size:10px}
+/* the old exercise card, restyled inside the panel */
+.wsb .ex{margin:0;padding:0;border:0;background:none;box-shadow:none}
+.wsb .exhead{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px}
+.wsb .exname{all:unset;cursor:pointer;font-size:0;padding:8px 10px;border-radius:8px;border:1px solid rgba(180,122,63,.28)}
+.wsb .exname::after{content:"HISTORY";font:800 10.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;color:var(--m2)}
+.wsb .swapb{width:32px;height:30px;border-radius:8px;border:1px solid rgba(180,122,63,.28);background:transparent;color:var(--m2)}
+.wsb .exmeta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;font-size:12px;color:var(--mut)}
+.wsb .exmeta .muted,.wsb .small.muted{color:var(--mut)}
+.wsb .dbt{display:flex;align-items:center;gap:6px;font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.12em;color:var(--core);text-transform:uppercase}
+.wsb .dbt input{accent-color:#22A06B}
+.wsb .prev{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:0 0 10px;font-size:12px;color:var(--mut)}
+.wsb .prev .pl{font:800 9px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;color:#A08060;text-transform:uppercase;margin-right:2px}
+.wsb .prev .pill{padding:4px 7px;border-radius:6px;border:1px solid rgba(245,241,230,.1);background:transparent;color:#C9CED7;font-size:11.5px}
+.wsb .gate-banner{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border-radius:9px;background:rgba(110,168,255,.08);border:1px solid rgba(110,168,255,.35);font-size:12px;line-height:1.4;color:#C9D8F5;margin:0 0 10px}
+.wsb .gate-banner .gb-sys{display:block;font:800 9px/1.4 "Barlow Semi Condensed",sans-serif;letter-spacing:.18em;color:var(--boss)}
+.wsb .gate-banner b{color:var(--boss)}
+.wsb .cnote,.wsb .target{padding:8px 10px;border-radius:9px;background:rgba(34,160,107,.07);border:1px solid rgba(34,160,107,.25);font-size:12px;color:#BFD8CC;margin:0 0 10px;line-height:1.4}
+.wsb .cnote .ch{display:flex;gap:8px;align-items:center;margin-bottom:3px}
+.wsb .cnote .who{font:800 9.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.18em;color:var(--mid);text-transform:uppercase}
+.wsb .cnote .mode{font:800 9px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;color:#04140C;background:var(--mid);padding:3px 6px;border-radius:4px;text-transform:uppercase}
+.wsb .cnote .tgt{margin-left:auto;font:800 12.5px/1 "Barlow Semi Condensed",sans-serif;color:var(--core)}
+.wsb .fmt-chip{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:8px;border:1px solid rgba(180,122,63,.35);font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.12em;color:var(--m2);text-transform:uppercase}.wsb .fmt-chip svg{width:9px;height:6px}
+.wsb .exmeta-l{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.wsb .tip summary{font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;color:var(--m2);cursor:pointer;margin-bottom:8px;text-transform:uppercase}
+.wsb .sets{display:flex;flex-direction:column;gap:6px}
+.wsb .set{display:flex;align-items:center;gap:6px;background:none;border:0;padding:0}
+.wsb .set input{flex:1;min-width:0;height:34px;box-sizing:border-box;border-radius:9px;border:1px solid rgba(245,241,230,.12);background:#0B0B0E;color:#F5F1E6;font:800 15px/1 "Barlow Semi Condensed",sans-serif;text-align:center}
+.wsb .set input:focus{outline:none;border-color:var(--m2)}
+.wsb .set.gate-hit input{border-color:rgba(110,168,255,.55)}
+.wsb .set span{color:#6E7480;font:700 11px/1 "Barlow Semi Condensed",sans-serif}
+.wsb .set.done input{color:var(--core)}
+.wsb .setno,.st-menu .setno{position:relative;width:30px;height:34px;border:0;background:none;color:var(--mid);font:900 11px/1 "Barlow Semi Condensed",sans-serif;display:grid;place-items:center;cursor:pointer;flex-shrink:0;z-index:0}
+.wsb .setno::before,.st-menu .setno::before{content:"";position:absolute;width:15px;height:15px;transform:rotate(45deg);border:1.5px solid currentColor;background:#0A0A0D;z-index:-1}
+.wsb .setno.w,.st-menu .setno.w{color:#E0B04A}.wsb .setno.d,.st-menu .setno.d{color:#C07BE0}.wsb .setno.f,.st-menu .setno.f{color:#E0675A}
+.wsb .chk{width:34px;height:34px;border-radius:9px;border:1px solid rgba(245,241,230,.15);background:transparent;color:#6E7480}
+.wsb .chk.on{background:#22A06B;border-color:#22A06B;color:#04140C}
+.wsb .plates{margin-top:8px;font:700 12px/1.3 "Barlow Semi Condensed",sans-serif;letter-spacing:.06em;color:var(--m2)}
+.wsb .plates:not(:empty){padding:8px 10px;border-radius:9px;border:1px dashed rgba(180,122,63,.35)}
+.wsb .plates button{all:unset;cursor:pointer}
+.wsb .setbtns{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.wsb .dbnote{font-size:11.5px;color:var(--mut);margin-bottom:8px}
+.wsb .target.first{color:#BFD8CC}
+.wsb .swapped{font-size:11px;color:var(--mut)}
+/* run fields */
+.wsb .runf{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin-bottom:10px}
+.wsb .runf label{display:flex;flex-direction:column;gap:5px;font:800 8.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.18em;color:#A08060;text-transform:uppercase;flex:1;min-width:110px}
+.wsb .runf label.rk-check{flex-direction:row;align-items:center;font-size:10px;color:var(--core);min-width:0;flex:none}
+.wsb .runf select,.wsb .runf input:not([type=checkbox]){height:34px;box-sizing:border-box;border-radius:9px;border:1px solid rgba(180,122,63,.35);background:#0B0B0E;color:#F5F1E6;font:700 13.5px/1 Barlow,sans-serif;padding:0 8px;letter-spacing:0;text-transform:none}
+.wsb .runf .step{display:flex;align-items:center;height:34px;border-radius:9px;border:1px solid rgba(180,122,63,.35);background:#0B0B0E}
+.wsb .runf .step button{all:unset;cursor:pointer;width:28px;text-align:center;color:var(--m2);font:700 16px/34px "Barlow Semi Condensed",sans-serif}
+.wsb .runf .step b{flex:1;text-align:center;font:800 14px/1 "Barlow Semi Condensed",sans-serif;color:#F5F1E6;letter-spacing:0;white-space:nowrap}
+/* the set-type menu, while the bounty is open */
+body:has(.wsb) .st-menu{background:radial-gradient(70% 60% at 90% 0%,rgba(34,160,107,.18),transparent 65%),repeating-linear-gradient(135deg,rgba(34,160,107,.03) 0 1px,transparent 1px 7px),#0A0A0D;border:2px solid #B47A3F;border-radius:14px;box-shadow:0 16px 34px #000;padding:6px;color:#F5F1E6}
+body:has(.wsb) .st-menu::before{content:"SET TYPE";display:block;padding:6px 8px 8px;border-bottom:1px solid rgba(180,122,63,.35);font:800 9px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.3em;color:#F4C48E}
+body:has(.wsb) .st-menu button{color:#F5F1E6;border-radius:0;border-top:1px solid rgba(180,122,63,.16)}
+body:has(.wsb) .st-menu button:first-of-type{border-top:0}
+body:has(.wsb) .st-menu button.on{background:linear-gradient(90deg,rgba(224,176,74,.14),transparent);box-shadow:inset 2px 0 0 #E0B04A}
+body:has(.wsb) .st-menu .small.muted{color:#8F97A6}
+body:has(.wsb) .st-menu .st-del b{color:#E0675A}
+body:has(.wsb) .st-menu .st-del .setno{color:#E0675A;background:none;border:0}
+@media (prefers-reduced-motion:reduce){.wsb,.wsb-card,.wsb-pan{animation:none}}
+`; document.head.appendChild(st) }
