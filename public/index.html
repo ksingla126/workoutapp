@@ -1307,7 +1307,7 @@ function render(fromStore){
   if(!FOOD_ON&&(tab==="food"||(tab==="plan"&&planView==="food"))){ tab="hub"; if(typeof planView!=="undefined") planView="training" }
   const v=$("#view"), sameTab=v.dataset.vtab===tab&&v.firstChild;
   if(!sameTab&&v.dataset.vtab){ try{ (window.__tabY=window.__tabY||{})[v.dataset.vtab]=window.scrollY }catch(e){} }
-  const html = tab==="hub"&&typeof viewHub==="function"?viewHub(): tab==="home"?trainSwitch()+(WS_ON&&typeof viewWorld==="function"?viewWorld(openLogger):viewHome(openLogger)): tab==="food"||(tab==="plan"&&planView==="food")?(typeof setTabs==="function"?setTabs("food"):"")+viewFoodTab(): tab==="plan"?(typeof setTabs==="function"?setTabs("plan"):trainSwitch())+viewPlan(): tab==="progress"?trainSwitch()+viewProgress(): tab==="ranks"?viewRanks(): viewAdvice();
+  const html = tab==="hub"&&typeof viewHub==="function"?viewHub(): tab==="home"?(WS_ON&&typeof viewWorld==="function"?(wsLog?trainSwitch():"")+viewWorld(openLogger):trainSwitch()+viewHome(openLogger)): tab==="food"||(tab==="plan"&&planView==="food")?(typeof setTabs==="function"?setTabs("food"):"")+viewFoodTab(): tab==="plan"?(typeof setTabs==="function"?setTabs("plan"):trainSwitch())+viewPlan(): tab==="progress"?trainSwitch()+viewProgress(): tab==="ranks"?viewRanks(): viewAdvice();
   if(sameTab) morph(v,html); else { v.innerHTML=html; v.dataset.vtab=tab; window.scrollTo(0,(window.__tabY||{})[tab]||0) }
   applyDrafts();
   viewBind(v,()=>{ bind(); if(tab==="ranks") bindRanks(); if(typeof wsAfter==="function"&&tab==="home") wsAfter() }); document.body.classList.toggle("ws-page",tab==="home"&&typeof WS_ON!=="undefined"&&WS_ON&&!wsLog); if(tab==="hub"&&typeof hubMaybeTour==="function") hubMaybeTour(); if(tab==="hub"&&typeof maybeRecap==="function") setTimeout(()=>{ maybeRecap(); if(typeof maybeInvite==="function") maybeInvite() },400); else if(typeof HT!=="undefined"&&HT.i>=0) hubTourEnd(); if(typeof gameAfterRender==="function") gameAfterRender();
@@ -1315,6 +1315,7 @@ function render(fromStore){
 }
 function renderTop(){
   if(tab==="hub"){ if(document.title!==APP_NAME) document.title=APP_NAME; $("#top").innerHTML=""; $("#top").classList.add("hub-top"); return } $("#top").classList.remove("hub-top");
+  if(tab==="home"&&typeof wsTop==="function"&&WS_ON&&!wsLog){ if(document.title!==APP_NAME) document.title=APP_NAME; morph($("#top"),wsTop()); return }
   if(tab==="food"||tab==="ranks"||tab==="advice"||tab==="plan"){ if(document.title!==APP_NAME) document.title=APP_NAME;
     const T={food:"Settings",plan:"Settings",ranks:"Ranks",advice:"System"}[tab];
     morph($("#top"),`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}</span></div><h1 class="top-week">${T}</h1>`); return }
