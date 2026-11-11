@@ -58,15 +58,17 @@ function wsTop() {
     <div class="ws-chips">${[["today", "TODAY"], ["progress", "PROGRESS"]].map(([v, n]) => `<button type="button" data-trv="${v}" class="${v === "today" ? "on" : ""}" aria-pressed="${v === "today"}">${n}</button>`).join("")}</div></div>`;
 }
 function viewWorld(openLogger) {
+  wsSeenSet();
   if (wsLog) return `<div class="ws-back"><button type="button" class="btn ghost sm" data-wslog="0">‹ Back to the island</button></div>` + viewHome(openLogger);
   const days = wsWeek(), k = ymd(sel), p = inProgram(sel) ? planFor(sel) : null, pick = wsPick(p, k), idx = days.findIndex(d => ymd(d) === k);
   const slides = days.map((d, i) => {
     const kk = ymd(d), pp = inProgram(d) ? planFor(d) : null, pk = wsPick(pp, kk);
-    return `<div class="ws-slide${kk === k ? " on" : ""}" data-wsday="${kk}" role="group" aria-label="${DOW[i]} ${d.getDate()} · ${esc(wsShort(pp))}" aria-current="${kk === k}"><img src="/world/${pk.img}.webp" alt="" loading="${Math.abs(i - idx) <= 1 ? "eager" : "lazy"}" decoding="async" draggable="false"></div>`;
+    const lit = wsLitState(pp, kk);
+    return `<div class="ws-slide${kk === k ? " on" : ""}${lit === "lit" ? "" : " ws-dark"}" data-wsday="${kk}"${lit === "new" ? ` data-wsign="${pk.img}"` : ""} role="group" aria-label="${DOW[i]} ${d.getDate()} · ${esc(wsShort(pp))}" aria-current="${kk === k}"><img src="/world/${pk.img}.webp" alt="" loading="${Math.abs(i - idx) <= 1 ? "eager" : "lazy"}" decoding="async" draggable="false"></div>`;
   }).join("");
   const pd = addDays(sel, -1), nd = addDays(sel, 1);
   const side = (d, cls) => { const kk = ymd(d), pp = inProgram(d) ? planFor(d) : null, pk = wsPick(pp, kk), c = pk.kind === "gym" ? "pg" : pk.kind === "run" ? "pa" : "ps";
-    return `<button type="button" class="ws-peek ${cls}" data-wsgo="${kk}" aria-label="Go to ${wsDayTxt(d)}"><img src="/world/${pk.img}.webp" alt="" loading="lazy" draggable="false"></button><span class="ws-plab ${cls} ${c}"><b>${wsDayTxt(d)}</b>${esc(pk.kind === "gym" ? wsShort(pp) : pk.kind === "run" ? (pp && pp.t || "Trail") : "Camp")}</span>` };
+    return `<button type="button" class="ws-peek ${cls}${wsLitState(pp, kk) === "lit" ? "" : " ws-dark"}" data-wsgo="${kk}" aria-label="Go to ${wsDayTxt(d)}"><img src="/world/${pk.img}.webp" alt="" loading="lazy" draggable="false"></button><span class="ws-plab ${cls} ${c}"><b>${wsDayTxt(d)}</b>${esc(pk.kind === "gym" ? wsShort(pp) : pk.kind === "run" ? (pp && pp.t || "Trail") : "Camp")}</span>` };
   const kind = pick.kind, title = kind === "gym" ? "[SYSTEM] GATE SELECT" : kind === "run" ? "[SYSTEM] TRAIL SELECT" : "[SYSTEM] CAMP";
   let h = `<div class="ws-sky" aria-hidden="true"><i class="ws-shoot"></i></div><div class="ws ws-${kind}">`;
   h += `<div class="ws-frame"><span class="ws-c tl"></span><span class="ws-c tr"></span><span class="ws-c bl"></span><span class="ws-c br"></span>
@@ -128,6 +130,7 @@ function wsAfter() {
   const pos = el => el.offsetLeft;
   tr.scrollLeft = wsScroll && wsScroll.wk === wk ? wsScroll.left : (on ? pos(on) : 0);
   if (on && Math.abs(tr.scrollLeft - pos(on)) > 4) tr.scrollTo({ left: pos(on), behavior: "smooth" });
+  if (on && on.dataset.wsign) setTimeout(() => { if (on.isConnected && on.dataset.wsign) wsIgnite(on) }, wsIgn && wsIgn.k === on.dataset.wsday ? 0 : 450);
   let t = 0;
   tr.addEventListener("scroll", () => {
     wsScroll = { wk, left: tr.scrollLeft }; clearTimeout(t);
@@ -148,6 +151,70 @@ document.addEventListener("click", e => {
   const b = e.target.closest("[data-wslog]"); if (!b) return;
   wsLog = b.dataset.wslog === "1"; lastRenderKey = ""; render(); window.scrollTo(0, 0);
 });
+
+// Lit islands: a workout day stays grey until it is logged. The first time a logged day is shown,
+// it lights up (Ignite): lights climb the island, the beacon flares, colour spreads out from the top.
+// Rest days and days outside the plan are always lit. Days already seen lit are kept on this device.
+const WS_LITE = {"camp1":[46.9,55.6,69.0],"fart1":[48.5,10.3,73.5],"hill1":[50.0,29.2,71.0],"hill2":[49.9,31.9,70.8],"int1":[50.5,44,69.5],"lab1":[49.9,38.8,70.9],"lab2":[49.9,34.6,74.2],"lab3":[50.1,40.1,72.4],"race1":[50.0,10.8,69.8],"rec1":[50,30,69.9],"road1":[48.8,19.5,77.2],"road3":[55.5,24.9,75.8],"tempo1":[49.7,41.5,64.5],"tw1":[49.9,11.9,71.2],"tw2":[49.9,14.2,69.3],"tw3":[50.0,8.4,66.1],"tw4":[49.9,19.7,71.5],"tw5":[49.9,17.5,68.2],"tw6":[49.9,11.3,68.6]};  // beacon x, beacon y, island rim y (% of the image)
+let wsSeen = null, wsIgn = null;  // wsIgn: the island lighting up right now {k, t0}, so a re-render mid-animation picks it back up
+function wsSeenSet() {
+  if (wsSeen) return wsSeen;
+  let a = null; try { a = JSON.parse(localStorage.getItem("ws-lit") || "null") } catch (_) { }
+  if (!Array.isArray(a)) { const td = ymd(today); wsSeen = new Set(Object.keys(S.logs || {}).filter(k => k < td)); wsSaveSeen() }  // first run: earlier days already logged are simply lit
+  else wsSeen = new Set(a);
+  return wsSeen;
+}
+function wsSaveSeen() { try { localStorage.setItem("ws-lit", JSON.stringify([...wsSeen].sort().slice(-400))) } catch (_) { } }
+// "lit", "dark" (not logged yet) or "new" (logged, not yet seen lit: play Ignite)
+function wsLitState(pp, kk) {
+  if (!pp || pp.type === "rest") return "lit";
+  if (!(S.logs && S.logs[kk])) return "dark";
+  if (wsIgn && wsIgn.k === kk && (!wsIgn.t0 || performance.now() - wsIgn.t0 < 3250)) return "new";
+  return wsSeenSet().has(kk) ? "lit" : "new";
+}
+function wsIgnite(s) {
+  const key = s.dataset.wsign, m = WS_LITE[key] || [50, 20, 70];
+  const kk = s.dataset.wsday, resume = wsIgn && wsIgn.k === kk && wsIgn.t0 ? wsIgn.t0 : 0;
+  delete s.dataset.wsign; wsSeenSet().add(kk); wsSaveSeen(); if (!resume) wsIgn = { k: kk, t0: 0 };
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches || s.querySelector(".ws-ign")) { s.classList.remove("ws-dark"); wsIgn = null; return }
+  const W = s.clientWidth, H = s.clientHeight, ar = 780 / 880; let w = W, h = W / ar; if (h > H) { h = H; w = H * ar }
+  const box = document.createElement("div"); box.className = "ws-ign"; box.setAttribute("aria-hidden", "true");
+  box.style.cssText = `left:${(W - w) / 2}px;top:${(H - h) / 2}px;width:${w}px;height:${h}px`;
+  box.innerHTML = `<img class="c" src="/world/${key}.webp" alt=""><img class="lt" src="/world/lights/${key}.webp" alt=""><i class="bm" style="left:${m[0]}%;height:${m[1]}%;bottom:${100 - m[1]}%"></i><i class="rg" style="top:${m[2]}%"></i><i class="rg" style="top:${m[2]}%"></i><canvas></canvas>`;
+  s.appendChild(box);
+  const [col, lit] = box.querySelectorAll("img"), bm = box.querySelector(".bm"), [r1, r2] = box.querySelectorAll(".rg"), cv = box.querySelector("canvas"), cx = cv.getContext("2d");
+  const cl = x => Math.min(1, Math.max(0, x)), seg = (t, a, b) => cl((t - a) / (b - a)), eo = x => 1 - Math.pow(1 - x, 3), eio = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  const noise = t => { const v = Math.sin(Math.floor(t * 16) * 12.9898 + 78.233) * 43758.5453; return v - Math.floor(v) };
+  const ring = (el, k, a, b, o) => { if (k < 0) { el.style.opacity = 0; return } el.style.opacity = (1 - k) * o; el.style.transform = `translate(-50%,-50%) scale(${a + (b - a) * eo(k)})` };
+  const pts = []; let burst = false, t0 = 0;
+  const frame = now => {
+    if (!box.isConnected) return;  // re-rendered: the new island carries on from wsIgn
+    const t = (now - t0) / 1000;
+    const p = eio(seg(t, .4, 2.3)) * 118;                             // lights climb, bottom to top
+    let lo = .8 * seg(t, .4, .7); if (t < 2.3) lo *= .55 + .45 * noise(t);  // flicker while they catch
+    lo *= 1 - .68 * seg(t, 3.3, 4.2);
+    const fl = t < 2.6 ? eo(seg(t, 2.15, 2.6)) : 1 - seg(t, 2.6, 3.4);  // the beacon flares
+    const r = eio(seg(t, 2.35, 3.6)) * 170;                            // colour spreads out from the beacon
+    lit.style.webkitMaskImage = lit.style.maskImage = p >= 118 ? "none" : `linear-gradient(0deg,#000 ${p - 10}%,transparent ${p}%)`;
+    lit.style.opacity = lo; lit.style.filter = `brightness(${1 + fl * .3})`;
+    col.style.visibility = r > 0 ? "visible" : "hidden";
+    col.style.webkitMaskImage = col.style.maskImage = r >= 170 ? "none" : `radial-gradient(circle at ${m[0]}% ${m[1]}%,#000 ${Math.max(0, r - 22)}%,transparent ${r}%)`;
+    bm.style.opacity = fl * .9; bm.style.transform = `scaleY(${.6 + fl * .6})`;
+    ring(r1, t < .8 ? seg(t, 0, .8) : -1, .25, .9, .8); ring(r2, t > 3.2 ? seg(t, 3.2, 4.1) : -1, .4, 1.7, 1);
+    if (t >= 3.25 && !burst) {                                         // shockwave and rising embers
+      burst = true; cv.width = w * 2; cv.height = h * 2; s.classList.remove("ws-dark");
+      for (let i = 0; i < 40; i++) { const a = Math.random() * Math.PI * 2; pts.push({ x: w + Math.cos(a) * w * .72 * Math.random(), y: h * 2 * m[2] / 100 + Math.sin(a) * h * .1, vx: (Math.random() - .5) * 1.2, vy: -(1.2 + Math.random() * 2.6), l: 0, L: 60 + Math.random() * 70, r: 1.5 + Math.random() * 2.5, c: Math.random() < .7 ? "222,241,233" : "244,196,142" }) }
+    }
+    if (burst) {
+      cx.clearRect(0, 0, cv.width, cv.height); cx.globalCompositeOperation = "lighter";
+      for (const q of pts) { q.l++; q.x += q.vx; q.y += q.vy; q.vy *= .985; const a = Math.max(0, 1 - q.l / q.L); cx.fillStyle = `rgba(${q.c},${a})`; cx.beginPath(); cx.arc(q.x, q.y, q.r, 0, 7); cx.fill() }
+    }
+    if (t < 5.6) requestAnimationFrame(frame);
+    else { box.style.opacity = 0; setTimeout(() => box.remove(), 700); if (wsIgn && wsIgn.k === kk) wsIgn = null }
+  };
+  const go = () => { t0 = resume || performance.now(); if (wsIgn && wsIgn.k === kk) wsIgn.t0 = t0; requestAnimationFrame(frame) };
+  (lit.decode ? lit.decode() : Promise.resolve()).then(go, go);
+}
 
 // a fixed star field behind the Train page
 const WS_SKY = (() => {
@@ -195,6 +262,14 @@ body.ws-page #top{position:relative;z-index:1}
 .ws-track::-webkit-scrollbar{display:none}
 .ws-slide{flex:0 0 100%;scroll-snap-align:center;position:relative}
 .ws-slide img{display:block;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.ws-slide.ws-dark>img{filter:grayscale(1) brightness(.42) contrast(1.08)}
+.ws-peek.ws-dark img{filter:grayscale(1) brightness(.6)}
+.ws-ign{position:absolute;pointer-events:none;transition:opacity .7s}
+.ws-ign img,.ws-ign canvas{position:absolute;inset:0;width:100%;height:100%}
+.ws-ign img.c{visibility:hidden;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.ws-ign img.lt{opacity:0;mix-blend-mode:screen;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.ws-ign .bm{position:absolute;width:22px;margin-left:-11px;opacity:0;background:linear-gradient(0deg,rgba(222,241,233,.9),rgba(127,200,169,.35) 40%,transparent);filter:blur(3px);transform-origin:bottom}
+.ws-ign .rg{position:absolute;left:50%;width:84%;aspect-ratio:3.2/1;border-radius:50%;border:2px solid #DEF1E9;box-shadow:0 0 18px #22A06B,inset 0 0 14px #22A06B;opacity:0;transform:translate(-50%,-50%) scale(.2)}
 .ws-clouds{position:absolute;left:-10%;right:-10%;bottom:-4%;height:34%;z-index:3;pointer-events:none;background:radial-gradient(40% 32% at 20% 70%,rgba(159,179,184,.16),transparent 70%),radial-gradient(45% 30% at 78% 74%,rgba(159,179,184,.14),transparent 70%),radial-gradient(60% 34% at 50% 92%,rgba(120,140,145,.18),transparent 70%);filter:blur(6px);animation:wsCloud 18s ease-in-out infinite alternate}
 @keyframes wsCloud{from{transform:translateX(-12px)}to{transform:translateX(12px)}}
 .ws-daybar{display:flex;align-items:center;justify-content:space-between;margin:10px 18px 0;font:800 10.5px/1 var(--display);letter-spacing:.16em}
