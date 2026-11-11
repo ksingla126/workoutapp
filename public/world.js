@@ -342,7 +342,7 @@ function wsbHtml(p, k, pick) {
           if (re) pan += `<div class="wsb-steps">${wsbStep("SETS", `${e.id}|sets`, re.sets)}${wsbStep(isSec(e) ? "SECONDS" : "REPS", `${e.id}|reps`, re.lo === re.hi ? re.lo : `${re.lo}–${re.hi}`)}${wsbStep("REST", `${e.id}|rest`, fmtClock((re.rest || rest) * 1000))}</div>`;
           try { pan += exerciseBlock(e, k, null) } catch (err) { pan += `<p class="wsb-note">This exercise can't be shown here.</p>` }
         }
-        h += `<div class="wsb-pan">${pan}</div>`;
+        h += `<div class="wsb-pan${wsPop.fresh === key ? " new" : ""}">${pan}</div>`;
       }
       return `<div class="wsb-item">${h}</div>`;
     });
@@ -390,14 +390,15 @@ function wsbHtml(p, k, pick) {
           if (!p.race && typeof runNewHtml === "function") acts.push(`<button type="button" data-runswap="${k}">CHANGE FOR THIS DAY</button>`);
         }
         if (acts.length) pan += `<div class="wsb-acts">${acts.join("")}</div>`;
-        h += `<div class="wsb-pan">${pan}</div>`;
+        h += `<div class="wsb-pan${wsPop.fresh === key ? " new" : ""}">${pan}</div>`;
       }
       return `<div class="wsb-item">${h}</div>`;
     });
     if (p.hint) rows.push(`<p class="wsb-hint">${esc(p.hint)}</p>`);
   }
   const n = rows.filter(x => x.startsWith('<div class="wsb-item')).length;
-  return `<div class="wsb" role="dialog" aria-modal="true" aria-label="${esc(title)}"><button type="button" class="wsb-bg" data-wsbx="1" aria-label="Close"></button>
+  const anim = wsPop.anim ? " anim" : "";
+  return `<div class="wsb${anim}" role="dialog" aria-modal="true" aria-label="${esc(title)}"><button type="button" class="wsb-bg" data-wsbx="1" aria-label="Close"></button>
     <div class="wsb-card"><div class="wsb-in"><div class="wsb-top"><div class="wsb-eb"><span>BOUNTY · ${when}</span><button type="button" class="wsb-x" data-wsbx="1" aria-label="Close">✕</button></div>
       <div class="wsb-title">${esc(title)}</div><div class="wsb-plain">${plain}</div>
       <div class="wsb-boxes">${boxes.map(([v, l]) => `<div><b>${esc(String(v))}</b><span>${esc(l)}</span></div>`).join("")}</div>
@@ -413,14 +414,17 @@ function wsbPaintBar() {
 }
 function wsbAfter() {
   // the popup is drawn with the page, then lifted onto <body> so it sits above the tab bar
+  const W = document.querySelector("#view .wsb"), old = document.querySelector("body > .wsb");
+  // keep the blurred backdrop from the last draw so swapping in the new popup doesn't flash on phones
+  if (W && old) { const ob = old.querySelector(".wsb-bg"), nb = W.querySelector(".wsb-bg"); if (ob && nb) nb.replaceWith(ob) }
   document.querySelectorAll("body > .wsb").forEach(x => x.remove());
-  const W = document.querySelector("#view .wsb"); if (W) { document.body.appendChild(W);
+  if (W) { document.body.appendChild(W);
     W.addEventListener("input", e => { const el = e.target; if (!el.id || el.type === "checkbox" || el.type === "file" || NO_DRAFT.has(el.id)) return; drafts[draftKey(el.id)] = el.value; persistDrafts() }) }
   const L = document.getElementById("wsbList"); if (!L || !wsPop) return;
   L.scrollTop = wsPop.top || 0;
   if (wsPop.reveal != null) { const rb = L.querySelector(`[data-wsbrow="${CSS.escape(wsPop.reveal)}"]`), it = rb && rb.parentElement; wsPop.reveal = null;
     if (it) { const lo = it.offsetTop - 6, hi = it.offsetTop + it.offsetHeight - L.clientHeight + 6; if (L.scrollTop > lo) L.scrollTop = lo; else if (L.scrollTop < hi) L.scrollTop = Math.min(lo, hi) } }
-  wsPop.top = L.scrollTop; wsbPaintBar();
+  wsPop.top = L.scrollTop; wsPop.anim = false; wsPop.fresh = null; wsbPaintBar();
   L.addEventListener("scroll", () => { if (wsPop) wsPop.top = L.scrollTop; wsbPaintBar() }, { passive: true });
 }
 function wsbClose() { wsPop = null; document.querySelectorAll("body > .wsb").forEach(x => x.remove()); if (typeof closeStMenu === "function") closeStMenu(); lastRenderKey = ""; render() }
@@ -429,7 +433,7 @@ document.addEventListener("click", e => {
   const t = e.target;
   if (t.closest("[data-wsbx]")) { wsbClose(); return }
   const row = t.closest("[data-wsbrow]");
-  if (row) { const i = row.dataset.wsbrow; wsPop.open = wsPop.open === i ? null : i; wsPop.reveal = wsPop.open; lastRenderKey = ""; render(); return }
+  if (row) { const i = row.dataset.wsbrow; wsPop.open = wsPop.open === i ? null : i; wsPop.reveal = wsPop.open; wsPop.fresh = wsPop.open; lastRenderKey = ""; render(); return }
   const st = t.closest("[data-wsbstep]");
   if (st) { const [id, f, dir] = st.dataset.wsbstep.split("|"), s = +dir, p = planFor(sel);
     suMut(su => { const r = wsbRoutine(su, p), x = r && r.ex.find(e => e.id === id); if (!x) return;
@@ -441,14 +445,15 @@ document.addEventListener("click", e => {
   if (sl && !t.closest(".ws-ign")) { const k = sl.dataset.wsday, p = inProgram(parseYmd(k)) ? planFor(parseYmd(k)) : null;
     if (!p || p.type === "rest" || (p.type === "gym" && !(p.ex || []).length)) return;
     if (k !== ymd(sel)) return;
-    wsPop = { k, open: null, top: 0 }; lastRenderKey = ""; render() }
+    wsPop = { k, open: null, top: 0, anim: true }; lastRenderKey = ""; render() }
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && wsPop && !document.querySelector(".st-menu")) wsbClose() });
 { const st = document.createElement("style"); st.id = "wsbCss"; st.textContent = `body:has(.wsb){overflow:hidden}
-.wsb{position:fixed;inset:0;z-index:880;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 72px) max(16px,env(safe-area-inset-left,0px)) calc(env(safe-area-inset-bottom,0px) + 18px) max(16px,env(safe-area-inset-right,0px));--m0:#6B3F17;--m1:#B47A3F;--m2:#F4C48E;--mid:#7FC8A9;--core:#DEF1E9;--mut:#8F97A6;--boss:#6EA8FF;animation:wsbIn .22s ease-out}
+.wsb.anim{animation:wsbIn .22s ease-out}.wsb.anim .wsb-card{animation:wsbUp .26s cubic-bezier(.2,.9,.3,1)}
+.wsb{position:fixed;inset:0;z-index:880;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 72px) max(16px,env(safe-area-inset-left,0px)) calc(env(safe-area-inset-bottom,0px) + 18px) max(16px,env(safe-area-inset-right,0px));--m0:#6B3F17;--m1:#B47A3F;--m2:#F4C48E;--mid:#7FC8A9;--core:#DEF1E9;--mut:#8F97A6;--boss:#6EA8FF}
 @keyframes wsbIn{from{opacity:0}to{opacity:1}}
 .wsb-bg{all:unset;position:absolute;inset:0;background:rgba(2,4,8,.8);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);cursor:default}
-.wsb-card{position:relative;flex:1;min-height:0;max-width:480px;width:100%;margin:0 auto;border-radius:22px;padding:3px;background:linear-gradient(90deg,var(--m0),var(--m1) 40%,var(--m2) 60%,var(--m0));box-shadow:0 30px 60px #000;animation:wsbUp .26s cubic-bezier(.2,.9,.3,1)}
+.wsb-card{position:relative;flex:1;min-height:0;max-width:480px;width:100%;margin:0 auto;border-radius:22px;padding:3px;background:linear-gradient(90deg,var(--m0),var(--m1) 40%,var(--m2) 60%,var(--m0));box-shadow:0 30px 60px #000}
 @keyframes wsbUp{from{transform:translateY(18px) scale(.98)}to{transform:none}}
 .wsb-in{height:100%;box-sizing:border-box;border-radius:19px;padding:18px 18px 12px;display:flex;flex-direction:column;color:#F5F1E6;font-family:Barlow,system-ui,sans-serif;background:radial-gradient(70% 60% at 90% 0%,rgba(34,160,107,.18),transparent 65%),repeating-linear-gradient(135deg,rgba(34,160,107,.03) 0 1px,transparent 1px 7px),#0A0A0D}
 .wsb-top{flex-shrink:0}
@@ -485,7 +490,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && wsPop && !
 .wsb-l2{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--mut);margin-top:2px}
 .wsb-l2 span:last-child{text-align:right}
 .wsb-boss{margin-top:5px;font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;color:var(--boss)}
-.wsb-pan{margin:0 0 12px 24px;padding:12px;border-radius:12px;background:linear-gradient(180deg,#121014,#0B0B0E);border:1px solid rgba(180,122,63,.4);animation:wsbIn .18s ease-out}
+.wsb-pan{margin:0 0 12px 24px;padding:12px;border-radius:12px;background:linear-gradient(180deg,#121014,#0B0B0E);border:1px solid rgba(180,122,63,.4)}.wsb-pan.new{animation:wsbIn .18s ease-out}
 .wsb-steps{display:flex;gap:8px;margin-bottom:12px}
 .wsb-st{flex:1;min-width:0}
 .wsb-st>span{display:block;font:800 8.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.18em;color:#A08060;margin-bottom:5px}
@@ -560,5 +565,5 @@ body:has(.wsb) .st-menu button.on{background:linear-gradient(90deg,rgba(224,176,
 body:has(.wsb) .st-menu .small.muted{color:#8F97A6}
 body:has(.wsb) .st-menu .st-del b{color:#E0675A}
 body:has(.wsb) .st-menu .st-del .setno{color:#E0675A;background:none;border:0}
-@media (prefers-reduced-motion:reduce){.wsb,.wsb-card,.wsb-pan{animation:none}}
+@media (prefers-reduced-motion:reduce){.wsb.anim,.wsb.anim .wsb-card,.wsb-pan.new{animation:none}}
 `; document.head.appendChild(st) }
