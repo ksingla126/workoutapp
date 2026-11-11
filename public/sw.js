@@ -1,13 +1,13 @@
 /* Offline support: the app shell works without a connection. API calls always go to the network. */
-const VERSION = "v74";
-const SHELL = ["/", "/index.html", "/custom.js", "/formcheck.js", "/rank-config.js", "/ranks.js", "/quests.js", "/travel.js", "/hub.js", "/foodplan.js", "/game.js", "/runs.js", "/extras.js", "/seals.js", "/livetower.js", "/fx.js", "/morph.js", "/platform.js", "/look.js", "/manifest.webmanifest", "/icon-192.png", "/apple-touch-icon.png"];
+const VERSION = "v75";
+const SHELL = ["/", "/index.html", "/custom.js", "/formcheck.js", "/rank-config.js", "/ranks.js", "/quests.js", "/travel.js", "/hub.js", "/foodplan.js", "/game.js", "/runs.js", "/extras.js", "/seals.js", "/livetower.js", "/world.js", "/fx.js", "/morph.js", "/platform.js", "/look.js", "/manifest.webmanifest", "/icon-192.png", "/apple-touch-icon.png"];
 const CDN = ["https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open("shell-" + VERSION).then((c) => c.addAll([...SHELL, ...CDN]).catch(() => {})).then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", (e) => {
-  e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => !k.endsWith(VERSION) && !k.startsWith("pose-") && !k.startsWith("body-")).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => !k.endsWith(VERSION) && !k.startsWith("pose-") && !k.startsWith("body-") && !k.startsWith("world-")).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
 });
 self.addEventListener("fetch", (e) => {
   const req = e.request, url = new URL(req.url);
@@ -19,6 +19,10 @@ self.addEventListener("fetch", (e) => {
   // the 3D body (Ranks): big and versioned, so the saved copy first
   if (sameOrigin && url.pathname.startsWith("/body/") && !url.pathname.endsWith("/body3d.js")) {
     e.respondWith(caches.match(req).then((hit) => hit || fetch(req).then((res) => { if (res.ok) { const copy = res.clone(); caches.open("body-1").then((c) => c.put(req, copy)); } return res; })));
+    return;
+  }
+  if (sameOrigin && url.pathname.startsWith("/world/")) {
+    e.respondWith(caches.match(req).then((hit) => hit || fetch(req).then((res) => { if (res.ok) { const copy = res.clone(); caches.open("world-1").then((c) => c.put(req, copy)); } return res; })));
     return;
   }
   if (sameOrigin && url.pathname.startsWith("/pose/")) {

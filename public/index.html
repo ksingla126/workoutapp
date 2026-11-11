@@ -903,6 +903,7 @@ const FOOD_ON = !!window.__foodOn; // off in the app; the test harness can turn 
 <script src="/extras.js"></script>
 <script src="/seals.js"></script>
 <script src="/livetower.js"></script>
+<script src="/world.js"></script>
 <script src="/fx.js"></script>
 <script>
 /* ---------- Program definition ---------- */
@@ -1306,16 +1307,16 @@ function render(fromStore){
   if(!FOOD_ON&&(tab==="food"||(tab==="plan"&&planView==="food"))){ tab="hub"; if(typeof planView!=="undefined") planView="training" }
   const v=$("#view"), sameTab=v.dataset.vtab===tab&&v.firstChild;
   if(!sameTab&&v.dataset.vtab){ try{ (window.__tabY=window.__tabY||{})[v.dataset.vtab]=window.scrollY }catch(e){} }
-  const html = tab==="hub"&&typeof viewHub==="function"?viewHub(): tab==="home"?trainSwitch()+viewHome(openLogger): tab==="food"||(tab==="plan"&&planView==="food")?viewFoodTab(): tab==="plan"?trainSwitch()+viewPlan(): tab==="progress"?trainSwitch()+viewProgress(): tab==="ranks"?viewRanks(): viewAdvice();
+  const html = tab==="hub"&&typeof viewHub==="function"?viewHub(): tab==="home"?trainSwitch()+(WS_ON&&typeof viewWorld==="function"?viewWorld(openLogger):viewHome(openLogger)): tab==="food"||(tab==="plan"&&planView==="food")?(typeof setTabs==="function"?setTabs("food"):"")+viewFoodTab(): tab==="plan"?(typeof setTabs==="function"?setTabs("plan"):trainSwitch())+viewPlan(): tab==="progress"?trainSwitch()+viewProgress(): tab==="ranks"?viewRanks(): viewAdvice();
   if(sameTab) morph(v,html); else { v.innerHTML=html; v.dataset.vtab=tab; window.scrollTo(0,(window.__tabY||{})[tab]||0) }
   applyDrafts();
-  viewBind(v,()=>{ bind(); if(tab==="ranks") bindRanks() }); if(tab==="hub"&&typeof hubMaybeTour==="function") hubMaybeTour(); if(tab==="hub"&&typeof maybeRecap==="function") setTimeout(()=>{ maybeRecap(); if(typeof maybeInvite==="function") maybeInvite() },400); else if(typeof HT!=="undefined"&&HT.i>=0) hubTourEnd(); if(typeof gameAfterRender==="function") gameAfterRender();
+  viewBind(v,()=>{ bind(); if(tab==="ranks") bindRanks(); if(typeof wsAfter==="function"&&tab==="home") wsAfter() }); document.body.classList.toggle("ws-page",tab==="home"&&typeof WS_ON!=="undefined"&&WS_ON&&!wsLog); if(tab==="hub"&&typeof hubMaybeTour==="function") hubMaybeTour(); if(tab==="hub"&&typeof maybeRecap==="function") setTimeout(()=>{ maybeRecap(); if(typeof maybeInvite==="function") maybeInvite() },400); else if(typeof HT!=="undefined"&&HT.i>=0) hubTourEnd(); if(typeof gameAfterRender==="function") gameAfterRender();
   setTimeout(maybeOverload,0); setTimeout(rankNotify,0); if(typeof questNotify==="function") setTimeout(questNotify,0);
 }
 function renderTop(){
   if(tab==="hub"){ if(document.title!==APP_NAME) document.title=APP_NAME; $("#top").innerHTML=""; $("#top").classList.add("hub-top"); return } $("#top").classList.remove("hub-top");
-  if(tab==="food"||tab==="ranks"||tab==="advice"||(tab==="plan"&&planView==="food")){ if(document.title!==APP_NAME) document.title=APP_NAME;
-    const T={food:"Food",plan:"Food",ranks:"Ranks",advice:"System"}[tab];
+  if(tab==="food"||tab==="ranks"||tab==="advice"||tab==="plan"){ if(document.title!==APP_NAME) document.title=APP_NAME;
+    const T={food:"Settings",plan:"Settings",ranks:"Ranks",advice:"System"}[tab];
     morph($("#top"),`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}</span></div><h1 class="top-week">${T}</h1>`); return }
   const w=Math.max(1,weekOf(today)), mon=monOf(w);
   let wkPlan=0, wkDone=0; for(let i=0;i<7;i++){ const d=addDays(mon,i), p=planFor(d); if(p&&p.type!=="rest"&&!preStart(d)){ wkPlan++; if(S.logs[ymd(d)]) wkDone++ } }
@@ -1341,10 +1342,10 @@ const TAB_ICON=(()=>{ const sv=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="
     me:sv('<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>'),
     advice:sv('<path d="M5 18.5V7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H8.5z"/><path d="M9 9.5h6M9 12.5h4"/>') } })();
 function renderTabs(){
-  const T=[["hub","Home"],["home","Train"],...(FOOD_ON?[["food","Food"]]:[]),["ranks","Ranks"],["advice","System"]];
+  const T=[["hub","Home"],["home","Train"],["ranks","Ranks"],["advice","System"]];
   const n=unseenAdvice(); let rk=0;
-  const cur= tab==="food"||(tab==="plan"&&planView==="food")? "food" : tab==="plan"||tab==="progress"? "home" : tab;
-  morph($("#tabs"),T.map(([id,l])=>`<button data-tab="${id}" class="${cur===id?"on":""}" aria-current="${cur===id}">${TAB_ICON[id]}${l}${id==="advice"&&n&&tab!=="advice"?`<span class="badge">${n}</span>`:""}${id==="ranks"&&tab!=="ranks"&&(rk=rkAlertCount())?`<span class="badge">${rk}</span>`:""}</button>`).join("")+(window.__platform?`<button type="button" data-acct="1">${TAB_ICON.me}Profile</button>`:""));
+  const cur= tab==="food"||tab==="plan"? "me" : tab==="progress"? "home" : tab;
+  morph($("#tabs"),T.map(([id,l])=>`<button data-tab="${id}" class="${cur===id?"on":""}" aria-current="${cur===id}">${TAB_ICON[id]}${l}${id==="advice"&&n&&tab!=="advice"?`<span class="badge">${n}</span>`:""}${id==="ranks"&&tab!=="ranks"&&(rk=rkAlertCount())?`<span class="badge">${rk}</span>`:""}</button>`).join("")+(window.__platform?`<button type="button" data-acct="1" class="${tab==="plan"||tab==="food"?"on":""}" aria-current="${tab==="plan"||tab==="food"}">${TAB_ICON.me}Profile</button>`:""));
   document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{if(b.dataset.tab==="progress"&&tab==="progress") runSel=null; tab=b.dataset.tab; try{localStorage.setItem("rd25-tab",tab)}catch(e){} if(tab==="advice"&&S.advice.at>(S.advice.seenAt||0)){S.advice.seenAt=S.advice.at;saveAdvice()} render(); window.scrollTo(0,0)});
 }
 
