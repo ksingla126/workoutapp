@@ -1115,7 +1115,9 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 /* ---------- State & storage ---------- */
 const S={photos:{},over:{},logs:{},meals:{},profile:{about:"",raceDate:"",weights:[],grocery:{}},chat:[],advice:{items:[],stamp:"",at:0,seenAt:0,history:[]}};
 let mode="local", refs=null, sampleFn=null, userReady=false, loaded={logs:false,advice:false,profile:false};
-const today=midnight(new Date());
+const DAY_RESET_H=4; // the app's day runs 4 a.m. to 4 a.m., so a late-night workout still lands on that day
+const appNow=()=>new Date(Date.now()-DAY_RESET_H*3600e3);
+const today=midnight(appNow());
 WEEKS=Math.max(1,weekOf(today))+12;
 let sel = inProgram(today)? today : START;
 let tab="home";
@@ -3075,7 +3077,7 @@ function bindSetup(){
 document.addEventListener("click",e=>{ const b=e.target.closest&&e.target.closest("[data-su-edit]"); if(!b) return; setupOpen=true; SUW=null; render(); window.scrollTo(0,0) });
 
 // A home-screen app can stay open overnight: start fresh when the date changes.
-document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible" && ymd(new Date())!==ymd(today)) location.reload() });
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible" && ymd(appNow())!==ymd(today) && !(typeof TM!=="undefined" && TM && TM.start)) location.reload() });
 boot(); tick(); if(TM.start) keepAwake(true);
 </script>
 
