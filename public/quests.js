@@ -3,7 +3,7 @@
    Quests never touch ranks: Discipline stays based on training consistency.
    State lives in S.profile.quests: {since, ticks:{day:{id:true}}, seen:{day:[ids]}, paths:[...], offers:[...], declined:{id:day}, scanAt, aboutSeen} */
 
-const Q_RESET_H = 4;          // a quest day runs 4 a.m. to 4 a.m., so a late workout still counts
+const Q_RESET_H = typeof DAY_RESET_H === "number" ? DAY_RESET_H : 4;          // a quest day runs 4 a.m. to 4 a.m., so a late workout still counts
 const Q_MAX_PATHS = 5;
 const Q_PATH_DAYS = 30;
 
