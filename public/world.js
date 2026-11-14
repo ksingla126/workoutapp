@@ -115,11 +115,12 @@ function wsCard(p, k, pick) {
     const parts = String(p.d || "").split(" · "), ty = pick.type;
     sub = `${M.sub || ""}${p.t ? ` <b>${esc(p.t)}</b>${p.d ? ` · ${esc(p.d)}` : ""}` : ""}`;
     stats = [parts[0] ? esc(parts[0]).toUpperCase() : "", WS_RUNTAG[ty] || "", /bpm/.test(p.d || "") ? "ZONE 2" : ""].filter(Boolean);
-    btn = log ? go("TRAIL CLEARED ✓ · VIEW LOG", `data-wslog="1"`)
+    btn = log ? go("TRAIL CLEARED ✓ · VIEW REPORT", `data-wsana="${k}"`)
       : running ? go("RETURN TO THE TRAIL", `data-openlive="1"`)
       : isToday ? go(M.btn, `data-wsrun="${k}"`)
       : past ? go("LOG THIS TRAIL", `data-wsrun="${k}"`)
       : `<button type="button" class="ws-go" disabled>OPENS ${when}</button>`;
+    if (log) menu.push(`<button type="button" data-wslog="1">View log</button>`);
     if (!log) menu.push(...(!p.race && typeof runNewHtml === "function" ? [`<button type="button" data-runswap="${k}">Edit trail</button>`] : []), `<button type="button" data-daymove="${k}|move">Move</button>`, `<button type="button" data-dayskip="${k}">Rest day</button>`);
   }
   return `<div class="ws-card" id="wsCard"><div class="ws-line"><span class="ws-bang">!</span>[SYSTEM] ${line}</div>
@@ -691,8 +692,9 @@ function wsrSave(k) {
   delete imports[k]; delete drafts[k + "|strava"]; persistDrafts();
   const spec = runSpec(null, p), extra = spec.runwalk ? { reps: rxRepN(k, p, null, spec) } : {};
   wsRun = null; document.querySelectorAll("body > .wsb").forEach(x => x.remove());
-  saveLog(k, { type: "run", key: p.key, rpe: null, ...extra, mi: Math.round(N.mi * 1000) / 1000, min: Math.round(N.min * 100) / 100, notes: "", st, analysis: null, savedAt: Date.now() })
-    .then(() => { toast("Run saved. Your coach is analyzing it…"); lastRenderKey = ""; render(); setTimeout(() => analyzeRun(k), 300); setTimeout(maybeAutoAdvice, 20000) });
+  const old = S.logs[k] && S.logs[k].type === "run" ? S.logs[k] : null;
+  saveLog(k, { type: "run", key: p.key, rpe: old ? old.rpe || null : null, ...extra, mi: Math.round(N.mi * 1000) / 1000, min: Math.round(N.min * 100) / 100, notes: old ? old.notes || "" : "", st, analysis: null, savedAt: Date.now() })
+    .then(() => { lastRenderKey = ""; render(); setTimeout(() => { wsnOpen(k, "coach"); analyzeRun(k) }, 300); setTimeout(maybeAutoAdvice, 20000) });
 }
 document.addEventListener("click", e => {
   if (!WS_ON || tab !== "home" || wsLog) return;
@@ -927,4 +929,204 @@ body:has(.wsa-float){cursor:grabbing;user-select:none;-webkit-user-select:none}
 @keyframes wsaT{to{transform:scaleX(0)}}
 .wsa .wsr-save[disabled]{opacity:.5;cursor:default;filter:grayscale(.5)}
 @media (prefers-reduced-motion:reduce){.wsa-meter i{transition:none}}
+`; document.head.appendChild(st) }
+
+/* ---------- Run report: the analysis of a logged run as a pop-up ----------
+   Runs with a file (GPX, TCX…) get the tabs: Effort, Pace, Intervals, Elevation, Vs. last, Coach, each with the
+   full breakdown's charts. Runs typed in by hand or read from screenshots get no charts: the coach's read, and a
+   prompt to upload the file. Opens from a cleared run island, and right after an upload is saved. */
+let wsAna = null;  // {k, tab, el}
+const WSN_Z = ["#7E8AA0", "#7FC8A9", "#E8C27A", "#E39A5A", "#E0675A"];
+function wsnTabs(l) {
+  const st = l.st || {}, S2 = st.series, t = [];
+  if (S2 && S2.t && S2.t.length > 3) {
+    if (S2.hr && S2.hr.some(x => x)) t.push(["effort", "EFFORT"]);
+    t.push(["pace", "PACE"]);
+    if (segmentsOf(st).length > 1) t.push(["intervals", "INTERVALS"]);
+    if (S2.e && S2.e.filter(x => x != null).length > 3) t.push(["elev", "ELEVATION"]);
+  }
+  const prev = runList().find(([kk, ll]) => kk < wsAna.k && ll.key === l.key); if (prev) t.push(["vs", "VS. LAST"]);
+  t.push(["coach", "COACH"]);
+  return t;
+}
+function wsnVerdict(k, l) {
+  const tx = l.analysis && l.analysis.text, m = tx && tx.match(/\*\*Verdict\*\*\s*[—–-]?\s*([\s\S]*?)(?:\n\s*\*\*|$)/);
+  if (m && m[1].trim()) return m[1].trim().replace(/\*\*/g, "");
+  try { const c = runCheck(k, l); if (c && c.verdict) return c.verdict } catch (_) { }
+  return "";
+}
+function wsnFrame(title, right, body) { return `<div class="wsn-fr"><div><span>${title}</span><em>${right || ""}</em></div>${body}</div>` }
+function wsnTiles(list, n) { return `<div class="wsb-boxes wsn-tiles" style="grid-template-columns:repeat(${n || list.length},1fr)">${list.map(([v, l]) => `<div><b>${esc(String(v))}</b><span>${esc(l)}</span></div>`).join("")}</div>` }
+function wsnTab(k, l, tab) {
+  const st = l.st || {}, S2 = st.series;
+  if (tab === "effort") {
+    let h = "";
+    if (isHrRun(k)) { const r = hrRange(S2); if (r) h += wsnTiles([[`${Math.round(r.pctIn)}%`, `In ${HR_LO}–${HR_HI}`], [fmtMin(r.above), `Above ${HR_HI}`], [fmtMin(r.below), `Below ${HR_LO}`]]) }
+    h += wsnFrame("HEART RATE", st.avgHr ? `AVG ${st.avgHr} · MAX ${st.maxHr}` : "", tsChart({ xs: S2.t, ys: S2.hr, color: "#DEF1E9", fmtY: v => Math.round(v), hlines: isHrRun(k) ? [HR_LO, HR_HI] : null,
+      hbands: [0, .6, .7, .8, .9].map((f, i) => ({ y0: i ? f * HR_MAX_EST : 0, y1: i < 4 ? [.6, .7, .8, .9][i] * HR_MAX_EST : 400, color: WSN_Z[i], op: .16, label: "Z" + (i + 1) })) }));
+    const z = zoneTimes(S2); if (z) { const zt = z.reduce((a, b) => a + b, 0);
+      h += wsnFrame("TIME IN ZONES", "", `<div class="wsn-zbar">${z.map((m, i) => m ? `<i style="width:${m / zt * 100}%;background:${WSN_Z[i]}"></i>` : "").join("")}</div>
+        <div class="wsn-zg">${z.map((m, i) => `<div><span style="color:${WSN_Z[i]}">Z${i + 1}</span><b>${fmtMin(m)}</b><em>${Math.round(m / zt * 100)}%</em></div>`).join("")}</div>`) }
+    try { const c = runCheck(k, l), r = c && runCoach(k, l, c); if (r && r.items.length) h += `<div class="wsn-items">${r.items.map(([t, a, b]) => `<div class="${t}"><span>${{ good: "✓", watch: "!", fix: "↻" }[t]}</span><div><b>${esc(a)}</b><em>${esc(b)}</em></div></div>`).join("")}</div>` } catch (_) { }
+    return h;
+  }
+  if (tab === "pace") {
+    const segs = segmentsOf(st), pv = S2.p, lo = pct(pv, .03), hi = pct(pv, .97);
+    const bands = segs.filter(x => x.r !== 0).map(x => ({ x0: x.t0, x1: x.t1, color: x.r === 1 ? "#22A06B" : "#8F97A6", op: x.r === 1 ? .2 : .25 }));
+    let h = wsnFrame("PACE", "HIGHER = FASTER", tsChart({ xs: S2.t, ys: pv, color: "#7FC8A9", invert: true, fmtY: v => fmtMin(v), bands, yMin: lo != null ? Math.max(6, lo) : null, yMax: hi != null ? Math.min(30, hi) : null }))
+      + `<div class="wsn-leg"><span><i style="background:rgba(34,160,107,.45)"></i>RUNNING</span><span><i style="background:transparent;border:1px solid #3A3D44"></i>WALKING</span><span><i style="background:rgba(143,151,166,.5)"></i>STOPPED</span></div>`;
+    const sp = (st.splits || []).filter(x => x.pace > 0);
+    if (sp.length) { const fast = Math.min(...sp.map(x => x.pace)), hasHr = sp.some(x => x.hr), hasEl = sp.some(x => x.elev != null);
+      h += wsnFrame("SPLITS", "", `<div class="wsn-sp hd"><span>${RU() === "km" ? "KM" : "MILE"}</span><span></span><span>PACE</span><span>${[hasHr ? "HR" : "", hasEl ? "ELEV" : ""].filter(Boolean).join(" · ")}</span></div>`
+        + sp.map(x => `<div class="wsn-sp"><span>${x.mi < 1 ? x.mi.toFixed(2) : x.n}</span><span class="b"><i style="width:${Math.max(8, fast / x.pace * 100)}%"></i></span><b>${fmtMin(x.pace)}</b><span>${[x.hr ? x.hr : "", x.elev != null ? `${x.elev > 0 ? "+" : ""}${x.elev} ft` : ""].filter(Boolean).join(" · ")}</span></div>`).join("")) }
+    return h;
+  }
+  if (tab === "intervals") {
+    const segs = segmentsOf(st), tot = S2.t[S2.t.length - 1] || 1, runs = segs.filter(x => x.r === 1);
+    let h = wsnFrame("RUN AND WALK", `${runs.length} RUN SEGMENT${runs.length === 1 ? "" : "S"}`, `<div class="wsn-strip">${segs.map(x => `<i style="width:${(x.t1 - x.t0) / tot * 100}%;background:${x.r === 1 ? "#22A06B" : x.r === 0 ? "rgba(180,122,63,.45)" : "#3A3D44"}"></i>`).join("")}</div>
+      <div class="wsn-iv hd"><span>SEGMENT</span><span>TIME</span><span>PACE</span><span>HR</span></div>${segs.map(x => `<div class="wsn-iv ${x.r === 1 ? "run" : ""}"><span>${x.r === 1 ? "●" : "○"} ${x.type}</span><span>${fmtMin(x.dur)}</span><span>${x.pace ? fmtMin(x.pace) : "–"}</span><span>${x.hr || "–"}</span></div>`).join("")}`);
+    if (typeof runCheckHtml === "function") { const rc = runCheckHtml(k, l); if (rc) h += `<div class="wsn-rc">${rc}</div>` }
+    return h;
+  }
+  if (tab === "elev") {
+    const ev = S2.e.filter(x => x != null), rng = Math.max(...ev) - Math.min(...ev);
+    return wsnFrame("ELEVATION", `+${st.elevFt || 0} FT GAIN`, rng < 12 ? `<p class="wsn-p">Flat route: ${Math.round(rng)} ft between the highest and lowest point.</p>` : tsChart({ xs: S2.t, ys: S2.e, color: "#F4C48E", fmtY: v => Math.round(v) + " ft" }));
+  }
+  if (tab === "vs") {
+    const [pk, pl] = runList().find(([kk, ll]) => kk < k && ll.key === l.key), ps = pl.st || {}, cs = st, pace = l.mi && l.min ? l.min / l.mi : null;
+    const rows = [["Distance", l.mi, pl.mi, v => dTxt(v, 2), 1], ["Avg pace", pace, pl.mi && pl.min ? pl.min / pl.mi : null, v => paceTxt(v), -1], ["Avg HR", cs.avgHr, ps.avgHr, v => v + " bpm", -1], ["Running time", cs.runMin, ps.runMin, v => fmtMin(v), 1]].filter(r => r[1] != null && r[2] != null);
+    const pd = parseYmd(pk);
+    return wsnFrame(`VS. ${fmtShort(pd).toUpperCase()}`, "", `<div class="wsn-vs hd"><span></span><span>THIS RUN</span><span>${DOW[dowOf(pd)].toUpperCase()} ${pd.getDate()}</span><span>CHANGE</span></div>`
+      + rows.map(([n, a, b, f, good]) => { const d = a - b, better = d * good > 0, tx = n === "Avg pace" ? `${d > 0 ? "+" : "−"}${fmtMin(Math.abs(d))}` : n === "Distance" ? `${d >= 0 ? "+" : "−"}${Math.abs(d).toFixed(2)}` : n === "Running time" ? `${d >= 0 ? "+" : "−"}${fmtMin(Math.abs(d))}` : `${d >= 0 ? "+" : "−"}${Math.abs(Math.round(d))}`;
+        return `<div class="wsn-vs"><span>${n}</span><b>${esc(f(a))}</b><span>${esc(f(b))}</span><em class="${Math.abs(d) < 1e-6 ? "" : better ? "up" : ""}">${tx}</em></div>` }).join(""));
+  }
+  // coach: the written analysis, streamed in while it's being written
+  return `<div class="wsn-ana ana" id="ana-${k}">${anaHtml(k)}</div><div class="wsn-acts"><button type="button" id="anaBtn" data-ana="${k}" ${anaBusy[k] != null || !sampleFn ? "disabled" : ""}>${l.analysis ? "RE-ANALYZE" : "ANALYZE RUN"}</button><button type="button" data-wsnlog="${k}">OPEN THE FULL LOG</button></div>`;
+}
+function wsnPaint() {
+  const A = wsAna; if (!A || !A.el) return;
+  const k = A.k, l = S.logs[k]; if (!l || l.type !== "run") { wsnClose(); return }
+  const d = parseYmd(k), p = planFor(d), pick = wsPick(p && p.type === "run" ? p : { type: "run", t: "Run" }, k), st = l.st || {};
+  const hasFile = !!(st.series && st.series.t && st.series.t.length > 3);
+  const from = st.app || (st.src === "gpx" ? "GPX FILE" : st.src === "strava" ? "SCREENSHOTS" : "");
+  const when = `${DOW[dowOf(d)].toUpperCase()} ${fmtShort(d).toUpperCase()}`;
+  const pace = l.mi && l.min ? l.min / l.mi : null, verdict = wsnVerdict(k, l);
+  const tiles = [[dTxt(l.mi, 2).replace(/ (mi|km)$/, ""), RU() === "km" ? "Km" : "Miles"], [fmtMin(st.movingMin || l.min), st.movingMin ? "Moving" : "Time"], [pace ? fmtMin(pace) : "–", RU() === "km" ? "Pace /km" : "Pace /mi"],
+    st.avgHr ? [st.avgHr, "Avg HR"] : l.rpe ? [`${l.rpe}/10`, "Effort"] : st.elevFt != null ? [`+${st.elevFt}`, "Elev ft"] : [l.reps || "–", "Reps"]];
+  let body;
+  if (hasFile) {
+    const tabs = wsnTabs(l); if (!tabs.some(t => t[0] === A.tab)) A.tab = tabs[0][0];
+    body = `<div class="wsn-tabs" role="tablist">${tabs.map(([id, n]) => `<button type="button" role="tab" aria-selected="${id === A.tab}" data-wsntab="${id}">${n}</button>`).join("")}</div><div class="wsn-pane" role="tabpanel">${wsnTab(k, l, A.tab)}</div>`;
+  } else {
+    let c = null; try { c = runCheck(k, l) } catch (_) { }
+    const grade = c ? { good: "A", ok: "B", bad: "C" }[c.tone] || "B" : "B";
+    body = `<label class="wsn-up" for="wsnFile"><svg width="34" height="34" viewBox="0 0 30 30" fill="none" stroke="#F4C48E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 24l6-8 5 4 6-10 5 6"/><path d="M4 4v20h22"/></svg>
+        <span><b>CHARTS NEED THE RUN FILE</b><em>Upload the GPX or TCX to add pace, heart rate, zones, splits, run/walk and elevation.</em></span><i>UPLOAD</i><input type="file" id="wsnFile" accept=".gpx,.tcx,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml" hidden></label>
+      <div class="wsr-rule"><i></i><span>COACH'S READ</span><i></i></div>${c && c.notes && c.notes.length ? `<ul class="wsn-notes">${c.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}
+      <div class="wsn-ana ana" id="ana-${k}">${anaHtml(k)}</div><div class="wsn-acts"><button type="button" id="anaBtn" data-ana="${k}" ${anaBusy[k] != null || !sampleFn ? "disabled" : ""}>${l.analysis ? "RE-ANALYZE" : "ANALYZE RUN"}</button><button type="button" data-wsnlog="${k}">OPEN THE FULL LOG</button></div>`;
+    A.grade = grade;
+  }
+  const seal = hasFile ? "" : `<div class="wsn-seal"><span><b>${A.grade}</b><em>${({ A: "ON PLAN", B: "FINISHED", C: "OFF PLAN" })[A.grade]}</em></span></div>`;
+  const keep = A.el.querySelector(".wsr-scroll"), top = keep ? keep.scrollTop : 0;
+  A.el.innerHTML = `<button type="button" class="wsb-bg" data-wsnx="1" aria-label="Close"></button><div class="wsb-card wsn-card"><div class="wsb-in"><div class="wsr-scroll">
+    <div class="wsb-eb"><span>${hasFile ? "RUN ANALYSIS" : "TRAIL REPORT"} · ${when}${from ? ` · ${esc(hasFile ? "FROM " + from.toUpperCase() : "LOGGED " + (st.src === "strava" ? "FROM SCREENSHOTS" : "BY HAND"))}` : hasFile ? "" : " · LOGGED BY HAND"}</span><button type="button" class="wsb-x" data-wsnx="1" aria-label="Close">✕</button></div>
+    <div class="wsn-head">${seal}<div><div class="wsb-title">${esc(String(pick.name || "Run").toUpperCase())}</div>${verdict ? `<div class="wsb-plain">${esc(verdict)}</div>` : ""}</div></div>
+    ${wsnTiles(tiles)}${body}</div></div></div>`;
+  const sc = A.el.querySelector(".wsr-scroll"); if (sc) sc.scrollTop = top;
+}
+function wsnOpen(k, tab) {
+  wsnClose(); wsPop = null; wsRun = null; document.querySelectorAll("body > .wsb:not(.wsn)").forEach(x => x.remove());
+  const el = document.createElement("div"); el.className = "wsb wsn anim"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "Run report");
+  wsAna = { k, tab: tab || "effort", el }; document.body.appendChild(el); wsnPaint(); setTimeout(() => el.classList.remove("anim"), 300);
+}
+function wsnClose() { if (wsAna && wsAna.el) wsAna.el.remove(); wsAna = null }
+// keep the report in step while the coach writes, or when the log changes
+const _wsnPaintAna = typeof paintAna === "function" ? paintAna : null;
+if (_wsnPaintAna) paintAna = function (k) { _wsnPaintAna(k); if (wsAna && wsAna.k === k && anaBusy[k] == null) wsnPaint() };
+document.addEventListener("click", e => {
+  const t = e.target;
+  const o = t.closest && t.closest("[data-wsana]"); if (o) { e.preventDefault(); wsnOpen(o.dataset.wsana); return }
+  if (!wsAna || !t.closest(".wsn")) return;
+  if (t.closest("[data-wsnx]")) { wsnClose(); return }
+  const an = t.closest("[data-ana]"); if (an && !an.disabled) { analyzeRun(an.dataset.ana); return }
+  const tb = t.closest("[data-wsntab]"); if (tb) { wsAna.tab = tb.dataset.wsntab; const sc = wsAna.el.querySelector(".wsr-scroll"); wsnPaint(); const s2 = wsAna.el.querySelector(".wsr-scroll"); if (s2) s2.scrollTop = 0; return }
+  const lg = t.closest("[data-wsnlog]"); if (lg) { const k = lg.dataset.wsnlog; wsnClose(); sel = parseYmd(k); tab = "home"; wsLog = true; wsPop = null; lastRenderKey = ""; render(); window.scrollTo(0, 0); return }
+});
+// a run typed in by hand: upload its file from the report, then save it over the log
+document.addEventListener("change", e => { if (e.target && e.target.id === "wsnFile" && wsAna) { const f = e.target.files && e.target.files[0], k = wsAna.k; e.target.value = ""; if (!f) return;
+  wsnClose(); sel = parseYmd(k); wsRun = { k, stage: "pick", anim: false, keep: true }; lastRenderKey = ""; render(); wsrRead(f) } });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && wsAna) wsnClose() });
+{ const st = document.createElement("style"); st.id = "wsnCss"; st.textContent = `.wsn .wsn-card{flex:1;max-height:100%}
+.wsn .wsb-in{height:100%;padding:0;overflow:hidden}
+.wsn-head{display:flex;gap:14px;align-items:center;margin-top:8px}
+.wsn-head .wsb-title{margin-top:0;font-size:26px}
+.wsn-head .wsb-plain{margin:4px 0 0;line-height:1.45}
+.wsn .wsn-tiles{margin-top:12px}
+.wsn .wsn-tiles b{font-size:17px}
+.wsn-seal{width:74px;height:74px;flex-shrink:0;border-radius:50%;padding:3px;box-sizing:border-box;background:linear-gradient(90deg,var(--m0),var(--m1) 40%,var(--m2) 60%,var(--m0));box-shadow:0 8px 20px rgba(0,0,0,.7)}
+.wsn-seal>span{width:100%;height:100%;border-radius:50%;display:grid;place-content:center;text-align:center;background:radial-gradient(circle at 40% 35%,#1E2A24,#0A0A0D)}
+.wsn-seal b{font:900 30px/1 "Barlow Semi Condensed",sans-serif;background:linear-gradient(180deg,var(--core),var(--mid));-webkit-background-clip:text;background-clip:text;color:transparent}
+.wsn-seal em{font:800 7.5px/1 "Barlow Semi Condensed",sans-serif;font-style:normal;letter-spacing:.16em;color:var(--m2);margin-top:2px}
+.wsn-tabs{position:sticky;top:-18px;z-index:2;display:flex;gap:16px;margin:14px -18px 0;padding:10px 18px 0;background:#0A0A0D;border-bottom:1px solid rgba(180,122,63,.3);overflow-x:auto;scrollbar-width:none}
+.wsn-tabs::-webkit-scrollbar{display:none}
+.wsn-tabs button{all:unset;cursor:pointer;padding-bottom:9px;white-space:nowrap;font:800 10.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;color:#6E7480;border-bottom:2px solid transparent}
+.wsn-tabs button[aria-selected="true"]{color:var(--core);border-bottom-color:var(--m2)}
+.wsn-tabs button:focus-visible{outline:2px solid var(--m2);outline-offset:2px}
+.wsn-pane{padding-top:4px}
+.wsn-pane>.wsb-boxes{margin-top:12px}
+.wsn-fr{margin-top:12px;border-radius:14px;padding:10px 8px 8px;border:2px solid transparent;background:linear-gradient(#08090B,#08090B) padding-box,linear-gradient(90deg,var(--m0),var(--m1) 40%,var(--m2) 60%,var(--m0)) border-box}
+.wsn-fr>div:first-child{display:flex;justify-content:space-between;align-items:center;padding:0 4px 6px;gap:8px}
+.wsn-fr>div:first-child span{font:800 8.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.3em;color:var(--m2)}
+.wsn-fr>div:first-child em{font:800 9px/1 "Barlow Semi Condensed",sans-serif;font-style:normal;letter-spacing:.12em;color:var(--mid)}
+.wsn .chart text{fill:#6E7480;font:600 9px "Barlow Semi Condensed",sans-serif}
+.wsn .chart .grid-line{stroke:rgba(245,241,230,.06)}
+.wsn .chart line:not(.grid-line){stroke:#7FC8A9}
+.wsn-p{margin:4px;font-size:12.5px;color:#B9BFCA}
+.wsn-leg{display:flex;gap:12px;margin-top:8px;font:700 9.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.1em;color:var(--mut)}
+.wsn-leg i{display:inline-block;width:10px;height:8px;margin-right:5px;vertical-align:-1px}
+.wsn-zbar{display:flex;height:12px;border-radius:6px;overflow:hidden;margin:2px 4px 0}
+.wsn-zg{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:8px;text-align:center}
+.wsn-zg span{display:block;font:800 8.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.1em}
+.wsn-zg b{display:block;font:800 12.5px/1 "Barlow Semi Condensed",sans-serif;margin-top:4px;color:#F5F1E6}
+.wsn-zg em{display:block;font-style:normal;font-size:9.5px;color:var(--mut);margin-top:2px}
+.wsn-sp,.wsn-iv,.wsn-vs{display:grid;gap:8px;align-items:center;padding:7px 4px;border-top:1px solid rgba(245,241,230,.06);font:700 12px/1 "Barlow Semi Condensed",sans-serif;color:#F5F1E6}
+.wsn-sp{grid-template-columns:34px 1fr 44px 74px}
+.wsn-sp span:first-child{color:var(--mut)}.wsn-sp span:last-child{text-align:right;color:var(--mut)}
+.wsn-sp .b{height:8px;border-radius:4px;background:#14181A;overflow:hidden}.wsn-sp .b i{display:block;height:100%;background:var(--mid)}
+.wsn-iv{grid-template-columns:1fr 50px 54px 34px;color:var(--mut)}.wsn-iv.run{color:var(--core)}.wsn-iv span:last-child{text-align:right}
+.wsn-vs{grid-template-columns:1fr 66px 66px 54px}.wsn-vs span:first-child{font:500 12px/1.2 Barlow,sans-serif;color:var(--mut)}.wsn-vs span{color:var(--mut)}.wsn-vs em{font-style:normal;text-align:right;color:var(--mut)}.wsn-vs em.up{color:var(--mid)}
+.wsn-sp.hd,.wsn-iv.hd,.wsn-vs.hd{border-top:0;padding-bottom:4px;font:800 8.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;color:#A08060}
+.wsn-vs.hd span,.wsn-vs.hd em{color:#A08060}
+.wsn-strip{display:flex;height:14px;border-radius:5px;overflow:hidden;gap:1px;margin:2px 4px 6px}
+.wsn-items{margin-top:10px}
+.wsn-items>div{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid rgba(245,241,230,.06)}
+.wsn-items>div>span{width:18px;height:18px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;font:900 10.5px/1 "Barlow Semi Condensed",sans-serif;background:rgba(127,200,169,.15);color:var(--mid)}
+.wsn-items .watch>span{background:rgba(232,194,122,.15);color:#E8C27A}.wsn-items .fix>span{background:rgba(244,196,142,.15);color:var(--m2)}
+.wsn-items b{display:block;font:700 13px/1.25 Barlow,sans-serif;color:#F5F1E6}.wsn-items em{display:block;font-style:normal;font-size:11.5px;color:var(--mut);margin-top:2px;line-height:1.4}
+.wsn-rc{margin-top:12px;font-size:12.5px;color:#C9CED7}
+.wsn-rc .eyebrow{font:800 9px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.24em;color:var(--mid);margin-bottom:6px}
+.wsn-rc .rc-v{margin:6px 0;padding-left:10px;border-left:3px solid var(--mid);color:#F5F1E6;line-height:1.45}
+.wsn-rc .stv{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+.wsn-rc .stv>div{padding:8px 6px;border-radius:9px;background:#0C0F10;border:1px solid rgba(245,241,230,.06);text-align:center}
+.wsn-rc .stv .l{display:block;font:700 8.5px/1.2 "Barlow Semi Condensed",sans-serif;letter-spacing:.12em;color:var(--mut);text-transform:uppercase}
+.wsn-rc .stv .v{display:block;font:800 14px/1 "Barlow Semi Condensed",sans-serif;color:var(--m2);margin-top:4px}
+.wsn-rc .rc-r{display:grid;grid-template-columns:24px 1fr 1fr 1fr 1fr;gap:6px;padding:6px 0;border-top:1px solid rgba(245,241,230,.06);font:700 12px/1 "Barlow Semi Condensed",sans-serif}
+.wsn-rc .rc-n{margin:8px 0 0;padding-left:18px;color:var(--mut);line-height:1.5}
+.wsn-rc .rc-coach{display:none}
+.wsn-ana{margin-top:12px;font-size:13px;line-height:1.55;color:#D2CCBF}
+.wsn-ana p{margin:0 0 10px}
+.wsn-ana strong,.wsn-ana b{color:var(--m2)}
+.wsn-ana p>strong:first-child,.wsn-ana p>b:first-child{display:block;font:800 9.5px/1.4 "Barlow Semi Condensed",sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--mid)}
+.wsn-ana ul,.wsn-ana ol{margin:4px 0 10px;padding-left:18px}
+.wsn-ana .muted{color:var(--mut)}
+.wsn-notes{margin:0 0 6px;padding-left:18px;font-size:12.5px;line-height:1.5;color:#C9CED7}
+.wsn-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.wsn-acts button{all:unset;cursor:pointer;font:800 10.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;color:var(--m2);padding:9px 11px;border-radius:8px;border:1px solid rgba(180,122,63,.35)}
+.wsn-acts button[disabled]{opacity:.5;cursor:default}
+.wsn-acts button:focus-visible,.wsn-up:focus-within{outline:2px solid var(--m2);outline-offset:2px}
+.wsn-up{margin-top:14px;padding:14px;border-radius:14px;border:1.5px dashed rgba(244,196,142,.45);background:rgba(180,122,63,.05);display:flex;gap:12px;align-items:center;cursor:pointer}
+.wsn-up>span{flex:1;min-width:0}
+.wsn-up b{display:block;font:800 13px/1.2 "Barlow Semi Condensed",sans-serif;letter-spacing:.06em;color:#F5F1E6}
+.wsn-up em{display:block;font-style:normal;font-size:11.5px;color:var(--mut);margin-top:3px;line-height:1.4}
+.wsn-up>i{font:800 10px/1 "Barlow Semi Condensed",sans-serif;font-style:normal;letter-spacing:.14em;color:var(--m2);padding:8px 10px;border-radius:8px;border:1px solid rgba(244,196,142,.4)}
 `; document.head.appendChild(st) }
