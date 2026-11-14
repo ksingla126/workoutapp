@@ -125,11 +125,15 @@ function lvtHtml(k, p, now, resting, justDone) {
 }
 
 // rest ring: runes go dark as the rest runs out
-function lvtTick(restLeft, restDur) {
-  const r = document.getElementById("lvtRing"); if (!r) return;
-  const lit = restDur > 0 ? Math.ceil(Math.max(0, restLeft) / (restDur * 1000) * 12) : 0;
-  r.querySelectorAll("span").forEach((s, i) => s.classList.toggle("off", i >= lit));
+function lvtTick(restLeft, restDur) { lvtRingPaint(); if (!lvtTick.raf) lvtTick.raf = requestAnimationFrame(lvtRingLoop) }
+// each rune holds a twelfth of the rest; the light drains out of it smoothly, one rune after the next, like a clock hand
+function lvtRingPaint() {
+  const r = document.getElementById("lvtRing"); if (!r) return false;
+  const left = TM.restEnd ? Math.max(0, TM.restEnd - Date.now()) : 0, dur = Math.max(1, (TM.restDur || 1) * 1000), f = Math.min(1, left / dur);
+  r.querySelectorAll("span").forEach((s, i) => { const lv = Math.max(0, Math.min(1, f * 12 - i)); s.style.setProperty("--lv", lv.toFixed(3)); s.classList.toggle("off", lv <= 0); s.classList.toggle("edge", lv > 0 && lv < 1) });
+  return true;
 }
+function lvtRingLoop() { lvtTick.raf = 0; if (!lvtRingPaint() || !TM.restEnd || TM.restEnd <= Date.now()) return; lvtTick.raf = requestAnimationFrame(lvtRingLoop) }
 // steppers, ±15 s, and the live numbers on the card
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest("#liveIn.lvt button"); if (!b) return;
@@ -157,7 +161,7 @@ html .live.lvt-on{background:radial-gradient(90% 50% at 50% 0%,color-mix(in srgb
 .lvt-sys b{font:800 10px/1 var(--fnt);letter-spacing:.24em;color:var(--lvt-rmid);margin-right:7px}
 .lvt-sys.blue{border-color:color-mix(in srgb,var(--lvt) 50%,transparent);background:linear-gradient(90deg,color-mix(in srgb,var(--lvt) 18%,transparent),transparent);color:#E2E8F5}.lvt-sys.blue b{color:var(--lvt-mid)}
 .lvt-row{display:flex;gap:14px;align-items:stretch;flex:1;min-height:0}.lvt-col{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:12px;overflow:hidden}
-.lvt-tower{width:52px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;padding-bottom:4px;-webkit-mask-image:linear-gradient(180deg,transparent,#000 14px,#000 calc(100% - 14px),transparent);mask-image:linear-gradient(180deg,transparent,#000 14px,#000 calc(100% - 14px),transparent)}.lvt-tower::-webkit-scrollbar{display:none}.lvt-tower>*{flex-shrink:0}
+.lvt-tower{width:52px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;padding-bottom:4px;-webkit-overflow-scrolling:touch}.lvt-tower::-webkit-scrollbar{display:none}.lvt-tower>*{flex-shrink:0}
 .lvt-spire{width:52px;height:28px}.lvt-base{display:block;width:52px;height:9px;border-radius:2px;background:linear-gradient(90deg,#6B3F17,#F4C48E 40%,#B47A3F 60%,#6B3F17)}
 .lvt-floors{width:100%;display:flex;flex-direction:column;gap:5px}
 .lvt-floor{position:relative;height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:1.5px solid #24221F;border-radius:6px;background:#0E0F12;color:#77736A;font:800 10px/1 var(--fnt);padding:0;cursor:pointer}
@@ -194,7 +198,8 @@ html .live.lvt-on{background:radial-gradient(90% 50% at 50% 0%,color-mix(in srgb
 #liveIn.lvt .lvt-big.blue{color:#F2F6FF;background:linear-gradient(180deg,var(--lvt),color-mix(in srgb,var(--lvt) 68%,black));box-shadow:0 12px 28px -12px var(--lvt)}
 .lvt-rw{position:relative;width:184px;height:184px;display:grid;place-items:center;align-content:center;gap:4px;margin:4px 0}
 .lvt-ring{position:absolute;inset:0}.lvt-ring span{position:absolute;left:50%;top:50%;width:14px;height:22px;margin:-11px 0 0 -7px}
-.lvt-ring .lvt-rune{width:14px;height:22px;filter:drop-shadow(0 0 3px var(--lvt-rmid))}.lvt-ring span.off .lvt-rune{filter:none;opacity:.22}.lvt-ring span.off path{stroke:#4A443D}
+.lvt-ring span{--lv:1}.lvt-ring .lvt-rune{width:14px;height:22px;opacity:calc(.22 + .78 * var(--lv));filter:drop-shadow(0 0 calc(4px * var(--lv)) var(--lvt-rmid))}.lvt-ring path{stroke:color-mix(in srgb,var(--lvt-rmid) calc(var(--lv) * 100%),#4A443D)}.lvt-ring span.edge .lvt-rune{filter:drop-shadow(0 0 calc(7px * var(--lv)) var(--lvt-rcore))}.lvt-ring span.off .lvt-rune{filter:none;opacity:.22}.lvt-ring span.off path{stroke:#4A443D}
+.lvt-tower{position:relative}.lvt-row{position:relative}
 .lvt-clock{position:relative;font:900 46px/1 var(--fnt);font-variant-numeric:tabular-nums}.lvt-rl{position:relative;font:800 9.5px/1 var(--fnt);letter-spacing:.26em;color:var(--mut)}
 .lvt-chips{display:flex;gap:8px;justify-content:center}.lvt-chips button{padding:9px 14px;border-radius:10px;border:1px solid rgba(245,241,230,.14);background:none;color:var(--mut);font:700 13px/1 var(--fnt);cursor:pointer}
 .lvt-next,.lvt-climb{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:color-mix(in srgb,var(--lvt-r) 7%,transparent);border:1px solid color-mix(in srgb,var(--lvt-r) 30%,transparent)}
