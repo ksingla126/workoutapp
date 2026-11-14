@@ -1949,7 +1949,10 @@ function gymSteps(k,p){ const out=[], ex=p.ex; let gi=0;
     gi+=g.length }
   return out }
 // which set is up: the exercise you jumped to in the list (and its superset), else the first set not done
-function liveIdx(steps){ const f=TM.focus; if(f){ const j=steps.findIndex(x=>!x.done&&(x.ex.id===f.id||(f.ss&&x.ex.ss===f.ss))); if(j>=0) return j }
+function liveIdx(steps){ const f=TM.focus; if(f){
+    // just tapped a floor: go to that exercise, even inside a superset; after that set, the superset order takes over again
+    if(f.pick){ const p=steps.findIndex(x=>!x.done&&x.ex.id===f.id); if(p>=0) return p }
+    const j=steps.findIndex(x=>!x.done&&(x.ex.id===f.id||(f.ss&&x.ex.ss===f.ss))); if(j>=0) return j }
   return steps.findIndex(x=>!x.done) }
 // the set after this one: stay on the exercise you jumped to until it's finished, then carry on in order
 function liveNext(steps,idx){ const cur=steps[idx], open=steps.map((x,i)=>i).filter(i=>i!==idx&&!steps[i].done); if(!open.length) return -1;
@@ -2045,7 +2048,7 @@ function bindLive(k,p){
   const $$=id=>document.getElementById(id);
   $$("lvBack").onclick=closeLive;
   document.querySelectorAll("[data-lvjump]").forEach(b=>b.onclick=()=>{ const ex=p.ex.find(e=>e.id===b.dataset.lvjump); if(!ex||b.disabled) return;
-    TM.focus={id:ex.id,ss:ex.ss||null}; TM.restEnd=0; saveTM(); renderLive(); if(!document.querySelector("#liveIn.lvt")){ const m=document.querySelector(".lv-main"); if(m) m.scrollIntoView({block:"nearest",behavior:"smooth"}) } });  // the tower screen doesn't scroll, so nothing to bring into view
+    TM.focus={id:ex.id,ss:ex.ss||null,pick:true}; TM.restEnd=0; saveTM(); renderLive(); if(!document.querySelector("#liveIn.lvt")){ const m=document.querySelector(".lv-main"); if(m) m.scrollIntoView({block:"nearest",behavior:"smooth"}) } });  // the tower screen doesn't scroll, so nothing to bring into view
   if($$("lvPlus")) $$("lvPlus").onclick=()=>{TM.restEnd+=30000; TM.restDur+=30; saveTM(); liveTick()};
   if($$("lvSkip")) $$("lvSkip").onclick=()=>{TM.restEnd=0; saveTM(); renderLive()};
   if($$("lvStart")) $$("lvStart").onclick=()=>{TM.restEnd=0; saveTM(); renderLive()};
@@ -2060,6 +2063,7 @@ function bindLive(k,p){
     if($$("lvR")) drafts[dkey(k,`r-${cur.ex.id}-${cur.i}`)]=r;
     if(FMT[f].b==="reps"&&setTypeK(k,cur.ex.id,cur.i)!=="w") gateCheck(cur.ex,k,fromU(Number(w)||0),Number(r)||0,cur.i);
     drafts[dkey(k,`c-${cur.ex.id}-${cur.i}`)]=true; drafts[dkey(k,"open-trainLog")]=true; persistDrafts();
+    if(TM.focus&&TM.focus.pick){ TM.focus={...TM.focus,pick:false}; saveTM() }
     if(liveNext(steps,idx)>=0&&!(cur.inSS&&!cur.ssLast)) startRest(restFor(cur.ex.id));
     renderLive(); if(tab==="home"&&ymd(sel)===k){ lastRenderKey=""; render() }
   };
