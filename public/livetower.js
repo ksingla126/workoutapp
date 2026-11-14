@@ -55,7 +55,7 @@ function lvtHtml(k, p, now, resting, justDone) {
   const floorCleared = (resting || justDone) && prevEx && prevSteps.length && prevSteps.every(x => x.done) && !steps.filter(x => x.ex.id === cur.ex.id).some(x => x.done);
 
   const top = `<div class="lvt-top"><button type="button" class="lvt-icon" id="lvBack" aria-label="Back to the app">✕</button>
-    <div class="lvt-title"><b>${esc(gateName)}</b><span>${cur ? `Floor ${fi + 1} of ${p.ex.length}` : "Every floor cleared"} · <span id="lvEl">${fmtClock(now - TM.start)}</span></span></div><span class="lvt-icon ghost" aria-hidden="true"></span></div>`;
+    <div class="lvt-title"><b>${esc(gateName)}</b><span>${cur ? `Floor ${fi + 1} of ${p.ex.length}` : "Every floor cleared"} · <span id="lvEl">${fmtClock(now - TM.start)}</span></span></div><button type="button" class="lvt-cancel" id="lvCancel" aria-label="Cancel this workout">Cancel</button></div>`;
   const sys = (t, blue) => `<div class="lvt-sys ${blue ? "blue" : ""}" role="status"><b>SYSTEM</b>${esc(t)}</div>`;
 
   // the tower: one floor per exercise, top floor last; tap a floor to go there
@@ -148,16 +148,16 @@ document.addEventListener("input", e => {
 
 (() => { const st = document.createElement("style"); st.textContent = `
 html .live.lvt-on{background:radial-gradient(90% 50% at 50% 0%,color-mix(in srgb,var(--lvt-r,#22A06B) 16%,transparent),transparent 70%),repeating-linear-gradient(135deg,color-mix(in srgb,var(--lvt-r,#22A06B) 3%,transparent) 0 1px,transparent 1px 8px),#0B0C10!important;color:#F5F1E6;padding-left:14px;padding-right:14px}
-#liveIn.lvt{--ink:#F5F1E6;--mut:#A8A396;--fnt:var(--display);gap:12px;color:#F5F1E6;font-family:var(--body);min-height:calc(100dvh - 40px)}
+#liveIn.lvt{--ink:#F5F1E6;--mut:#A8A396;--fnt:var(--display);gap:12px;color:#F5F1E6;font-family:var(--body);height:100%;min-height:0;overflow:hidden}.live:has(#liveIn.lvt){overflow:hidden;overscroll-behavior:none}.lvt-cancel{justify-self:end;height:32px;padding:0 12px;border-radius:999px;border:1px solid rgba(224,103,90,.45);background:none;color:#F0B4AC;font:800 10.5px/1 var(--fnt);letter-spacing:.16em;text-transform:uppercase;cursor:pointer}.lvt-cancel:focus-visible{outline:2px solid #F4C48E;outline-offset:2px}#liveIn.lvt>.lvt-sys{flex-shrink:0}
 #liveIn.lvt .lv-main{min-height:0!important}
-.lvt-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lvt-top{display:grid;grid-template-columns:78px minmax(0,1fr) 78px;align-items:center;gap:8px;flex-shrink:0}.lvt-top>.lvt-icon{justify-self:start}
 .lvt-icon{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(245,241,230,.14);background:none;color:var(--mut);font-size:16px;cursor:pointer;flex-shrink:0}.lvt-icon.ghost{border-color:transparent}
 .lvt-title{text-align:center;display:flex;flex-direction:column;gap:4px;min-width:0}.lvt-title b{font:800 11px/1 var(--fnt);letter-spacing:.32em;color:var(--lvt-rmid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lvt-title>span{font-size:12px;color:var(--mut)}
 .lvt-sys{padding:9px 12px;border-radius:10px;border:1px solid color-mix(in srgb,var(--lvt-r) 35%,transparent);background:linear-gradient(90deg,color-mix(in srgb,var(--lvt-r) 14%,transparent),transparent);font-size:12.5px;color:#D8D2C2}
 .lvt-sys b{font:800 10px/1 var(--fnt);letter-spacing:.24em;color:var(--lvt-rmid);margin-right:7px}
 .lvt-sys.blue{border-color:color-mix(in srgb,var(--lvt) 50%,transparent);background:linear-gradient(90deg,color-mix(in srgb,var(--lvt) 18%,transparent),transparent);color:#E2E8F5}.lvt-sys.blue b{color:var(--lvt-mid)}
-.lvt-row{display:flex;gap:14px;align-items:flex-start}.lvt-col{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
-.lvt-tower{position:sticky;top:6px;width:52px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px}
+.lvt-row{display:flex;gap:14px;align-items:stretch;flex:1;min-height:0}.lvt-col{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.lvt-tower{width:52px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;padding-bottom:4px;-webkit-mask-image:linear-gradient(180deg,transparent,#000 14px,#000 calc(100% - 14px),transparent);mask-image:linear-gradient(180deg,transparent,#000 14px,#000 calc(100% - 14px),transparent)}.lvt-tower::-webkit-scrollbar{display:none}.lvt-tower>*{flex-shrink:0}
 .lvt-spire{width:52px;height:28px}.lvt-base{display:block;width:52px;height:9px;border-radius:2px;background:linear-gradient(90deg,#6B3F17,#F4C48E 40%,#B47A3F 60%,#6B3F17)}
 .lvt-floors{width:100%;display:flex;flex-direction:column;gap:5px}
 .lvt-floor{position:relative;height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:1.5px solid #24221F;border-radius:6px;background:#0E0F12;color:#77736A;font:800 10px/1 var(--fnt);padding:0;cursor:pointer}
@@ -182,7 +182,7 @@ html .live.lvt-on{background:radial-gradient(90% 50% at 50% 0%,color-mix(in srgb
 .lvt-hp{display:flex;gap:3px;width:100%;margin-top:6px}.lvt-hp i{flex:1;height:9px;border-radius:2px;background:linear-gradient(180deg,var(--lvt-mid),var(--lvt));box-shadow:0 0 6px var(--lvt)}
 .lvt-hpl{display:flex;justify-content:space-between;width:100%;font:800 9px/1 var(--fnt);letter-spacing:.2em;color:var(--mut)}
 .lvt-queue{display:flex;justify-content:center;gap:12px;align-items:flex-end}
-.lvt-foot{margin-top:auto;position:sticky;bottom:0;padding:12px 0 2px;background:linear-gradient(180deg,transparent,#0B0C10 22%);display:flex;flex-direction:column;gap:12px}
+.lvt-foot{flex-shrink:0;padding:4px 0 2px;display:flex;flex-direction:column;gap:12px}@media (max-height:780px){.lvt-rw{transform:scale(.84);margin:-12px 0}.lvt-name{font-size:22px}.lvt-floor{height:46px}#liveIn.lvt{gap:9px}}@media (max-height:680px){.lvt-rw{transform:scale(.72);margin:-24px 0}.lvt-sys{display:none}}
 .lvt-ins{display:flex;gap:10px}
 .lvt-step{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}.lvt-step>span:first-child{font:800 10px/1 var(--fnt);letter-spacing:.24em;color:var(--mut)}
 .lvt-sbox{display:flex;align-items:center;height:54px;padding:0 6px;border-radius:14px;background:#0B0B0E;border:1px solid rgba(245,241,230,.12)}
