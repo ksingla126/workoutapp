@@ -60,6 +60,21 @@
 #authGate .ag-foot{margin:6px 0 0;font:700 12px var(--body,system-ui);letter-spacing:.16em;text-transform:uppercase;color:#6E7794}
 @media (prefers-reduced-motion:reduce){#authGate .ag-floor,#authGate .ag-motes i,#authGate .ag-ring,#authGate .ag-ladder span,#authGate .ag-cta::after,#authGate .ag-caret{animation:none}#authGate .ag-motes{display:none}}
 @media (max-height:700px){#authGate .ag-emblem{transform:scale(.8);margin:-10px 0 -8px}#authGate h1{font-size:38px}}
+
+/* Live mode: cancel a session started by mistake */
+.lv-cancel{position:fixed;z-index:3;top:calc(env(safe-area-inset-top,0px) + 16px);right:max(14px,env(safe-area-inset-right,0px));height:32px;padding:0 12px;border-radius:999px;border:1px solid rgba(224,103,90,.45);background:rgba(10,10,13,.6);color:#F0B4AC;font:800 10.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+#liveIn:not(.lvt) .lv-cancel{position:static;display:block;margin:18px auto 6px;background:transparent;border-color:rgba(192,72,60,.35);color:#B2483C}
+.lv-cancel:focus-visible,.lv-ask button:focus-visible{outline:2px solid #F4C48E;outline-offset:2px}
+.lv-ask{position:fixed;inset:0;z-index:10;display:flex !important;align-items:center;justify-content:center;margin:0 !important;padding:24px 0 !important;max-width:none !important;background:rgba(2,4,8,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:lvAskIn .18s ease-out}
+@keyframes lvAskIn{from{opacity:0}to{opacity:1}}
+.lv-ask-in{box-sizing:border-box;width:calc(100% - 32px);max-width:360px;margin:0 !important;border-radius:20px;padding:20px;color:#F5F1E6;border:2px solid #B47A3F;background:radial-gradient(70% 60% at 90% 0%,rgba(224,103,90,.14),transparent 65%),repeating-linear-gradient(135deg,rgba(34,160,107,.03) 0 1px,transparent 1px 7px),#0A0A0D;box-shadow:0 30px 60px #000}
+.lv-ask-in b{display:block;font:900 24px/1.1 "Barlow Semi Condensed",sans-serif;letter-spacing:.02em}
+.lv-ask-in p{margin:8px 0 18px;font-size:13.5px;line-height:1.5;color:#B9BFCA}
+.lv-ask-b{display:flex;gap:8px}
+.lv-ask-b button{flex:1;height:48px;border-radius:13px;cursor:pointer;font:800 12.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase}
+#lvKeep{border:2px solid transparent;background:linear-gradient(180deg,#22A06B,#1C7A52) padding-box,linear-gradient(90deg,#6B3F17,#B47A3F 40%,#F4C48E 60%,#6B3F17) border-box;color:#04140C}
+#lvCancelYes{border:1px solid rgba(224,103,90,.55);background:rgba(224,103,90,.1);color:#F0B4AC}
+@media (prefers-reduced-motion:reduce){.lv-ask{animation:none}}
 </style>
 <script type="importmap">{"imports":{"three":"/body/three/three.module.min.js"}}</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -1946,6 +1961,11 @@ function setValsK(k,st){ const l=S.logs[k], cur=l&&l.ex&&l.ex[st.ex.id]&&l.ex[st
   return {w:ww,r:r??"",m:m??""} }
 function openLive(){ if(!liveCtx()) return; liveOpen=true; unlockAudio(); renderLive(); tick() }
 function closeLive(){ liveOpen=false; renderLive(); tick(); lastRenderKey=""; render() }
+// Started by mistake: stop the timer, drop this session's entries and leave Live mode without saving anything
+let lvAsk=false;
+function cancelLive(k){ lvAsk=false; stopWorkout(); if(typeof RL!=="undefined"&&RL&&RL.k===k){ RL=null; try{localStorage.removeItem("ru-runlive")}catch(e){} }
+  if(k) clearDrafts(k,TRAIN_RE); liveOpen=false; renderLive(); lastRenderKey=""; render(); toast("Cancelled. Nothing was saved.") }
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&lvAsk&&liveOpen){ lvAsk=false; renderLive() } });
 function renderLive(){
   const el=document.getElementById("live"), box=document.getElementById("liveIn"); const c=liveCtx();
   if(!liveOpen||!c){ el.hidden=true; document.body.classList.remove("live-on"); if(box) box.innerHTML=""; return }
@@ -1995,13 +2015,20 @@ function renderLive(){
     main=`<div class="lv-main"><div class="lv-label">Time</div><div class="lv-clock" id="lvRunClock">${fmtClock(now-TM.start)}</div><p class="small lv-note">${esc(p.d)}</p>${/bpm/.test(p.d)?`<p class="small lv-note">Jog until your watch shows ${HR_HI}, walk until it drops to ${HR_LO}.</p>`:""}<button class="btn lv-cta" id="lvRunDone">Finish run</button></div>`;
     next=`<div class="lv-next"><span class="lv-label">After</span><span>Your time fills in automatically. Import the run's GPX file on the run card for the full breakdown.</span></div>`;
   }
-  const html= LT? LT.html : top+main+next+list; box.classList.toggle("lvt",!!LT); el.classList.toggle("lvt-on",!!LT); if(LT) box.setAttribute("style",LT.style); else box.removeAttribute("style");
+  const what=p.type==="gym"?"workout":"run";
+  const cancelUi= lvAsk ? `<div class="lv-ask" role="alertdialog" aria-modal="true" aria-labelledby="lvAskT"><div class="lv-ask-in"><b id="lvAskT">Cancel this ${what}?</b><p>The timer stops and ${p.type==="gym"?"the sets you ticked are cleared":"your progress through the run is cleared"}. Nothing is saved, and this can't be undone.</p><div class="lv-ask-b"><button type="button" id="lvKeep">Keep going</button><button type="button" id="lvCancelYes">Cancel ${what}</button></div></div></div>`
+    : `<button type="button" class="lv-cancel" id="lvCancel" aria-label="Cancel this ${what}">Cancel${LT?"":` ${what}`}</button>`;
+  const html= (LT? LT.html : top+main+next+list)+cancelUi; box.classList.toggle("lvt",!!LT); el.classList.toggle("lvt-on",!!LT); if(LT) box.setAttribute("style",LT.style); else box.removeAttribute("style");
   const fresh=!box.firstChild, prevState=box.dataset.st; box.dataset.st=liveState;
   if(fresh) box.innerHTML=html; else morph(box,html);
   box.classList.toggle("lv-enter",fresh); if(fresh) setTimeout(()=>box.classList.remove("lv-enter"),600);
   if(!fresh&&prevState!==liveState){ const m=box.querySelector(".lv-main"); if(m){ m.classList.remove("lv-swap"); void m.offsetWidth; m.classList.add("lv-swap") } }
   { const m=box.querySelector(".lv-main"); if(m){ m.style.minHeight=""; const h=m.offsetHeight, H=Math.max(h,Number(box.dataset.lvh)||0); if(box.dataset.lvk!==k){ box.dataset.lvk=k; box.dataset.lvh=h } else { box.dataset.lvh=H; m.style.minHeight=H+"px" } } }
-  viewBind(box,()=>bindLive(k,p)); liveTick(); if(typeof gameLive==="function") gameLive(box,{k,type:p.type,state:liveState});
+  viewBind(box,()=>{ bindLive(k,p);
+    const q=id=>document.getElementById(id);
+    if(q("lvCancel")) q("lvCancel").onclick=()=>{ lvAsk=true; renderLive(); setTimeout(()=>q("lvKeep")&&q("lvKeep").focus(),0) };
+    if(q("lvKeep")) q("lvKeep").onclick=()=>{ lvAsk=false; renderLive() };
+    if(q("lvCancelYes")) q("lvCancelYes").onclick=()=>cancelLive(k) }); liveTick(); if(typeof gameLive==="function") gameLive(box,{k,type:p.type,state:liveState});
 }
 function liveTick(){
   const now=Date.now(); const e=document.getElementById("lvEl"); if(e) e.textContent=fmtClock(now-TM.start);
