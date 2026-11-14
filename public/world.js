@@ -59,7 +59,7 @@ function wsTop() {
 }
 function viewWorld(openLogger) {
   wsSeenSet();
-  if (wsLog) { wsPop = null; return `<div class="ws-back"><button type="button" class="btn ghost sm" data-wslog="0">‹ Back to the island</button></div>` + viewHome(openLogger) }
+  if (wsLog) { wsPop = null; wsRun = null; return `<div class="ws-back"><button type="button" class="btn ghost sm" data-wslog="0">‹ Back to the island</button></div>` + viewHome(openLogger) }
   const days = wsWeek(), k = ymd(sel), p = inProgram(sel) ? planFor(sel) : null, pick = wsPick(p, k), idx = days.findIndex(d => ymd(d) === k);
   const slides = days.map((d, i) => {
     const kk = ymd(d), pp = inProgram(d) ? planFor(d) : null, pk = wsPick(pp, kk);
@@ -78,6 +78,8 @@ function viewWorld(openLogger) {
   h += wsCard(p, k, pick);
   if (wsPop && wsPop.k !== k) wsPop = null;
   if (wsPop && p && p.type !== "rest") h += wsbHtml(p, k, pick);
+  if (wsRun && wsRun.k !== k) wsRun = null;
+  if (wsRun && p && p.type === "run" && !wsPop) h += wsrHtml(p, k, pick);
   return h + `</div>`;
 }
 const WS_RUNTAG = { easy: "EASY TRAIL", long: "LONG TRAIL", hills: "HILL TRAIL", intervals: "INTERVALS", sprints: "SPRINTS", tempo: "TEMPO", tt: "TIME TRIAL", fartlek: "FARTLEK", recovery: "RECOVERY", race: "RACE DAY" };
@@ -115,8 +117,8 @@ function wsCard(p, k, pick) {
     stats = [parts[0] ? esc(parts[0]).toUpperCase() : "", WS_RUNTAG[ty] || "", /bpm/.test(p.d || "") ? "ZONE 2" : ""].filter(Boolean);
     btn = log ? go("TRAIL CLEARED ✓ · VIEW LOG", `data-wslog="1"`)
       : running ? go("RETURN TO THE TRAIL", `data-openlive="1"`)
-      : isToday ? go(M.btn, `id="tmStart"`)
-      : past ? go("LOG THIS TRAIL", `data-wslog="1"`)
+      : isToday ? go(M.btn, `data-wsrun="${k}"`)
+      : past ? go("LOG THIS TRAIL", `data-wsrun="${k}"`)
       : `<button type="button" class="ws-go" disabled>OPENS ${when}</button>`;
     if (!log) menu.push(...(!p.race && typeof runNewHtml === "function" ? [`<button type="button" data-runswap="${k}">Edit trail</button>`] : []), `<button type="button" data-daymove="${k}|move">Move</button>`, `<button type="button" data-dayskip="${k}">Rest day</button>`);
   }
@@ -420,6 +422,7 @@ function wsbAfter() {
   document.querySelectorAll("body > .wsb").forEach(x => x.remove());
   if (W) { document.body.appendChild(W);
     W.addEventListener("input", e => { const el = e.target; if (!el.id || el.type === "checkbox" || el.type === "file" || NO_DRAFT.has(el.id)) return; drafts[draftKey(el.id)] = el.value; persistDrafts() }) }
+  if (wsRun) wsRun.anim = false;
   const L = document.getElementById("wsbList"); if (!L || !wsPop) return;
   L.scrollTop = wsPop.top || 0;
   if (wsPop.reveal != null) { const rb = L.querySelector(`[data-wsbrow="${CSS.escape(wsPop.reveal)}"]`), it = rb && rb.parentElement; wsPop.reveal = null;
@@ -566,4 +569,196 @@ body:has(.wsb) .st-menu .small.muted{color:#8F97A6}
 body:has(.wsb) .st-menu .st-del b{color:#E0675A}
 body:has(.wsb) .st-menu .st-del .setno{color:#E0675A;background:none;border:0}
 @media (prefers-reduced-motion:reduce){.wsb.anim,.wsb.anim .wsb-card,.wsb-pan.new{animation:none}}
+`; document.head.appendChild(st) }
+
+/* ---------- Entering a run island: run it live, or upload the run file ----------
+   The choice opens from the run card's button. Uploading reads the GPX/TCX, works out which app or watch made it
+   (Strava, Garmin, Apple Watch apps, COROS, Polar, Suunto…) and reads it the way that app reports a run, then
+   checks it against the plan before saving it to the day. */
+let wsRun = null;  // {k, stage: "pick" | "read", st, src, map, err, busy}
+const WSR_SRC = [
+  [/strava/i, "strava", "Strava"], [/garmin|forerunner|fenix|f[eē]nix|venu|vivoactive|epix|instinct|enduro|edge \d/i, "garmin", "Garmin"],
+  [/healthfit/i, "apple", "Apple Watch · HealthFit"], [/rungap/i, "apple", "Apple Watch · RunGap"], [/workoutdoors/i, "apple", "Apple Watch · WorkOutDoors"], [/apple|watchos|health/i, "apple", "Apple Watch"],
+  [/coros/i, "coros", "COROS"], [/polar/i, "polar", "Polar"], [/suunto/i, "suunto", "Suunto"], [/nike|nrc/i, "nike", "Nike Run Club"], [/runkeeper|asics/i, "runkeeper", "Runkeeper"],
+  [/wahoo/i, "wahoo", "Wahoo"], [/zepp|amazfit|huami/i, "amazfit", "Amazfit"], [/fitbit/i, "fitbit", "Fitbit"]];
+// which app or watch wrote the file, and how to read its numbers
+function wsrSource(text, fname) {
+  const tcx = /<TrainingCenterDatabase/i.test(text.slice(0, 3000));
+  const creator = (text.slice(0, 3000).match(/<gpx[^>]*\bcreator="([^"]+)"/i) || [])[1] || (text.match(/<Creator[^>]*>[\s\S]{0,400}?<Name>([^<]+)<\/Name>/i) || [])[1] || (text.match(/<Author[^>]*>[\s\S]{0,400}?<Name>([^<]+)<\/Name>/i) || [])[1] || "";
+  let id = "file", name = tcx ? "GPS watch" : "GPS file";
+  for (const [re, i, n] of WSR_SRC) if (re.test(creator)) { id = i; name = n; break }
+  if (id === "file" && /<(?:\w+:)?TrackPointExtension/i.test(text)) { id = "watch"; name = "GPS watch" }
+  const src = { id, name, fmt: tcx ? "TCX" : "GPX", creator: creator.slice(0, 60) };
+  // Garmin and other TCX files carry the watch's own lap totals: timer time (pauses left out), distance and calories
+  if (tcx) { let s = 0, m = 0, c = 0, n = 0; text.replace(/<Lap\b[\s\S]*?<\/Lap>/gi, lap => { const body = lap.replace(/<Track>[\s\S]*<\/Track>/i, "");
+      const ts = Number((body.match(/<TotalTimeSeconds>([\d.]+)</) || [])[1]), dm = Number((body.match(/<DistanceMeters>([\d.]+)</) || [])[1]), ca = Number((body.match(/<Calories>(\d+)</) || [])[1]);
+      if (ts > 0) { s += ts; n++ } if (dm > 0) m += dm; if (ca > 0) c += ca; return "" });
+    if (n) src.timerMin = +(s / 60).toFixed(2); if (m > 0) src.watchMi = +(m / M_PER_MI).toFixed(2); if (c > 0) src.kcal = c }
+  return src;
+}
+// the route, squeezed into a 300 × 150 box
+function wsrRoute(text) {
+  const P = []; text.replace(/<trkpt[^>]*?lat="([-\d.]+)"[^>]*?lon="([-\d.]+)"|<trkpt[^>]*?lon="([-\d.]+)"[^>]*?lat="([-\d.]+)"|<LatitudeDegrees>([-\d.]+)<\/LatitudeDegrees>\s*<LongitudeDegrees>([-\d.]+)</g,
+    (m, a, b, c, d, e, f) => { const la = +(a || d || e), lo = +(b || c || f); if (isFinite(la) && isFinite(lo)) P.push([la, lo]); return "" });
+  if (P.length < 5) return null;
+  const step = Math.max(1, Math.floor(P.length / 260)), Q = P.filter((_, i) => i % step === 0);
+  const la = Q.map(p => p[0]), lo = Q.map(p => p[1]), mid = (Math.min(...la) + Math.max(...la)) / 2, kx = Math.cos(mid * Math.PI / 180);
+  const w = (Math.max(...lo) - Math.min(...lo)) * kx || 1e-6, h = (Math.max(...la) - Math.min(...la)) || 1e-6, s = Math.min(250 / w, 100 / h);
+  const ox = 25 + (250 - w * s) / 2, oy = 25 + (100 - h * s) / 2;
+  return Q.map(([a, b]) => `${(ox + (b - Math.min(...lo)) * kx * s).toFixed(1)},${(oy + (Math.max(...la) - a) * s).toFixed(1)}`).join(" ");
+}
+// the numbers the way the source app shows them
+function wsrNums(st, src) {
+  const watch = src.timerMin > 0 && src.watchMi > 0;
+  const mi = watch ? src.watchMi : st.mi, min = watch ? src.timerMin : (st.movingMin || st.elapsedMin);
+  const tLab = watch ? "Timer" : src.id === "apple" ? "Workout" : "Moving";
+  const dNote = watch ? `distance and timer from your ${src.id === "garmin" ? "Garmin" : "watch"}` : st.src === "gpx" && src.fmt === "TCX" ? "distance from your watch" : `distance measured from GPS${src.id === "strava" ? ", smoothed the way Strava does" : ""}`;
+  const tNote = watch ? "pauses left out" : src.id === "strava" ? "moving time, like Strava shows" : src.id === "apple" ? "workout time without pauses" : "moving time, stops left out";
+  return { mi, min, tLab, read: `${src.name} ${src.fmt} · ${dNote} · ${tNote}${src.kcal ? ` · ${src.kcal} kcal` : ""}` };
+}
+function wsrPace(m) { if (!(m > 0)) return "—"; const s = Math.round(m * 60); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}` }
+function wsrPortal(icon, title, sub, on, attrs, label) {
+  const inner = `<span class="wsr-orb"><span>${icon}</span></span><b>${title}</b><span class="wsr-ps">${sub}</span>`;
+  return label ? `<label class="wsr-portal${on ? " on" : ""}" ${attrs}>${inner}${label}</label>` : `<button type="button" class="wsr-portal${on ? " on" : ""}" ${attrs}>${inner}</button>`;
+}
+const WSR_LIVE = `<svg width="38" height="38" viewBox="0 0 30 30" fill="none" stroke="#DEF1E9" stroke-width="2" stroke-linecap="round"><circle cx="15" cy="17" r="10"/><path d="M15 11v6l4 2M12 3h6M15 3v4"/></svg>`;
+const WSR_UP = `<svg width="38" height="38" viewBox="0 0 30 30" fill="none" stroke="#DEF1E9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h10l6 6v16H8z"/><path d="M18 4v6h6M16 22v-8M12.5 17.5 16 14l3.5 3.5"/></svg>`;
+function wsrHtml(p, k, pick) {
+  const d = parseYmd(k), isToday = k === ymd(today), when = isToday ? "TODAY" : wsDayTxt(d), dayTxt = isToday ? "today" : wsDayTxt(d).replace(/^(\w)(\w+)/, (m, a, b) => a + b.toLowerCase());
+  const wrap = (inner, cls = "") => `<div class="wsb wsr${wsRun.anim ? " anim" : ""}" role="dialog" aria-modal="true" aria-label="Run"><button type="button" class="wsb-bg" data-wsrx="1" aria-label="Close"></button>
+    <div class="wsb-card wsr-card ${cls}"><div class="wsb-in"><div class="wsr-scroll">${inner}</div></div></div><div class="wsb-hint2">TAP OUTSIDE TO CLOSE</div></div>`;
+  const top = (eb, title, sub) => `<div class="wsb-eb"><span>${eb}</span><button type="button" class="wsb-x" data-wsrx="1" aria-label="Close">✕</button></div><div class="wsb-title">${esc(title)}</div><div class="wsb-plain">${sub}</div>`;
+  const rule = t => `<div class="wsr-rule"><i></i><span>${t}</span><i></i></div>`;
+  const file = `<input type="file" id="wsrFile" accept=".gpx,.tcx,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml" hidden>`;
+  if (wsRun.stage !== "read" || !wsRun.st) {
+    const live = isToday ? wsrPortal(WSR_LIVE, "RUN LIVE", "Timer and run/walk cues while you run", true, `data-wsrlive="${k}"`)
+      : wsrPortal(WSR_LIVE, "RUN LIVE", `Only on the day of the run`, false, `disabled aria-disabled="true"`);
+    const up = wsrPortal(WSR_UP, "UPLOAD", "GPX or TCX from Strava, Garmin or your watch", !isToday, `for="wsrFile"`, file);
+    const status = wsRun.busy ? `<div class="wsr-status"><span class="pulse"></span> Reading the file…</div>` : wsRun.err ? `<div class="wsr-status bad">${esc(wsRun.err)}</div>` : "";
+    return wrap(top(`TRAIL · ${when}`, String(pick.name || "Trail").toUpperCase(), `${esc(p.t || "Run")}${p.d ? ` · ${esc(String(p.d).split(", ")[0])}` : ""}`)
+      + rule("CHOOSE YOUR PATH") + `<div class="wsr-portals">${live}${up}</div>${status}`
+      + `<div class="wsr-tip">${isToday ? "Running live? Keep Strava or your watch recording too, then upload the file afterwards to get your map, splits and heart rate." : "Upload the run from your watch or Strava, or type the distance and time in by hand."}</div>`
+      + `<details class="wsr-how"><summary>HOW TO GET THE FILE</summary>${[["Strava", "Open the run on strava.com (a phone browser works), tap ⋯ → Export GPX."], ["Garmin Connect", "Open the activity → ⚙ → Export to GPX or TCX."], ["Apple Watch", "Export the workout as GPX with HealthFit or RunGap."], ["COROS · Polar · Suunto", "Open the activity in their app or site and export GPX."]].map(([a, b]) => `<div><i class="wsb-dia" style="--c:#B47A3F"></i><span><b>${a}</b>${b}</span></div>`).join("")}</details>`
+      + `<button type="button" class="wsr-hand" data-wslog="1">OR LOG IT BY HAND</button>`);
+  }
+  // the run read from the file
+  const st = wsRun.st, src = wsRun.src, N = wsrNums(st, src), spec = typeof runSpec === "function" ? runSpec(null, p) : {}, fmt = typeof rxFmt === "function" ? rxFmt(p, null).fmt : "steady";
+  const tiles = [[`${Math.round(N.mi * 100) / 100}`, "Miles"], [fmtMin(N.min), N.tLab], [wsrPace(N.min / N.mi), "Pace /mi"]];
+  tiles.push(st.avgHr ? [st.avgHr, "Avg HR"] : st.elevFt != null ? [st.elevFt, "Elev ft"] : st.cad ? [st.cad, "Cadence"] : [src.kcal || "—", "Kcal"]);
+  const checks = [], ck = (s, a, b) => checks.push(`<div class="wsr-ck ${s}"><span>${s === "ok" ? "✓" : s === "warn" ? "!" : "i"}</span><div><b>${a}</b><em>${b}</em></div></div>`);
+  if (spec.by === "dist" && spec.v > 0) { const v = typeof dU === "function" ? spec.v : spec.v; ck(N.mi >= spec.v * .9 ? "ok" : "warn", `Distance: ${Math.round(N.mi * 100) / 100} of ${v} mi`, `Planned ${esc(p.t || "run")}${N.mi < spec.v * .9 ? ". Short of the plan, it still counts." : ""}`) }
+  else if (spec.by === "time" && spec.v > 0) { const tot = spec.v + (spec.warm || 0) + (spec.cool || 0); ck(N.min >= tot * .9 ? "ok" : "warn", `Time on feet: ${Math.round(N.min)} of ${tot} min`, `Planned ${esc(String(p.d || p.t || "").split(", ")[0])}`) }
+  if (spec.runwalk && st.runMin) ck("info", `Ran ${Math.round(st.runMin)} min, walked ${Math.round(st.walkMin || 0)} min`, "Split from your speed in the file");
+  if (st.avgHr && isHrRun(k)) { const r = hrRange(st.series), pct = r ? Math.round(r.pctIn) : null;
+    ck(pct != null && pct >= 60 ? "ok" : "warn", pct != null && pct >= 60 ? `Heart rate in zone ${pct}% of the run` : `Heart rate mostly ${r && r.above > r.below ? "above" : "outside"} Zone 2`, `Average ${st.avgHr} bpm, peak ${st.maxHr}. Aim for ${HR_LO}–${HR_HI}${r && r.above > r.below ? " by walking sooner" : ""}.`) }
+  else if (!st.avgHr) ck("info", "No heart rate in this file", src.id === "strava" ? "Strava only adds heart rate when the run was recorded with a watch or strap." : "Your effort can still be judged from pace.");
+  else ck("info", `Average heart rate ${st.avgHr} bpm`, `Peak ${st.maxHr} bpm`);
+  if (st.date && st.date !== k) ck("warn", "Recorded on a different day", `This file is from ${esc(fmtShort(parseYmd(st.date)))}. It will be saved to ${esc(dayTxt)}.`);
+  else ck("ok", `Recorded ${isToday ? "today" : `on ${esc(dayTxt)}`}`, st.name ? esc(st.name) : "Matches this trail's day");
+  const rep = fmt === "reps" || fmt === "short";
+  const map = wsRun.map ? `<div class="wsr-map"><div><span class="wsr-ml">${esc((wsRun.fname || "run").toUpperCase())}</span><span class="wsr-mr">${src.name.toUpperCase()}</span>
+    <svg viewBox="0 0 300 150" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><polyline points="${wsRun.map}" class="g"/><polyline points="${wsRun.map}" class="l"/><circle cx="${wsRun.map.split(" ")[0].split(",")[0]}" cy="${wsRun.map.split(" ")[0].split(",")[1]}" r="5"/></svg></div></div>` : "";
+  return wrap(`<div class="wsb-eb"><span>UPLOAD · FROM ${esc(src.name.toUpperCase())}</span><button type="button" class="wsb-x" data-wsrx="1" aria-label="Close">✕</button></div>
+    <div class="wsb-title">TRAIL CLEARED?</div><div class="wsb-plain">Check it, then save it to ${esc(pick.name || "this trail")}.</div>${map}
+    <div class="wsb-boxes wsr-tiles">${tiles.map(([v, l]) => `<div><b>${esc(String(v))}</b><span>${esc(l)}</span></div>`).join("")}</div>
+    <div class="wsr-read">${esc(N.read)}</div>${rule("AGAINST THE PLAN")}<div class="wsr-cks">${checks.join("")}</div>
+    <div class="wsr-btns"><label class="wsr-ghost" for="wsrFile">ANOTHER FILE${file}</label><button type="button" class="wsr-save" data-wsrsave="${k}">${rep ? "ADD YOUR REPS" : `SAVE TO ${esc((isToday ? "today" : dayTxt).toUpperCase())}`}</button></div>
+    ${rep ? `<div class="wsr-read">This trail logs each rep, so the next screen keeps the file and asks for your rep times.</div>` : ""}`, "read");
+}
+async function wsrRead(f) {
+  if (!wsRun) return;
+  const fail = m => { wsRun.busy = false; wsRun.err = m; wsRun.stage = wsRun.st ? "read" : "pick"; if (wsRun.st) toast(m); lastRenderKey = ""; render() };
+  if (f.size > 30 * 1024 * 1024) return fail("That file is too large. Export a single activity as GPX.");
+  if (/\.fit(\.gz)?$/i.test(f.name)) return fail("FIT files aren't supported yet. Export the run as GPX or TCX instead.");
+  if (/\.gz$/i.test(f.name)) return fail("That file is compressed (.gz). Unzip it first, or use Export GPX.");
+  wsRun.busy = true; wsRun.err = ""; lastRenderKey = ""; render();
+  let text = ""; try { text = f.text ? await f.text() : await new Promise((ok, no) => { const rd = new FileReader(); rd.onload = () => ok(String(rd.result)); rd.onerror = () => no(rd.error); rd.readAsText(f) }) }
+  catch (err) { return fail("That file couldn't be opened. Save it to Files first, then pick it again.") }
+  let st; try { st = parseTrack(text) } catch (err) { return fail((err && err.message) || "That file couldn't be read.") }
+  if (!wsRun) return;
+  const src = wsrSource(text, f.name);
+  st.app = src.name; if (src.kcal) st.cal = st.cal || src.kcal;
+  wsRun = { ...wsRun, stage: "read", st, src, map: wsrRoute(text), fname: f.name.replace(/\.(gpx|tcx|xml)$/i, "") + "." + src.fmt.toLowerCase(), busy: false, err: "", anim: false };
+  lastRenderKey = ""; render();
+}
+function wsrClose() { wsRun = null; document.querySelectorAll("body > .wsb").forEach(x => x.remove()); lastRenderKey = ""; render() }
+function wsrSave(k) {
+  const p = planFor(parseYmd(k)); if (!wsRun || !wsRun.st || !p) return;
+  const st = cleanJSON(wsRun.st), N = wsrNums(st, wsRun.src), fmt = typeof rxFmt === "function" ? rxFmt(p, null).fmt : "steady";
+  if (fmt === "reps" || fmt === "short") {  // the rep times are entered in the full log, with the file kept
+    if (N.mi) st.mi = N.mi; finishImport(k, st); wsRun = null; wsLog = true; document.querySelectorAll("body > .wsb").forEach(x => x.remove()); lastRenderKey = ""; render(); window.scrollTo(0, 0); return }
+  if (TM.start && TM.date === k) stopWorkout();
+  delete imports[k]; delete drafts[k + "|strava"]; persistDrafts();
+  const spec = runSpec(null, p), extra = spec.runwalk ? { reps: rxRepN(k, p, null, spec) } : {};
+  wsRun = null; document.querySelectorAll("body > .wsb").forEach(x => x.remove());
+  saveLog(k, { type: "run", key: p.key, rpe: null, ...extra, mi: Math.round(N.mi * 1000) / 1000, min: Math.round(N.min * 100) / 100, notes: "", st, analysis: null, savedAt: Date.now() })
+    .then(() => { toast("Run saved. Your coach is analyzing it…"); lastRenderKey = ""; render(); setTimeout(() => analyzeRun(k), 300); setTimeout(maybeAutoAdvice, 20000) });
+}
+document.addEventListener("click", e => {
+  if (!WS_ON || tab !== "home" || wsLog) return;
+  const t = e.target;
+  const open = t.closest("[data-wsrun]");
+  if (open) { e.preventDefault(); wsPop = null; wsRun = { k: open.dataset.wsrun, stage: "pick", anim: true }; lastRenderKey = ""; render(); return }
+  if (!wsRun) return;
+  if (t.closest("[data-wsrx]")) { wsrClose(); return }
+  const live = t.closest("[data-wsrlive]");
+  if (live) { const k = live.dataset.wsrlive; wsRun = null; document.querySelectorAll("body > .wsb").forEach(x => x.remove()); sel = parseYmd(k); startWorkout(); lastRenderKey = ""; render(); openLive(); return }
+  const sv = t.closest("[data-wsrsave]"); if (sv) { wsrSave(sv.dataset.wsrsave); return }
+});
+document.addEventListener("change", e => { if (e.target && e.target.id === "wsrFile" && wsRun) { const f = e.target.files && e.target.files[0]; e.target.value = ""; if (f) wsrRead(f) } });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && wsRun) wsrClose() });
+{ const st = document.createElement("style"); st.id = "wsrCss"; st.textContent = `.wsr .wsr-card{flex:0 1 auto;max-height:100%;margin-top:auto;margin-bottom:auto}
+.wsr .wsb-in{height:auto;max-height:100%;padding:0;overflow:hidden}
+.wsr .wsr-card.read{flex:1}
+.wsr .wsr-card.read .wsb-in{height:100%}
+.wsr-scroll{max-height:100%;height:100%;overflow-y:auto;overscroll-behavior:contain;padding:18px;box-sizing:border-box;scrollbar-width:none}
+.wsr-scroll::-webkit-scrollbar{display:none}
+.wsr-rule{display:flex;align-items:center;gap:10px;margin:18px 0 12px}
+.wsr-rule i{flex:1;height:1px;background:linear-gradient(90deg,transparent,#B47A3F)}
+.wsr-rule i:last-child{background:linear-gradient(90deg,#B47A3F,transparent)}
+.wsr-rule span{font:800 9.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.3em;color:var(--mid)}
+.wsr-portals{display:flex;gap:10px}
+.wsr-portal{all:unset;box-sizing:border-box;cursor:pointer;flex:1;min-width:0;border-radius:18px;padding:18px 12px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;border:2px solid #3A2A1C;background:radial-gradient(70% 60% at 90% 0%,rgba(34,160,107,.14),transparent 65%),#0A0A0D;transition:border-color .2s,transform .15s}
+.wsr-portal.on{border-color:#B47A3F;box-shadow:inset 0 0 0 1px rgba(244,196,142,.25)}
+.wsr-portal:active{transform:scale(.98)}
+.wsr-portal:focus-visible{outline:2px solid var(--m2);outline-offset:3px}
+.wsr-portal[disabled]{cursor:default;opacity:.55}
+.wsr-orb{width:86px;height:86px;border-radius:50%;padding:3px;box-sizing:border-box;background:linear-gradient(90deg,var(--m0),var(--m1) 40%,var(--m2) 60%,var(--m0))}
+.wsr-orb>span{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,rgba(34,160,107,.25),#070708 70%);box-shadow:inset 0 0 18px rgba(0,0,0,.8)}
+.wsr-portal.on .wsr-orb>span{background:radial-gradient(circle at 50% 40%,rgba(34,160,107,.55),#070708 70%);box-shadow:inset 0 0 18px rgba(0,0,0,.8),0 0 30px -6px #22A06B}
+.wsr-portal b{margin-top:14px;font:900 18px/1.05 "Barlow Semi Condensed",sans-serif;letter-spacing:.06em;color:#F5F1E6}
+.wsr-ps{font:400 12px/1.4 Barlow,sans-serif;color:#B9BFCA;margin-top:6px}
+.wsr-status{margin-top:12px;font-size:12.5px;color:#C9CED7;display:flex;gap:8px;align-items:center}
+.wsr-status.bad{color:#F0B4AC;padding:10px 12px;border-radius:10px;border:1px solid rgba(224,103,90,.4);background:rgba(224,103,90,.08);line-height:1.45}
+.wsr-tip{margin-top:14px;padding:10px 12px;border-radius:10px;background:rgba(34,160,107,.07);border:1px solid rgba(34,160,107,.25);font-size:12px;line-height:1.45;color:#BFD8CC}
+.wsr-how{margin-top:12px}
+.wsr-how summary{cursor:pointer;list-style:none;font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.2em;color:var(--m2);padding:6px 0}
+.wsr-how summary::-webkit-details-marker{display:none}
+.wsr-how summary::after{content:" ▾"}
+.wsr-how[open] summary::after{content:" ▴"}
+.wsr-how>div{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(180,122,63,.16);font-size:12px;line-height:1.4;color:var(--mut)}
+.wsr-how>div b{display:block;font:700 13.5px/1.2 Barlow,sans-serif;color:#F5F1E6;margin-bottom:2px}
+.wsr-hand{all:unset;cursor:pointer;display:block;width:100%;text-align:center;margin-top:14px;padding:6px 0;font:800 10.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;color:var(--m2)}
+.wsr-map{margin-top:12px;border-radius:14px;padding:2px;background:linear-gradient(90deg,var(--m0),var(--m1) 40%,var(--m2) 60%,var(--m0))}
+.wsr-map>div{position:relative;border-radius:12px;overflow:hidden;background:radial-gradient(70% 80% at 50% 50%,rgba(34,160,107,.12),transparent 70%),repeating-linear-gradient(0deg,rgba(127,200,169,.05) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(127,200,169,.05) 0 1px,transparent 1px 22px),#08090B}
+.wsr-map svg{display:block;width:100%;height:auto;aspect-ratio:2/1}
+.wsr-map .g{fill:none;stroke:rgba(34,160,107,.35);stroke-width:7;stroke-linejoin:round;stroke-linecap:round}
+.wsr-map .l{fill:none;stroke:var(--core);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.wsr-map circle{fill:#22A06B;stroke:#08090B;stroke-width:2}
+.wsr-ml,.wsr-mr{position:absolute;top:10px;font:800 8.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.24em;color:var(--m2);max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wsr-ml{left:10px}.wsr-mr{right:10px;color:var(--mut);letter-spacing:.14em}
+.wsr-tiles{grid-template-columns:repeat(4,1fr);margin-top:12px}
+.wsr-tiles b{font-size:17px}
+.wsr-read{margin-top:8px;font-size:11.5px;line-height:1.4;color:var(--mut)}
+.wsr-ck{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(180,122,63,.16)}
+.wsr-ck>span{width:18px;height:18px;flex-shrink:0;display:grid;place-items:center;border-radius:50%;font:900 11px/1 "Barlow Semi Condensed",sans-serif;background:rgba(127,200,169,.12);color:var(--mid)}
+.wsr-ck.ok>span{background:#22A06B;color:#04140C}
+.wsr-ck.warn>span{background:rgba(232,194,122,.15);color:#E8C27A}
+.wsr-ck b{display:block;font:700 13.5px/1.25 Barlow,sans-serif;color:#F5F1E6}
+.wsr-ck em{display:block;font-style:normal;font-size:11.5px;color:var(--mut);margin-top:2px;line-height:1.4}
+.wsr-btns{display:flex;gap:8px;margin-top:16px}
+.wsr-ghost{all:unset;box-sizing:border-box;cursor:pointer;height:50px;padding:0 16px;border-radius:14px;display:grid;place-items:center;border:1px solid rgba(245,241,230,.16);font:800 12.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.18em;color:#C9CED7;white-space:nowrap}
+.wsr-save{all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:50px;border-radius:14px;padding:2px;background:linear-gradient(90deg,var(--m0),var(--m1) 40%,var(--m2) 60%,var(--m0));text-align:center}
+.wsr-save{display:grid;place-items:center;background:linear-gradient(180deg,#22A06B,#1C7A52) padding-box,linear-gradient(90deg,var(--m0),var(--m1) 40%,var(--m2) 60%,var(--m0)) border-box;border:2px solid transparent;box-shadow:inset 0 1px 0 rgba(255,255,255,.3);font:800 13px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.2em;color:#04140C}
+.wsr-save:focus-visible,.wsr-ghost:focus-visible,.wsr-hand:focus-visible{outline:2px solid var(--m2);outline-offset:2px}
 `; document.head.appendChild(st) }
