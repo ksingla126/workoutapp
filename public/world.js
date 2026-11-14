@@ -125,7 +125,7 @@ function wsCard(p, k, pick) {
   return `<div class="ws-card" id="wsCard"><div class="ws-line"><span class="ws-bang">!</span>[SYSTEM] ${line}</div>
     <div class="ws-title">${esc(title)}</div><div class="ws-sub">${sub}</div>
     ${stats.length ? `<div class="ws-stats">${stats.map(s => s.startsWith("<i") ? s.replace("<i", "<span").replace("</i>", "</span>") : `<span>${s}</span>`).join("")}</div>` : ""}
-    ${btn}${menu.length ? `<div class="ws-menu">${menu.join('<span class="dot">·</span>')}</div>` : ""}</div>`;
+    ${(() => { if (weekDays(k).filter(d => !S.logs[d] && inProgram(parseYmd(d))).length > 1) menu.push(`<button type="button" data-wsarr="${k}">Arrange week</button>`); return "" })()}${btn}${menu.length ? `<div class="ws-menu">${menu.join('<span class="dot">·</span>')}</div>` : ""}</div>`;
 }
 // after each render: put the selected island in view and pick the day that ends in the middle after a swipe
 function wsAfter() {
@@ -291,7 +291,7 @@ body.ws-page #top{position:relative;z-index:1}
 .ws-stats span.boss{border-color:rgba(60,123,244,.55);color:#9DBDFA}
 .ws-go{display:grid;place-items:center;width:100%;height:52px;margin-top:12px;border:0;border-radius:4px;cursor:pointer;clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,14px 100%,0 50%);background:linear-gradient(180deg,var(--wb1),var(--wb2));box-shadow:inset 0 1px 0 rgba(255,255,255,.3);font:800 16px/1 var(--display);letter-spacing:.22em;color:var(--wbi)}
 .ws-go:disabled{background:rgba(255,255,255,.06);color:#97A1B8;cursor:default}
-.ws-menu{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:10px;font:700 12px/1 var(--display);letter-spacing:.08em;color:#97A1B8}
+.ws-menu{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;margin-top:10px;font:700 12px/1 var(--display);letter-spacing:.08em;color:#97A1B8}
 .ws-menu button{all:unset;cursor:pointer;padding:4px 2px;color:#97A1B8;font:inherit;letter-spacing:inherit;cursor:pointer}
 .ws-menu .dot{opacity:.6}
 .ws-back{margin-bottom:10px}
@@ -761,4 +761,170 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && wsRun) wsr
 .wsr-save{all:unset;box-sizing:border-box;cursor:pointer;flex:1;height:50px;border-radius:14px;padding:2px;background:linear-gradient(90deg,var(--m0),var(--m1) 40%,var(--m2) 60%,var(--m0));text-align:center}
 .wsr-save{display:grid;place-items:center;background:linear-gradient(180deg,#22A06B,#1C7A52) padding-box,linear-gradient(90deg,var(--m0),var(--m1) 40%,var(--m2) 60%,var(--m0)) border-box;border:2px solid transparent;box-shadow:inset 0 1px 0 rgba(255,255,255,.3);font:800 13px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.2em;color:#04140C}
 .wsr-save:focus-visible,.wsr-ghost:focus-visible,.wsr-hand:focus-visible{outline:2px solid var(--m2);outline-offset:2px}
+`; document.head.appendChild(st) }
+
+/* ---------- Arrange the week: drag days into a new order ----------
+   Only logged days are locked. Missed days can be moved like any other. Dragging a day opens a slot where it will
+   land and slides the days between along; locked days stay where they are. Colour shows effort, a load meter and a
+   recovery check update as you drag, and nothing changes until Save. */
+let wsArr = null;  // {days: [k…7], lock: [bool…], order: [src|null…], start: [...], el, drag}
+const WSA_HARD = { intervals: 1, sprints: 1, hills: 1, tempo: 1, tt: 1, race: 1 };
+function wsaInfo(src, k) {
+  const pb = src ? basePlan(parseYmd(src)) : { type: "rest" }, pick = wsPick(pb && pb.type !== "rest" ? pb : null, k);
+  if (!pb || pb.type === "rest") return { kind: "rest", eff: "r", name: "The Camp", sub: "Rest", img: "camp1", label: "Rest" };
+  if (pb.type === "gym") return { kind: "gym", eff: "h", name: `${pb.name || "Gym"} Gate`, sub: pb.name || "Gym", img: pick.img, label: pb.name || "Gym", legs: /leg|lower|full/i.test(pb.name || "") };
+  const ty = wsRunType(pb);
+  return { kind: "run", eff: ty === "long" ? "m" : WSA_HARD[ty] ? "h" : "e", name: pick.name, sub: pb.t || "Run", img: pick.img, label: pb.t || "Run", long: ty === "long" };
+}
+function wsaOpen(k) {
+  const days = weekDays(k), td = ymd(today);
+  const lock = days.map(d => !!S.logs[d] || !inProgram(parseYmd(d)));
+  const order = days.map(d => srcOf(d));
+  wsArr = { days, lock, order, start: order.slice(), base: days.map(d => { const b = basePlan(parseYmd(d)); return b && b.type !== "rest" ? d : null }) };
+  wsPop = null; wsRun = null; lastRenderKey = ""; render();
+  const el = document.createElement("div"); el.className = "wsb wsa anim"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "Arrange the week");
+  wsArr.el = el; document.body.appendChild(el); wsaPaint(); setTimeout(() => { el.classList.remove("anim"); const h = el.querySelector(".wsa-h"); h && h.focus() }, 280);
+}
+function wsaClose() { if (wsArr && wsArr.el) wsArr.el.remove(); wsArr = null }
+// recovery check for an order of sessions across the week
+function wsaChecks(info) {
+  const out = [], n = info.length, rest = info.filter(x => x.kind === "rest").length;
+  for (let i = 0; i < n - 1; i++) { const a = info[i], b = info[i + 1], A = DOW[i], Bd = DOW[i + 1];
+    if (a.eff === "h" && b.eff === "h") out.push(["warn", `${a.label} ${A}, then ${b.label} ${Bd}: two hard days back to back.`]);
+    if (a.legs && b.long) out.push(["warn", `${a.label} ${A}, then the long run ${Bd}: tired legs for the run. A rest or easy day between them would help.`]);
+    if (a.long && b.legs) out.push(["warn", `Long run ${A}, then ${b.label} ${Bd}: your legs won't be fresh for ${b.label}.`]);
+  }
+  if (!rest) out.push(["warn", "No rest day this week. Keep at least one."]);
+  let run = 0, mx = 0; info.forEach(x => { run = x.kind === "rest" ? 0 : run + 1; mx = Math.max(mx, run) }); if (mx >= 5 && rest) out.push(["warn", `${mx} training days in a row before a rest.`]);
+  if (!out.length) out.push(["ok", "Hard days are spaced out and there's a rest day. This week works."]);
+  return out.slice(0, 3);
+}
+function wsaPaint() {
+  const A = wsArr; if (!A || !A.el) return;
+  const td = ymd(today), info = A.order.map((s, i) => wsaInfo(s, A.days[i])), D = A.drag;
+  const changed = A.order.some((s, i) => s !== A.start[i]);
+  const row = (i, ghost) => { const d = A.days[i], x = info[i], lock = A.lock[i], logged = !!S.logs[d], dt = parseYmd(d);
+    const status = logged ? "Done" : d < td && x.kind !== "rest" ? "Missed" : d === td ? "Today" : x.sub;
+    const moved = A.order[i] !== A.start[i];
+    return `<div class="wsa-row${lock ? " lock" : ""}${ghost ? " src" : ""}${d === td ? " today" : ""}" data-i="${i}"><i class="wsa-eff e-${x.eff}"></i>
+      <span class="wsa-d">${DOW[dowOf(dt)].toUpperCase()}<br>${dt.getDate()}</span><img src="/world/${x.img}.webp" alt="" class="${logged ? "" : "dim"}">
+      <span class="wsa-t"><b>${esc(x.name)}</b><em class="${status === "Missed" ? "miss" : ""}">${esc(status)}${moved && !lock ? ` <span class="mv">· moved</span>` : ""}</em></span>
+      ${lock ? `<span class="wsa-lk" aria-label="Logged, can't move">🔒</span>` : `<button type="button" class="wsa-h" data-wsah="${i}" aria-label="Move ${esc(x.name)}, ${DOW[dowOf(dt)]}. Drag, or use the arrow keys">⋮⋮</button>`}</div>` };
+  let list = "";
+  A.days.forEach((d, i) => { if (D && D.to === i && D.from !== i) list += `<div class="wsa-slot" style="height:${D.h}px">${esc(info[D.from].label)} goes here · ${DOW[dowOf(parseYmd(d))]} ${parseYmd(d).getDate()}</div>`; list += row(i, D && D.from === i) });
+  const bars = info.map((x, i) => `<div><i class="e-${x.eff}" style="height:${{ h: 26, m: 20, e: 10, r: 4 }[x.eff]}px"></i><span>${DOW[i].charAt(0)}</span></div>`).join("");
+  const ck = wsaChecks(D ? D.preview : info).map(([s, t]) => `<div class="wsa-ck ${s}"><span>${s === "ok" ? "✓" : "!"}</span>${esc(t)}</div>`).join("");
+  A.el.innerHTML = `<button type="button" class="wsb-bg" data-wsax="1" aria-label="Close"></button><div class="wsb-card wsa-card"><div class="wsb-in"><div class="wsr-scroll">
+    <div class="wsb-eb"><span>ARRANGE THE WEEK</span><button type="button" class="wsb-x" data-wsax="1" aria-label="Close">✕</button></div>
+    <div class="wsb-title">DRAG TO REORDER</div><div class="wsb-plain">Colour shows effort: red hard, gold long, green easy. Logged days stay put.</div>
+    <div class="wsa-list">${list}</div>
+    <div class="wsa-lab">LOAD THIS WEEK</div><div class="wsa-meter">${bars}</div>${ck}
+    <div class="wsr-btns"><button type="button" class="wsr-ghost" data-wsareset="1">RESET</button><button type="button" class="wsr-save" data-wsasave="1"${changed ? "" : " disabled"}>${changed ? "SAVE THE WEEK" : "NO CHANGES YET"}</button></div>
+    <button type="button" class="wsr-hand" data-wsaplan="1">PUT THE WEEK BACK TO MY PLAN</button></div></div></div>`;
+}
+// move the session at slot `from` to slot `to`; locked slots don't move, the open ones in between slide along
+function wsaMove(order, lock, from, to) {
+  const free = order.map((_, i) => i).filter(i => !lock[i]), a = free.indexOf(from), b = free.indexOf(to);
+  if (a < 0 || b < 0 || a === b) return order.slice();
+  const seq = free.map(i => order[i]); const [m] = seq.splice(a, 1); seq.splice(b, 0, m);
+  const out = order.slice(); free.forEach((i, j) => out[i] = seq[j]); return out;
+}
+function wsaSave() {
+  const A = wsArr; if (!A) return;
+  const before = JSON.stringify(S.profile.moves || {});
+  A.days.forEach((d, i) => { if (!A.lock[i]) setSrc(d, A.order[i]) });
+  saveProfile(); if (typeof commitPlan === "function") try { commitPlan() } catch (_) { }
+  const prev = JSON.parse(before); wsaClose(); lastRenderKey = ""; render();
+  wsaUndo(prev);
+}
+// a short bronze bar with Undo after saving
+function wsaUndo(prev) {
+  document.querySelectorAll(".wsa-toast").forEach(x => x.remove());
+  const el = document.createElement("div"); el.className = "wsa-toast"; el.setAttribute("role", "status");
+  el.innerHTML = `<div><span>[SYSTEM] SCHEDULE CHANGED</span><b>Your week has been rearranged.</b></div><button type="button">UNDO<i></i></button>`;
+  document.body.appendChild(el);
+  const t = setTimeout(() => el.remove(), 8000);
+  el.querySelector("button").onclick = () => { clearTimeout(t); el.remove(); S.profile.moves = prev; saveProfile(); if (typeof commitPlan === "function") try { commitPlan() } catch (_) { } lastRenderKey = ""; render(); toast("Undone. Your week is back.") };
+}
+// dragging by the handle (pointer), or with the arrow keys
+document.addEventListener("pointerdown", e => {
+  const h = e.target.closest && e.target.closest(".wsa .wsa-h"); if (!h || !wsArr) return;
+  e.preventDefault(); const A = wsArr, from = +h.dataset.wsah, rowEl = h.closest(".wsa-row"), r = rowEl.getBoundingClientRect();
+  const ghost = rowEl.cloneNode(true); ghost.classList.add("wsa-float"); ghost.style.cssText = `left:${r.left}px;top:${r.top}px;width:${r.width}px`;
+  document.body.appendChild(ghost);
+  A.drag = { from, to: from, h: r.height, dy: e.clientY - r.top, ghost, preview: A.order.map((s, i) => wsaInfo(s, A.days[i])), pid: e.pointerId };
+  wsaPaint(); try { navigator.vibrate && navigator.vibrate(10) } catch (_) { }
+});
+document.addEventListener("pointermove", e => {
+  const A = wsArr; if (!A || !A.drag || e.pointerId !== A.drag.pid) return; e.preventDefault();
+  const D = A.drag; D.ghost.style.top = (e.clientY - D.dy) + "px";
+  // the slot under the pointer, among the days that can move
+  const rows = [...A.el.querySelectorAll(".wsa-row")]; let to = D.from;
+  for (const rw of rows) { const i = +rw.dataset.i, rr = rw.getBoundingClientRect(); if (A.lock[i]) continue; if (e.clientY > rr.top + rr.height / 2 || i === D.from) to = i; if (e.clientY < rr.top + rr.height / 2 && i !== D.from) { to = i; break } }
+  // auto-scroll near the edges of the sheet
+  const sc = A.el.querySelector(".wsr-scroll"), sr = sc.getBoundingClientRect(); if (e.clientY < sr.top + 40) sc.scrollTop -= 8; else if (e.clientY > sr.bottom - 40) sc.scrollTop += 8;
+  if (to !== D.to) { D.to = to; const next = wsaMove(A.order, A.lock, D.from, to); D.preview = next.map((s, i) => wsaInfo(s, A.days[i])); const st = sc.scrollTop; wsaPaint(); A.el.querySelector(".wsr-scroll").scrollTop = st }
+}, { passive: false });
+const wsaDrop = e => { const A = wsArr; if (!A || !A.drag || (e && e.pointerId !== A.drag.pid)) return; const D = A.drag; D.ghost.remove();
+  if (e && e.type !== "pointercancel") A.order = wsaMove(A.order, A.lock, D.from, D.to); A.drag = null;
+  const st = A.el.querySelector(".wsr-scroll").scrollTop; wsaPaint(); A.el.querySelector(".wsr-scroll").scrollTop = st };
+document.addEventListener("pointerup", wsaDrop); document.addEventListener("pointercancel", wsaDrop);
+document.addEventListener("keydown", e => {
+  if (!wsArr) return;
+  if (e.key === "Escape") { if (wsArr.drag) { wsaDrop(null) } else wsaClose(); return }
+  const h = e.target.closest && e.target.closest(".wsa .wsa-h"); if (!h || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
+  e.preventDefault(); const A = wsArr, from = +h.dataset.wsah, free = A.order.map((_, i) => i).filter(i => !A.lock[i]), j = free.indexOf(from) + (e.key === "ArrowUp" ? -1 : 1);
+  if (j < 0 || j >= free.length) return; A.order = wsaMove(A.order, A.lock, from, free[j]); wsaPaint(); const nh = A.el.querySelector(`[data-wsah="${free[j]}"]`); nh && nh.focus();
+});
+document.addEventListener("click", e => {
+  const t = e.target;
+  const open = t.closest && t.closest("[data-wsarr]"); if (open) { e.preventDefault(); wsaOpen(open.dataset.wsarr); return }
+  if (!wsArr || !t.closest(".wsa")) return;
+  if (t.closest("[data-wsax]")) { wsaClose(); return }
+  if (t.closest("[data-wsareset]")) { wsArr.order = wsArr.start.slice(); wsaPaint(); return }
+  if (t.closest("[data-wsaplan]")) { wsArr.order = wsArr.order.map((s, i) => wsArr.lock[i] ? s : wsArr.base[i]); wsaPaint(); return }
+  if (t.closest("[data-wsasave]")) { wsaSave(); return }
+});
+{ const st = document.createElement("style"); st.id = "wsaCss"; st.textContent = `.wsa .wsa-card{flex:0 1 auto;max-height:100%;margin-top:auto;margin-bottom:auto}
+.wsa .wsb-in{height:auto;max-height:100%;padding:0;overflow:hidden}
+.wsa-list{margin-top:12px;display:flex;flex-direction:column;gap:5px}
+.wsa-row{display:flex;align-items:center;gap:10px;height:48px;padding-right:4px;border-radius:12px;overflow:hidden;background:#0C0F10;border:1px solid rgba(245,241,230,.06);touch-action:pan-y}
+.wsa-row.today .wsa-d{color:var(--core)}
+.wsa-row.src{opacity:.35}
+.wsa-row.lock{background:#0A0B0C}
+.wsa-eff{align-self:stretch;width:4px;flex-shrink:0}
+.e-h{background:#E0675A}.e-m{background:#E8C27A}.e-e{background:#7FC8A9}.e-r{background:#5A6070}
+.wsa-d{width:34px;flex-shrink:0;font:800 10px/1.2 "Barlow Semi Condensed",sans-serif;letter-spacing:.1em;color:var(--mut)}
+.wsa-row img{width:36px;height:40px;object-fit:contain;flex-shrink:0}
+.wsa-row img.dim{filter:grayscale(1) brightness(.5)}
+.wsa-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.wsa-t b{font:700 14px/1.2 Barlow,sans-serif;color:#F5F1E6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wsa-t em{font-style:normal;font-size:11.5px;color:var(--mut)}
+.wsa-t em.miss{color:#E0675A}
+.wsa-t .mv{color:var(--m2)}
+.wsa-lk{width:40px;text-align:center;font-size:13px;opacity:.7}
+.wsa-h{all:unset;cursor:grab;width:40px;height:44px;display:grid;place-items:center;color:var(--m2);font:900 15px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:-2px;touch-action:none;border-radius:8px}
+.wsa-h:focus-visible{outline:2px solid var(--m2)}
+.wsa-slot{border-radius:12px;border:1.5px dashed var(--m2);background:rgba(244,196,142,.06);display:grid;place-items:center;font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.2em;color:var(--m2);text-transform:uppercase}
+.wsa-float{position:fixed;z-index:1000;pointer-events:none;transform:rotate(-1.5deg) scale(1.03);background:#17201D !important;border:1.5px solid #F4C48E !important;box-shadow:0 18px 30px rgba(0,0,0,.8),0 0 24px -6px #F4C48E;--m2:#F4C48E;--mut:#8F97A6;--core:#DEF1E9;opacity:1}
+.wsa-float .wsa-h{cursor:grabbing}
+body:has(.wsa-float){cursor:grabbing;user-select:none;-webkit-user-select:none}
+.wsa-lab{margin-top:14px;font:800 9.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.3em;color:var(--mid)}
+.wsa-meter{display:flex;gap:3px;margin-top:8px}
+.wsa-meter div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:42px}
+.wsa-meter i{display:block;width:100%;border-radius:3px;transition:height .2s}
+.wsa-meter span{font:800 8px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.1em;color:var(--mut);margin-top:4px}
+.wsa-ck{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border-radius:10px;font-size:12px;line-height:1.45;color:#D9D4C8;margin-top:8px;border:1px solid rgba(232,194,122,.35);background:rgba(232,194,122,.07)}
+.wsa-ck>span{width:17px;height:17px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;font:900 10.5px/1 "Barlow Semi Condensed",sans-serif;background:rgba(232,194,122,.15);color:#E8C27A}
+.wsa-ck.ok{border-color:rgba(127,200,169,.35);background:rgba(127,200,169,.07)}
+.wsa-ck.ok>span{background:rgba(127,200,169,.15);color:#7FC8A9}
+.wsa-toast{position:fixed;z-index:950;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 84px);max-width:460px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;color:#F5F1E6;border:2px solid transparent;background:linear-gradient(#0C0D10,#0C0D10) padding-box,linear-gradient(90deg,#6B3F17,#B47A3F 40%,#F4C48E 60%,#6B3F17) border-box;box-shadow:0 14px 30px #000;animation:wsbIn .2s ease-out}
+.wsa-toast>div{flex:1;min-width:0}
+.wsa-toast span{display:block;font:800 9px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.24em;color:#7FC8A9}
+.wsa-toast b{display:block;font:700 13.5px/1.3 Barlow,sans-serif;margin-top:4px}
+.wsa-toast button{all:unset;cursor:pointer;position:relative;overflow:hidden;width:64px;height:36px;border-radius:10px;border:1px solid #F4C48E;text-align:center;font:900 12px/36px "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;color:#F4C48E}
+.wsa-toast button i{position:absolute;left:0;bottom:0;height:3px;width:100%;background:#F4C48E;transform-origin:left;animation:wsaT 8s linear forwards}
+@keyframes wsaT{to{transform:scaleX(0)}}
+.wsa .wsr-save[disabled]{opacity:.5;cursor:default;filter:grayscale(.5)}
+@media (prefers-reduced-motion:reduce){.wsa-meter i{transition:none}}
 `; document.head.appendChild(st) }
