@@ -102,7 +102,7 @@ function hubMain(H) {
       <button type="button" class="link small hub-alt" data-hub-train="1">Log a run you already did</button></section>`;
   }
   const mus = hubMuscles(p), sets = (p.ex || []).reduce((t, e) => t + (e.sets || 0), 0), min = typeof estMin === "function" ? estMin(p.ex) : 50;
-  let gate = ""; try { const R = H.R, C = RKC(); if (R && !H.un) { const g = R.parts.find(pt => R.part[pt].gate && R.part[pt].gate.open && (p.ex || []).some(e => (C.conv[e.id] || []).some(c => c.p === pt && c.cap == null))); if (g) gate = `<span class="hub-gate">Gate open · ${esc(C.parts[g].name)} → ${rkLetter(R.part[g].gate.to)}</span>` } } catch (e) {}
+  let gate = ""; try { const R = H.R, C = RKC(); if (R && !H.un) { const g = R.parts.find(pt => R.part[pt].gate && R.part[pt].gate.open && (p.ex || []).some(e => (C.conv[e.id] || []).some(c => c.p === pt && c.cap == null) && rkExReady(e.id, pt, R.part[pt].gate.to, R))); if (g) gate = `<span class="hub-gate">Gate open · ${esc(C.parts[g].name)} → ${rkLetter(R.part[g].gate.to)}</span>` } } catch (e) {}
   const tv = typeof tvDay === "function" && tvDay(k);
   return `<section class="hub-main"><div class="hub-row"><span class="hub-sys">[SYSTEM] ${first ? "FIRST QUEST" : "MAIN QUEST"}</span>${gate}</div>
     <h2>${esc(p.name)}</h2><p class="hub-sub">${first ? `${p.ex.length} exercises · ~${min} min · we'll guide every set` : esc(mus.join(" · ") || "Full body")}${tv ? ` · ${tv.mode === "db" ? "dumbbells" : "bodyweight"}` : ""}</p>
