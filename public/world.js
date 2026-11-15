@@ -104,11 +104,12 @@ function wsCard(p, k, pick) {
     sub = ex.length ? `${L ? `Rank ${L} · ` : ""}${WS_NUM[ex.length] || ex.length} floor${ex.length === 1 ? "" : "s"}${boss ? `, ${WS_NUM[boss] || boss} Gate boss${boss === 1 ? "" : "es"} inside` : ""}.` : "This routine has no exercises yet.";
     stats = ex.length ? [`${ex.length} FLOORS`, `${sets} MOBS`, `~${typeof estMin === "function" ? estMin(ex) : 50} MIN`, ...(boss ? [`<i class="boss">♛ ${boss} BOSS${boss === 1 ? "" : "ES"}</i>`] : [])] : [];
     btn = !ex.length ? go("ADD EXERCISES", `data-c-gotoplan="1"`)
-      : log ? go("GATE CLEARED ✓ · VIEW LOG", `data-wslog="1"`)
+      : log ? go("GATE CLEARED ✓ · VIEW REPORT", `data-wsana="${k}"`)
       : running ? go("RETURN TO THE GATE", `data-openlive="1"`)
       : isToday ? go(M.btn, `id="tmStart"`)
       : past ? go("LOG THIS GATE", `data-wslog="1"`)
       : `<button type="button" class="ws-go" disabled>OPENS ${when}</button>`;
+    if (log) menu.push(`<button type="button" data-wslog="1">View log</button>`);
     if (!log) menu.push(`<button type="button" data-daymove="${k}|move">Move</button>`, ...(past ? [] : [`<button type="button" data-daymove="${k}|swap">Swap</button>`]), `<button type="button" data-dayskip="${k}">Rest day</button>`);
   } else {
     line = log ? `TRAIL CLEARED · ${when}` : isToday ? M.line : `TRAIL · ${when}`;
@@ -449,6 +450,7 @@ document.addEventListener("click", e => {
   if (sl && !t.closest(".ws-ign")) { const k = sl.dataset.wsday, p = inProgram(parseYmd(k)) ? planFor(parseYmd(k)) : null;
     if (!p || p.type === "rest" || (p.type === "gym" && !(p.ex || []).length)) return;
     if (k !== ymd(sel)) return;
+    const lg = S.logs[k]; if (lg && (lg.type === "gym" || lg.type === "run") && lg.type === p.type) { wsnOpen(k); return }
     wsPop = { k, open: null, top: 0, anim: true }; lastRenderKey = ""; render() }
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && wsPop && !document.querySelector(".st-menu")) wsbClose() });
@@ -1003,9 +1005,140 @@ function wsnTab(k, l, tab) {
   // coach: the written analysis, streamed in while it's being written
   return `<div class="wsn-ana ana" id="ana-${k}">${anaHtml(k)}</div><div class="wsn-acts"><button type="button" id="anaBtn" data-ana="${k}" ${anaBusy[k] != null || !sampleFn ? "disabled" : ""}>${l.analysis ? "RE-ANALYZE" : "ANALYZE RUN"}</button><button type="button" data-wsnlog="${k}">OPEN THE FULL LOG</button></div>`;
 }
+
+/* ---------- Gate report: a logged gym day, built like the run report (tiles, then tabs) ---------- */
+const WSG_TABS = [["sets", "SETS"], ["volume", "VOLUME"], ["progress", "PROGRESS"], ["ranks", "RANKS"], ["coach", "COACH"]];
+const WSG_MUS = { back: "Back", chest: "Chest", shoulders: "Shoulders", arms: "Arms", core: "Core", quads: "Quads", glutes: "Glutes", hamstrings: "Hamstrings", calves: "Calves" };
+function wsgNext(k) { return ymd(addDays(parseYmd(k), 1)) }
+// the previous logged session of the same routine day (for volume and muscle comparisons)
+function wsgPrevDay(k, l) { const dk = x => /^[ABC]$/.test(x || "") ? "r" + x : x;
+  const e = Object.entries(S.logs).filter(([kk, x]) => kk < k && x.type === "gym" && x.ex && dk(x.day) === dk(l.day)).sort((a, b) => a[0] < b[0] ? 1 : -1)[0];
+  return e ? { k: e[0], l: e[1] } : null }
+function wsgVol(id, l, sets) { const f = logFmt(id, l), F = FMT[f] || {}; if (!(F.b === "reps" && F.w)) return 0; return WS(sets).reduce((t, x) => t + loadW(id, l, x.w) * (Number(x.r) || 0), 0) }
+function wsgLogVol(l) { return Object.entries(l.ex || {}).reduce((t, [id, sets]) => t + wsgVol(id, l, sets), 0) }
+function wsgData(k, l) {
+  const d = parseYmd(k), p = planFor(d), plan = p && p.type === "gym" ? (p.ex || []) : [];
+  const ids = [...plan.map(e => e.id).filter(id => l.ex && WS(l.ex[id]).length), ...Object.keys(l.ex || {}).filter(id => WS(l.ex[id]).length && !plan.some(e => e.id === id))];
+  const ex = ids.map(id => { const cfg = plan.find(e => e.id === id) || { id, name: rkExName(id), sets: WS(l.ex[id]).length }, f = logFmt(id, l), F = FMT[f] || {}, all = l.ex[id] || [], ws = WS(all);
+    const h = exHistory(id, k, f)[0], pl = h ? S.logs[h.k] : null;
+    return { id, cfg, name: cfg.name || rkExName(id), f, wr: F.b === "reps" && !!F.w, db: logDb(id, l), all, ws, vol: wsgVol(id, l, all), pr: (l.prs || []).includes(id),
+      best: sessBest(id, l), prev: h ? { k: h.k, l: pl, sets: h.sets, vol: wsgVol(id, pl, h.sets), best: sessBest(id, pl) } : null } });
+  const planned = plan.filter(e => !e.fixed && ids.includes(e.id)).reduce((t, e) => t + (e.sets || 0), 0) + plan.filter(e => !e.fixed && !ids.includes(e.id)).reduce((t, e) => t + (e.sets || 0), 0);
+  const done = ex.reduce((t, e) => t + e.ws.length, 0), vol = ex.reduce((t, e) => t + e.vol, 0), pd = wsgPrevDay(k, l);
+  return { d, p, plan, ex, planned, done, vol, pd, pvol: pd ? wsgLogVol(pd.l) : 0 };
+}
+function wsgW(v) { return Math.round(toU(v)).toLocaleString() }
+function wsgSum(e) {
+  if (!e.ws.length) return "Not logged";
+  const same = e.wr && e.ws.every(x => Number(x.w) === Number(e.ws[0].w));
+  if (same) { const w = Number(e.ws[0].w) || 0; return `${w ? `${+toU(w).toFixed(1)}${e.db ? "/DB" : ""} ${uL()}` : "BW"} × ${e.ws.map(x => x.r).join(", ")}` }
+  return e.ws.map(x => setTxt(e.f, x, e.db)).join(" · ") }
+function wsgVerdict(D, l) {
+  const prs = (l.prs || []).length, miss = Math.max(0, D.planned - D.done);
+  let a = !D.planned || !miss ? "Every set done" : `${D.done} of ${D.planned} sets`;
+  a += prs ? `, ${WS_NUM[prs] || prs} PR${prs === 1 ? "" : "s"}.` : ".";
+  if (D.pvol && D.vol) { const c = Math.round((D.vol - D.pvol) / D.pvol * 100); a += c >= 3 ? ` Volume up ${c}% on last ${l.day ? esc(D.p && D.p.name || "time") : "time"}.` : c <= -3 ? ` Volume down ${-c}% on last time.` : " Volume level with last time." }
+  return a }
+function wsgSpark(vals) {
+  if (vals.length < 2) return `<span class="wsg-new">NEW THIS BLOCK</span>`;
+  const w = 104, h = 30, lo = Math.min(...vals), hi = Math.max(...vals), sp = hi - lo || 1;
+  const pts = vals.map((v, i) => [i * w / (vals.length - 1), h - (v - lo) / sp * h]);
+  return `<svg class="wsg-spark" width="${w + 8}" height="${h + 8}" viewBox="-4 -4 ${w + 8} ${h + 8}" aria-hidden="true"><polyline points="${pts.map(q => q.map(n => n.toFixed(1)).join(",")).join(" ")}" fill="none" stroke="#7FC8A9" stroke-width="2" stroke-linejoin="round"/><circle cx="${pts.at(-1)[0].toFixed(1)}" cy="${pts.at(-1)[1].toFixed(1)}" r="3.5" fill="#E8C27A"/></svg>` }
+function wsgTab(k, l, tab, D) {
+  const A = wsAna;
+  if (tab === "sets") {
+    const rows = D.ex.map(e => { const open = A.open === e.id, n = e.cfg.sets && !e.cfg.fixed ? `${e.ws.length}/${e.cfg.sets}` : `${e.ws.length}`;
+      let tb = "";
+      if (open) { let wi = 0; const ps = e.prev ? WS(e.prev.sets) : [];
+        tb = `<div class="wsg-tb${e.wr ? "" : " one"}"><div class="wsg-tr hd">${e.wr ? "<span>Set</span><span>Weight</span><span>Reps</span><span>Last time</span>" : "<span>Set</span><span>Result</span><span>Last time</span>"}</div>` +
+          e.all.map(x => { const w = x.t === "w", lbl = w ? "W" : String(++wi), pv = w ? null : ps[wi - 1], last = pv ? esc(setTxt(e.f, pv, logDb(e.id, e.prev.l))) : "–";
+            const ty = !w && x.t && typeof SET_TYPES !== "undefined" && SET_TYPES[x.t] ? `<em>${esc(SET_TYPES[x.t].l)}</em>` : "";
+            return e.wr ? `<div class="wsg-tr${w ? " wu" : ""}"><span>${lbl}${ty}</span><b>${Number(x.w) ? `${+toU(Number(x.w)).toFixed(1)}${e.db ? "/DB" : ""} ${uL()}` : "BW"}</b><b>${esc(String(x.r ?? "–"))}</b><span>${last}</span></div>`
+              : `<div class="wsg-tr${w ? " wu" : ""}"><span>${lbl}${ty}</span><b>${esc(setTxt(e.f, x, e.db))}</b><span>${last}</span></div>` }).join("") + `</div>` }
+      return `<div class="wsg-ex${open ? " open" : ""}"><button type="button" class="wsg-h" data-wsgx="${esc(e.id)}" aria-expanded="${open}"><i class="wsg-d" aria-hidden="true"></i><span class="wsg-nm"><b>${esc(e.name)}${e.cfg.ss ? `<small class="ss">SS ${esc(String(e.cfg.ss))}</small>` : ""}${e.pr ? `<small class="pr">PR</small>` : ""}</b><span>${esc(wsgSum(e))}</span></span><span class="wsg-n">${n}</span><span class="wsg-car" aria-hidden="true">▾</span></button>${tb}</div>` }).join("");
+    return rows + `<div class="wsn-leg"><span>TAP AN EXERCISE FOR EVERY SET</span></div>`;
+  }
+  if (tab === "volume") {
+    const W = D.ex.filter(e => e.wr);
+    if (!W.length || !D.vol) return `<p class="wsn-p" style="margin-top:12px">Volume counts weight × reps, and nothing in this session was logged that way.</p>`;
+    const mx = Math.max(...W.map(e => Math.max(e.vol, e.prev ? e.prev.vol : 0))) || 1;
+    const bars = W.map(e => `<div class="wsg-vb"><span>${esc(e.name)}</span><div><i style="width:${(e.vol / mx * 100).toFixed(1)}%"></i>${e.prev && e.prev.vol ? `<u style="left:${(e.prev.vol / mx * 100).toFixed(1)}%"></u>` : ""}</div><b>${(toU(e.vol) / 1000).toFixed(1)}k</b></div>`).join("");
+    const mus = (lg, pick) => { const m = {}; Object.entries(lg.ex || {}).forEach(([id, sets]) => { const v = wsgVol(id, lg, sets), mm = EX_MUSCLES[id]; if (!v || !mm) return; Object.entries(mm).forEach(([g, sh]) => m[g] = (m[g] || 0) + v * sh) }); return m };
+    const a = mus(l), b = D.pd ? mus(D.pd.l) : {}, gs = Object.keys(a).sort((x, y) => a[y] - a[x]), mm = Math.max(...gs.map(g => a[g]), 1);
+    const mrows = gs.map(g => { const c = b[g] ? Math.round((a[g] - b[g]) / b[g] * 100) : null;
+      return `<div class="wsg-mu"><div><span>${esc(WSG_MUS[g] || g)}</span><span><b>${wsgW(a[g])}</b>${c == null ? "" : c >= 0 ? ` <em class="up">▲ ${c}%</em>` : ` <em class="dn">▼ ${-c}%</em>`}</span></div><i><u style="width:${(a[g] / mm * 100).toFixed(0)}%"></u></i></div>` }).join("");
+    const ch = D.pvol ? Math.round((D.vol - D.pvol) / D.pvol * 100) : null;
+    return wsnTiles([[wsgW(D.vol), `${uL()} today`], [D.pvol ? wsgW(D.pvol) : "–", "Last time"], [ch == null ? "–" : `${ch >= 0 ? "+" : "−"}${Math.abs(ch)}%`, "Change"]], 3)
+      + wsnFrame("VOLUME BY EXERCISE", D.ex.some(e => e.prev && e.prev.vol) ? "LINE = LAST TIME" : "", bars)
+      + (mrows ? wsnFrame("BY MUSCLE", D.pd ? `VS. ${fmtShort(parseYmd(D.pd.k)).toUpperCase()}` : "", mrows) : "")
+      + `<p class="wsn-p" style="margin-top:10px">Volume is weight × reps over working sets${D.ex.some(e => e.db) ? ", both dumbbells counted" : ""}. Warm-ups are left out.</p>`;
+  }
+  if (tab === "progress") {
+    const nk = wsgNext(k);
+    const rows = D.ex.map(e => { const top = e.ws.reduce((a, x) => !a || setScore(e.f, e.id, l, x) > setScore(e.f, e.id, l, a) ? x : a, null);
+      const pt = e.prev ? WS(e.prev.sets).reduce((a, x) => !a || setScore(e.f, e.id, e.prev.l, x) > setScore(e.f, e.id, e.prev.l, a) ? x : a, null) : null;
+      const hist = exHistory(e.id, nk, e.f).slice(0, 6).reverse().map(h => sessBest(e.id, S.logs[h.k]));
+      let delta = "";
+      if (e.prev && e.prev.best) { const dv = e.best - e.prev.best;
+        delta = e.wr ? (Math.abs(dv) < 0.5 ? `<em>= same</em>` : dv > 0 ? `<em class="up">▲ ${Math.round(toU(dv))} ${uL()}</em>` : `<em class="dn">▼ ${Math.round(toU(-dv))} ${uL()}</em>`)
+          : (Math.abs(dv) < 1e-6 ? `<em>= same</em>` : dv > 0 ? `<em class="up">▲ better</em>` : `<em class="dn">▼ lower</em>`) }
+      return `<div class="wsg-pg"><div><b>${esc(e.name)}${e.pr ? `<small class="pr">PR</small>` : ""}</b><span>Top set ${top ? esc(setTxt(e.f, top, e.db)) : "–"}${pt ? ` · last ${esc(setTxt(e.f, pt, logDb(e.id, e.prev.l)))}` : ""}</span>${e.wr ? `<span class="em">EST. MAX ${Math.round(toU(e.best))} ${delta}</span>` : delta ? `<span class="em">${delta}</span>` : ""}</div>${wsgSpark(hist)}</div>` }).join("");
+    return wsnFrame(`${D.ex.some(e => e.wr) ? "ESTIMATED MAX" : "BEST SET"} · LAST 6 SESSIONS`, "GOLD = THIS DAY", rows)
+      + `<p class="wsn-p" style="margin-top:10px">Estimated max comes from your best working set (weight × reps), the same number the Ranks use.</p>`;
+  }
+  if (tab === "ranks") {
+    let R = null, C = null; try { R = rankState(); C = RKC() } catch (_) { }
+    if (!R || !C) return `<p class="wsn-p" style="margin-top:12px">Ranks aren't available yet.</p>`;
+    const parts = []; D.ex.forEach(e => (C.conv[e.id] || []).forEach(c => { if (c.cap == null && R.part[c.p] && !parts.includes(c.p)) parts.push(c.p) }));
+    let gate = "";
+    for (const pp of parts) { const P = R.part[pp]; if (!P.gate || !P.gate.open || P.excl) continue;
+      const own = D.ex.find(e => { try { const g = rkGateInfo(e.id); return g && g.p === pp } catch (_) { return false } }), g = own ? rkGateInfo(own.id) : null;
+      const opener = P.src && P.src.e ? rkExName(P.src.e.ex) : "";
+      gate = `<div class="wsg-gate"><span aria-hidden="true">♛</span><div><b>[SYSTEM] GATE OPEN · ${esc(C.parts[pp].name.toUpperCase())} → ${esc(rkLetter(P.gate.to))}</b><em>${g ? `${esc(own.name)} is at that level. Clear it with ${esc(g.txt)}.` : `${esc(opener || "Another lift")} reached that level. Clear it there with a heavy set.`}</em></div></div>`; break }
+    const bars = parts.map(pp => { const P = R.part[pp], name = C.parts[pp].name;
+      if (P.num == null || P.excl) return "";
+      const mine = (R.byPart[pp] || []).filter(e => e.d === k && !e.flag);
+      const today = P.src && P.src.e && P.src.e.d === k, pct = Math.max(0, Math.min(1, P.prog || 0)) * 100, top = P.rank >= 5;
+      const note = today ? `This session set your score: ${esc(rkExName(P.src.e.ex))}.` : P.src && P.src.e ? `Score held by ${esc(rkExName(P.src.e.ex))} on ${esc(fmtShort(parseYmd(P.src.e.d)))}.` : "";
+      return `<div class="wsg-rk"><div><b>${esc(name)}</b>${today ? `<em class="up">NEW BEST</em>` : mine.length ? `<em>COUNTED</em>` : ""}</div><div class="wsg-bar"><span>${esc(rkLetter(P.rank))}</span><i><u class="${today ? "t" : ""}" style="width:${top ? 100 : pct.toFixed(0)}%"></u></i><span class="n">${top ? "" : esc(rkLetter(P.rank + 1))}</span></div>${note ? `<p>${note}</p>` : ""}</div>` }).join("");
+    const prs = D.ex.filter(e => e.pr).map(e => { const top = e.ws.reduce((a, x) => !a || setScore(e.f, e.id, l, x) > setScore(e.f, e.id, l, a) ? x : a, null);
+      return `<div><span>PR</span><b>${esc(e.name)}</b><em>${top ? esc(setTxt(e.f, top, e.db)) : ""}${e.wr ? ` · est. ${Math.round(toU(e.best))}` : ""}</em></div>` }).join("");
+    return gate + (bars ? wsnFrame("WHERE YOU STAND", "BAR = WAY TO THE NEXT RANK", bars) : `<p class="wsn-p" style="margin-top:12px">None of these lifts count toward a rank.</p>`) + (prs ? `<div class="wsg-prs">${prs}</div>` : "");
+  }
+  // coach: plain checks from the sets, then what to aim for next time
+  const items = [], prs = D.ex.filter(e => e.pr);
+  if (D.planned) items.push(D.done >= D.planned ? ["good", "Every set done", `${D.done} of ${D.planned} sets${l.durMin ? `, in ${Math.round(l.durMin)} minutes` : ""}.`] : ["watch", `${D.done} of ${D.planned} sets`, `${D.planned - D.done} planned set${D.planned - D.done === 1 ? "" : "s"} weren't logged.`]);
+  if (prs.length) items.push(["good", `${WS_NUM[prs.length] ? WS_NUM[prs.length][0].toUpperCase() + WS_NUM[prs.length].slice(1) : prs.length} PR${prs.length === 1 ? "" : "s"}`, `${prs.map(e => e.name).join(" and ")} set${prs.length === 1 ? "s a" : ""} new best${prs.length === 1 ? "" : "s"}.`]);
+  D.ex.forEach(e => { if (!e.wr || e.cfg.fixed || !e.ws.length) return; const rs = e.ws.map(x => Number(x.r) || 0), lo = e.cfg.lo, hi = e.cfg.hi;
+    const tw = Math.max(...e.ws.map(x => Number(x.w) || 0)), pw = e.prev ? Math.max(...WS(e.prev.sets).map(x => Number(x.w) || 0)) : 0;
+    if (lo && rs.every(r => r < lo)) items.push(["fix", `${e.name} under the range`, `${rs.join(", ")} against ${lo}–${hi}. Drop a step so every set lands in range.`]);
+    else if (lo && pw && tw > pw && rs.every(r => r <= lo + 1)) items.push(["watch", `${e.name} at the bottom of the range`, `Up ${Math.round(toU(tw - pw))} ${uL()}, landed on ${rs.join(", ")}. Stay there until you reach ${Math.min(hi, lo + 2)}.`]);
+    else if (hi && rs.length >= (e.cfg.sets || rs.length) && rs.every(r => r >= hi)) items.push(["good", `${e.name} topped the range`, `${rs.join(", ")}: time to add weight.`]);
+    if (rs.length >= 3 && rs[0] - rs.at(-1) >= 2) items.push(["fix", `${e.name} faded`, `${rs.join(", ")}. A longer rest before the last set would help.`]) });
+  const nk = wsgNext(k), next = D.ex.filter(e => !e.cfg.fixed && D.plan.some(x => x.id === e.id)).slice(0, 4).map(e => { try { const t = targetFor(e.cfg, nk); if (!t || t.first) return "";
+    const tg = e.wr && t.w != null ? `${+toU(Number(t.w)).toFixed(1)}${e.db ? "/DB" : ""} ${uL()} × ${t.reps.join(", ")}` : t.reps ? t.reps.join(", ") : "";
+    return `<b>${esc(e.name)}</b>${tg ? ` · ${esc(tg)}` : ""}<br><span>${esc(t.msg || "")}</span>` } catch (_) { return "" } }).filter(Boolean);
+  return (items.length ? `<div class="wsn-items">${items.map(([t, a, b]) => `<div class="${t}"><span>${{ good: "✓", watch: "!", fix: "↻" }[t]}</span><div><b>${esc(a)}</b><em>${esc(b)}</em></div></div>`).join("")}</div>` : "")
+    + (l.notes ? `<div class="wsr-rule"><i></i><span>YOUR NOTE</span><i></i></div><p class="wsn-p">“${esc(l.notes)}”</p>` : "")
+    + (next.length ? `<div class="wsr-rule"><i></i><span>NEXT TIME</span><i></i></div><ol class="wsg-next">${next.map(x => `<li>${x}</li>`).join("")}</ol>` : "")
+    + `<div class="wsn-acts"><button type="button" data-wsnlog="${k}">OPEN THE FULL LOG</button></div>`;
+}
+function wsgPaint() {
+  const A = wsAna, k = A.k, l = S.logs[k], D = wsgData(k, l), pick = wsPick(D.p && D.p.type === "gym" ? D.p : { type: "gym", name: l.day || "Gym" }, k);
+  if (!WSG_TABS.some(t => t[0] === A.tab)) A.tab = "sets";
+  const when = `${DOW[dowOf(D.d)].toUpperCase()} ${fmtShort(D.d).toUpperCase()}`;
+  const tiles = [[D.done, "Sets"], [D.vol ? wsgW(D.vol) : "–", `${uL()} moved`], [l.durMin ? fmtClock(l.durMin * 60000) : "–", "Time"], [(l.prs || []).length, "PRs"]];
+  const keep = A.el.querySelector(".wsr-scroll"), top = keep ? keep.scrollTop : 0;
+  A.el.innerHTML = `<button type="button" class="wsb-bg" data-wsnx="1" aria-label="Close"></button><div class="wsb-card wsn-card"><div class="wsb-in"><div class="wsr-scroll">
+    <div class="wsb-eb"><span>GATE REPORT · ${when}${D.p && D.p.name ? ` · ${esc(String(D.p.name).toUpperCase())}` : ""}</span><button type="button" class="wsb-x" data-wsnx="1" aria-label="Close">✕</button></div>
+    <div class="wsn-head"><div><div class="wsb-title">${esc(String(pick.name || "Gate").toUpperCase())}</div><div class="wsb-plain">${wsgVerdict(D, l)}</div></div></div>
+    ${wsnTiles(tiles)}<div class="wsn-tabs" role="tablist">${WSG_TABS.map(([id, n]) => `<button type="button" role="tab" aria-selected="${id === A.tab}" data-wsntab="${id}">${n}</button>`).join("")}</div><div class="wsn-pane" role="tabpanel">${wsgTab(k, l, A.tab, D)}</div></div></div></div>`;
+  const sc = A.el.querySelector(".wsr-scroll"); if (sc) sc.scrollTop = top;
+}
 function wsnPaint() {
   const A = wsAna; if (!A || !A.el) return;
-  const k = A.k, l = S.logs[k]; if (!l || l.type !== "run") { wsnClose(); return }
+  const k = A.k, l = S.logs[k]; if (!l || (l.type !== "run" && l.type !== "gym")) { wsnClose(); return }
+  if (l.type === "gym") { try { wsgPaint() } catch (err) { console.error(err); wsnClose() } return }
   const d = parseYmd(k), p = planFor(d), pick = wsPick(p && p.type === "run" ? p : { type: "run", t: "Run" }, k), st = l.st || {};
   const hasFile = !!(st.series && st.series.t && st.series.t.length > 3);
   const from = st.app || (st.src === "gpx" ? "GPX FILE" : st.src === "strava" ? "SCREENSHOTS" : "");
@@ -1036,8 +1169,8 @@ function wsnPaint() {
 }
 function wsnOpen(k, tab) {
   wsnClose(); wsPop = null; wsRun = null; document.querySelectorAll("body > .wsb:not(.wsn)").forEach(x => x.remove());
-  const el = document.createElement("div"); el.className = "wsb wsn anim"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "Run report");
-  wsAna = { k, tab: tab || "effort", el }; document.body.appendChild(el); wsnPaint(); setTimeout(() => el.classList.remove("anim"), 300);
+  const el = document.createElement("div"); el.className = "wsb wsn anim"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", S.logs[k] && S.logs[k].type === "gym" ? "Gate report" : "Run report");
+  wsAna = { k, tab: tab || (S.logs[k] && S.logs[k].type === "gym" ? "sets" : "effort"), el, open: null }; document.body.appendChild(el); wsnPaint(); setTimeout(() => el.classList.remove("anim"), 300);
 }
 function wsnClose() { if (wsAna && wsAna.el) wsAna.el.remove(); wsAna = null }
 // keep the report in step while the coach writes, or when the log changes
@@ -1049,6 +1182,7 @@ document.addEventListener("click", e => {
   if (!wsAna || !t.closest(".wsn")) return;
   if (t.closest("[data-wsnx]")) { wsnClose(); return }
   const an = t.closest("[data-ana]"); if (an && !an.disabled) { analyzeRun(an.dataset.ana); return }
+  const gx = t.closest("[data-wsgx]"); if (gx) { wsAna.open = wsAna.open === gx.dataset.wsgx ? null : gx.dataset.wsgx; wsnPaint(); return }
   const tb = t.closest("[data-wsntab]"); if (tb) { wsAna.tab = tb.dataset.wsntab; const sc = wsAna.el.querySelector(".wsr-scroll"); wsnPaint(); const s2 = wsAna.el.querySelector(".wsr-scroll"); if (s2) s2.scrollTop = 0; return }
   const lg = t.closest("[data-wsnlog]"); if (lg) { const k = lg.dataset.wsnlog; wsnClose(); sel = parseYmd(k); tab = "home"; wsLog = true; wsPop = null; lastRenderKey = ""; render(); window.scrollTo(0, 0); return }
 });
@@ -1072,6 +1206,45 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && wsAna) wsn
 .wsn-tabs button{all:unset;cursor:pointer;padding-bottom:9px;white-space:nowrap;font:800 10.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;color:#6E7480;border-bottom:2px solid transparent}
 .wsn-tabs button[aria-selected="true"]{color:var(--core);border-bottom-color:var(--m2)}
 .wsn-tabs button:focus-visible{outline:2px solid var(--m2);outline-offset:2px}
+.wsg-ex{margin-top:8px;border-radius:12px;padding:1.5px;background:linear-gradient(90deg,var(--m0),var(--m1) 40%,var(--m2) 60%,var(--m0))}
+.wsg-h{width:100%;display:flex;align-items:center;gap:10px;padding:11px 10px;border:0;border-radius:11px;background:#08090B;color:inherit;text-align:left;cursor:pointer;font:inherit;touch-action:manipulation}
+.wsg-ex.open .wsg-h{border-radius:11px 11px 0 0}
+.wsg-d{width:10px;height:10px;flex-shrink:0;transform:rotate(45deg);border:1.5px solid var(--mid);background:rgba(127,200,169,.35)}
+.wsg-nm{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.wsg-nm b{font:800 12px/1.15 "Barlow Semi Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#F5F1E6}
+.wsg-nm>span{font:700 12px/1.25 "Barlow Semi Condensed",sans-serif;color:#C9CED7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wsg-ex small,.wsg-pg small{margin-left:6px;padding:2px 5px;border-radius:4px;font:800 8px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;vertical-align:1px}
+.wsg-ex small.ss{border:1px solid rgba(110,168,255,.4);color:#6EA8FF}small.pr{background:rgba(232,194,122,.16);color:#E8C27A}
+.wsg-n{font:800 11px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.1em;color:var(--mid)}
+.wsg-car{color:var(--m2);font-size:11px;transition:transform .18s}.wsg-ex.open .wsg-car{transform:rotate(180deg)}
+.wsg-tb{padding:0 10px 8px;border-radius:0 0 11px 11px;background:#08090B}
+.wsg-tr{display:grid;grid-template-columns:38px 1fr 1fr 1fr;gap:6px;align-items:center;padding:6px 2px;border-top:1px solid rgba(245,241,230,.06);font:700 12.5px/1.1 "Barlow Semi Condensed",sans-serif;color:#F5F1E6}
+.wsg-tb.one .wsg-tr{grid-template-columns:38px 1fr 1fr}
+.wsg-tr>span:first-child{color:#8F97A6}.wsg-tr>span:last-child{text-align:right;color:var(--mut)}.wsg-tr em{margin-left:3px;font-style:normal;font-size:9px;color:#E8C27A}
+.wsg-tr.hd{padding:4px 2px;border-top:1px solid rgba(180,122,63,.25);font:800 8px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#A08060}.wsg-tr.hd>span{color:#A08060}
+.wsg-tr.wu{color:#6E7480}
+.wsg-vb{display:grid;grid-template-columns:minmax(0,96px) 1fr 40px;gap:8px;align-items:center;padding:5px 4px}
+.wsg-vb>span{font:700 11px/1.15 "Barlow Semi Condensed",sans-serif;color:#C9CED7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wsg-vb>div{position:relative;height:14px}.wsg-vb i{position:absolute;left:0;top:0;height:14px;border-radius:3px;background:linear-gradient(90deg,var(--m1),var(--m2))}.wsg-vb u{position:absolute;top:-2px;height:18px;width:2px;background:var(--core)}
+.wsg-vb b{text-align:right;font:800 11px/1 "Barlow Semi Condensed",sans-serif;color:var(--m2)}
+.wsg-mu{padding:6px 4px}.wsg-mu>div{display:flex;justify-content:space-between;font:700 11.5px/1 "Barlow Semi Condensed",sans-serif;color:#C9CED7}.wsg-mu b{color:var(--core)}
+.wsg-mu>i{display:block;height:6px;border-radius:3px;background:rgba(245,241,230,.07);margin-top:6px}.wsg-mu>i u{display:block;height:6px;border-radius:3px;background:var(--mid)}
+.wsg-mu em,.wsg-pg em,.wsg-rk em{font-style:normal}.wsn em.up,.wsg-pg em.up,.wsg-mu em.up,.wsg-rk em.up{color:var(--mid)}.wsg-mu em.dn,.wsg-pg em.dn{color:#E8C27A}
+.wsg-pg{display:flex;align-items:center;gap:10px;padding:9px 4px;border-top:1px solid rgba(245,241,230,.06)}.wsg-pg:first-of-type{border-top:0}
+.wsg-pg>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.wsg-pg b{font:700 13px/1.2 Barlow,sans-serif;color:#F5F1E6}
+.wsg-pg span{font:700 11.5px/1.3 "Barlow Semi Condensed",sans-serif;color:var(--mut)}.wsg-pg .em{font:800 11px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.06em;color:#F5F1E6}.wsg-pg .em em{color:var(--mut)}
+.wsg-spark{flex-shrink:0}.wsg-new{flex-shrink:0;font:700 9.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.1em;color:#5C6370}
+.wsg-gate{margin-top:12px;padding:12px;border-radius:14px;border:1px solid rgba(110,168,255,.45);background:linear-gradient(180deg,rgba(60,123,244,.14),rgba(10,12,20,.6));display:flex;gap:12px;align-items:center}
+.wsg-gate>span{font:900 24px/1 "Barlow Semi Condensed",sans-serif;color:#7B9CFF}.wsg-gate b{display:block;font:800 10.5px/1.3 "Barlow Semi Condensed",sans-serif;letter-spacing:.18em;color:#9DB8FF}.wsg-gate em{display:block;font-style:normal;font-size:12px;color:#C9CED7;margin-top:5px;line-height:1.4}
+.wsg-rk{padding:10px 4px;border-top:1px solid rgba(245,241,230,.06)}.wsg-rk:first-of-type{border-top:0}
+.wsg-rk>div:first-child{display:flex;justify-content:space-between;align-items:center}.wsg-rk b{font:700 13.5px/1 Barlow,sans-serif;color:#F5F1E6}.wsg-rk>div:first-child em{font:800 9.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;color:var(--mut)}
+.wsg-rk .wsg-bar{display:flex;align-items:center;gap:8px;margin-top:8px}.wsg-rk .wsg-bar span{font:900 14px/1 "Barlow Semi Condensed",sans-serif;color:#7B9CFF;width:12px}.wsg-rk .wsg-bar .n{color:#5C6370}
+.wsg-rk .wsg-bar i{flex:1;height:8px;border-radius:4px;background:rgba(245,241,230,.08);overflow:hidden}.wsg-rk .wsg-bar u{display:block;height:100%;background:#3C7BF4}.wsg-rk .wsg-bar u.t{background:linear-gradient(90deg,#3C7BF4 70%,#E8C27A)}
+.wsg-rk p{margin:6px 0 0;font-size:11.5px;color:var(--mut)}
+.wsg-prs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.wsg-prs>div{min-width:0;box-sizing:border-box;padding:10px;border-radius:12px;border:1px solid rgba(232,194,122,.45);background:rgba(232,194,122,.07);text-align:center}
+.wsg-prs span{display:block;font:900 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.2em;color:#E8C27A}.wsg-prs b{display:block;font:800 12.5px/1.2 Barlow,sans-serif;margin-top:5px;color:#F5F1E6}.wsg-prs em{display:block;font:700 11px/1.2 "Barlow Semi Condensed",sans-serif;font-style:normal;color:var(--mut);margin-top:4px}
+.wsg-next{margin:0;padding-left:20px;font-size:12.5px;line-height:1.45;color:#D9D4C8}.wsg-next li{margin-top:8px}.wsg-next li::marker{color:var(--m2);font-weight:900}.wsg-next b{color:#F5F1E6}.wsg-next span{color:var(--mut);font-size:12px}
+@media (prefers-reduced-motion:reduce){.wsg-car{transition:none}}
 .wsn-pane{padding-top:4px}
 .wsn-pane>.wsb-boxes{margin-top:12px}
 .wsn-fr{margin-top:12px;border-radius:14px;padding:10px 8px 8px;border:2px solid transparent;background:linear-gradient(#08090B,#08090B) padding-box,linear-gradient(90deg,var(--m0),var(--m1) 40%,var(--m2) 60%,var(--m0)) border-box}
