@@ -55,7 +55,7 @@ function lvtHtml(k, p, now, resting, justDone) {
   const floorCleared = (resting || justDone) && prevEx && prevSteps.length && prevSteps.every(x => x.done) && !steps.filter(x => x.ex.id === cur.ex.id).some(x => x.done);
 
   const top = `<div class="lvt-top"><button type="button" class="lvt-icon" id="lvBack" aria-label="Back to the app">✕</button>
-    <div class="lvt-title"><b>${esc(gateName)}</b><span>${cur ? `Floor ${fi + 1} of ${p.ex.length}` : "Every floor cleared"} · <span id="lvEl">${fmtClock(now - TM.start)}</span></span></div><button type="button" class="lvt-cancel" id="lvCancel" aria-label="Cancel this workout">Cancel</button></div>`;
+    <div class="lvt-title"><b>${esc(gateName)}</b><button type="button" class="lvt-pz" id="lvPause" aria-label="Pause the workout"><i aria-hidden="true"><em></em><em></em></i><span>${cur ? `Floor ${fi + 1} of ${p.ex.length}` : "Every floor cleared"} · <span id="lvEl">${fmtClock(tmEl())}</span></span></button></div><button type="button" class="lvt-cancel" id="lvCancel" aria-label="Cancel this workout">Cancel</button></div>`;
   const sys = (t, blue) => `<div class="lvt-sys ${blue ? "blue" : ""}" role="status"><b>SYSTEM</b>${esc(t)}</div>`;
 
   // the tower: one floor per exercise, top floor last; tap a floor to go there
@@ -72,7 +72,7 @@ function lvtHtml(k, p, now, resting, justDone) {
     const done = steps.filter(x => x.done); let vol = 0;
     done.forEach(s => { const v = setValsK(k, s), w = fromU(Number(v.w) || 0), r = Number(v.r) || 0; if (FMT[fmtOf(s.ex)].b === "reps" && w > 0 && r > 0) vol += w * r });
     const bosses = p.ex.reduce((t, ex) => t + Object.keys(lvtKinds(k, ex, steps.map(s => ({ ...s, done: false }))).gate).length, 0);
-    const cells = [["Sets", done.length], ["Volume", vol ? `${Math.round(toU(vol)).toLocaleString()} ${uL()}` : "–"], ["Time", fmtClock(now - TM.start)], ["Floors", `${p.ex.length}/${p.ex.length}`]]
+    const cells = [["Sets", done.length], ["Volume", vol ? `${Math.round(toU(vol)).toLocaleString()} ${uL()}` : "–"], ["Time", fmtClock(tmEl())], ["Floors", `${p.ex.length}/${p.ex.length}`]]
       .map(([a, b]) => `<div><b>${esc(String(b))}</b><span>${a}</span></div>`).join("");
     const floors = p.ex.map((ex, i) => { const tot = steps.filter(x => x.ex.id === ex.id).length; return `<div class="lvt-fl">${lvtRune(i, rank.core, 2.2)}<span>F${i + 1} · ${esc(ex.name)}</span><small>${tot}/${tot}</small></div>` }).join("");
     const body = `<div class="lv-main lvt-card lvt-sum"><span class="lvt-tag">${esc(gateName)} · CLEARED</span><b class="lvt-foil">${p.ex.length} / ${p.ex.length} FLOORS</b>
@@ -154,7 +154,7 @@ document.addEventListener("input", e => {
 html .live.lvt-on{background:radial-gradient(90% 50% at 50% 0%,color-mix(in srgb,var(--lvt-r,#22A06B) 16%,transparent),transparent 70%),repeating-linear-gradient(135deg,color-mix(in srgb,var(--lvt-r,#22A06B) 3%,transparent) 0 1px,transparent 1px 8px),#0B0C10!important;color:#F5F1E6;padding-left:14px;padding-right:14px}
 #liveIn.lvt{--ink:#F5F1E6;--mut:#A8A396;--fnt:var(--display);gap:12px;color:#F5F1E6;font-family:var(--body);height:100%;min-height:0;overflow:hidden}.live:has(#liveIn.lvt){overflow:hidden;overscroll-behavior:none}.lvt-cancel{justify-self:end;height:32px;padding:0 12px;border-radius:999px;border:1px solid rgba(224,103,90,.45);background:none;color:#F0B4AC;font:800 10.5px/1 var(--fnt);letter-spacing:.16em;text-transform:uppercase;cursor:pointer}.lvt-cancel:focus-visible{outline:2px solid #F4C48E;outline-offset:2px}#liveIn.lvt>.lvt-sys{flex-shrink:0}
 #liveIn.lvt .lv-main{min-height:0!important}
-.lvt-top{display:grid;grid-template-columns:78px minmax(0,1fr) 78px;align-items:center;gap:8px;flex-shrink:0}.lvt-top>.lvt-icon{justify-self:start}
+.lvt-pz{display:inline-flex;align-items:center;gap:7px;margin:4px auto 0;padding:4px 10px 4px 5px;border-radius:999px;border:1px solid rgba(244,196,142,.45);background:rgba(180,122,63,.12);color:#DEF1E9;font:600 12px/1 var(--body);cursor:pointer;max-width:100%;touch-action:manipulation}.lvt-pz>i{width:16px;height:16px;flex-shrink:0;border-radius:50%;border:1px solid #F4C48E;display:flex;align-items:center;justify-content:center;gap:2px;box-sizing:border-box}.lvt-pz>i>em{width:2px;height:6px;border-radius:1px;background:#F4C48E}.lvt-pz>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lvt-pz:focus-visible{outline:2px solid #F4C48E;outline-offset:2px}.lvt-top{display:grid;grid-template-columns:78px minmax(0,1fr) 78px;align-items:center;gap:8px;flex-shrink:0}.lvt-top>.lvt-icon{justify-self:start}
 .lvt-icon{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(245,241,230,.14);background:none;color:var(--mut);font-size:16px;cursor:pointer;flex-shrink:0}.lvt-icon.ghost{border-color:transparent}
 .lvt-title{text-align:center;display:flex;flex-direction:column;gap:4px;min-width:0}.lvt-title b{font:800 11px/1 var(--fnt);letter-spacing:.32em;color:var(--lvt-rmid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lvt-title>span{font-size:12px;color:var(--mut)}
 .lvt-sys{padding:9px 12px;border-radius:10px;border:1px solid color-mix(in srgb,var(--lvt-r) 35%,transparent);background:linear-gradient(90deg,color-mix(in srgb,var(--lvt-r) 14%,transparent),transparent);font-size:12.5px;color:#D8D2C2}

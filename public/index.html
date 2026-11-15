@@ -65,7 +65,45 @@
 #live,#live button,#live input{touch-action:manipulation}
 .lv-cancel{position:fixed;z-index:3;top:calc(env(safe-area-inset-top,0px) + 16px);right:max(14px,env(safe-area-inset-right,0px));height:32px;padding:0 12px;border-radius:999px;border:1px solid rgba(224,103,90,.45);background:rgba(10,10,13,.6);color:#F0B4AC;font:800 10.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 #liveIn:not(.lvt) .lv-cancel{position:static;display:block;margin:18px auto 6px;background:transparent;border-color:rgba(192,72,60,.35);color:#B2483C}
-.lv-cancel:focus-visible,.lv-ask button:focus-visible{outline:2px solid #F4C48E;outline-offset:2px}
+.lv-cancel:focus-visible,.lv-pausebtn{background:none;border:1px solid rgba(244,196,142,.45);border-radius:999px;padding:4px 10px;color:#F4C48E;font:inherit;cursor:pointer}
+.lvp{position:fixed;inset:0;z-index:12;display:flex;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 34px) 0 calc(env(safe-area-inset-bottom,0px) + 24px);box-sizing:border-box;background:rgba(2,4,8,.74);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:lvAskIn .18s ease-out;color:#F5F1E6;font-family:Barlow,system-ui,sans-serif}
+.lvp-in{width:calc(100% - 28px);max-width:420px;height:100%;max-height:780px;border-radius:22px;padding:3px;box-sizing:border-box;background:linear-gradient(90deg,#6B3F17,#B47A3F 40%,#F4C48E 60%,#6B3F17);box-shadow:0 30px 60px #000}
+.lvp-card{height:100%;box-sizing:border-box;border-radius:19px;padding:16px;display:flex;flex-direction:column;background:radial-gradient(70% 60% at 90% 0%,rgba(34,160,107,.18),transparent 65%),repeating-linear-gradient(135deg,rgba(34,160,107,.03) 0 1px,transparent 1px 7px),#0A0A0D}
+.lvp-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.lvp-eb{font:800 10px/1.2 "Barlow Semi Condensed",sans-serif;letter-spacing:.28em;text-transform:uppercase;color:#F4C48E}
+.lvp-x{width:32px;height:32px;flex-shrink:0;border-radius:50%;border:1px solid rgba(244,196,142,.35);background:none;color:#F4C48E;font-size:13px;cursor:pointer}
+.lvp-t{display:block;margin-top:8px;font:900 26px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.02em;background:linear-gradient(180deg,#DEF1E9,#7FC8A9 55%,#18704B);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lvp-sub{margin:5px 0 0;font-size:12.5px;line-height:1.4;color:#B9BFCA}.lvp-sub b{color:#DEF1E9}
+.lvp-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
+.lvp-tiles>div{padding:9px 2px;text-align:center;border-radius:10px;background:linear-gradient(180deg,#1A140E,#0D0A07);border:1px solid #6B3F17;min-width:0}
+.lvp-tiles b{display:block;font:900 15px/1 "Barlow Semi Condensed",sans-serif;color:#F4C48E;white-space:nowrap}.lvp-tiles span{display:block;margin-top:5px;font:700 8.5px/1.2 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#A08060}
+.lvp-list{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;margin:12px -6px 0;padding:0 6px 6px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:rgba(244,196,142,.45) transparent}
+.lvp-list::-webkit-scrollbar{width:3px}.lvp-list::-webkit-scrollbar-thumb{background:rgba(244,196,142,.45);border-radius:2px}
+.lvp-ex{border-radius:12px;padding:1.5px;background:rgba(245,241,230,.1);flex-shrink:0}.lvp-ex.done,.lvp-ex.part{background:linear-gradient(90deg,#6B3F17,#B47A3F 40%,#F4C48E 60%,#6B3F17)}
+.lvp-h{width:100%;display:flex;align-items:center;gap:10px;padding:11px 10px;border:0;border-radius:11px;background:#08090B;color:inherit;text-align:left;cursor:pointer;font:inherit;touch-action:manipulation}
+.lvp-ex.open .lvp-h{border-radius:11px 11px 0 0}
+.lvp-d{width:10px;height:10px;flex-shrink:0;transform:rotate(45deg);border:1.5px solid #4A505A}
+.lvp-ex.done .lvp-d{border-color:#7FC8A9;background:rgba(127,200,169,.35)}.lvp-ex.part .lvp-d{border-color:#E8C27A;background:linear-gradient(135deg,rgba(232,194,122,.45) 50%,transparent 50%)}
+.lvp-nm{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.lvp-nm b{font:800 12px/1.15 "Barlow Semi Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#F5F1E6}.lvp-ex.none .lvp-nm b{color:#8F97A6}
+.lvp-nm b small{margin-left:6px;padding:2px 5px;border-radius:4px;border:1px solid rgba(110,168,255,.4);font:800 8px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;color:#6EA8FF;vertical-align:1px}
+.lvp-nm>span{font:700 12px/1.25 "Barlow Semi Condensed",sans-serif;color:#C9CED7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lvp-ex.none .lvp-nm>span{color:#6E7480}
+.lvp-n{font:800 11px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.1em;color:#6E7480}.lvp-ex.done .lvp-n{color:#7FC8A9}.lvp-ex.part .lvp-n{color:#E8C27A}
+.lvp-car{color:#F4C48E;font-size:11px;transition:transform .18s}.lvp-ex.open .lvp-car{transform:rotate(180deg)}
+.lvp-tb{padding:0 10px 8px;border-radius:0 0 11px 11px;background:#08090B;animation:lvAskIn .16s ease-out}
+.lvp-th,.lvp-tr{display:grid;grid-template-columns:38px 1fr 1fr 74px;gap:6px;align-items:center}.lvp-tb.one .lvp-th,.lvp-tb.one .lvp-tr{grid-template-columns:38px 1fr 74px}
+.lvp-th{padding:4px 2px 4px;border-top:1px solid rgba(180,122,63,.25);font:800 8px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#A08060}.lvp-th span:last-child{text-align:right}
+.lvp-tr{padding:6px 2px;border-top:1px solid rgba(245,241,230,.06);font:700 12.5px/1.1 "Barlow Semi Condensed",sans-serif}.lvp-tr>span:first-child{color:#8F97A6}.lvp-tr em{margin-left:3px;font-style:normal;font-size:9px;color:#E8C27A}
+.lvp-tr.no{color:#5C6370}.lvp-tr .ok{text-align:right;color:#7FC8A9;letter-spacing:.06em;text-transform:uppercase;font-size:11px}.lvp-tr .op{text-align:right;color:rgba(232,194,122,.75);letter-spacing:.1em;text-transform:uppercase;font-size:11px}
+.lvp-note{margin:12px 0 10px;font-size:11.5px;line-height:1.4;text-align:center;color:#8F97A6}.lvp-note b{color:#E8C27A}
+.lvp-b{display:flex;gap:8px}
+.lvp-b button{flex:1;height:50px;border-radius:14px;cursor:pointer;font:800 12.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;touch-action:manipulation}
+.lvp-back{border:1px solid rgba(245,241,230,.2);background:none;color:#C9CED7}
+.lvp-go{border:2px solid #B47A3F;background:linear-gradient(180deg,#22A06B,#1C7A52);box-shadow:inset 0 1px 0 rgba(255,255,255,.3);color:#04140C}.lvp-go:disabled{opacity:.4;cursor:default}
+.lvp button:focus-visible{outline:2px solid #F4C48E;outline-offset:2px}
+@media (max-height:700px){.lvp-tiles{display:none}.lvp-t{font-size:22px}}
+@media (prefers-reduced-motion:reduce){.lvp,.lvp-tb{animation:none}.lvp-car{transition:none}}
+.lv-ask button:focus-visible{outline:2px solid #F4C48E;outline-offset:2px}
 .lv-ask{position:fixed;inset:0;z-index:10;display:flex !important;align-items:center;justify-content:center;margin:0 !important;padding:24px 0 !important;max-width:none !important;background:rgba(2,4,8,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:lvAskIn .18s ease-out}
 @keyframes lvAskIn{from{opacity:0}to{opacity:1}}
 .lv-ask-in{box-sizing:border-box;width:calc(100% - 32px);max-width:360px;margin:0 !important;border-radius:20px;padding:20px;color:#F5F1E6;border:2px solid #B47A3F;background:radial-gradient(70% 60% at 90% 0%,rgba(224,103,90,.14),transparent 65%),repeating-linear-gradient(135deg,rgba(34,160,107,.03) 0 1px,transparent 1px 7px),#0A0A0D;box-shadow:0 30px 60px #000}
@@ -1901,8 +1939,13 @@ const TRAIN_RE=/^(w-|r-|m-|c-|xs-|st-|rx-|gnotes$|rmi$|rtime$|rrpe$|rnotes$|open
 /* ---------- Workout + rest timers (survive tab switches and reloads) ---------- */
 let TM={start:0,date:"",restEnd:0,restDur:0};
 try{Object.assign(TM,JSON.parse(localStorage.getItem("rd25-timer")||"{}"))}catch(e){}
-if(TM.start && Date.now()-TM.start>5*3600000) TM={start:0,date:"",restEnd:0,restDur:0};
+if(TM.start && (TM.paused||Date.now())-TM.start>5*3600000) TM={start:0,date:"",restEnd:0,restDur:0};
 function saveTM(){try{localStorage.setItem("rd25-timer",JSON.stringify(TM))}catch(e){}}
+// time on the workout clock; a paused workout's clock stands still
+const tmEl=()=>TM.start?Math.max(0,(TM.paused||Date.now())-TM.start):0;
+function pauseWorkout(){ if(!TM.start||TM.paused) return; TM.paused=Date.now(); saveTM(); tick() }
+// resuming slides the start (and any rest countdown) forward by the time spent paused
+function resumeWorkout(){ if(!TM.start||!TM.paused) return; const d=Date.now()-TM.paused; TM.start+=d; if(TM.restEnd) TM.restEnd+=d; TM.paused=0; beeped=!TM.restEnd; saveTM(); tick() }
 let actx=null, wakeLock=null, beeped=true;
 function unlockAudio(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume()}catch(e){}}
 function beep(){ if(window.userPrefs&&!userPrefs().sound) return; try{unlockAudio(); const t=actx.currentTime; [0,.28,.56].forEach(o=>{const g=actx.createGain(),os=actx.createOscillator(); os.frequency.value=880; os.connect(g); g.connect(actx.destination); g.gain.setValueAtTime(.0001,t+o); g.gain.exponentialRampToValueAtTime(.35,t+o+.02); g.gain.exponentialRampToValueAtTime(.0001,t+o+.2); os.start(t+o); os.stop(t+o+.22)})}catch(e){}}
@@ -1915,21 +1958,22 @@ function startRest(sec){if(!TM.start) return; unlockAudio(); TM.restDur=sec; TM.
 function timerBox(k){
   if(S.logs[k]) return `<div class="timerbox"><div><div class="eyebrow">Logged ✓</div><div class="small muted">Edit below and tap Update session. To do it live again, clear the log first.</div></div></div>`;
   const running=TM.start&&TM.date===k, other=TM.start&&TM.date!==k;
-  if(running) return `<div class="timerbox"><div><div class="eyebrow">Workout running</div><div class="big num" id="tmWork2">${fmtClock(Date.now()-TM.start)}</div></div><div class="row" style="gap:8px"><button class="btn sm" type="button" data-openlive="1">Live view</button><button class="btn ghost sm" id="tmEnd">End</button></div></div>`;
+  if(running) return `<div class="timerbox"><div><div class="eyebrow">Workout running</div><div class="big num" id="tmWork2">${fmtClock(tmEl())}</div></div><div class="row" style="gap:8px"><button class="btn sm" type="button" data-openlive="1">Live view</button><button class="btn ghost sm" id="tmEnd">End</button></div></div>`;
   if(k!==ymd(today)) return "";
   const isRun=(()=>{const p=planFor(parseYmd(k)); return p&&p.type==="run"})();
   return `<div class="timerbox"><div><div class="eyebrow">${isRun?"Guided run":"Timer"}</div><div class="small muted">${other?"A workout from another day is still running.":isRun?"Each part of the run with a countdown, and a beep and buzz when it's time to switch.":"Opens the live view: one set at a time with rest timers. You can also tick sets below."}</div></div><button class="btn sm" id="tmStart">${other?"Restart for today":isRun?"Start run":"Start workout"}</button></div>`;
 }
 function tick(){
   const bar=$("#timerBar"); if(!bar) return;
-  if(TM.start&&Date.now()-TM.start>5*3600000&&!liveOpen){ TM={start:0,date:"",restEnd:0,restDur:0}; saveTM(); keepAwake(false) } // forgotten timers stop after 5 hours
+  if(TM.start&&tmEl()>5*3600000&&!liveOpen){ TM={start:0,date:"",restEnd:0,restDur:0}; saveTM(); keepAwake(false) } // forgotten timers stop after 5 hours
   if(!TM.start){bar.hidden=true; document.body.classList.remove("timing"); if(liveOpen){liveOpen=false; renderLive()} return}
   // full bar only on the workout's own day in Train; everywhere else a small "back to workout" chip
   const mini=!(tab==="home"&&typeof sel!=="undefined"&&ymd(sel)===TM.date); bar.classList.toggle("mini",mini); document.body.classList.toggle("timing-mini",mini);
   if(liveOpen) liveTick();
   const nav=document.querySelector("nav.tabs"); if(nav&&nav.offsetHeight) bar.style.bottom=Math.max(0,Math.round(window.innerHeight-nav.getBoundingClientRect().top+8))+"px";
   bar.hidden=liveOpen; document.body.classList.add("timing");
-  const el=Date.now()-TM.start; $("#tmWork").textContent=fmtClock(el); const w2=$("#tmWork2"); if(w2) w2.textContent=fmtClock(el);
+  const el=tmEl(); $("#tmWork").textContent=fmtClock(el); const w2=$("#tmWork2"); if(w2) w2.textContent=fmtClock(el);
+  if(TM.paused){ const rest=$("#tmRest"); if(rest) rest.textContent="Paused"; bar.dataset.state="idle"; $("#tmRestFill").style.width="0%"; return }
   const left=TM.restEnd-Date.now(), rest=$("#tmRest"), fill=$("#tmRestFill");
   if(TM.restEnd && left>0){rest.textContent=fmtClock(left); bar.dataset.state="rest"; fill.style.width=Math.min(100,100-left/(TM.restDur*1000)*100)+"%"}
   else if(TM.restEnd){rest.textContent="Go"; bar.dataset.state="go"; fill.style.width="100%";
@@ -1969,13 +2013,55 @@ function closeLive(){ liveOpen=false; renderLive(); tick(); lastRenderKey=""; re
 let lvAsk=false;
 function cancelLive(k){ lvAsk=false; stopWorkout(); if(typeof RL!=="undefined"&&RL&&RL.k===k){ RL=null; try{localStorage.removeItem("ru-runlive")}catch(e){} }
   if(k) clearDrafts(k,TRAIN_RE); liveOpen=false; renderLive(); lastRenderKey=""; render(); toast("Cancelled. Nothing was saved.") }
-document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&lvAsk&&liveOpen){ lvAsk=false; renderLive() } });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&lvAsk&&liveOpen){ lvAsk=false; renderLive() } else if(e.key==="Escape"&&liveOpen&&TM.paused){ resumeWorkout(); renderLive(); tick() } });
+/* ---------- Paused: the timer stops and a review of every set opens ---------- */
+let lvPx=new Set();   // exercises opened in the pause sheet
+function lvSetVals(k,s){ const v=setValsK(k,s), f=fmtOf(s.ex); return {w:fromU(Number(v.w)||0),r:f==="dt"?parseDur(v.r):Number(v.r)||0,m:Number(v.m)||0} }
+function lvPauseHtml(k,p){
+  const steps=gymSteps(k,p), done=steps.filter(s=>s.done), left=steps.length-done.length; let vol=0, reps=0;
+  const rows=p.ex.map((ex,ei)=>{ const ss=steps.filter(s=>s.ex.id===ex.id); if(!ss.length) return "";
+    const f=fmtOf(ex), F=FMT[f], wr=F.b==="reps"&&!!F.w, db=DBCFG[ex.id]&&hasW(ex)&&dbNow(ex.id,S.logs[k]), d=ss.filter(s=>s.done);
+    const vals=new Map(d.map(s=>[s.i,lvSetVals(k,s)]));
+    d.forEach(s=>{ const v=vals.get(s.i); if(F.b==="reps"){ reps+=v.r; if(v.w>0&&setTypeK(k,ex.id,s.i)!=="w") vol+=v.w*v.r } });
+    const st=d.length===ss.length?"done":d.length?"part":"none", open=lvPx.has(ex.id);
+    const ws=d.map(s=>vals.get(s.i).w), same=wr&&d.length&&ws.every(w=>w===ws[0]);
+    const sum=!d.length? `${ss.length} set${ss.length===1?"":"s"} · not started`
+      : same? `${ws[0]?`${toU(ws[0])}${db?"/DB":""} ${uL()}`:"BW"} × ${d.map(s=>vals.get(s.i).r).join(", ")}${left&&d.length<ss.length?` · ${ss.length-d.length} open`:""}`
+      : d.map(s=>setTxt(f,vals.get(s.i),db)).join(" · ")+(d.length<ss.length?` · ${ss.length-d.length} open`:"");
+    const tgt=s=>{ const r=s.t&&s.t.reps&&s.t.reps[s.i]; return s.t&&s.t.first? "—" : (r!=null&&r!==""? (f==="dt"?fmtDur(r):r) : "—") };
+    const head= wr? `<span>Set</span><span>Weight</span><span>Reps</span><span>Status</span>` : `<span>Set</span><span class="w2">Result</span><span>Status</span>`;
+    const body=ss.map(s=>{ const ty=setTypeK(k,ex.id,s.i), n=`${s.i+1}${ty?`<em>${esc(SET_TYPES[ty]?SET_TYPES[ty].l:ty.toUpperCase())}</em>`:""}`;
+      if(s.done){ const v=vals.get(s.i); return wr? `<div class="lvp-tr"><span>${n}</span><b>${v.w?`${toU(v.w)}${db?"/DB":""} ${uL()}`:"BW"}</b><b>${v.r}</b><span class="ok">✓ Logged</span></div>`
+        : `<div class="lvp-tr"><span>${n}</span><b class="w2">${esc(setTxt(f,v,db))}</b><span class="ok">✓ Logged</span></div>` }
+      return wr? `<div class="lvp-tr no"><span>${n}</span><span>—</span><span>${esc(String(tgt(s)))}</span><span class="op">Open</span></div>` : `<div class="lvp-tr no"><span>${n}</span><span class="w2">—</span><span class="op">Open</span></div>` }).join("");
+    return `<div class="lvp-ex ${st} ${open?"open":""}"><button type="button" class="lvp-h" data-lvpx="${esc(ex.id)}" aria-expanded="${open}"><i class="lvp-d" aria-hidden="true"></i><span class="lvp-nm"><b>${esc(ex.name)}${ex.ss?`<small>SS ${esc(String(ex.ss))}</small>`:""}</b><span>${esc(sum)}</span></span><span class="lvp-n">${d.length}/${ss.length}</span><span class="lvp-car" aria-hidden="true">▾</span></button>${open?`<div class="lvp-tb ${wr?"":"one"}"><div class="lvp-th">${head}</div>${body}</div>`:""}</div>` }).join("");
+  const tiles=[[fmtClock(tmEl()),"Time"],[`${done.length}/${steps.length}`,"Sets"],[vol?Math.round(toU(vol)).toLocaleString():"–",`${uL()} moved`],[reps||"–","Reps"]].map(([a,b])=>`<div><b>${esc(String(a))}</b><span>${esc(b)}</span></div>`).join("");
+  const note= !done.length? `<b>No sets logged yet.</b> Return to Live to log one first.` : left? `<b>${left} set${left===1?"":"s"} not logged</b> won't be saved. Return to finish them, or log what you have.` : `Every set is logged.`;
+  return `<div class="lvp" role="dialog" aria-modal="true" aria-labelledby="lvpT"><div class="lvp-in"><div class="lvp-card">
+    <div class="lvp-top"><span class="lvp-eb">[System] Paused · Review</span><button type="button" class="lvp-x" id="lvResumeX" aria-label="Return to Live">✕</button></div>
+    <b class="lvp-t" id="lvpT">${esc(String(p.name||"Today").toUpperCase())} GATE</b>
+    <p class="lvp-sub">Timer stopped at <b>${fmtClock(tmEl())}</b>. ${done.length} set${done.length===1?"":"s"} logged, ${left} still open.</p>
+    <div class="lvp-tiles">${tiles}</div>
+    <div class="lvp-list" id="lvpList">${rows}</div>
+    <p class="lvp-note">${note}</p>
+    <div class="lvp-b"><button type="button" class="lvp-back" id="lvResume">▶ Return to Live</button><button type="button" class="lvp-go" id="lvLogNow" ${done.length?"":"disabled"}>Log workout</button></div>
+  </div></div></div>` }
+// save straight from the pause sheet: only the sets marked done are kept
+function lvLogNow(k,p){ const steps=gymSteps(k,p), log=S.logs[k], ex={}, db={}, fmt={};
+  p.ex.forEach(e=>{ const f=fmtOf(e), sets=[]; steps.filter(s=>s.ex.id===e.id&&s.done).forEach(s=>{ const v=lvSetVals(k,s); if(setOk(f,v)) sets.push(setObj(f,v,setTypeK(k,e.id,s.i))) });
+    if(sets.length){ ex[e.id]=sets; if(!e.fixed) fmt[e.id]=f; if(DBCFG[e.id]&&hasW(e)) db[e.id]=dbNow(e.id,log) } });
+  if(!Object.keys(ex).length){ toast("Log at least one set first"); return }
+  const durMin=tmEl()/60000, notes=String(drafts[dkey(k,"gnotes")]||"").trim();
+  const newLog={type:"gym",day:p.day,ex,db,fmt,durMin,notes,savedAt:Date.now()}; const prs=findPRs(k,newLog); if(prs.length) newLog.prs=prs;
+  stopWorkout(); lvPx=new Set(); liveOpen=false; clearDrafts(k,TRAIN_RE); renderLive(); tab="home"; sel=parseYmd(k);
+  saveLog(k,newLog).then(()=>{ toast(prs.length?`New PR: ${prs.map(id=>(p.ex.find(e=>e.id===id)||{name:id}).name).join(", ")} 🎉`:"Session saved"); lastRenderKey=""; render(); if(typeof routineAsk==="function") setTimeout(()=>routineAsk(k),700); setTimeout(maybeAutoAdvice,1500) });
+  lastRenderKey=""; render() }
 function renderLive(){
   const el=document.getElementById("live"), box=document.getElementById("liveIn"); const c=liveCtx();
   if(!liveOpen||!c){ el.hidden=true; document.body.classList.remove("live-on"); if(box) box.innerHTML=""; return }
   el.hidden=false; document.body.classList.add("live-on");
   const {k,p}=c, now=Date.now(), resting=TM.restEnd&&TM.restEnd>now, justDone=TM.restEnd&&TM.restEnd<=now&&now-TM.restEnd<20000;
-  let top=`<div class="lv-top"><button class="lv-back" id="lvBack" aria-label="Back to app">‹</button><div class="lv-title"><span class="eyebrow">${p.type==="gym"?"Live workout":"Live run"}</span><b>${esc(p.type==="gym"?p.name:p.t)}</b></div><div style="text-align:right"><div class="lv-el num" id="lvEl">${fmtClock(now-TM.start)}</div><div class="small muted" id="lvProg"></div></div></div>`;
+  let top=`<div class="lv-top"><button class="lv-back" id="lvBack" aria-label="Back to app">‹</button><div class="lv-title"><span class="eyebrow">${p.type==="gym"?"Live workout":"Live run"}</span><b>${esc(p.type==="gym"?p.name:p.t)}</b></div><div style="text-align:right">${p.type==="gym"?`<button type="button" class="lv-pausebtn" id="lvPause" aria-label="Pause the workout">❚❚ <span class="lv-el num" id="lvEl">${fmtClock(tmEl())}</span></button>`:`<div class="lv-el num" id="lvEl">${fmtClock(tmEl())}</div>`}<div class="small muted" id="lvProg"></div></div></div>`;
   let main="", next="", list="";
   let LT=null; if(p.type==="gym"&&typeof lvtHtml==="function"){ try{ LT=lvtHtml(k,p,now,resting,justDone) }catch(err){ console.error("Live tower:",err); LT=null } }  // never leave a frozen screen: fall back to the plain layout
   if(LT){ liveState=LT.state }
@@ -2016,13 +2102,14 @@ function renderLive(){
   } else if(typeof runLiveParts==="function"){ const RP=runLiveParts(k,p); main=RP.main; next=RP.next; list=RP.list; liveState=RP.state;
   } else {
     liveState="run";
-    main=`<div class="lv-main"><div class="lv-label">Time</div><div class="lv-clock" id="lvRunClock">${fmtClock(now-TM.start)}</div><p class="small lv-note">${esc(p.d)}</p>${/bpm/.test(p.d)?`<p class="small lv-note">Jog until your watch shows ${HR_HI}, walk until it drops to ${HR_LO}.</p>`:""}<button class="btn lv-cta" id="lvRunDone">Finish run</button></div>`;
+    main=`<div class="lv-main"><div class="lv-label">Time</div><div class="lv-clock" id="lvRunClock">${fmtClock(tmEl())}</div><p class="small lv-note">${esc(p.d)}</p>${/bpm/.test(p.d)?`<p class="small lv-note">Jog until your watch shows ${HR_HI}, walk until it drops to ${HR_LO}.</p>`:""}<button class="btn lv-cta" id="lvRunDone">Finish run</button></div>`;
     next=`<div class="lv-next"><span class="lv-label">After</span><span>Your time fills in automatically. Import the run's GPX file on the run card for the full breakdown.</span></div>`;
   }
   const what=p.type==="gym"?"workout":"run";
   const cancelUi= lvAsk ? `<div class="lv-ask" role="alertdialog" aria-modal="true" aria-labelledby="lvAskT"><div class="lv-ask-in"><b id="lvAskT">Cancel this ${what}?</b><p>The timer stops and ${p.type==="gym"?"the sets you ticked are cleared":"your progress through the run is cleared"}. Nothing is saved, and this can't be undone.</p><div class="lv-ask-b"><button type="button" id="lvKeep">Keep going</button><button type="button" id="lvCancelYes">Cancel ${what}</button></div></div></div>`
     : LT ? "" : `<button type="button" class="lv-cancel" id="lvCancel" aria-label="Cancel this ${what}">Cancel ${what}</button>`;  // the tower has its own Cancel in the header
-  const html= (LT? LT.html : top+main+next+list)+cancelUi; box.classList.toggle("lvt",!!LT); el.classList.toggle("lvt-on",!!LT); if(LT) box.setAttribute("style",LT.style); else box.removeAttribute("style");
+  const pauseUi= TM.paused&&p.type==="gym"? lvPauseHtml(k,p) : "";
+  const html= (LT? LT.html : top+main+next+list)+cancelUi+pauseUi; box.classList.toggle("lvt",!!LT); el.classList.toggle("lvt-on",!!LT); if(LT) box.setAttribute("style",LT.style); else box.removeAttribute("style");
   const fresh=!box.firstChild, prevState=box.dataset.st; box.dataset.st=liveState;
   if(fresh) box.innerHTML=html; else morph(box,html);
   box.classList.toggle("lv-enter",fresh); if(fresh) setTimeout(()=>box.classList.remove("lv-enter"),600);
@@ -2033,12 +2120,17 @@ function renderLive(){
     if(q("lvCancel")) q("lvCancel").onclick=()=>{ lvAsk=true; renderLive(); setTimeout(()=>q("lvKeep")&&q("lvKeep").focus(),0) };
     if(q("lvKeep")) q("lvKeep").onclick=()=>{ lvAsk=false; renderLive() };
     if(q("lvCancelYes")) q("lvCancelYes").onclick=()=>cancelLive(k);
+    if(q("lvPause")) q("lvPause").onclick=()=>{ pauseWorkout(); renderLive(); setTimeout(()=>q("lvResume")&&q("lvResume").focus({preventScroll:true}),0) };
+    const resume=()=>{ resumeWorkout(); renderLive(); tick() };
+    if(q("lvResume")) q("lvResume").onclick=resume; if(q("lvResumeX")) q("lvResumeX").onclick=resume;
+    if(q("lvLogNow")) q("lvLogNow").onclick=()=>lvLogNow(k,p);
+    box.querySelectorAll("[data-lvpx]").forEach(b=>b.onclick=()=>{ const id=b.dataset.lvpx; lvPx.has(id)?lvPx.delete(id):lvPx.add(id); renderLive() });
     // only the tower scrolls: keep the current floor in view
     const tw=box.querySelector(".lvt-tower"), cf=tw&&tw.querySelector('[aria-current="step"]'); if(cf){ const r=cf.offsetTop-tw.offsetTop, vis=tw.scrollTop<=r&&r+cf.offsetHeight<=tw.scrollTop+tw.clientHeight; if(!vis) tw.scrollTop=Math.max(0,r-tw.clientHeight/2+cf.offsetHeight/2) } }); liveTick(); if(typeof gameLive==="function") gameLive(box,{k,type:p.type,state:liveState});
 }
 function liveTick(){
-  const now=Date.now(); const e=document.getElementById("lvEl"); if(e) e.textContent=fmtClock(now-TM.start);
-  const rc=document.getElementById("lvRunClock"); if(rc) rc.textContent=fmtClock(now-TM.start);
+  const now=Date.now(); const e=document.getElementById("lvEl"); if(e) e.textContent=fmtClock(tmEl()); if(TM.paused) return;  // paused: the clock and rest ring stand still
+  const rc=document.getElementById("lvRunClock"); if(rc) rc.textContent=fmtClock(tmEl());
   const r=document.getElementById("lvRest"), f=document.getElementById("lvRestFill");
   if(r&&TM.restEnd&&TM.restEnd>now){ r.textContent=fmtClock(TM.restEnd-now); if(f) f.style.width=Math.min(100,100-(TM.restEnd-now)/(TM.restDur*1000)*100)+"%"; if(typeof lvtTick==="function") lvtTick(TM.restEnd-now,TM.restDur) }
   const c=liveCtx(); if(c&&c.p.type==="run"&&typeof runLiveTick==="function") runLiveTick(c.k,c.p); if(c&&c.p.type==="gym"){ const resting=TM.restEnd&&TM.restEnd>now, justDone=TM.restEnd&&TM.restEnd<=now&&now-TM.restEnd<20000; const idx=liveIdx(gymSteps(c.k,c.p));
@@ -2778,7 +2870,7 @@ function bind(){
   $("#tmStart")?.addEventListener("click",()=>{startWorkout(); render(); if(p&&(p.type==="gym"||p.type==="run")) openLive(); else { const d=$("#trainLog"); if(d&&!d.open){d.open=true} } });
   document.querySelectorAll("[data-openlive]").forEach(b=>b.onclick=()=>openLive());
   bindTimerEnd();
-  $("#fillTime")?.addEventListener("click",()=>{const m=(Date.now()-TM.start)/60000; const el=$("#rtime"); el.value=fmtMin(m); drafts[draftKey("rtime")]=el.value; persistDrafts(); el.dispatchEvent(new Event("input",{bubbles:true}))});
+  $("#fillTime")?.addEventListener("click",()=>{const m=tmEl()/60000; const el=$("#rtime"); el.value=fmtMin(m); drafts[draftKey("rtime")]=el.value; persistDrafts(); el.dispatchEvent(new Event("input",{bubbles:true}))});
   document.querySelectorAll("[data-db]").forEach(c=>c.addEventListener("change",()=>{const id=c.dataset.db; dbOverride[id]=c.checked; S.profile.dbPref={...(S.profile.dbPref||{}),[id]:c.checked}; saveProfile(); render()}));
   document.querySelectorAll("[data-chk]").forEach(b=>b.addEventListener("click",()=>{
     const [id,i]=b.dataset.chk.split("|"), dk=draftKey(`c-${id}-${i}`), on=!b.classList.contains("on");
@@ -2797,7 +2889,7 @@ function bind(){
     const fmt={};
     p.ex.forEach(e=>{const f=fmtOf(e), sets=[];for(let i=0;i<setCount(e,k);i++){ if(anyChecked && !$(`#set-${e.id}-${i}`)?.classList.contains("done")) continue; const v=setValsDom(e,i); if(setOk(f,v)) sets.push(setObj(f,v,setTypeK(k,e.id,i)))} if(sets.length){ex[e.id]=sets; if(!e.fixed) fmt[e.id]=f; if(DBCFG[e.id]&&hasW(e)) db[e.id]=dbNow(e.id,log)}});
     if(!Object.keys(ex).length){toast(anyChecked?"Ticked sets are missing numbers":"Fill in at least one set");return}
-    const durMin = TM.start&&TM.date===k ? (Date.now()-TM.start)/60000 : (log&&log.durMin)||null;
+    const durMin = TM.start&&TM.date===k ? tmEl()/60000 : (log&&log.durMin)||null;
     if(TM.start&&TM.date===k) stopWorkout();
     const newLog={type:"gym",day:p.day,ex,db,fmt,durMin,notes:$("#gnotes").value.trim(),savedAt:Date.now()}; const prs=findPRs(k,newLog); if(prs.length) newLog.prs=prs;
     clearDrafts(k,TRAIN_RE); saveLog(k,newLog).then(()=>{toast(prs.length?`New PR: ${prs.map(id=>(p.ex.find(e=>e.id===id)||{name:id}).name).join(", ")} 🎉`:"Session saved"); lastRenderKey=""; render(); if(typeof routineAsk==="function") setTimeout(()=>routineAsk(k),700); setTimeout(maybeAutoAdvice,1500)});
@@ -2851,7 +2943,7 @@ function bind(){
   document.querySelectorAll("[data-pv]").forEach(b=>b.onclick=()=>{progView=b.dataset.pv; runSel=null; try{localStorage.setItem("rd25-pview",progView)}catch(e){} render(); window.scrollTo(0,0)});
   $("#runBack")?.addEventListener("click",()=>{runSel=null; render(); window.scrollTo(0,0)});
   $("#saveRun")?.addEventListener("click",()=>{
-    const tmMin=TM.start&&TM.date===k?(Date.now()-TM.start)/60000:null, got=runLogCollect(p,k,log,tmMin);
+    const tmMin=TM.start&&TM.date===k?tmEl()/60000:null, got=runLogCollect(p,k,log,tmMin);
     if(got.err){ const er=$("#rx-err"); document.querySelectorAll(".rx-bad").forEach(x=>x.classList.remove("rx-bad")); const el=document.getElementById(got.el);
       if(el){ el.classList.add("rx-bad"); el.focus() } if(er){ er.textContent=got.err; er.hidden=false; er.scrollIntoView({block:"nearest"}) } else toast(got.err); return }
     const X=got.data; RX_CONFIRM="";
