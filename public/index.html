@@ -883,6 +883,17 @@ svg.inl{width:15px;height:15px;vertical-align:-3px}
 #view input[type=checkbox]{transition:background-color .15s,border-color .15s,box-shadow .15s}
 nav.tabs button svg{transition:transform .2s cubic-bezier(.3,1.4,.5,1)}nav.tabs button.on svg{transform:translateY(-1px) scale(1.08)}
 @media (prefers-reduced-motion:reduce){.bar i,.hub-xp i,.q-bar i,.rk-bar i,nav.tabs button svg{transition:none}}
+/* Tab bar: bronze rail. Full-width dark glass, a bronze hairline on top, the active tab glows green under a diamond on the rail */
+html body nav.tabs{left:0;right:0;transform:none;width:auto;bottom:0;border:0;border-radius:0;padding:4px 6px calc(6px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(6,9,10,.84),rgba(3,5,6,.97));-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 -14px 30px rgba(0,0,0,.45)}
+html body nav.tabs::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,#6B3F17 12%,#F4C48E 50%,#6B3F17 88%,transparent);pointer-events:none}
+html body nav.tabs .in{max-width:640px;gap:0}
+html body nav.tabs button{background:none;color:#6E7480;padding:12px 0 6px;border-radius:0;font:800 10px/1 "Barlow Semi Condensed",Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;gap:5px}
+html body nav.tabs button.on{background:none;color:#DEF1E9;text-shadow:0 0 12px rgba(127,200,169,.6)}
+html body nav.tabs button.on svg{color:#7FC8A9;filter:drop-shadow(0 0 6px rgba(127,200,169,.7));transform:none}
+html body nav.tabs button.on::after{content:none}
+html body nav.tabs button.on::before{content:"";position:absolute;top:-4px;left:50%;width:9px;height:9px;transform:translate(-50%,-50%) rotate(45deg);background:#7FC8A9;box-shadow:0 0 10px #7FC8A9}
+html body nav.tabs .badge{border-radius:3px;background:#C2452F;box-shadow:0 0 0 2px #05070A;font-family:"Barlow Semi Condensed",Barlow,sans-serif;letter-spacing:0;min-width:15px;height:15px;top:5px}
+html body nav.tabs button:focus-visible{outline:2px solid #F4C48E;outline-offset:-2px}
 .lv-main{display:flex;flex-direction:column;justify-content:center}
 </style>
 <script src="/look.js"></script>
