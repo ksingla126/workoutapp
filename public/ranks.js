@@ -531,7 +531,12 @@ function rkGateOptions(p, rankTo) {
   const C = RKC();
   if (C.parts[p].run) { const T = rkTargetMetric(p, rankTo); return [{ id: p, name: p === "endur" ? "5K, or a longer run or race" : p === "mile" ? "Mile" : "400 m", txt: p === "endur" ? `5K-equivalent under ${rkFmtSec(T)} (a 5K, 10K or half marathon counts)` : `under ${rkFmtSec(T)}`, run: true }] }
   const ids = rkSplitIds(), opt = [];
-  ids.forEach(id => { const c = (C.conv[id] || []).find(x => x.p === p && x.cap == null); if (c) opt.push({ id, name: rkExName(id), ...rkExTarget(p, id, c, rankTo) }) });
+  const R = rankState();
+  ids.forEach(id => { const c = (C.conv[id] || []).find(x => x.p === p && x.cap == null); if (c) opt.push({ id, name: rkExName(id), ready: rkExReady(id, p, rankTo, R), ...rkExTarget(p, id, c, rankTo) }) });
+  // the lift that opened it counts even if it isn't in the current routine
+  const src = R.part[p] && R.part[p].src && R.part[p].src.e && R.part[p].src.e.ex;
+  if (src && !opt.some(o => o.id === src)) { const c = (C.conv[src] || []).find(x => x.p === p && x.cap == null); if (c && rkExReady(src, p, rankTo, R)) opt.push({ id: src, name: rkExName(src), ready: true, ...rkExTarget(p, src, c, rankTo) }) }
+  opt.sort((a, b) => (b.ready ? 1 : 0) - (a.ready ? 1 : 0));   // the lifts already at that level first: they're the realistic way through
   if (opt.length) return opt;
   return (C.parts[p].basic || []).map(id => { const c = (C.conv[id] || []).find(x => x.p === p); return c ? { id, name: rkExName(id), basic: true, ...rkExTarget(p, id, c, rankTo) } : null }).filter(Boolean);
 }
@@ -550,15 +555,23 @@ function rkSetGate(id, w, r, k, fmt) {
     return best;
   } catch (e) { return null }
 }
+// An open Gate belongs to the exercises that earned it: this exercise's own best set for the part (with fade) has to
+// be at the Gate's rank. Another lift reaching it (say a chest-supported row) doesn't light up this one.
+function rkExReady(id, p, to, R) {
+  try { R = R || rankState(); const list = R.byPart[p] || []; let best = 0;
+    for (const e of list) { if (e.flag || e.ex !== id || e.d > R.td) continue; const x = rkEntryV(R, p, e, R.td, "raw"); if (x && !e.sec && x.v > best) best = x.v }
+    return best >= to;
+  } catch (e) { return false }
+}
 // an open Gate this exercise can clear, with the target for it
 function rkGateInfo(id) {
   try { const R = rankState(), C = RKC();
-    for (const c of (C.conv[id] || [])) { if (c.cap != null) continue; const P = R.part[c.p]; if (P && P.gate.open && !P.excl) return { p: c.p, to: P.gate.to, name: C.parts[c.p].name, txt: rkExTarget(c.p, id, c, P.gate.to).txt }; }
+    for (const c of (C.conv[id] || [])) { if (c.cap != null) continue; const P = R.part[c.p]; if (P && P.gate.open && !P.excl && rkExReady(id, c.p, P.gate.to, R)) return { p: c.p, to: P.gate.to, name: C.parts[c.p].name, txt: rkExTarget(c.p, id, c, P.gate.to).txt }; }
   } catch (e) {} return null;
 }
-// can this exercise clear an open Gate today?
+// can this exercise clear an open Gate today? (only if it's one of the lifts at that level)
 function rkGateFor(id) {
-  try { const R = rankState(), C = RKC(); return (C.conv[id] || []).some(c => c.cap == null && R.part[c.p] && R.part[c.p].gate.open) } catch (e) { return false }
+  try { const R = rankState(), C = RKC(); return (C.conv[id] || []).some(c => c.cap == null && R.part[c.p] && R.part[c.p].gate.open && rkExReady(id, c.p, R.part[c.p].gate.to, R)) } catch (e) { return false }
 }
 function rkRunGateOpen() { try { const R = rankState(); return ["mile", "m400", "endur"].some(p => R.part[p].gate.open) } catch (e) { return false } }
 function rkAlertCount() {
@@ -656,7 +669,7 @@ function rkNextText(p, P) {
 function rkGateText(p, P) {
   const g = P.gate; if (!g) return "";
   if (g.open) return `<div class="rk-gate open"><b>Gate open: reach ${rkLetter(g.to)}</b><span class="small">${RKC().parts[p].run ? "Any run or time trial at this pace clears it automatically." : "Just lift one of these in a workout. Hit the weight for the reps shown (or more) and it clears automatically:"}</span>
-    ${rkGateOptions(p, g.to).map(o => `<div class="rk-opt"><span>${esc(o.name)}${o.basic ? ' <span class="muted small">(basic lift)</span>' : ""}</span><span class="num">${esc(o.txt)}</span></div>`).join("")}</div>`;
+    ${rkGateOptions(p, g.to).map(o => `<div class="rk-opt"><span>${esc(o.name)}${o.ready ? ' <span class="small" style="color:var(--coach)">· at this level</span>' : ""}${o.basic ? ' <span class="muted small">(basic lift)</span>' : ""}</span><span class="num">${esc(o.txt)}</span></div>`).join("")}</div>`;
   const W = { bar: "Fill the bar to unlock the next Gate.", cooldown: `Gate failed. Retry in ${g.left} day${g.left > 1 ? "s" : ""}.`, excluded: "Excluded for injury. Fading and demotion are paused.", milecap: "The mile counts up to B. A and S come from the 400 m.", top: "Top rank reached.", placement: "Ranks are set after placement week." };
   return W[g.why] && g.why !== "bar" ? `<div class="small muted">${W[g.why]}</div>` : "";
 }
