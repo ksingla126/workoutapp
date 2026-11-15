@@ -19,6 +19,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="icon" href="/icon-192.png">
 <style>
+:root{--rk:#22A06B;--rk-d:#1C7A52;--rk-dd:#18704B;--rk-mid:#7FC8A9;--rk-core:#DEF1E9;--rk-ink:#04140C;--mt-d:#6B3F17;--mt-l:#F4C48E;--mt-m:#B47A3F;--mt-t:#A08060}
 #authGate{position:fixed;inset:0;z-index:1000;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;padding:28px 16px calc(28px + env(safe-area-inset-bottom,0px));overflow:auto;background:radial-gradient(120% 70% at 50% 0%,#2A2470 0%,#141A33 45%,#0A0E1B 100%);color:#ECEFF7;font-family:var(--body,system-ui,sans-serif)}
 #authGate[hidden]{display:none}
 #authGate .ag-floor{position:absolute;left:-50%;right:-50%;bottom:-10%;height:60%;background-image:linear-gradient(rgba(143,139,255,.22) 1px,transparent 1px),linear-gradient(90deg,rgba(143,139,255,.22) 1px,transparent 1px);background-size:44px 44px;transform:perspective(420px) rotateX(62deg);transform-origin:50% 0;mask-image:linear-gradient(transparent,#000 30%,#000 70%,transparent);animation:agFloor 3.2s linear infinite;pointer-events:none}
@@ -65,53 +66,53 @@
 #live,#live button,#live input{touch-action:manipulation}
 .lv-cancel{position:fixed;z-index:3;top:calc(env(safe-area-inset-top,0px) + 16px);right:max(14px,env(safe-area-inset-right,0px));height:32px;padding:0 12px;border-radius:999px;border:1px solid rgba(224,103,90,.45);background:rgba(10,10,13,.6);color:#F0B4AC;font:800 10.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 #liveIn:not(.lvt) .lv-cancel{position:static;display:block;margin:18px auto 6px;background:transparent;border-color:rgba(192,72,60,.35);color:#B2483C}
-.lv-cancel:focus-visible,.lv-pausebtn{background:none;border:1px solid rgba(244,196,142,.45);border-radius:999px;padding:4px 10px;color:#F4C48E;font:inherit;cursor:pointer}
+.lv-cancel:focus-visible,.lv-pausebtn{background:none;border:1px solid color-mix(in srgb,var(--mt-l) 45%,transparent);border-radius:999px;padding:4px 10px;color:var(--mt-l);font:inherit;cursor:pointer}
 .lvp{position:fixed;inset:0;z-index:12;display:flex;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 34px) 0 calc(env(safe-area-inset-bottom,0px) + 24px);box-sizing:border-box;background:rgba(2,4,8,.74);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:lvAskIn .18s ease-out;color:#F5F1E6;font-family:Barlow,system-ui,sans-serif}
-.lvp-in{width:calc(100% - 28px);max-width:420px;height:100%;max-height:780px;border-radius:22px;padding:3px;box-sizing:border-box;background:linear-gradient(90deg,#6B3F17,#B47A3F 40%,#F4C48E 60%,#6B3F17);box-shadow:0 30px 60px #000}
-.lvp-card{height:100%;box-sizing:border-box;border-radius:19px;padding:16px;display:flex;flex-direction:column;background:radial-gradient(70% 60% at 90% 0%,rgba(34,160,107,.18),transparent 65%),repeating-linear-gradient(135deg,rgba(34,160,107,.03) 0 1px,transparent 1px 7px),#0A0A0D}
+.lvp-in{width:calc(100% - 28px);max-width:420px;height:100%;max-height:780px;border-radius:22px;padding:3px;box-sizing:border-box;background:linear-gradient(90deg,var(--mt-d),var(--mt-m) 40%,var(--mt-l) 60%,var(--mt-d));box-shadow:0 30px 60px #000}
+.lvp-card{height:100%;box-sizing:border-box;border-radius:19px;padding:16px;display:flex;flex-direction:column;background:radial-gradient(70% 60% at 90% 0%,color-mix(in srgb,var(--rk) 18%,transparent),transparent 65%),repeating-linear-gradient(135deg,color-mix(in srgb,var(--rk) 3%,transparent) 0 1px,transparent 1px 7px),#0A0A0D}
 .lvp-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.lvp-eb{font:800 10px/1.2 "Barlow Semi Condensed",sans-serif;letter-spacing:.28em;text-transform:uppercase;color:#F4C48E}
-.lvp-x{width:32px;height:32px;flex-shrink:0;border-radius:50%;border:1px solid rgba(244,196,142,.35);background:none;color:#F4C48E;font-size:13px;cursor:pointer}
-.lvp-t{display:block;margin-top:8px;font:900 26px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.02em;background:linear-gradient(180deg,#DEF1E9,#7FC8A9 55%,#18704B);-webkit-background-clip:text;background-clip:text;color:transparent}
-.lvp-sub{margin:5px 0 0;font-size:12.5px;line-height:1.4;color:#B9BFCA}.lvp-sub b{color:#DEF1E9}
+.lvp-eb{font:800 10px/1.2 "Barlow Semi Condensed",sans-serif;letter-spacing:.28em;text-transform:uppercase;color:var(--mt-l)}
+.lvp-x{width:32px;height:32px;flex-shrink:0;border-radius:50%;border:1px solid color-mix(in srgb,var(--mt-l) 35%,transparent);background:none;color:var(--mt-l);font-size:13px;cursor:pointer}
+.lvp-t{display:block;margin-top:8px;font:900 26px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.02em;background:linear-gradient(180deg,var(--rk-core),var(--rk-mid) 55%,var(--rk-dd));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lvp-sub{margin:5px 0 0;font-size:12.5px;line-height:1.4;color:#B9BFCA}.lvp-sub b{color:var(--rk-core)}
 .lvp-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
-.lvp-tiles>div{padding:9px 2px;text-align:center;border-radius:10px;background:linear-gradient(180deg,#1A140E,#0D0A07);border:1px solid #6B3F17;min-width:0}
-.lvp-tiles b{display:block;font:900 15px/1 "Barlow Semi Condensed",sans-serif;color:#F4C48E;white-space:nowrap}.lvp-tiles span{display:block;margin-top:5px;font:700 8.5px/1.2 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#A08060}
-.lvp-list{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;margin:12px -6px 0;padding:0 6px 6px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:rgba(244,196,142,.45) transparent}
-.lvp-list::-webkit-scrollbar{width:3px}.lvp-list::-webkit-scrollbar-thumb{background:rgba(244,196,142,.45);border-radius:2px}
-.lvp-ex{border-radius:12px;padding:1.5px;background:rgba(245,241,230,.1);flex-shrink:0}.lvp-ex.done,.lvp-ex.part{background:linear-gradient(90deg,#6B3F17,#B47A3F 40%,#F4C48E 60%,#6B3F17)}
+.lvp-tiles>div{padding:9px 2px;text-align:center;border-radius:10px;background:linear-gradient(180deg,#1A140E,#0D0A07);border:1px solid var(--mt-d);min-width:0}
+.lvp-tiles b{display:block;font:900 15px/1 "Barlow Semi Condensed",sans-serif;color:var(--mt-l);white-space:nowrap}.lvp-tiles span{display:block;margin-top:5px;font:700 8.5px/1.2 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--mt-t)}
+.lvp-list{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;margin:12px -6px 0;padding:0 6px 6px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--mt-l) 45%,transparent) transparent}
+.lvp-list::-webkit-scrollbar{width:3px}.lvp-list::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--mt-l) 45%,transparent);border-radius:2px}
+.lvp-ex{border-radius:12px;padding:1.5px;background:rgba(245,241,230,.1);flex-shrink:0}.lvp-ex.done,.lvp-ex.part{background:linear-gradient(90deg,var(--mt-d),var(--mt-m) 40%,var(--mt-l) 60%,var(--mt-d))}
 .lvp-h{width:100%;display:flex;align-items:center;gap:10px;padding:11px 10px;border:0;border-radius:11px;background:#08090B;color:inherit;text-align:left;cursor:pointer;font:inherit;touch-action:manipulation}
 .lvp-ex.open .lvp-h{border-radius:11px 11px 0 0}
 .lvp-d{width:10px;height:10px;flex-shrink:0;transform:rotate(45deg);border:1.5px solid #4A505A}
-.lvp-ex.done .lvp-d{border-color:#7FC8A9;background:rgba(127,200,169,.35)}.lvp-ex.part .lvp-d{border-color:#E8C27A;background:linear-gradient(135deg,rgba(232,194,122,.45) 50%,transparent 50%)}
+.lvp-ex.done .lvp-d{border-color:var(--rk-mid);background:color-mix(in srgb,var(--rk-mid) 35%,transparent)}.lvp-ex.part .lvp-d{border-color:#E8C27A;background:linear-gradient(135deg,rgba(232,194,122,.45) 50%,transparent 50%)}
 .lvp-nm{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
 .lvp-nm b{font:800 12px/1.15 "Barlow Semi Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#F5F1E6}.lvp-ex.none .lvp-nm b{color:#8F97A6}
 .lvp-nm b small{margin-left:6px;padding:2px 5px;border-radius:4px;border:1px solid rgba(110,168,255,.4);font:800 8px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;color:#6EA8FF;vertical-align:1px}
 .lvp-nm>span{font:700 12px/1.25 "Barlow Semi Condensed",sans-serif;color:#C9CED7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lvp-ex.none .lvp-nm>span{color:#6E7480}
-.lvp-n{font:800 11px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.1em;color:#6E7480}.lvp-ex.done .lvp-n{color:#7FC8A9}.lvp-ex.part .lvp-n{color:#E8C27A}
-.lvp-car{color:#F4C48E;font-size:11px;transition:transform .18s}.lvp-ex.open .lvp-car{transform:rotate(180deg)}
+.lvp-n{font:800 11px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.1em;color:#6E7480}.lvp-ex.done .lvp-n{color:var(--rk-mid)}.lvp-ex.part .lvp-n{color:#E8C27A}
+.lvp-car{color:var(--mt-l);font-size:11px;transition:transform .18s}.lvp-ex.open .lvp-car{transform:rotate(180deg)}
 .lvp-tb{padding:0 10px 8px;border-radius:0 0 11px 11px;background:#08090B;animation:lvAskIn .16s ease-out}
 .lvp-th,.lvp-tr{display:grid;grid-template-columns:38px 1fr 1fr 74px;gap:6px;align-items:center}.lvp-tb.one .lvp-th,.lvp-tb.one .lvp-tr{grid-template-columns:38px 1fr 74px}
-.lvp-th{padding:4px 2px 4px;border-top:1px solid rgba(180,122,63,.25);font:800 8px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#A08060}.lvp-th span:last-child{text-align:right}
+.lvp-th{padding:4px 2px 4px;border-top:1px solid color-mix(in srgb,var(--mt-m) 25%,transparent);font:800 8px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--mt-t)}.lvp-th span:last-child{text-align:right}
 .lvp-tr{padding:6px 2px;border-top:1px solid rgba(245,241,230,.06);font:700 12.5px/1.1 "Barlow Semi Condensed",sans-serif}.lvp-tr>span:first-child{color:#8F97A6}.lvp-tr em{margin-left:3px;font-style:normal;font-size:9px;color:#E8C27A}
-.lvp-tr.no{color:#5C6370}.lvp-tr .ok{text-align:right;color:#7FC8A9;letter-spacing:.06em;text-transform:uppercase;font-size:11px}.lvp-tr .op{text-align:right;color:rgba(232,194,122,.75);letter-spacing:.1em;text-transform:uppercase;font-size:11px}
+.lvp-tr.no{color:#5C6370}.lvp-tr .ok{text-align:right;color:var(--rk-mid);letter-spacing:.06em;text-transform:uppercase;font-size:11px}.lvp-tr .op{text-align:right;color:rgba(232,194,122,.75);letter-spacing:.1em;text-transform:uppercase;font-size:11px}
 .lvp-note{margin:12px 0 10px;font-size:11.5px;line-height:1.4;text-align:center;color:#8F97A6}.lvp-note b{color:#E8C27A}
 .lvp-b{display:flex;gap:8px}
 .lvp-b button{flex:1;height:50px;border-radius:14px;cursor:pointer;font:800 12.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;touch-action:manipulation}
 .lvp-back{border:1px solid rgba(245,241,230,.2);background:none;color:#C9CED7}
-.lvp-go{border:2px solid #B47A3F;background:linear-gradient(180deg,#22A06B,#1C7A52);box-shadow:inset 0 1px 0 rgba(255,255,255,.3);color:#04140C}.lvp-go:disabled{opacity:.4;cursor:default}
-.lvp button:focus-visible{outline:2px solid #F4C48E;outline-offset:2px}
+.lvp-go{border:2px solid var(--mt-m);background:linear-gradient(180deg,var(--rk),var(--rk-d));box-shadow:inset 0 1px 0 rgba(255,255,255,.3);color:var(--rk-ink)}.lvp-go:disabled{opacity:.4;cursor:default}
+.lvp button:focus-visible{outline:2px solid var(--mt-l);outline-offset:2px}
 @media (max-height:700px){.lvp-tiles{display:none}.lvp-t{font-size:22px}}
 @media (prefers-reduced-motion:reduce){.lvp,.lvp-tb{animation:none}.lvp-car{transition:none}}
-.lv-ask button:focus-visible{outline:2px solid #F4C48E;outline-offset:2px}
+.lv-ask button:focus-visible{outline:2px solid var(--mt-l);outline-offset:2px}
 .lv-ask{position:fixed;inset:0;z-index:10;display:flex !important;align-items:center;justify-content:center;margin:0 !important;padding:24px 0 !important;max-width:none !important;background:rgba(2,4,8,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:lvAskIn .18s ease-out}
 @keyframes lvAskIn{from{opacity:0}to{opacity:1}}
-.lv-ask-in{box-sizing:border-box;width:calc(100% - 32px);max-width:360px;margin:0 !important;border-radius:20px;padding:20px;color:#F5F1E6;border:2px solid #B47A3F;background:radial-gradient(70% 60% at 90% 0%,rgba(224,103,90,.14),transparent 65%),repeating-linear-gradient(135deg,rgba(34,160,107,.03) 0 1px,transparent 1px 7px),#0A0A0D;box-shadow:0 30px 60px #000}
+.lv-ask-in{box-sizing:border-box;width:calc(100% - 32px);max-width:360px;margin:0 !important;border-radius:20px;padding:20px;color:#F5F1E6;border:2px solid var(--mt-m);background:radial-gradient(70% 60% at 90% 0%,rgba(224,103,90,.14),transparent 65%),repeating-linear-gradient(135deg,color-mix(in srgb,var(--rk) 3%,transparent) 0 1px,transparent 1px 7px),#0A0A0D;box-shadow:0 30px 60px #000}
 .lv-ask-in b{display:block;font:900 24px/1.1 "Barlow Semi Condensed",sans-serif;letter-spacing:.02em}
 .lv-ask-in p{margin:8px 0 18px;font-size:13.5px;line-height:1.5;color:#B9BFCA}
 .lv-ask-b{display:flex;gap:8px}
 .lv-ask-b button{flex:1;height:48px;border-radius:13px;cursor:pointer;font:800 12.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase}
-#lvKeep{border:2px solid transparent;background:linear-gradient(180deg,#22A06B,#1C7A52) padding-box,linear-gradient(90deg,#6B3F17,#B47A3F 40%,#F4C48E 60%,#6B3F17) border-box;color:#04140C}
+#lvKeep{border:2px solid transparent;background:linear-gradient(180deg,var(--rk),var(--rk-d)) padding-box,linear-gradient(90deg,var(--mt-d),var(--mt-m) 40%,var(--mt-l) 60%,var(--mt-d)) border-box;color:var(--rk-ink)}
 #lvCancelYes{border:1px solid rgba(224,103,90,.55);background:rgba(224,103,90,.1);color:#F0B4AC}
 @media (prefers-reduced-motion:reduce){.lv-ask{animation:none}}
 </style>
@@ -885,15 +886,15 @@ nav.tabs button svg{transition:transform .2s cubic-bezier(.3,1.4,.5,1)}nav.tabs 
 @media (prefers-reduced-motion:reduce){.bar i,.hub-xp i,.q-bar i,.rk-bar i,nav.tabs button svg{transition:none}}
 /* Tab bar: bronze rail. Full-width dark glass, a bronze hairline on top, the active tab glows green under a diamond on the rail */
 html body nav.tabs{left:0;right:0;transform:none;width:auto;bottom:0;border:0;border-radius:0;padding:4px 6px calc(6px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(6,9,10,.84),rgba(3,5,6,.97));-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 -14px 30px rgba(0,0,0,.45)}
-html body nav.tabs::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,#6B3F17 12%,#F4C48E 50%,#6B3F17 88%,transparent);pointer-events:none}
+html body nav.tabs::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--mt-d) 12%,var(--mt-l) 50%,var(--mt-d) 88%,transparent);pointer-events:none}
 html body nav.tabs .in{max-width:640px;gap:0}
 html body nav.tabs button{background:none;color:#6E7480;padding:12px 0 6px;border-radius:0;font:800 10px/1 "Barlow Semi Condensed",Barlow,sans-serif;letter-spacing:.16em;text-transform:uppercase;gap:5px}
-html body nav.tabs button.on{background:none;color:#DEF1E9;text-shadow:0 0 12px rgba(127,200,169,.6)}
-html body nav.tabs button.on svg{color:#7FC8A9;filter:drop-shadow(0 0 6px rgba(127,200,169,.7));transform:none}
+html body nav.tabs button.on{background:none;color:var(--rk-core);text-shadow:0 0 12px color-mix(in srgb,var(--rk-mid) 60%,transparent)}
+html body nav.tabs button.on svg{color:var(--rk-mid);filter:drop-shadow(0 0 6px color-mix(in srgb,var(--rk-mid) 70%,transparent));transform:none}
 html body nav.tabs button.on::after{content:none}
-html body nav.tabs button.on::before{content:"";position:absolute;top:-4px;left:50%;width:9px;height:9px;transform:translate(-50%,-50%) rotate(45deg);background:#7FC8A9;box-shadow:0 0 10px #7FC8A9}
+html body nav.tabs button.on::before{content:"";position:absolute;top:-4px;left:50%;width:9px;height:9px;transform:translate(-50%,-50%) rotate(45deg);background:var(--rk-mid);box-shadow:0 0 10px var(--rk-mid)}
 html body nav.tabs .badge{border-radius:3px;background:#C2452F;box-shadow:0 0 0 2px #05070A;font-family:"Barlow Semi Condensed",Barlow,sans-serif;letter-spacing:0;min-width:15px;height:15px;top:5px}
-html body nav.tabs button:focus-visible{outline:2px solid #F4C48E;outline-offset:-2px}
+html body nav.tabs button:focus-visible{outline:2px solid var(--mt-l);outline-offset:-2px}
 .lv-main{display:flex;flex-direction:column;justify-content:center}
 </style>
 <script src="/look.js"></script>
@@ -1360,6 +1361,7 @@ const $=s=>document.querySelector(s);
 function toast(t){const el=$("#toast"); el.textContent=t; el.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>el.hidden=true,1800)}
 let lastRenderKey="";
 function render(fromStore){
+  if(typeof rkTheme==="function") rkTheme();   // colours and trim follow the overall rank
   const key=tab+"|"+ymd(sel);
   const typing=document.activeElement && document.activeElement.closest && document.activeElement.closest("#view") && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
   if(fromStore && key===lastRenderKey && (typing || (tab==="home" && document.querySelector("#trainLog[open]")) || (tab==="home" && hasDraft(ymd(sel),TRAIN_RE)))){ renderTop(); renderTabs(); return }

@@ -594,6 +594,20 @@ const RK_COL = ["#8590A6", "#22A06B", "#3C7BF4", "#7B4DF2", "#F06A1D", "#E2A50C"
    Big badges get the full detail; small ones a simpler shape that still reads at chip size. Gradients live once in the page. */
 const RK_METAL = [null, ["#6B3F17", "#F4C48E", "#B47A3F"], ["#3A4049", "#B4BBC5", "#707884"], ["#7A8391", "#FFFFFF", "#CAD1DB"], ["#785209", "#FFEBA6", "#E0AD33"], ["#7A8896", "#FFFFFF", "#DCE7F0"]];
 const rkMix = (h, t, a) => "#" + [1, 3, 5].map(i => Math.round(parseInt(h.slice(i, i + 2), 16) * (1 - a) + parseInt(t.slice(i, i + 2), 16) * a).toString(16).padStart(2, "0")).join("");
+
+// The styled screens take their colour and trim from the player's overall rank: E iron/grey, D bronze/green, C silver/blue...
+const RK_METAL_E = ["#3A3F47", "#B4BBC5", "#707884"];
+let RKT = { c: "#22A06B", d: "#1C7A52", dd: "#18704B", mid: "#7FC8A9", core: "#DEF1E9", ink: "#04140C", md: "#6B3F17", ml: "#F4C48E", mm: "#B47A3F", mt: "#A08060" };
+function rkThemeSet(i) {
+  const c = RK_COL[i] || RK_COL[1], M = RK_METAL[i] || RK_METAL_E;
+  RKT = { c, d: rkMix(c, "#000000", .3), dd: rkMix(c, "#000000", .45), mid: rkMix(c, "#ffffff", .42), core: rkMix(c, "#ffffff", .85), ink: rkMix(c, "#000000", .88),
+    md: M[0], ml: M[1], mm: M[2], mt: rkMix(M[2], "#8A8A8A", .4) };
+  const st = document.documentElement.style, T = { rk: "c", "rk-d": "d", "rk-dd": "dd", "rk-mid": "mid", "rk-core": "core", "rk-ink": "ink", "mt-d": "md", "mt-l": "ml", "mt-m": "mm", "mt-t": "mt" };
+  for (const k in T) st.setProperty("--" + k, RKT[T[k]]);
+  document.documentElement.dataset.rk = "EDCBAS"[i] || "D";
+}
+// not placed yet: keep the starting D look
+function rkTheme() { let i = 1; try { const H = hubRank(); i = H.un ? 1 : Math.min(5, H.ov) } catch (e) { return } if (i !== rkTheme.i) { rkTheme.i = i; rkThemeSet(i) } }
 const RKB_SHIELD = "M60 26 L86 34 L84 64 Q79 82 60 94 Q41 82 36 64 L34 34 Z", RKB_SHIELD_SM = "M60 22 L90 31 L88 64 Q82 86 60 99 Q38 86 32 64 L30 31 Z";
 const RKB_SWORD = "M-3.5 -48 L0 -58 L3.5 -48 L3.5 24 L-3.5 24 Z M-12 24 H12 V29 H-12 Z M-2.5 29 H2.5 V40 H-2.5 Z M-4.5 44 A4.5 4.5 0 1 0 4.5 44 A4.5 4.5 0 1 0 -4.5 44 Z";
 const RKB_ANG = [[], [0], [-36, 36], [-36, 36, 0], [-74, 74, -36, 36]];
