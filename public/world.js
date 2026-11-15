@@ -252,7 +252,7 @@ body.ws-page #top{position:relative;z-index:1}
 /* Open sky: no frame, the page doesn't scroll, the island grows to fill what the card leaves */
 html:has(body.ws-page #view>.ws){height:100%;overflow:hidden;overscroll-behavior:none}
 body.ws-page:has(#view>.ws) .wrap{height:100vh;height:100dvh;box-sizing:border-box;padding-bottom:0;display:flex;flex-direction:column}
-body.ws-page #view:has(>.ws){flex:1;min-height:0;display:flex;flex-direction:column;gap:0;padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+body.ws-page #view:has(>.ws){flex:1;min-height:0;display:flex;flex-direction:column;gap:0;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
 @media (max-height:600px){body.ws-page #view:has(>.ws){overflow-y:auto;scrollbar-width:none}}
 body.ws-page #view:has(>.ws)::-webkit-scrollbar{display:none}
 .ws{flex:1;min-height:0;display:flex;flex-direction:column}
