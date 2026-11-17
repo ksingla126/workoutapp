@@ -136,11 +136,12 @@ function wsWheelPaint(tr) {
     const w = s.offsetWidth || 1, d = (s.offsetLeft + w / 2 - mid) / w, a = Math.abs(d);
     if (a > 1.9) { if (s.style.visibility !== "hidden") s.style.visibility = "hidden"; continue }
     const m = Math.min(a, 1), f = Math.max(0, a - 1);
-    s.style.visibility = "";
-    s.style.transform = `translate3d(${(-Math.sign(d) * (m * 24 + f * 22)).toFixed(1)}%,${(m * 9).toFixed(2)}%,0) scale(${(1 - .4 * m - .12 * f).toFixed(3)})`;
-    s.style.opacity = (1 - .32 * m - .6 * f).toFixed(3);
-    s.style.filter = a < .02 ? "" : `brightness(${(1 - .28 * m).toFixed(3)}) saturate(${(1 - .2 * m).toFixed(3)})`;
-    s.style.zIndex = String(10 - Math.round(a * 4));
+    if (s.style.visibility) s.style.visibility = "";
+    // ease the step so the swap feels like a wheel turning, not a slide
+    const e = m * m * (3 - 2 * m);
+    s.style.transform = `translate3d(${(-Math.sign(d) * (e * 24 + f * 22)).toFixed(2)}%,${(e * 9).toFixed(2)}%,0) scale(${(1 - .4 * e - .12 * f).toFixed(4)})`;
+    s.style.opacity = (1 - .42 * e - .5 * f).toFixed(3);
+    const z = String(10 - Math.round(a * 4)); if (s.style.zIndex !== z) s.style.zIndex = z;
   }
 }
 function wsWheelMid(tr) { const mid = tr.scrollLeft + tr.clientWidth / 2; let best = null, bd = 1e9;
@@ -155,15 +156,24 @@ function wsAfter() {
   if (on && Math.abs(tr.scrollLeft - pos(on)) > 4) tr.scrollTo({ left: pos(on), behavior: "smooth" });
   if (on && on.dataset.wsign) setTimeout(() => { if (on.isConnected && on.dataset.wsign) wsIgnite(on) }, wsIgn && wsIgn.k === on.dataset.wsday ? 0 : 450);
   let t = 0;
-  let raf = 0;
+  // the day only changes once the finger is off the glass and the wheel has come to rest
+  let raf = 0, held = false, last = -1;
+  const settle = () => {
+    if (held || !tr.isConnected) return;
+    if (Math.abs(tr.scrollLeft - last) > .5) { last = tr.scrollLeft; t = setTimeout(settle, 90); return }   // still gliding into its slot
+    const s = wsWheelMid(tr);
+    if (s && s.dataset.wsday !== ymd(sel)) { sel = parseYmd(s.dataset.wsday); wsScroll = { wk, left: tr.scrollLeft }; lastRenderKey = ""; render() }
+  };
+  const arm = ms => { clearTimeout(t); last = tr.scrollLeft; t = setTimeout(settle, ms) };
+  tr.addEventListener("touchstart", () => { held = true; clearTimeout(t) }, { passive: true });
+  const up = () => { held = false; arm(160) };
+  tr.addEventListener("touchend", up, { passive: true }); tr.addEventListener("touchcancel", up, { passive: true });
   tr.addEventListener("scroll", () => {
-    wsScroll = { wk, left: tr.scrollLeft }; clearTimeout(t);
+    wsScroll = { wk, left: tr.scrollLeft };
     if (!raf) raf = requestAnimationFrame(() => { raf = 0; wsWheelPaint(tr) });
-    t = setTimeout(() => {
-      const s = wsWheelMid(tr);
-      if (s && s.dataset.wsday !== ymd(sel)) { sel = parseYmd(s.dataset.wsday); wsScroll = { wk, left: tr.scrollLeft }; lastRenderKey = ""; render() }
-    }, 140);
+    if (!held) arm(140);
   }, { passive: true });
+  if ("onscrollend" in tr) tr.addEventListener("scrollend", () => { if (!held) { clearTimeout(t); last = tr.scrollLeft; settle() } });
 }
 document.addEventListener("click", e => {
   const g = e.target.closest("[data-wsgo]"); if (!g) return;
@@ -276,9 +286,9 @@ body.ws-page #view:has(>.ws)::-webkit-scrollbar{display:none}
 .ws{flex:1;min-height:0;display:flex;flex-direction:column}
 .ws-frame{flex:1;min-height:0;display:flex;flex-direction:column;position:relative;margin:0}
 .ws-stage{flex:1;min-height:210px;position:relative;overflow:visible}
-.ws-track{-webkit-mask-image:linear-gradient(180deg,#000 82%,transparent),linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(180deg,#000 82%,transparent),linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-composite:intersect}
+.ws-stage{-webkit-mask-image:linear-gradient(180deg,#000 82%,transparent),linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(180deg,#000 82%,transparent),linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-composite:intersect}
 .ws-zoom{position:absolute;top:0;bottom:0;left:-31%;right:-31%;transform:scale(1.2);transform-origin:50% 62%;pointer-events:none}
-.ws-slide{will-change:transform;transform-origin:50% 62%}
+.ws-slide{will-change:transform,opacity;transform-origin:50% 62%;backface-visibility:hidden;contain:layout style}
 .ws-daybar{margin:-6px 18px 0;position:relative;z-index:6;flex-shrink:0}
 .ws-card{flex-shrink:0}
 .ws-card .ws-sub{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
