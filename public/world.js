@@ -139,8 +139,9 @@ function wsWheelPaint(tr) {
     if (s.style.visibility) s.style.visibility = "";
     // ease the step so the swap feels like a wheel turning, not a slide
     const e = m * m * (3 - 2 * m);
-    s.style.transform = `translate3d(${(-Math.sign(d) * (e * 24 + f * 22)).toFixed(2)}%,${(e * 9).toFixed(2)}%,0) scale(${(1 - .4 * e - .12 * f).toFixed(4)})`;
-    s.style.opacity = (1 - .42 * e - .5 * f).toFixed(3);
+    // side islands sit further back on the wheel: much smaller, a little higher, dimmer
+    s.style.transform = `translate3d(${(-Math.sign(d) * (e * 36 + f * 26)).toFixed(2)}%,${(-e * 5).toFixed(2)}%,0) scale(${(1 - .6 * e - .1 * f).toFixed(4)})`;
+    s.style.opacity = (1 - .5 * e - .4 * f).toFixed(3);
     const z = String(10 - Math.round(a * 4)); if (s.style.zIndex !== z) s.style.zIndex = z;
   }
 }
