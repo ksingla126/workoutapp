@@ -47,6 +47,8 @@ function wsPick(p, k) {
   return { img: t[0], name: t[1], kind: "run", type: ty };
 }
 function wsWeek() { const mon = mondayOf(sel); return [...Array(7)].map((_, i) => addDays(mon, i)) }
+// the island wheel: this week plus a week either side, so there is always a neighbour to spin in
+function wsWheel() { const mon = mondayOf(sel); return [...Array(21)].map((_, i) => addDays(mon, i - 7)).filter(d => inProgram(d) || d >= START) }
 function wsShort(p) { return !p || p.type === "rest" ? "Camp" : p.type === "gym" ? (p.name || "Gym") + " Gate" : (p.t || "Run") }
 
 function wsDayTxt(d) { return `${DOW[dowOf(d)].toUpperCase()} ${d.getDate()}` }
@@ -60,19 +62,17 @@ function wsTop() {
 function viewWorld(openLogger) {
   wsSeenSet();
   if (wsLog) { wsPop = null; wsRun = null; return `<div class="ws-back"><button type="button" class="btn ghost sm" data-wslog="0">‹ Back to the island</button></div>` + viewHome(openLogger) }
-  const days = wsWeek(), k = ymd(sel), p = inProgram(sel) ? planFor(sel) : null, pick = wsPick(p, k), idx = days.findIndex(d => ymd(d) === k);
+  const days = wsWheel(), k = ymd(sel), p = inProgram(sel) ? planFor(sel) : null, pick = wsPick(p, k), idx = wsWeek().findIndex(d => ymd(d) === k), at = days.findIndex(d => ymd(d) === k);
   const slides = days.map((d, i) => {
     const kk = ymd(d), pp = inProgram(d) ? planFor(d) : null, pk = wsPick(pp, kk);
     const lit = wsLitState(pp, kk);
-    return `<div class="ws-slide${kk === k ? " on" : ""}${lit === "lit" ? "" : " ws-dark"}" data-wsday="${kk}"${lit === "new" ? ` data-wsign="${pk.img}"` : ""} role="group" aria-label="${DOW[i]} ${d.getDate()} · ${esc(wsShort(pp))}" aria-current="${kk === k}"><div class="ws-zoom"><img src="/world/${pk.img}.webp" alt="" loading="${Math.abs(i - idx) <= 1 ? "eager" : "lazy"}" decoding="async" draggable="false"></div></div>`;
+    return `<div class="ws-slide${kk === k ? " on" : ""}${lit === "lit" ? "" : " ws-dark"}" data-wsday="${kk}"${lit === "new" ? ` data-wsign="${pk.img}"` : ""} role="group" aria-label="${DOW[dowOf(d)]} ${d.getDate()} · ${esc(wsShort(pp))}" aria-current="${kk === k}"><div class="ws-zoom"><img src="/world/${pk.img}.webp" alt="" loading="${Math.abs(i - at) <= 2 ? "eager" : "lazy"}" decoding="async" draggable="false"></div></div>`;
   }).join("");
   const pd = addDays(sel, -1), nd = addDays(sel, 1);
-  const side = (d, cls) => { const kk = ymd(d), pp = inProgram(d) ? planFor(d) : null, pk = wsPick(pp, kk), c = pk.kind === "gym" ? "pg" : pk.kind === "run" ? "pa" : "ps";
-    return `<button type="button" class="ws-peek ${cls}${wsLitState(pp, kk) === "lit" ? "" : " ws-dark"}" data-wsgo="${kk}" aria-label="Go to ${wsDayTxt(d)}"><img src="/world/${pk.img}.webp" alt="" loading="lazy" draggable="false"></button>` };
   const kind = pick.kind, title = kind === "gym" ? "[SYSTEM] GATE SELECT" : kind === "run" ? "[SYSTEM] TRAIL SELECT" : "[SYSTEM] CAMP";
   let h = `<div class="ws-sky" aria-hidden="true"><i class="ws-shoot"></i></div><div class="ws ws-${kind}">`;
   h += `<div class="ws-frame" role="region" aria-label="${esc(title.replace("[SYSTEM] ", ""))} · day ${idx + 1} of 7">
-    <div class="ws-stage">${side(pd, "l")}${side(nd, "r")}<div class="ws-track" id="wsTrack">${slides}</div><div class="ws-clouds" aria-hidden="true"></div></div></div>`;
+    <div class="ws-stage"><div class="ws-track" id="wsTrack">${slides}</div><div class="ws-clouds" aria-hidden="true"></div></div></div>`;
   h += `<div class="ws-daybar"><button type="button" data-wsgo="${ymd(pd)}">◀ ${wsDayTxt(pd)}</button><span>${wsDayTxt(sel)} · ${k === ymd(today) ? "TODAY" : kind === "gym" ? "GATE" : kind === "run" ? (WS_RUNTAG[pick.type] || "TRAIL") : "CAMP"}</span><button type="button" data-wsgo="${ymd(nd)}">${wsDayTxt(nd)} ▶</button></div>`;
   h += wsCard(p, k, pick);
   if (wsPop && wsPop.k !== k) wsPop = null;
@@ -129,19 +129,38 @@ function wsCard(p, k, pick) {
     ${(() => { if (weekDays(k).filter(d => !S.logs[d] && inProgram(parseYmd(d))).length > 1) menu.push(`<button type="button" data-wsarr="${k}">Arrange week</button>`); return "" })()}${btn}${menu.length ? `<div class="ws-menu">${menu.join('<span class="dot">·</span>')}</div>` : ""}</div>`;
 }
 // after each render: put the selected island in view and pick the day that ends in the middle after a swipe
+// each island's place on the wheel: 0 in the middle, ±1 a full step out to either side
+function wsWheelPaint(tr) {
+  const mid = tr.scrollLeft + tr.clientWidth / 2;
+  for (const s of tr.querySelectorAll(".ws-slide")) {
+    const w = s.offsetWidth || 1, d = (s.offsetLeft + w / 2 - mid) / w, a = Math.abs(d);
+    if (a > 1.9) { if (s.style.visibility !== "hidden") s.style.visibility = "hidden"; continue }
+    const m = Math.min(a, 1), f = Math.max(0, a - 1);
+    s.style.visibility = "";
+    s.style.transform = `translate3d(${(-Math.sign(d) * (m * 24 + f * 22)).toFixed(1)}%,${(m * 9).toFixed(2)}%,0) scale(${(1 - .4 * m - .12 * f).toFixed(3)})`;
+    s.style.opacity = (1 - .32 * m - .6 * f).toFixed(3);
+    s.style.filter = a < .02 ? "" : `brightness(${(1 - .28 * m).toFixed(3)}) saturate(${(1 - .2 * m).toFixed(3)})`;
+    s.style.zIndex = String(10 - Math.round(a * 4));
+  }
+}
+function wsWheelMid(tr) { const mid = tr.scrollLeft + tr.clientWidth / 2; let best = null, bd = 1e9;
+  for (const s of tr.querySelectorAll(".ws-slide")) { const d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - mid); if (d < bd) { bd = d; best = s } } return best }
 function wsAfter() {
   wsbAfter();
   const tr = document.getElementById("wsTrack"); if (!tr) return;
   const wk = ymd(mondayOf(sel)), on = tr.querySelector(".ws-slide.on");
-  const pos = el => el.offsetLeft;
+  const pos = el => el.offsetLeft - (tr.clientWidth - el.offsetWidth) / 2;
   tr.scrollLeft = wsScroll && wsScroll.wk === wk ? wsScroll.left : (on ? pos(on) : 0);
+  wsWheelPaint(tr);
   if (on && Math.abs(tr.scrollLeft - pos(on)) > 4) tr.scrollTo({ left: pos(on), behavior: "smooth" });
   if (on && on.dataset.wsign) setTimeout(() => { if (on.isConnected && on.dataset.wsign) wsIgnite(on) }, wsIgn && wsIgn.k === on.dataset.wsday ? 0 : 450);
   let t = 0;
+  let raf = 0;
   tr.addEventListener("scroll", () => {
     wsScroll = { wk, left: tr.scrollLeft }; clearTimeout(t);
+    if (!raf) raf = requestAnimationFrame(() => { raf = 0; wsWheelPaint(tr) });
     t = setTimeout(() => {
-      const i = Math.round(tr.scrollLeft / tr.clientWidth), s = tr.querySelectorAll(".ws-slide")[i];
+      const s = wsWheelMid(tr);
       if (s && s.dataset.wsday !== ymd(sel)) { sel = parseYmd(s.dataset.wsday); wsScroll = { wk, left: tr.scrollLeft }; lastRenderKey = ""; render() }
     }, 140);
   }, { passive: true });
@@ -149,8 +168,8 @@ function wsAfter() {
 document.addEventListener("click", e => {
   const g = e.target.closest("[data-wsgo]"); if (!g) return;
   const d = parseYmd(g.dataset.wsgo); if (!inProgram(d) && d < START) return;
-  const tr = document.getElementById("wsTrack"), same = ymd(mondayOf(d)) === ymd(mondayOf(sel));
-  if (tr && same) { const s = tr.querySelector(`[data-wsday="${g.dataset.wsgo}"]`); if (s) { tr.scrollTo({ left: s.offsetLeft, behavior: "smooth" }); return } }
+  const tr = document.getElementById("wsTrack");
+  if (tr) { const s = tr.querySelector(`[data-wsday="${g.dataset.wsgo}"]`); if (s) { tr.scrollTo({ left: s.offsetLeft - (tr.clientWidth - s.offsetWidth) / 2, behavior: "smooth" }); return } }
   sel = d; wsScroll = null; lastRenderKey = ""; render();
 });
 document.addEventListener("click", e => {
@@ -258,20 +277,18 @@ body.ws-page #view:has(>.ws)::-webkit-scrollbar{display:none}
 .ws-frame{flex:1;min-height:0;display:flex;flex-direction:column;position:relative;margin:0}
 .ws-stage{flex:1;min-height:210px;position:relative;overflow:visible}
 .ws-track{-webkit-mask-image:linear-gradient(180deg,#000 82%,transparent),linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(180deg,#000 82%,transparent),linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-composite:intersect}
-.ws-zoom{position:absolute;inset:0;transform:scale(1.2);transform-origin:50% 62%}
-.ws-slide{overflow:hidden}
+.ws-zoom{position:absolute;top:0;bottom:0;left:-31%;right:-31%;transform:scale(1.2);transform-origin:50% 62%;pointer-events:none}
+.ws-slide{will-change:transform;transform-origin:50% 62%}
 .ws-daybar{margin:-6px 18px 0;position:relative;z-index:6;flex-shrink:0}
 .ws-card{flex-shrink:0}
 .ws-card .ws-sub{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.ws-peek{all:unset;position:absolute;top:34%;width:46%;cursor:pointer;z-index:1;opacity:.6;filter:brightness(.75) saturate(.85)}
-.ws-peek.l{left:-19%}.ws-peek.r{right:-19%}
-.ws-peek img{display:block;width:100%;aspect-ratio:780/880}
-.ws-track{position:absolute;inset:0;z-index:2;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.ws-track{position:absolute;inset:0;z-index:2;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.ws-track::before,.ws-track::after{content:"";flex:0 0 19%}
+.ws-zoom .ws-ign{pointer-events:auto}
 .ws-track::-webkit-scrollbar{display:none}
-.ws-slide{flex:0 0 100%;scroll-snap-align:center;position:relative}
+.ws-slide{flex:0 0 62%;scroll-snap-align:center;scroll-snap-stop:always;position:relative}
 .ws-slide img{display:block;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none;pointer-events:none}
 .ws-slide.ws-dark .ws-zoom>img{filter:grayscale(1) brightness(.42) contrast(1.08)}
-.ws-peek.ws-dark img{filter:grayscale(1) brightness(.6)}
 .ws-ign{position:absolute;pointer-events:none;transition:opacity .7s}
 .ws-ign img,.ws-ign canvas{position:absolute;inset:0;width:100%;height:100%}
 .ws-ign img.c{visibility:hidden;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
@@ -448,6 +465,7 @@ document.addEventListener("click", e => {
       else if (f === "rest") { const cur = Number(x.rest) || (typeof restFor === "function" ? restFor(id) : 90), i = WSB_REST.findIndex(v => v >= cur); x.rest = WSB_REST[Math.max(0, Math.min(WSB_REST.length - 1, (i < 0 ? WSB_REST.length - 1 : i) + s))] } });
     return }
   const sl = t.closest(".ws-slide");
+  if (sl && !t.closest(".ws-ign") && sl.dataset.wsday !== ymd(sel)) { const tr = document.getElementById("wsTrack"); if (tr) tr.scrollTo({ left: sl.offsetLeft - (tr.clientWidth - sl.offsetWidth) / 2, behavior: "smooth" }); return }
   if (sl && !t.closest(".ws-ign")) { const k = sl.dataset.wsday, p = inProgram(parseYmd(k)) ? planFor(parseYmd(k)) : null;
     if (!p || p.type === "rest" || (p.type === "gym" && !(p.ex || []).length)) return;
     if (k !== ymd(sel)) return;
