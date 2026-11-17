@@ -96,6 +96,21 @@
 .lvp-th{padding:4px 2px 4px;border-top:1px solid color-mix(in srgb,var(--mt-m) 25%,transparent);font:800 8px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--mt-t)}.lvp-th span:last-child{text-align:right}
 .lvp-tr{padding:6px 2px;border-top:1px solid rgba(245,241,230,.06);font:700 12.5px/1.1 "Barlow Semi Condensed",sans-serif}.lvp-tr>span:first-child{color:#8F97A6}.lvp-tr em{margin-left:3px;font-style:normal;font-size:9px;color:#E8C27A}
 .lvp-tr.no{color:#5C6370}.lvp-tr .ok{text-align:right;color:var(--rk-mid);letter-spacing:.06em;text-transform:uppercase;font-size:11px}.lvp-tr .op{text-align:right;color:rgba(232,194,122,.75);letter-spacing:.1em;text-transform:uppercase;font-size:11px}
+.lvp-trb{width:100%;border:0;border-top:1px solid rgba(245,241,230,.06);background:none;color:inherit;text-align:left;cursor:pointer;font:700 12.5px/1.1 "Barlow Semi Condensed",sans-serif;touch-action:manipulation;border-radius:0}
+.lvp-trb.on{background:color-mix(in srgb,var(--mt-l) 7%,transparent);box-shadow:inset 2px 0 0 var(--mt-l)}
+.lvp-tr .ok{white-space:nowrap}.lvp-tr .ok.pe{color:var(--mt-l)}.lvp-tr .ok.ed{color:#E8C27A}
+.lvp-pe{padding:10px 4px 12px;border-top:1px solid rgba(245,241,230,.06);background:color-mix(in srgb,var(--mt-l) 4%,transparent);animation:lvAskIn .16s ease-out}
+.lvp-pfs{display:flex;gap:10px}.lvp-pf{flex:1;min-width:0}
+.lvp-pf>span{display:block;font:800 8.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--mt-t);margin-bottom:6px}
+.lvp-ps{display:flex;align-items:stretch;border:1px solid color-mix(in srgb,var(--mt-m) 55%,transparent);border-radius:9px;overflow:hidden}
+.lvp-ps button{width:34px;flex-shrink:0;border:0;background:color-mix(in srgb,var(--mt-m) 12%,transparent);color:var(--mt-l);font:900 16px/1 "Barlow Semi Condensed",sans-serif;cursor:pointer;touch-action:manipulation}
+.lvp-ps label{flex:1;min-width:0;display:flex;align-items:baseline;justify-content:center;gap:3px;padding:8px 2px}
+.lvp-ps input{width:100%;min-width:0;max-width:64px;border:0;background:none;color:#F5F1E6;text-align:center;font:900 18px/1 "Barlow Semi Condensed",sans-serif;padding:0}
+.lvp-ps input:focus{outline:none;border-bottom:1px solid var(--mt-l)}.lvp-ps small{font:700 10px/1 "Barlow Semi Condensed",sans-serif;color:#8F97A6}
+.lvp-pb{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px}.lvp-pb>span:first-child{font:700 11px/1.3 "Barlow Semi Condensed",sans-serif;color:#8F97A6}
+.lvp-pb>span:last-child{display:flex;gap:8px}
+.lvp-pb button{padding:9px 13px;border-radius:9px;border:1px solid rgba(245,241,230,.18);background:none;color:#C9CED7;font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;cursor:pointer}
+.lvp-pb button.go{background:linear-gradient(180deg,var(--rk),var(--rk-d));border:1.5px solid var(--mt-m);color:var(--rk-ink)}
 .lvp-note{margin:12px 0 10px;font-size:11.5px;line-height:1.4;text-align:center;color:#8F97A6}.lvp-note b{color:#E8C27A}
 .lvp-b{display:flex;gap:8px}
 .lvp-b button{flex:1;height:50px;border-radius:14px;cursor:pointer;font:800 12.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;touch-action:manipulation}
@@ -2026,9 +2041,18 @@ function closeLive(){ liveOpen=false; renderLive(); tick(); lastRenderKey=""; re
 let lvAsk=false;
 function cancelLive(k){ lvAsk=false; stopWorkout(); if(typeof RL!=="undefined"&&RL&&RL.k===k){ RL=null; try{localStorage.removeItem("ru-runlive")}catch(e){} }
   if(k) clearDrafts(k,TRAIN_RE); liveOpen=false; renderLive(); lastRenderKey=""; render(); toast("Cancelled. Nothing was saved.") }
-document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&lvAsk&&liveOpen){ lvAsk=false; renderLive() } else if(e.key==="Escape"&&liveOpen&&TM.paused){ resumeWorkout(); renderLive(); tick() } });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&lvAsk&&liveOpen){ lvAsk=false; renderLive() } else if(e.key==="Escape"&&liveOpen&&TM.paused&&lvPe){ lvPe=null; renderLive() } else if(e.key==="Escape"&&liveOpen&&TM.paused){ resumeWorkout(); renderLive(); tick() } });
 /* ---------- Paused: the timer stops and a review of every set opens ---------- */
 let lvPx=new Set();   // exercises opened in the pause sheet
+// fixing a logged set from the pause sheet: the open strip, and which sets were changed this session
+let lvPe=null; const lvPeEd=new Set();
+function lvPeOpen(k,id,i){ const st=gymSteps(k,planFor(parseYmd(k))).find(x=>x.ex.id===id&&x.i===i); if(!st) return; const v=setValsK(k,st);
+  lvPe={k,id,i,w:String(v.w??""),r:String(v.r??""),ow:String(v.w??""),or:String(v.r??"")} }
+function lvPeNum(x){ const n=parseFloat(String(x).replace(",",".")); return isFinite(n)?n:0 }
+function lvPeSave(){ const e=lvPe; if(!e) return; lvPe=null;
+  const w=String(+lvPeNum(e.w).toFixed(2)), r=String(Math.max(0,Math.round(lvPeNum(e.r))));
+  if(w===String(+lvPeNum(e.ow).toFixed(2))&&r===String(Math.round(lvPeNum(e.or)))) return;
+  drafts[dkey(e.k,`w-${e.id}-${e.i}`)]=w; drafts[dkey(e.k,`r-${e.id}-${e.i}`)]=r; lvPeEd.add(`${e.id}|${e.i}`); persistDrafts() }
 function lvSetVals(k,s){ const v=setValsK(k,s), f=fmtOf(s.ex); return {w:fromU(Number(v.w)||0),r:f==="dt"?parseDur(v.r):Number(v.r)||0,m:Number(v.m)||0} }
 function lvPauseHtml(k,p){
   const steps=gymSteps(k,p), done=steps.filter(s=>s.done), left=steps.length-done.length; let vol=0, reps=0;
@@ -2044,6 +2068,14 @@ function lvPauseHtml(k,p){
     const tgt=s=>{ const r=s.t&&s.t.reps&&s.t.reps[s.i]; return s.t&&s.t.first? "—" : (r!=null&&r!==""? (f==="dt"?fmtDur(r):r) : "—") };
     const head= wr? `<span>Set</span><span>Weight</span><span>Reps</span><span>Status</span>` : `<span>Set</span><span class="w2">Result</span><span>Status</span>`;
     const body=ss.map(s=>{ const ty=setTypeK(k,ex.id,s.i), n=`${s.i+1}${ty?`<em>${esc(SET_TYPES[ty]?SET_TYPES[ty].l:ty.toUpperCase())}</em>`:""}`;
+      if(s.done&&F.b==="reps"){ const v=vals.get(s.i), on=lvPe&&lvPe.id===ex.id&&lvPe.i===s.i, ed=lvPeEd.has(`${ex.id}|${s.i}`);
+        const stt=on?`<span class="ok pe">Editing</span>`:ed?`<span class="ok ed">✎ Edited</span>`:`<span class="ok">✓ Logged</span>`;
+        const row= wr? `<button type="button" class="lvp-tr lvp-trb${on?" on":""}" data-lvpe="${esc(ex.id)}|${s.i}" aria-expanded="${on}" aria-label="Fix set ${s.i+1}"><span>${n}</span><b>${v.w?`${toU(v.w)}${db?"/DB":""} ${uL()}`:"BW"}</b><b>${v.r}</b>${stt}</button>`
+          : `<button type="button" class="lvp-tr lvp-trb${on?" on":""}" data-lvpe="${esc(ex.id)}|${s.i}" aria-expanded="${on}" aria-label="Fix set ${s.i+1}"><span>${n}</span><b class="w2">${esc(setTxt(f,v,db))}</b>${stt}</button>`;
+        if(!on) return row;
+        const fld=(lab,key,val,unit)=>`<div class="lvp-pf"><span>${lab}</span><div class="lvp-ps"><button type="button" data-lvpe-d="${key}|-1" aria-label="Less ${lab.toLowerCase()}">−</button><label><input data-lvpe-in="${key}" inputmode="decimal" value="${esc(val)}" aria-label="${lab}">${unit?`<small>${unit}</small>`:""}</label><button type="button" data-lvpe-d="${key}|1" aria-label="More ${lab.toLowerCase()}">+</button></div></div>`;
+        const was=`${F.w?`${lvPe.ow||"BW"}${F.w&&lvPe.ow?` ${uL()}`:""} × `:""}${lvPe.or}`;
+        return row+`<div class="lvp-pe"><div class="lvp-pfs">${F.w?fld("Weight","w",lvPe.w,uL()+(db?"/DB":"")):""}${fld("Reps","r",lvPe.r,"")}</div><div class="lvp-pb"><span>Was ${esc(was)}</span><span><button type="button" data-lvpe-undo>Undo</button><button type="button" class="go" data-lvpe-save>Save</button></span></div></div>` }
       if(s.done){ const v=vals.get(s.i); return wr? `<div class="lvp-tr"><span>${n}</span><b>${v.w?`${toU(v.w)}${db?"/DB":""} ${uL()}`:"BW"}</b><b>${v.r}</b><span class="ok">✓ Logged</span></div>`
         : `<div class="lvp-tr"><span>${n}</span><b class="w2">${esc(setTxt(f,v,db))}</b><span class="ok">✓ Logged</span></div>` }
       return wr? `<div class="lvp-tr no"><span>${n}</span><span>—</span><span>${esc(String(tgt(s)))}</span><span class="op">Open</span></div>` : `<div class="lvp-tr no"><span>${n}</span><span class="w2">—</span><span class="op">Open</span></div>` }).join("");
@@ -2066,7 +2098,7 @@ function lvLogNow(k,p){ const steps=gymSteps(k,p), log=S.logs[k], ex={}, db={}, 
   if(!Object.keys(ex).length){ toast("Log at least one set first"); return }
   const durMin=tmEl()/60000, notes=String(drafts[dkey(k,"gnotes")]||"").trim();
   const newLog={type:"gym",day:p.day,ex,db,fmt,durMin,notes,savedAt:Date.now()}; const prs=findPRs(k,newLog); if(prs.length) newLog.prs=prs;
-  stopWorkout(); lvPx=new Set(); liveOpen=false; clearDrafts(k,TRAIN_RE); renderLive(); tab="home"; sel=parseYmd(k);
+  stopWorkout(); lvPx=new Set(); lvPe=null; lvPeEd.clear(); liveOpen=false; clearDrafts(k,TRAIN_RE); renderLive(); tab="home"; sel=parseYmd(k);
   saveLog(k,newLog).then(()=>{ toast(prs.length?`New PR: ${prs.map(id=>(p.ex.find(e=>e.id===id)||{name:id}).name).join(", ")} 🎉`:"Session saved"); lastRenderKey=""; render(); if(typeof routineAsk==="function") setTimeout(()=>routineAsk(k),700); setTimeout(maybeAutoAdvice,1500) });
   lastRenderKey=""; render() }
 function renderLive(){
@@ -2134,9 +2166,15 @@ function renderLive(){
     if(q("lvKeep")) q("lvKeep").onclick=()=>{ lvAsk=false; renderLive() };
     if(q("lvCancelYes")) q("lvCancelYes").onclick=()=>cancelLive(k);
     if(q("lvPause")) q("lvPause").onclick=()=>{ pauseWorkout(); renderLive(); setTimeout(()=>q("lvResume")&&q("lvResume").focus({preventScroll:true}),0) };
-    const resume=()=>{ resumeWorkout(); renderLive(); tick() };
+    const resume=()=>{ lvPeSave(); resumeWorkout(); renderLive(); tick() };
     if(q("lvResume")) q("lvResume").onclick=resume; if(q("lvResumeX")) q("lvResumeX").onclick=resume;
-    if(q("lvLogNow")) q("lvLogNow").onclick=()=>lvLogNow(k,p);
+    if(q("lvLogNow")) q("lvLogNow").onclick=()=>{ lvPeSave(); lvLogNow(k,p) };
+    box.querySelectorAll("[data-lvpe]").forEach(b=>b.onclick=()=>{ const [id,i]=b.dataset.lvpe.split("|"), on=lvPe&&lvPe.id===id&&lvPe.i===+i; lvPe=null; if(!on) lvPeOpen(k,id,+i); renderLive() });
+    box.querySelectorAll("[data-lvpe-d]").forEach(b=>b.onclick=()=>{ if(!lvPe) return; const [key,d]=b.dataset.lvpeD.split("|"); const step=key==="w"?(uL()==="kg"?2.5:5):1;
+      lvPe[key]=String(Math.max(0,+(lvPeNum(lvPe[key])+step*(+d)).toFixed(2))); renderLive() });
+    box.querySelectorAll("[data-lvpe-in]").forEach(inp=>{ inp.oninput=()=>{ if(lvPe) lvPe[inp.dataset.lvpeIn]=inp.value }; inp.onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); lvPeSave(); renderLive() } } });
+    box.querySelectorAll("[data-lvpe-undo]").forEach(b=>b.onclick=()=>{ if(lvPe){ lvPe.w=lvPe.ow; lvPe.r=lvPe.or; renderLive() } });
+    box.querySelectorAll("[data-lvpe-save]").forEach(b=>b.onclick=()=>{ lvPeSave(); renderLive() });
     box.querySelectorAll("[data-lvpx]").forEach(b=>b.onclick=()=>{ const id=b.dataset.lvpx; lvPx.has(id)?lvPx.delete(id):lvPx.add(id); renderLive() });
     // only the tower scrolls: keep the current floor in view
     const tw=box.querySelector(".lvt-tower"), cf=tw&&tw.querySelector('[aria-current="step"]'); if(cf){ const r=cf.offsetTop-tw.offsetTop, vis=tw.scrollTop<=r&&r+cf.offsetHeight<=tw.scrollTop+tw.clientHeight; if(!vis) tw.scrollTop=Math.max(0,r-tw.clientHeight/2+cf.offsetHeight/2) } }); liveTick(); if(typeof gameLive==="function") gameLive(box,{k,type:p.type,state:liveState});
