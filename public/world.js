@@ -350,6 +350,7 @@ function wsbLast(ex, k) {
     return setTxt(fmtOf(ex), top, logDb(ex.id, l)) } catch (_) { return "" }
 }
 function wsbDia(c, fill) { return `<i class="wsb-dia" style="--c:${c}"${fill ? ' data-fill="1"' : ""}></i>` }
+const WSB_HOLDS = ["plank", "sideplank", "deadhang", "wallsit", "hollow", "farmerhold", "lsit"];
 function wsbStep(lab, attr, val) { return `<div class="wsb-st"><span>${lab}</span><div><button type="button" data-wsbstep="${attr}|-1" aria-label="Less ${lab.toLowerCase()}">−</button><b>${val}</b><button type="button" data-wsbstep="${attr}|1" aria-label="More ${lab.toLowerCase()}">+</button></div></div>` }
 function wsbHtml(p, k, pick) {
   const d = parseYmd(k), when = k === ymd(today) ? "TODAY" : wsDayTxt(d), log = S.logs[k];
@@ -375,13 +376,21 @@ function wsbHtml(p, k, pick) {
           pan += `<div class="wsb-acts"><button type="button" data-wslog="1">VIEW THE FULL LOG</button></div>`;
         } else {
           const re = R && R.ex.find(x => x.id === e.id);
-          if (re) pan += `<div class="wsb-steps">${wsbStep("SETS", `${e.id}|sets`, re.sets)}${wsbStep(isSec(e) ? "SECONDS" : "REPS", `${e.id}|reps`, re.lo === re.hi ? re.lo : `${re.lo}–${re.hi}`)}${wsbStep("REST", `${e.id}|rest`, fmtClock((re.rest || rest) * 1000))}</div>`;
+          const tmd = typeof htCfg === "function" && FMT[fmtOf(e)] && FMT[fmtOf(e)].b === "sec";
+          if (re && tmd) { const c = htCfg(e.id); pan += `<div class="wsb-steps">${wsbStep("SETS", `${e.id}|sets`, re.sets)}${wsbStep("HOLD (SEC)", `${e.id}|reps`, re.lo === re.hi ? re.lo : `${re.lo}–${re.hi}`)}${wsbStep("REST", `${e.id}|rest`, fmtClock((re.rest || rest) * 1000))}</div>
+            <div class="wsb-tm">${wsbStep("SET-UP", `${e.id}|setup`, `${c.setup} s`)}<div class="wsb-tmw"><span>TIMER MODE</span><div class="wsb-seg" role="group" aria-label="Timer mode"><button type="button" data-wsbtm="${esc(e.id)}|timer" class="${c.mode === "timer" ? "on" : ""}" aria-pressed="${c.mode === "timer"}">⏱ TIMER</button><button type="button" data-wsbtm="${esc(e.id)}|watch" class="${c.mode === "watch" ? "on" : ""}" aria-pressed="${c.mode === "watch"}">◷ STOPWATCH</button></div></div></div>
+            <p class="wsb-tmn">Timer counts the hold down from the target; Stopwatch counts up until you stop. Set-up gives you time to get into position first.</p>` }
+          else if (re) pan += `<div class="wsb-steps">${wsbStep("SETS", `${e.id}|sets`, re.sets)}${wsbStep(isSec(e) ? "SECONDS" : "REPS", `${e.id}|reps`, re.lo === re.hi ? re.lo : `${re.lo}–${re.hi}`)}${wsbStep("REST", `${e.id}|rest`, fmtClock((re.rest || rest) * 1000))}</div>`;
           try { pan += exerciseBlock(e, k, null) } catch (err) { pan += `<p class="wsb-note">This exercise can't be shown here.</p>` }
         }
         h += `<div class="wsb-pan${wsPop.fresh === key ? " new" : ""}">${pan}</div>`;
       }
       return `<div class="wsb-item">${h}</div>`;
     });
+    if (R && !log && typeof libEx === "function") {
+      const have = new Set(ex.map(e => e.id)), opts = WSB_HOLDS.filter(id => !have.has(id) && libEx(id));
+      if (opts.length) rows.push(`<div class="wsb-add"><div><b>+ ADD A TIMED HOLD</b><span>TIMER SET UP FOR YOU</span></div><div class="wsb-addc">${opts.map(id => `<button type="button" data-wsbhold="${id}">${esc(libEx(id).name)}</button>`).join("")}</div></div>`);
+    }
   } else {
     const spec = p.spec || {}, parts = [];
     String(p.d || "").split(", ").forEach((s, i) => { if (i && parts.length && !/^(\d|then \d+ strides)|to finish$/.test(s)) parts[parts.length - 1] += `, ${s}`; else parts.push(s) });  // a new stage starts with an amount
@@ -471,7 +480,15 @@ document.addEventListener("click", e => {
   if (t.closest("[data-wsbx]")) { wsbClose(); return }
   const row = t.closest("[data-wsbrow]");
   if (row) { const i = row.dataset.wsbrow; wsPop.open = wsPop.open === i ? null : i; wsPop.reveal = wsPop.open; wsPop.fresh = wsPop.open; lastRenderKey = ""; render(); return }
+  const tmb = t.closest("[data-wsbtm]");
+  if (tmb) { const [id, m] = tmb.dataset.wsbtm.split("|"); htCfgSet(id, { mode: m }); return }
+  const hb = t.closest("[data-wsbhold]");
+  if (hb) { const id = hb.dataset.wsbhold, L = libEx(id), p = planFor(sel), tw = L && L.type === "tw";
+    suMut(su => { const r = wsbRoutine(su, p); if (r && !r.ex.some(e => e.id === id)) r.ex.push({ id, sets: 3, lo: tw ? 20 : 30, hi: tw ? 30 : 60, rest: 60 }) });
+    wsPop.open = id; wsPop.fresh = id; toast(`${L ? L.name : "Hold"} added, with a timer`); return }
   const st = t.closest("[data-wsbstep]");
+  if (st && st.dataset.wsbstep.split("|")[1] === "setup") { const [id, , dir] = st.dataset.wsbstep.split("|"), c = htCfg(id), j = Math.max(0, HT_SETUPS.indexOf(c.setup));
+    htCfgSet(id, { setup: HT_SETUPS[Math.max(0, Math.min(HT_SETUPS.length - 1, j + (+dir)))] }); return }
   if (st) { const [id, f, dir] = st.dataset.wsbstep.split("|"), s = +dir, p = planFor(sel);
     suMut(su => { const r = wsbRoutine(su, p), x = r && r.ex.find(e => e.id === id); if (!x) return;
       if (f === "sets") x.sets = Math.max(1, Math.min(10, (x.sets || 3) + s));
@@ -509,6 +526,18 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && wsPop && !
 .wsb-lw{position:relative;flex:1;min-height:0}
 .wsb-list{height:100%;overflow-y:auto;overscroll-behavior:contain;padding-right:12px;scrollbar-width:none;-webkit-mask-image:linear-gradient(180deg,transparent,#000 18px,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(180deg,transparent,#000 18px,#000 calc(100% - 30px),transparent)}
 .wsb-list::-webkit-scrollbar{display:none}
+.wsb-tm{display:grid;grid-template-columns:1fr 1.5fr;gap:8px;margin-top:10px}
+.wsb-tmw{min-width:0;display:flex;flex-direction:column}.wsb-tmw>span{display:block;margin-bottom:6px;font:800 9px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.2em;color:var(--mt-t)}.wsb-tmw .wsb-seg{flex:1}.wsb-seg{display:flex;height:100%;min-height:38px;border:1px solid color-mix(in srgb,var(--mt-m) 55%,transparent);border-radius:10px;overflow:hidden}
+.wsb-seg button{flex:1;border:0;background:none;color:#8F97A6;font:800 9.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.06em;white-space:nowrap;cursor:pointer}
+.wsb-seg button.on{background:color-mix(in srgb,var(--rk) 22%,transparent);color:var(--rk-core)}
+.wsb-tmn{margin:8px 0 0;font:600 11.5px/1.35 Barlow,sans-serif;color:#8F97A6}
+.wsb-add{margin:12px 0 4px;border-radius:12px;border:1px dashed color-mix(in srgb,var(--mt-l) 50%,transparent);padding:12px}
+.wsb-add>div:first-child{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.wsb-add b{font:800 11px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.2em;color:var(--mt-l)}.wsb-add span{font:700 9.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.12em;color:#8F97A6}
+.wsb-addc{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.wsb-addc button{padding:8px 11px;border-radius:999px;border:1px solid rgba(245,241,230,.18);background:none;color:#E6E2D8;font:700 12px/1 Barlow,sans-serif;cursor:pointer}
+.wsb-addc button:focus-visible,.wsb-seg button:focus-visible{outline:2px solid var(--mt-l);outline-offset:2px}
+
 .wsb-list.at-top{-webkit-mask-image:linear-gradient(180deg,#000,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(180deg,#000,#000 calc(100% - 30px),transparent)}
 .wsb-list.at-end{-webkit-mask-image:linear-gradient(180deg,transparent,#000 18px);mask-image:linear-gradient(180deg,transparent,#000 18px)}
 .wsb-list.at-top.at-end{-webkit-mask-image:none;mask-image:none}

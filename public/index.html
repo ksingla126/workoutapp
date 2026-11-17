@@ -111,6 +111,45 @@
 .lvp-pb>span:last-child{display:flex;gap:8px}
 .lvp-pb button{padding:9px 13px;border-radius:9px;border:1px solid rgba(245,241,230,.18);background:none;color:#C9CED7;font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;cursor:pointer}
 .lvp-pb button.go{background:linear-gradient(180deg,var(--rk),var(--rk-d));border:1.5px solid var(--mt-m);color:var(--rk-ink)}
+
+/* hold timer: floating HP bar over the mob, and the running set row */
+.htb{width:min(250px,92%);margin:6px auto 0;animation:htbF 3s ease-in-out infinite}
+@keyframes htbF{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.htb-l{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;font:800 9px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.2em;color:var(--rk-mid)}
+.htb-l b{color:#F5F1E6;font-size:11px;letter-spacing:.06em}.htb-l .g,.htb .g{color:#E8C27A}.htb-l .r{color:#E0675A}
+.htb-f{position:relative;padding:2px;border-radius:5px;background:linear-gradient(90deg,var(--mt-d),var(--mt-m) 35%,var(--mt-l) 50%,var(--mt-m) 65%,var(--mt-d));box-shadow:0 6px 16px rgba(0,0,0,.6),0 0 14px color-mix(in srgb,var(--rk-mid) 30%,transparent)}
+.htb-t{position:relative;height:6px;margin:2px;border-radius:2px;background:#05070A;box-shadow:inset 0 0 0 1px rgba(245,241,230,.06)}
+.htb-t i,.htr i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:linear-gradient(180deg,rgba(255,255,255,.28),transparent 55%),var(--rk-mid);transition:background .2s}
+.htb-t i.cha,.htr i.cha{background:linear-gradient(180deg,rgba(255,255,255,.28),transparent 55%),color-mix(in srgb,var(--rk-mid) 70%,#fff)}
+.htb-t i.low,.htr i.low{background:linear-gradient(180deg,rgba(255,255,255,.28),transparent 55%),#E0675A}
+.htb-t i.gold,.htr i.gold{background:linear-gradient(180deg,rgba(255,255,255,.3),transparent 55%),#E8C27A}
+.htb-t u{position:absolute;top:0;bottom:0;width:1.5px;transform:translateX(-50%);background:rgba(5,7,10,.85)}
+.htb-t u.m{top:-5px;bottom:-5px;width:2px;background:var(--mt-l);box-shadow:0 0 4px var(--mt-l)}
+.htb-t em{position:absolute;top:-5px;bottom:-5px;width:2px;transform:translateX(-50%);background:#E8C27A;box-shadow:0 0 6px #E8C27A}
+.htb-f s{position:absolute;left:-7px;top:50%;width:8px;height:8px;transform:translate(0,-50%) rotate(45deg);background:var(--mt-l);box-shadow:0 0 6px var(--mt-l)}.htb-f s.r{left:auto;right:-7px}
+.htb span,.htb b,.lvt-amt span,.lvt-amt small,.lvt-sub span{background:none!important;border:0!important;padding:0!important;margin:0!important;border-radius:0!important;box-shadow:none!important;display:inline!important;min-width:0!important;height:auto!important;font-size:inherit}
+.htb-l span{font-size:9px!important}.htb-l b{font-size:11px!important}.lvt-amt small{font-size:.45em!important}
+.lvt-amt .g,.lvt-sub .g{color:#E8C27A}.lvt-amt .r,.lvt-sub .r{color:#E0675A}.lvt-amt small{font-size:.45em}
+.htc{width:100%;margin-top:12px}
+.htseg{display:flex;border:1px solid rgba(245,241,230,.16);border-radius:999px;padding:3px;gap:2px}
+.htseg button{flex:1;padding:8px 0;border:0;border-radius:999px;background:none;font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;color:#8F97A6;cursor:pointer;white-space:nowrap}
+.htseg button.on{background:color-mix(in srgb,var(--rk) 22%,transparent);color:var(--rk-core);box-shadow:inset 0 0 0 1px var(--rk-mid)}
+.htrow{display:flex;gap:8px;align-items:center;margin-top:10px}
+.htchip{display:inline-flex;align-items:center;gap:6px;padding:8px 11px;border-radius:10px;border:1px solid color-mix(in srgb,var(--mt-l) 50%,transparent);background:color-mix(in srgb,var(--mt-m) 10%,transparent);font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;color:var(--mt-l);white-space:nowrap;cursor:pointer}
+.htchip b{color:#F5F1E6;font-size:12px;letter-spacing:.04em}.htchip.ro{cursor:default}.htchip.end{margin-left:auto}
+.htlink{display:block;width:100%;margin-top:10px;border:0;background:none;color:#8F97A6;font:700 12px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.08em;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.htduo{display:flex;gap:8px}.htduo button{flex:1;height:52px;border-radius:14px;border:1px solid rgba(245,241,230,.2);background:none;color:#C9CED7;font:800 12px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;cursor:pointer}
+.htduo button.x{border-color:rgba(224,103,90,.5);color:#F0A39A}
+.htgold{width:100%;height:56px;border-radius:14px;border:2px solid var(--mt-l);background:linear-gradient(180deg,#F0CF8A,#C99A45);color:#1A1203;font:900 14px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.18em;text-transform:uppercase;cursor:pointer}
+.htnote{margin-top:12px;padding:10px 12px;border-radius:12px;border:1px solid rgba(232,194,122,.45);background:rgba(232,194,122,.07);font:700 12.5px/1.35 Barlow,sans-serif;color:#E6E2D8;text-align:left}
+.htnote b{color:#F5F1E6}
+.htp{width:36px;height:36px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--rk-mid);color:var(--rk-mid);background:color-mix(in srgb,var(--rk) 12%,transparent);font:900 12px/1 "Barlow Semi Condensed",sans-serif;cursor:pointer;margin-right:6px;padding:0}
+.htr{flex:1;position:relative;height:40px;border-radius:10px;overflow:hidden;border:1px solid var(--rk-mid);background:#07090B;display:flex;align-items:center;justify-content:space-between;padding:0 12px;font:900 16px/1 "Barlow Semi Condensed",sans-serif;color:#F5F1E6}
+.htr i{border-radius:0;opacity:.5}.htr span{position:relative;font:800 9.5px/1 "Barlow Semi Condensed",sans-serif!important;letter-spacing:.18em;color:var(--rk-core)!important}.htr b{position:relative;color:#F5F1E6!important;white-space:nowrap}
+.set.run.gold .htr{border-color:#E8C27A}.set.run.gold .htr span{color:#E8C27A}
+.htx{width:36px;height:36px;flex-shrink:0;border-radius:9px;display:grid;place-items:center;border:1px solid rgba(224,103,90,.55);background:none;color:#F0A39A;font:900 12px/1 "Barlow Semi Condensed",sans-serif;margin-left:6px;cursor:pointer;padding:0}
+.htx.gold{border-color:#E8C27A;color:#1A1203;background:#E8C27A}
+@media (prefers-reduced-motion:reduce){.htb{animation:none}.htb-t i{transition:none}}
 .lvp-note{margin:12px 0 10px;font-size:11.5px;line-height:1.4;text-align:center;color:#8F97A6}.lvp-note b{color:#E8C27A}
 .lvp-b{display:flex;gap:8px}
 .lvp-b button{flex:1;height:50px;border-radius:14px;cursor:pointer;font:800 12.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;touch-action:manipulation}
@@ -1563,7 +1602,9 @@ function exerciseBlock(ex,k,log){
     const num=`<button type="button" class="setno ${ty}" data-settype="${ex.id}|${i}" aria-haspopup="menu" aria-label="Set ${i+1} type: ${SET_TYPES[ty]?SET_TYPES[ty].name:"normal"}. Tap to change">${lab}</button>`;
     const chk=`<button type="button" class="chk ${done?"on":""}" data-chk="${ex.id}|${i}" aria-pressed="${done}" aria-label="Mark ${esc(ex.name)} set ${i+1} done">✓</button>`;
     const hit=G&&G.hits.includes(i)?" gate-hit":"";
-    h+=`<div class="set ${done?"done":""}${hit}" id="set-${ex.id}-${i}">${num}${setBoxes(ex,i,{w:sw,r:sr,m:sm},ph,db)}${chk}</div>`;
+    const timed=FMT[fmtOf(ex)]&&FMT[fmtOf(ex)].b==="sec"&&!(log&&log.ex), runH=timed&&HOLD&&HOLD.where==="row"&&HOLD.k===k&&HOLD.id===ex.id&&HOLD.i===i;
+    if(runH){ const v=htView(); h+=`<div class="set run${v.gold?" gold":""}" id="set-${ex.id}-${i}">${num}<div class="htr" data-htrun><i data-ht="fill" class="${v.fc}" style="width:${(v.fill*100).toFixed(2)}%"></i><span data-ht="short">${v.short}</span><b data-ht="rv">${v.rv}</b></div><button type="button" class="htx${v.gold?" gold":""}" ${HOLD.phase==="setup"?"data-htcancel":"data-htstop"} aria-label="${HOLD.phase==="setup"?"Cancel the timer":"Stop and log"}">■</button></div>` }
+    else h+=`<div class="set ${done?"done":""}${hit}" id="set-${ex.id}-${i}">${num}${timed&&!done?`<button type="button" class="htp" data-htrow="${k}|${ex.id}|${i}" aria-label="Start the timer for set ${i+1}">▶</button>`:""}${setBoxes(ex,i,{w:sw,r:sr,m:sm},ph,db)}${chk}</div>`;
   }
   h+=`</div>`;
   const pl=plateable(ex,db);
@@ -1971,9 +2012,69 @@ if(TM.start && (TM.paused||Date.now())-TM.start>5*3600000) TM={start:0,date:"",r
 function saveTM(){try{localStorage.setItem("rd25-timer",JSON.stringify(TM))}catch(e){}}
 // time on the workout clock; a paused workout's clock stands still
 const tmEl=()=>TM.start?Math.max(0,(TM.paused||Date.now())-TM.start):0;
-function pauseWorkout(){ if(!TM.start||TM.paused) return; TM.paused=Date.now(); saveTM(); tick() }
+
+/* ---------- Hold timer: a set-up countdown, then the hold (or a stopwatch) for timed sets ---------- */
+const HT_SETUPS=[0,3,5,10,15], HT_GRACE=3;
+let HOLD=null, htRaf=0;   // {k,id,i,where:"live"|"row",mode,setup,target,phase,t0,pz}
+function htCfg(id){ const c=(((S.profile||{}).setup||{}).timers||{})[id]||{}; return {setup:c.setup??5, mode:c.mode==="watch"?"watch":"timer"} }
+function htCfgSet(id,patch){ suMut(su=>{ su.timers=su.timers||{}; su.timers[id]={...htCfg(id),...patch} }) }
+function htSoundOn(){ return ((S.profile||{}).setup||{}).timerSound!==false }
+function htBeep(ms){ if(htSoundOn()){ try{ beep() }catch(e){} } try{ navigator.vibrate&&navigator.vibrate(ms||120) }catch(e){} }
+const htClk=s=>fmtClock(Math.max(0,s)*1000);
+function htNow(){ const h=HOLD, el=((h.pz||Date.now())-h.t0)/1000; return {el, left:(h.phase==="setup"?h.setup:h.target)-el} }
+function htStart(k,id,i,target,where){ unlockAudio(); const c=htCfg(id);
+  HOLD={k,id,i,where,mode:c.mode,setup:c.setup,target:Math.max(1,Math.round(target)||30),phase:c.setup>0?"setup":(c.mode==="watch"?"watch":"hold"),t0:Date.now(),pz:0};
+  if(HOLD.phase!=="setup") htBeep(); htRedraw(true); htLoop() }
+function htLoop(){ if(htRaf) return; const f=()=>{ htRaf=0; if(!HOLD) return; htStep(); htRaf=requestAnimationFrame(f) }; htRaf=requestAnimationFrame(f) }
+function htStep(){ const h=HOLD; if(!h||h.pz) return; const x=htNow();
+  if(h.phase==="setup"&&x.left<=0){ h.t0+=h.setup*1000; h.phase=h.mode==="watch"?"watch":"hold"; htBeep(); return htRedraw(true) }
+  if(h.phase==="hold"&&x.left<=0){ h.t0+=h.target*1000; h.phase="grace"; htBeep(260); return htRedraw(true) }
+  if(h.phase==="grace"&&x.el>=HT_GRACE){ h.phase="over"; return htRedraw(true) }
+  if(h.phase==="hold"&&x.left<=3&&x.left>0&&h.tk!==Math.ceil(x.left)){ h.tk=Math.ceil(x.left); try{ navigator.vibrate&&navigator.vibrate(40) }catch(e){} }
+  htRedraw(false) }
+// seconds this set would log if stopped right now
+function htSecs(){ const h=HOLD, x=htNow(); return h.phase==="setup"?0 : h.phase==="hold"?Math.floor(x.el) : h.phase==="grace"?h.target : h.phase==="over"?h.target+Math.floor(x.el) : Math.floor(x.el) }
+// what the bar, the big number and the stop button say
+function htView(target){ const h=HOLD;
+  if(!h) return {lab:"MOB · READY",val:htClk(target),fill:1,fc:"",amt:`${target} s`,sub:"",short:"",end:""};
+  const x=htNow(), T=h.target;
+  if(h.phase==="setup") return {lab:"SET-UP · MOB SPAWNING",lc:"g",val:htClk(Math.ceil(x.left)),rv:htClk(Math.ceil(x.left)),fill:Math.min(1,x.el/(h.setup||1)),fc:"cha",amt:`<span class="g">${Math.max(1,Math.ceil(x.left))}</span>`,sub:`<span class="g">GET INTO POSITION</span>`,short:"GET SET",end:""};
+  if(h.phase==="hold"){ const low=x.left<=5; return {lab:"MOB HP",lc:low?"r":"",val:`${htClk(Math.ceil(x.left))} / ${htClk(T)}`,rv:htClk(Math.ceil(x.left)),fill:Math.max(0,x.left/T),fc:low?"low":"",amt:low?`<span class="r">${htClk(Math.ceil(x.left))}</span>`:htClk(Math.ceil(x.left)),sub:low?`<span class="r">ALMOST · HOLD ON</span>`:`HOLD · ${Math.floor(x.el)} S DONE`,short:"HOLD",end:`End · log ${Math.floor(x.el)} s`} }
+  if(h.phase==="grace") return {lab:"MOB DEFEATED",lc:"g",val:`0:00 / ${htClk(T)}`,rv:htClk(T),fill:0,fc:"",amt:`${htClk(T)}<small class="g"> ✓</small>`,sub:`<span class="g">MOB DEFEATED · STILL HOLDING? ${Math.max(1,Math.ceil(HT_GRACE-x.el))}</span>`,short:`STOP? ${Math.max(1,Math.ceil(HT_GRACE-x.el))}`,end:`Stop · log ${T} s`,gold:true};
+  if(h.phase==="over"){ const o=Math.floor(x.el); return {lab:`OVERKILL +${htClk(o)}`,lc:"g",val:htClk(T+o),rv:htClk(T+o),fill:Math.min(1,x.el/T),fc:"gold",amt:`${htClk(T+o)}<small class="g"> +${o}</small>`,sub:`<span class="g">OVERKILL · KEEP HOLDING</span>`,short:`+${htClk(o)}`,end:`Stop · log ${T+o} s`,gold:true} }
+  const el=Math.floor(x.el), past=el>=T;
+  return {lab:past?`OVERKILL +${htClk(el-T)}`:"STOPWATCH",lc:past?"g":"",val:htClk(el),rv:htClk(el),fill:Math.min(1,x.el/(2*T)),fc:"",mk:.5,amt:`${htClk(el)}<small> ▲</small>`,sub:past?`STOPWATCH · TARGET ${T} S ✓`:`STOPWATCH · TARGET ${T} S`,short:"◷",end:`Stop · log ${el} s`} }
+function htBar(v){ return `<div class="htb"><div class="htb-l"><span data-ht="lab" class="${v.lc||""}">${v.lab}</span><b data-ht="val">${v.val}</b></div><div class="htb-f"><div class="htb-t"><i data-ht="fill" class="${v.fc}" style="width:${(v.fill*100).toFixed(2)}%"></i><u style="left:25%"></u><u class="m" style="left:50%"></u><u style="left:75%"></u>${v.mk!=null?`<em style="left:${v.mk*100}%"></em>`:""}</div><s></s><s class="r"></s></div></div>` }
+function htRedraw(full){
+  if(full){ if(liveOpen) renderLive(); if(tab==="home"){ lastRenderKey=""; render() } return }
+  const box=document.querySelector("[data-htrun]"); if(!box||!HOLD) return; const v=htView();
+  const q=n=>box.querySelector(`[data-ht="${n}"]`), f=q("fill");
+  if(f){ f.style.width=(v.fill*100).toFixed(2)+"%"; if(f.className!==v.fc) f.className=v.fc }
+  const set=(n,html)=>{ const e=q(n); if(e&&e.innerHTML!==html) e.innerHTML=html };
+  set("lab",v.lab); const lb=q("lab"); if(lb&&lb.className!==(v.lc||"")) lb.className=v.lc||"";
+  set("val",v.val); set("rv",v.rv); set("amt",v.amt); set("sub",v.sub); set("short",v.short);
+  const e=document.getElementById("htEnd"); if(e&&v.end&&e.textContent!==v.end) e.textContent=v.end }
+function htCancel(){ HOLD=null; htRedraw(true) }
+function htPause(){ if(!HOLD) return; if(HOLD.pz){ HOLD.t0+=Date.now()-HOLD.pz; HOLD.pz=0 } else HOLD.pz=Date.now(); htRedraw(true) }
+function htSkipSetup(){ if(HOLD&&HOLD.phase==="setup"){ HOLD.t0=(HOLD.pz||Date.now()); HOLD.phase=HOLD.mode==="watch"?"watch":"hold"; htBeep(); htRedraw(true) } }
+function htStop(){ if(!HOLD) return; const h=HOLD, s=htSecs(); HOLD=null; if(s<=0){ htRedraw(true); return }
+  const k=h.k; drafts[dkey(k,`r-${h.id}-${h.i}`)]=String(s); drafts[dkey(k,`c-${h.id}-${h.i}`)]=true; drafts[dkey(k,"open-trainLog")]=true;
+  if(h.where==="live"){ const w=document.getElementById("lvW"); if(w&&w.value.trim()) drafts[dkey(k,`w-${h.id}-${h.i}`)]=w.value.trim() }
+  persistDrafts();
+  const over=(h.phase==="over"||(h.phase==="watch"&&s>h.target))?s-h.target:0;
+  toast(over?`Logged ${s} s · +${over} s overkill`:`Logged ${s} s`);
+  if(h.where==="live"&&liveOpen){ const p=planFor(parseYmd(k)), steps=gymSteps(k,p), idx=steps.findIndex(x=>x.ex.id===h.id&&x.i===h.i), cur=steps[idx];
+    if(TM.focus&&TM.focus.pick){ TM.focus={...TM.focus,pick:false}; saveTM() }
+    if(cur&&liveNext(steps,idx)>=0&&!(cur.inSS&&!cur.ssLast)) startRest(restFor(h.id)) }
+  htRedraw(true) }
+document.addEventListener("click",e=>{ const t=e.target;
+  const pr=t.closest("[data-htrow]"); if(pr){ e.preventDefault(); const [k,id,i]=pr.dataset.htrow.split("|"), inp=document.getElementById(`r-${id}-${i}`);
+    const tgt=parseInt(inp&&(inp.value||inp.placeholder),10)||30; if(HOLD) HOLD=null; htStart(k,id,+i,tgt,"row"); return }
+  if(t.closest("[data-htstop]")){ e.preventDefault(); htStop(); return }
+  if(t.closest("[data-htcancel]")){ e.preventDefault(); htCancel(); return } });
+function pauseWorkout(){ if(!TM.start||TM.paused) return; TM.paused=Date.now(); if(HOLD&&!HOLD.pz) HOLD.pz=Date.now(); saveTM(); tick() }
 // resuming slides the start (and any rest countdown) forward by the time spent paused
-function resumeWorkout(){ if(!TM.start||!TM.paused) return; const d=Date.now()-TM.paused; TM.start+=d; if(TM.restEnd) TM.restEnd+=d; TM.paused=0; beeped=!TM.restEnd; saveTM(); tick() }
+function resumeWorkout(){ if(!TM.start||!TM.paused) return; const d=Date.now()-TM.paused; TM.start+=d; if(TM.restEnd) TM.restEnd+=d; TM.paused=0; if(HOLD&&HOLD.pz){ HOLD.t0+=Date.now()-HOLD.pz; HOLD.pz=0 } beeped=!TM.restEnd; saveTM(); tick() }
 let actx=null, wakeLock=null, beeped=true;
 function unlockAudio(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume()}catch(e){}}
 function beep(){ if(window.userPrefs&&!userPrefs().sound) return; try{unlockAudio(); const t=actx.currentTime; [0,.28,.56].forEach(o=>{const g=actx.createGain(),os=actx.createOscillator(); os.frequency.value=880; os.connect(g); g.connect(actx.destination); g.gain.setValueAtTime(.0001,t+o); g.gain.exponentialRampToValueAtTime(.35,t+o+.02); g.gain.exponentialRampToValueAtTime(.0001,t+o+.2); os.start(t+o); os.stop(t+o+.22)})}catch(e){}}
@@ -2039,7 +2140,7 @@ function openLive(){ if(!liveCtx()) return; liveOpen=true; unlockAudio(); render
 function closeLive(){ liveOpen=false; renderLive(); tick(); lastRenderKey=""; render() }
 // Started by mistake: stop the timer, drop this session's entries and leave Live mode without saving anything
 let lvAsk=false;
-function cancelLive(k){ lvAsk=false; stopWorkout(); if(typeof RL!=="undefined"&&RL&&RL.k===k){ RL=null; try{localStorage.removeItem("ru-runlive")}catch(e){} }
+function cancelLive(k){ HOLD=null; lvAsk=false; stopWorkout(); if(typeof RL!=="undefined"&&RL&&RL.k===k){ RL=null; try{localStorage.removeItem("ru-runlive")}catch(e){} }
   if(k) clearDrafts(k,TRAIN_RE); liveOpen=false; renderLive(); lastRenderKey=""; render(); toast("Cancelled. Nothing was saved.") }
 document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&lvAsk&&liveOpen){ lvAsk=false; renderLive() } else if(e.key==="Escape"&&liveOpen&&TM.paused&&lvPe){ lvPe=null; renderLive() } else if(e.key==="Escape"&&liveOpen&&TM.paused){ resumeWorkout(); renderLive(); tick() } });
 /* ---------- Paused: the timer stops and a review of every set opens ---------- */
@@ -2165,6 +2266,11 @@ function renderLive(){
     if(q("lvCancel")) q("lvCancel").onclick=()=>{ lvAsk=true; renderLive(); setTimeout(()=>q("lvKeep")&&q("lvKeep").focus(),0) };
     if(q("lvKeep")) q("lvKeep").onclick=()=>{ lvAsk=false; renderLive() };
     if(q("lvCancelYes")) q("lvCancelYes").onclick=()=>cancelLive(k);
+    if(q("htGo")) q("htGo").onclick=()=>{ const steps=gymSteps(k,p), cur=steps[liveIdx(steps)]; if(!cur) return; const r=q("lvR"); htStart(k,cur.ex.id,cur.i,parseInt(r&&(r.value||r.placeholder),10)||parseInt(cur.ex.lo,10)||30,"live") };
+    if(q("htSkip")) q("htSkip").onclick=htSkipSetup; if(q("htPz")) q("htPz").onclick=htPause;
+    box.querySelectorAll("[data-htmode]").forEach(b=>b.onclick=()=>{ const steps=gymSteps(k,p), cur=steps[liveIdx(steps)]; if(cur){ htCfgSet(cur.ex.id,{mode:b.dataset.htmode}); renderLive() } });
+    box.querySelectorAll("[data-htsetup]").forEach(b=>b.onclick=()=>{ const steps=gymSteps(k,p), cur=steps[liveIdx(steps)]; if(!cur) return; const c=htCfg(cur.ex.id), j=HT_SETUPS.indexOf(c.setup); htCfgSet(cur.ex.id,{setup:HT_SETUPS[(j+1)%HT_SETUPS.length]}); renderLive() });
+    box.querySelectorAll("[data-htsound]").forEach(b=>b.onclick=()=>{ suMut(su=>{ su.timerSound=!htSoundOn() }); renderLive() });
     if(q("lvPause")) q("lvPause").onclick=()=>{ pauseWorkout(); renderLive(); setTimeout(()=>q("lvResume")&&q("lvResume").focus({preventScroll:true}),0) };
     const resume=()=>{ lvPeSave(); resumeWorkout(); renderLive(); tick() };
     if(q("lvResume")) q("lvResume").onclick=resume; if(q("lvResumeX")) q("lvResumeX").onclick=resume;

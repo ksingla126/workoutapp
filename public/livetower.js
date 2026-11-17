@@ -121,6 +121,26 @@ function lvtHtml(k, p, now, resting, justDone) {
   const sysT = boss ? "A Gate has opened on this floor." : !doneHere ? `Floor ${fi + 1}: ${cur.ex.name}. ${K.own.length} mob${K.own.length === 1 ? "" : "s"}${Object.keys(K.gate).length ? ", a Gate boss among them" : ""}.`
     : kind === "elite" ? `${doneHere === 1 ? "One" : doneHere === 2 ? "Two" : doneHere} down. The elite is next.` : `${doneHere} down, ${left} to go.`;
   const body = `${tag}${card}${queue}`;
+  // timed sets: a floating HP bar over the mob runs the set-up, the hold, the 3 s grace and any overkill
+  if (F.b === "sec" && typeof htView === "function") {
+    const target = parseInt(v.r, 10) || parseInt(cur.ex.lo, 10) || 30, c = htCfg(cur.ex.id);
+    const run = !!(HOLD && HOLD.where === "live" && HOLD.k === k && HOLD.id === cur.ex.id && HOLD.i === cur.i), vw = run ? htView() : htView(target);
+    const ctl = run ? (HOLD.phase === "grace" ? `<div class="htnote">Tap <b>STOP</b> now to log <b>${HOLD.target} s</b>. Keep holding and overkill starts counting.</div>`
+        : HOLD.phase === "setup" ? `<span class="lvt-sub">The bar fills as you get set. When it's full the hold starts.</span>` : HOLD.pz ? `<span class="lvt-sub">Paused</span>` : "")
+      : `<div class="htc"><div class="htseg" role="group" aria-label="Timer mode"><button type="button" data-htmode="timer" class="${c.mode === "timer" ? "on" : ""}" aria-pressed="${c.mode === "timer"}">⏱ TIMER</button><button type="button" data-htmode="watch" class="${c.mode === "watch" ? "on" : ""}" aria-pressed="${c.mode === "watch"}">◷ STOPWATCH</button></div>
+        <div class="htrow"><button type="button" class="htchip" data-htsetup aria-label="Set-up time ${c.setup} seconds, tap to change">SET-UP <b>${c.setup} s</b></button><span class="htchip ro">HOLD <b>${target} s</b></span><button type="button" class="htchip end" data-htsound aria-pressed="${htSoundOn()}" aria-label="Timer sound">${htSoundOn() ? "🔔 <b>ON</b>" : "🔕 <b>OFF</b>"}</button></div></div>`;
+    let cardT = card.replace('<div class="lv-main lvt-card', `<div ${run ? "data-htrun " : ""}class="lv-main lvt-card`).replace("</span>", "</span>" + htBar(vw))
+      .replace(/<b class="lvt-amt" id="lvtAmt">[\s\S]*?<\/b>/, `<b class="lvt-amt" id="lvtAmt" data-ht="amt">${run ? vw.amt : esc(amount(cur))}</b>`);
+    cardT = /<span class="lvt-sub">/.test(cardT) ? cardT.replace(/<span class="lvt-sub">[\s\S]*?<\/span>/, `<span class="lvt-sub" data-ht="sub">${run ? vw.sub : esc(sub)}</span>`) : cardT;
+    cardT = cardT.replace(/<\/div>\s*$/, ctl + "</div>");
+    let foot;
+    if (!run) foot = `<div class="lvt-ins">${ins}</div>${big(`▶ Start set ${cur.i + 1}`, "htGo", boss ? "blue" : "")}<button type="button" class="htlink" id="lvDone">Log it by hand instead</button>`;
+    else if (HOLD.phase === "setup") foot = `<div class="htduo"><button type="button" id="htSkip">Skip set-up</button><button type="button" class="x" data-htcancel>✕ Stop</button></div>`;
+    else if (HOLD.phase === "hold") foot = `<div class="htduo"><button type="button" id="htPz">${HOLD.pz ? "▶ Resume" : "❚❚ Pause"}</button><button type="button" data-htstop id="htEnd">${vw.end}</button></div><span class="htlink" style="text-decoration:none">Logs at 0:00. Keep holding past it and overkill counts.</span>`;
+    else if (HOLD.phase === "watch") foot = `<button type="button" class="lvt-big" data-htstop id="htEnd">${vw.end}</button><span class="htlink" style="text-decoration:none">Counts up until you stop · target ${HOLD.target} s</span>`;
+    else foot = `<button type="button" class="htgold" data-htstop id="htEnd">${vw.end}</button><span class="htlink" style="text-decoration:none">${HOLD.phase === "grace" ? "No tap in 3 s means you're still holding" : "Overkill counts from 0:00"}</span>`;
+    return page(sysT + (cur.inSS && !cur.ssLast ? " Superset: no rest before the next one." : ""), boss, `${tag}${cardT}${queue}`, foot);
+  }
   return page(sysT + (cur.inSS && !cur.ssLast ? " Superset: no rest before the next one." : ""), boss, body, `<div class="lvt-ins">${ins}</div>${big(boss ? "Challenge the boss" : "Strike · log set", "lvDone", boss ? "blue" : "")}`);
 }
 
