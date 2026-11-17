@@ -286,7 +286,10 @@ body.ws-page #view:has(>.ws){flex:1;min-height:0;display:flex;flex-direction:col
 body.ws-page #view:has(>.ws)::-webkit-scrollbar{display:none}
 .ws{flex:1;min-height:0;display:flex;flex-direction:column}
 .ws-frame{flex:1;min-height:0;display:flex;flex-direction:column;position:relative;margin:0}
-.ws-stage{flex:1;min-height:210px;position:relative;overflow:visible}
+.ws-stage{flex:1;min-height:210px;position:relative;overflow:visible;margin-top:-64px}
+/* the stage reaches up into the gap under the header so tall towers keep their tips; the island itself stays put */
+.ws-stage .ws-zoom{top:64px}
+body.ws-page:has(#view>.ws) header.top{z-index:3}
 .ws-stage{-webkit-mask-image:linear-gradient(180deg,#000 82%,transparent),linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(180deg,#000 82%,transparent),linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-composite:intersect}
 .ws-zoom{position:absolute;top:0;bottom:0;left:-31%;right:-31%;transform:scale(1.2);transform-origin:50% 62%;pointer-events:none}
 .ws-slide{will-change:transform,opacity;transform-origin:50% 62%;backface-visibility:hidden;contain:layout style}
