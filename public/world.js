@@ -367,7 +367,8 @@ function wsbHtml(p, k, pick) {
       const b = !e.fixed && boss(e.id), last = wsbLast(e, k), rr = e.lo === e.hi ? e.lo : `${e.lo}–${e.hi}`, key = e.id, open = wsPop.open === key;
       const rest = typeof restFor === "function" ? restFor(e.id) : e.rest || 90;
       let h = `<button type="button" class="wsb-row${open ? " open" : ""}" data-wsbrow="${esc(key)}" aria-expanded="${open}">${wsbDia(b ? "#6EA8FF" : RKT.mm, b)}<span class="wsb-rt"><span class="wsb-l1"><b>${esc(e.name)}</b><em>${e.sets} × ${rr}<i class="wsb-chev">▾</i></em></span>
-        <span class="wsb-l2"><span>${esc(e.equip || "")}${e.equip ? " · " : ""}rest ${fmtClock(rest * 1000)}</span>${last ? `<span>last ${esc(last)}</span>` : ""}</span>${b && !open ? `<span class="wsb-boss">♛ GATE BOSS</span>` : ""}</span></button>`;
+        <span class="wsb-l2"><span>${esc(e.equip || "")}${e.equip ? " · " : ""}rest ${fmtClock(rest * 1000)}</span>${last ? `<span>last ${esc(last)}</span>` : ""}</span>${b && !open ? `<span class="wsb-boss">♛ GATE BOSS</span>` : ""}${e.once ? `<span class="wsb-swd">⇄ SWAPPED · TODAY ONLY</span>` : ""}</span></button>`;
+      if (!log && !e.fixed && !e.travel) h = `<div class="wsb-hrow">${h}<button type="button" class="wsb-sw" data-swap="${esc(e.id)}" aria-label="Swap ${esc(e.name)}">${typeof SWAP_ICON !== "undefined" ? SWAP_ICON : "⇄"}<span>SWAP</span></button></div>`;
       if (open) {
         let pan = "";
         if (log) {
@@ -578,6 +579,32 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && wsPop && !
 .wsb .exhead{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px}
 .wsb .exname{all:unset;cursor:pointer;font-size:0;padding:8px 10px;border-radius:8px;border:1px solid color-mix(in srgb,var(--mt-m) 28%,transparent)}
 .wsb .exname::after{content:"HISTORY";font:800 10.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;color:var(--m2)}
+.wsb-hrow{display:flex;align-items:flex-start;gap:8px}.wsb-hrow>.wsb-row{flex:1;min-width:0}
+.wsb-sw{all:unset;cursor:pointer;flex-shrink:0;margin-top:9px;display:flex;flex-direction:column;align-items:center;gap:3px;width:40px;padding:6px 0 5px;border-radius:9px;border:1px solid color-mix(in srgb,var(--mt-m) 30%,transparent);background:linear-gradient(180deg,#16120D,#0B0907);color:var(--m2)}
+.wsb-sw svg{width:15px;height:15px}.wsb-sw span{font:800 8px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em}
+.wsb-sw:active{transform:scale(.95)}.wsb-sw:focus-visible{outline:2px solid var(--m2);outline-offset:2px}
+.wsb-swd{display:block;margin-top:5px;font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;color:var(--mid)}
+.wsb-pan .exhead .swapb{display:none}
+#xsheet.xs-ws{--m0:var(--mt-d);--m1:var(--mt-m);--m2:var(--mt-l);--bg:#0A0A0D;--line:rgba(245,241,230,.08);--ink:#F5F1E6;--muted:#8F97A6;--surface:#121014;--surface-2:#121014}
+#xsheet.xs-ws .xs-back{background:rgba(2,4,8,.72)}
+#xsheet.xs-ws .xs-panel{background:radial-gradient(70% 40% at 90% 0%,color-mix(in srgb,var(--rk) 16%,transparent),transparent 65%),#0A0A0D;color:#F5F1E6;border-top:2px solid var(--m1);box-shadow:0 -1px 0 var(--m0),0 -20px 50px #000;font-family:Barlow,system-ui,sans-serif}
+#xsheet.xs-ws .xs-head{background:#0A0A0D}
+#xsheet.xs-ws .xs-head h2{font:900 24px/1.05 "Barlow Semi Condensed",sans-serif;text-transform:uppercase;letter-spacing:.02em;background:linear-gradient(180deg,var(--rk-core),var(--rk-mid) 60%,var(--rk-dd));-webkit-background-clip:text;background-clip:text;color:transparent}
+#xsheet.xs-ws .xs-head .btn{all:unset;cursor:pointer;font:800 10.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--m2);padding:9px 11px;border-radius:8px;border:1px solid color-mix(in srgb,var(--mt-m) 35%,transparent)}
+#xsheet.xs-ws .xs-search{background:#121014;border:1px solid color-mix(in srgb,var(--mt-m) 30%,transparent);color:#F5F1E6}
+#xsheet.xs-ws.xs-tall .xs-search[type=search]{box-shadow:0 -10px 0 0 #0A0A0D,0 10px 8px -6px #0A0A0D}
+#xsheet.xs-ws .xs-chips button{background:transparent;border:1px solid rgba(245,241,230,.14);color:#8F97A6;font:800 10.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:8px 11px}
+#xsheet.xs-ws .xs-chips button.on{background:color-mix(in srgb,var(--rk) 16%,transparent);border-color:var(--rk-mid);color:var(--rk-core)}
+#xsheet.xs-ws .xs-item{border-bottom:1px solid rgba(245,241,230,.07);color:#F5F1E6}
+#xsheet.xs-ws .xs-item b{font:700 14.5px/1.25 Barlow,sans-serif}
+#xsheet.xs-ws .xs-plus{border-radius:8px;border-color:color-mix(in srgb,var(--mt-m) 30%,transparent);color:var(--m2)}
+#xsheet.xs-ws .swapfrom{font:800 15px/1.2 "Barlow Semi Condensed",sans-serif;padding:12px;border-radius:12px;background:linear-gradient(180deg,#121014,#0B0B0E);border:1px solid color-mix(in srgb,var(--mt-m) 40%,transparent)}
+#xsheet.xs-ws .swapfrom span:first-child{color:#8F97A6;text-decoration:line-through}#xsheet.xs-ws .swapfrom span:last-child{color:var(--rk-core)}#xsheet.xs-ws .swapfrom svg{color:var(--m2)}
+#xsheet.xs-ws .swapopt{background:linear-gradient(180deg,#14110D,#0B0907);border:1px solid color-mix(in srgb,var(--mt-m) 35%,transparent);color:#F5F1E6}
+#xsheet.xs-ws .swapopt b{font:800 15px/1.2 "Barlow Semi Condensed",sans-serif;letter-spacing:.04em}
+#xsheet.xs-ws .swapopt:active{border-color:var(--rk-mid)}
+#xsheet.xs-ws .xs-live{padding:10px 12px;border-radius:10px;border:1px solid color-mix(in srgb,var(--rk) 45%,transparent);background:color-mix(in srgb,var(--rk) 10%,transparent);font:600 12.5px/1.4 Barlow,sans-serif;color:var(--rk-core)}
+#xsheet.xs-ws .xs-live b{font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.2em;display:block;margin-bottom:4px}
 .wsb .swapb{width:32px;height:30px;border-radius:8px;border:1px solid color-mix(in srgb,var(--mt-m) 28%,transparent);background:transparent;color:var(--m2)}
 .wsb .exmeta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;font-size:12px;color:var(--mut)}
 .wsb .exmeta .muted,.wsb .small.muted{color:var(--mut)}

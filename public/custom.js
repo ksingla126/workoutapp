@@ -326,7 +326,7 @@ function sheetEl(){ let el=document.getElementById("xsheet"); if(!el){ el=docume
 function openSheet(state){ SH=state; const el=sheetEl(); el.hidden=false; document.body.classList.add("xs-open"); paintSheet(true) }
 function xsClose(){ stopScan(); if(SH&&SH.kind==="form"&&SH.track) URL.revokeObjectURL(SH.track.url); SH=null; const el=document.getElementById("xsheet"); if(el) el.hidden=true; document.body.classList.remove("xs-open") }
 function paintSheet(scrollTop){ if(!SH) return; const el=sheetEl(), inn=el.querySelector(".xs-in"); const focusSel=document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.xsFocus;
-  inn.innerHTML=sheetHtml();
+  inn.innerHTML=sheetHtml(); el.classList.toggle("xs-ws",!!SH.ws);
   // search sheets keep one height, so the search box stays put while results narrow
   el.classList.toggle("xs-tall",!!inn.querySelector('.xs-search[type=search]')); vvSync();
   const hd=inn.querySelector(".xs-head"); if(hd) el.style.setProperty("--xsh",hd.offsetHeight+"px");
@@ -988,7 +988,7 @@ function swapHtml(){
   if(W.to){ const L=libEx(W.to)||{name:W.to}, isToday=W.k===ymd(today);
     return `<div class="xs-head"><h2>Swap exercise</h2><button type="button" class="btn ghost sm" data-xs="swapback">Back</button></div>
      <div class="swapfrom"><span>${esc(W.fromName)}</span>${SWAP_ICON}<span>${esc(L.name)}</span></div>
-     <p class="small muted">Sets, reps and rest carry over. How long should this swap last?</p>
+     <p class="small muted">Sets, reps and rest carry over. How long should this swap last?</p>${liveSwapNote(W)}
      <button type="button" class="swapopt" data-xs-swapmode="once"><b>${isToday?"Just today":"Just this workout"}</b><span>${fmtDate(parseYmd(W.k))} only. Your routine stays the same.</span></button>
      <button type="button" class="swapopt" data-xs-swapmode="routine"><b>Every ${esc(W.dayName)} from now on</b><span>Changes your routine for all future workouts${isToday?" starting today":" starting "+fmtShort(parseYmd(W.k))}. Logged workouts keep what you did, and Standings update to match.</span></button>` }
   const q=(W.q||"").toLowerCase().trim(), mu=W.mu||"";
@@ -1033,13 +1033,29 @@ function doSwap(mode){ const W=SH, from=W.from, to=W.to, k=W.k;
       else { sw.routine.push({day:W.day,from,to,since:ymd(today)}); saveProfile(); xsClose() }
       lastRenderKey=""; render(); toast(`Fixed, and ${W.dayName} now uses ${toName}`); return }
     xsClose(); lastRenderKey=""; render(); toast(`Fixed: ${fmtShort(parseYmd(k))} now shows ${toName}`); return }
-  if(mode==="once"){ sw.once[k]={...(sw.once[k]||{}),[from]:to}; saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Swapped for this workout"); return }
+  const lv=liveSwapSync(k,from,to);
+  if(mode==="once"){ sw.once[k]={...(sw.once[k]||{}),[from]:to}; saveProfile(); xsClose(); swapReveal(to); lastRenderKey=""; render(); liveSwapPaint(lv); toast(lv?"Swapped. Your live workout is updated":"Swapped for this workout"); return }
   if(sw.once[k]&&sw.once[k][from]){ delete sw.once[k][from]; if(!Object.keys(sw.once[k]).length) delete sw.once[k] }
   if(CUSTOM){ const su=S.profile.setup, r=su.routines.find(x=>x.id===W.day); const e=r&&r.ex.find(x=>x.id===from);
     if(e){ const L=libEx(to), tm=L&&L.type==="t", wasT=(libEx(from)||{}).type==="t"; e.id=to; if(tm&&!wasT){e.lo=30;e.hi=60} else if(!tm&&wasT){e.lo=8;e.hi=12} su.at=Date.now() }
-    xsClose(); commitPlan(); lastRenderKey=""; render(); toast(`${r?r.name:"Routine"} updated`); return }
-  sw.routine.push({day:W.day,from,to,since:k}); saveProfile(); xsClose(); lastRenderKey=""; render(); toast(`${W.dayName} updated from ${fmtShort(parseYmd(k))} on`);
+    xsClose(); swapReveal(to); commitPlan(); lastRenderKey=""; render(); liveSwapPaint(lv); toast(`${r?r.name:"Routine"} updated${lv?" and your live workout too":""}`); return }
+  sw.routine.push({day:W.day,from,to,since:k}); saveProfile(); xsClose(); swapReveal(to); lastRenderKey=""; render(); liveSwapPaint(lv); toast(`${W.dayName} updated from ${fmtShort(parseYmd(k))} on${lv?", live workout too":""}`);
 }
+// Swapping on the day of a running live workout: the live view follows right away. Sets already done
+// on the old exercise stay logged under it (kept as an added exercise), and the live focus moves along.
+function liveOn(k){ return typeof TM!=="undefined"&&TM.start&&TM.date===k&&!S.logs[k] }
+function liveDoneSets(k,id){ const out=[]; for(let i=0;i<30;i++) if(typeof setDoneK==="function"&&setDoneK(k,id,i)) out.push(i); return out }
+function liveSwapNote(W){ if(!liveOn(W.k)) return ""; const n=liveDoneSets(W.k,W.from).length;
+  return `<div class="xs-live"><b>● LIVE WORKOUT</b>${n?`Your ${n} logged set${n===1?"":"s"} of ${esc(W.fromName)} stay in this workout. The rest switch over.`:"Your live workout switches over right away."}</div>` }
+function liveSwapSync(k,from,to){ if(!liveOn(k)) return false;
+  const done=liveDoneSets(k,from), p=planFor(parseYmd(k)), old=p&&p.ex&&p.ex.find(e=>e.id===from);
+  if(done.length&&old){ const sw=S.profile.swaps; sw.add=sw.add||{}; const a=(sw.add[k]||[]).filter(x=>x.id!==from);
+    a.push({id:from,sets:Math.max(...done)+1,lo:old.lo,hi:old.hi,rest:old.rest||(typeof restFor==="function"?restFor(from):90)}); sw.add[k]=a }
+  if(TM.focus&&TM.focus.id===from){ TM.focus={...TM.focus,id:to}; if(typeof saveTM==="function") saveTM() }
+  if(typeof HOLD!=="undefined"&&HOLD&&HOLD.k===k&&HOLD.id===from&&typeof htCancel==="function") htCancel();
+  return true }
+function liveSwapPaint(lv){ if(!lv) return; if(typeof liveOpen!=="undefined"&&liveOpen&&typeof renderLive==="function") renderLive(); if(typeof tick==="function") tick() }
+function swapReveal(to){ if(typeof wsPop!=="undefined"&&wsPop){ wsPop.open=to; wsPop.reveal=to; wsPop.fresh=to } }
 function swapsText(){ const sw=swapsOf(), L=id=>(libEx(id)||(typeof X!=="undefined"&&X[id])||{name:id}).name, out=[];
   (CUSTOM?sw.routine:[...BUILTIN_SWAPS,...sw.routine]).filter(r=>r.from).forEach(r=>out.push(`${CUSTOM&&CUSTOM.gym[r.day]?CUSTOM.gym[r.day].name:"Day "+r.day}: ${L(r.from)} → ${L(r.to)} from ${r.since}`));
   Object.entries(sw.once).filter(([k])=>k>=ymd(addDays(today,-14))).forEach(([k,m])=>Object.entries(m).forEach(([a,b])=>out.push(`${k} only: ${L(a)} → ${L(b)}`)));
@@ -1252,7 +1268,7 @@ document.addEventListener("click",e=>{
   const t=e.target.closest&&e.target.closest("button,[data-xs]"); if(!t) return; const d=t.dataset;
   // --- swaps
   if(d.swap){ const p=planFor(sel), ex=p&&p.ex&&p.ex.find(e=>e.id===d.swap); if(!ex) return;
-    openSheet({kind:"swap",from:ex.id,fromName:ex.name,day:p.day,dayName:(p.name||("Day "+p.day)).split(" · ")[0],k:ymd(sel),q:"",mu:muscleOfEx(ex.id),fix:!!S.logs[ymd(sel)]}); return }
+    openSheet({kind:"swap",from:ex.id,fromName:ex.name,day:p.day,dayName:(p.name||("Day "+p.day)).split(" · ")[0],k:ymd(sel),q:"",mu:muscleOfEx(ex.id),fix:!!S.logs[ymd(sel)],ws:!!(typeof wsPop!=="undefined"&&wsPop)}); return }
   if(d.swapundo){ const sw=swapsOf(), k=ymd(sel), m=S.profile.swaps&&S.profile.swaps.once&&S.profile.swaps.once[k]; if(m){ Object.keys(m).forEach(f=>{ if(m[f]===d.swapundo) delete m[f] }); if(!Object.keys(m).length) delete S.profile.swaps.once[k]; saveProfile(); lastRenderKey=""; render(); toast("Swap undone") } return }
   // --- workout screen
   if(d.unitflip){ setUnit(UNIT()==="kg"?"lb":"kg"); return }
