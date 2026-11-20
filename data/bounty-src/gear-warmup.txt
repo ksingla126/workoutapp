@@ -1,0 +1,54 @@
+# name|areas|dose|unit|side|equip|lvl|cue
+Band pull-aparts|tspine,shoulders|15|r|0|band|1|Straight arms at chest height, pull to the chest, no shrug
+Band dislocates|shoulders,chest|10|r|0|band|1|Wide grip, straight arms over and behind, narrow the grip over time
+Band face pulls|tspine,shoulders|15|r|0|band-anchor|1|Anchor at eye level, pull to the forehead, elbows high, thumbs back
+Band external rotation|shoulders|15|r|1|band-anchor|1|Elbow pinned to the side with a towel, rotate out slowly
+Band internal rotation|shoulders|15|r|1|band-anchor|1|Elbow pinned, rotate in across the belly
+Band overhead pull-aparts|shoulders,tspine|12|r|0|band|1|Arms overhead, pull the band down behind the head to the neck
+Band diagonal pull-aparts|tspine,shoulders|10|r|1|band|1|One hand high, one low, pull apart on the diagonal
+Band Y raises|shoulders,tspine|12|r|0|band|1|Stand on the band, raise arms into a Y, thumbs up
+Band W pull-aparts|tspine,shoulders|12|r|0|band|1|Elbows bent at 90, rotate the hands out and squeeze
+Band no-moneys|shoulders|15|r|0|band|1|Elbows at the sides, palms up, rotate the hands out
+Band straight-arm pulldowns|lats,core|12|r|0|band-anchor|1|Anchor high, straight arms down to the thighs, ribs down
+Band rows|tspine,lats|15|r|0|band-anchor|1|Anchor at chest height, pull elbows past the ribs
+Band chest press|chest,shoulders|12|r|0|band-anchor|1|Anchor behind, press forward without arching
+Band overhead press|shoulders,arms|10|r|0|band|1|Stand on the band, press overhead, ribs down
+Band push-up plus|shoulders,chest|10|r|0|band|2|Band across the back, push the extra inch at the top
+Band serratus punches|shoulders|12|r|1|band-anchor|1|Anchor behind, punch forward and reach long
+Banded lateral walks|glutes,hips|12|r|1|band|1|Mini band above the knees, half squat, toes forward
+Banded monster walks|glutes,hips|12|r|0|band|1|Mini band above the knees, step forward on the diagonal
+Banded glute bridges|glutes,hams|15|r|0|band|1|Mini band above the knees, push the knees out at the top
+Banded clamshells|glutes,hips|15|r|1|band|1|Mini band above the knees, open the top knee
+Banded squats|quads,glutes|12|r|0|band|1|Mini band above the knees, knees press out against it
+Banded fire hydrants|glutes,hips|12|r|1|band|1|Mini band above the knees, on all fours
+Banded donkey kicks|glutes|12|r|1|band|1|Band around the foot and hands, press the heel up
+Banded kickbacks (standing)|glutes|12|r|1|band|1|Mini band at the ankles, kick back without arching
+Banded hip abduction (standing)|glutes|12|r|1|band|1|Mini band at the ankles, lift the leg out to the side
+Banded good mornings|hams,glutes,lowback|12|r|0|band|1|Stand on the band, loop behind the neck, hinge
+Banded RDL|hams,glutes|12|r|0|band|1|Stand on the band, hinge with a flat back
+Banded hip hinge (pull-through)|glutes,hams|12|r|0|band-anchor|1|Anchor low behind you, hinge and snap the hips forward
+Banded hip flexor marches|hips,core|10|r|1|band|1|Band around the feet, lie down, drive one knee in
+Banded leg swings|hips,hams|10|r|1|band-anchor|2|Band at the ankle, controlled swings
+Banded ankle dorsiflexion|ankles|10|r|1|band-anchor|1|Band pulls the shin back, drive the knee forward
+Banded split squat|quads,glutes|8|r|1|band|1|Stand on the band, hold at the shoulders
+Band woodchops|core,tspine|10|r|1|band-anchor|1|Anchor high, chop down across the body
+Band Pallof press|core|10|r|1|band-anchor|1|Side-on, press out, hold 2 s, resist the twist
+Band anti-rotation hold|core|20|s|1|band-anchor|1|Arms out, don't let the band twist you
+Banded dead bug|core|8|r|1|band-anchor|2|Hold an anchored band overhead, extend opposite legs
+Band shoulder CARs (pass-through slow)|shoulders|5|r|0|band|1|Very slow pass-throughs, stop at any pinch
+Band biceps curls|arms|15|r|0|band|1|Stand on the band, curl slowly
+Band triceps pushdowns|arms|15|r|0|band-anchor|1|Anchor high, elbows pinned, press down
+Band wrist curls|wrists|15|r|0|band|1|Stand on the band, curl the wrists only
+Foam roll calves|calves|30|s|1|roller|1|Quick passes, rotate the foot in and out
+Foam roll quads|quads|30|s|1|roller|1|Face down, quick passes hip to knee
+Foam roll hamstrings|hams|30|s|1|roller|1|Seated on the roller, quick passes
+Foam roll glutes|glutes|30|s|1|roller|1|Ankle over the knee, lean into the hip
+Foam roll upper back|tspine|30|s|0|roller|1|Hands behind the head, hips up, roll the mid back
+Foam roll lats|lats|30|s|1|roller|1|On your side, arm overhead, small rolls
+Foam roll adductors|adductors|30|s|1|roller|1|Face down, leg out to the side on the roller
+Foam roll hip flexors|hips|30|s|1|roller|1|Face down, roller just below the hip bone
+Foam roll IT band area (outer thigh)|hips,quads|30|s|1|roller|2|Side-lying, top foot down to control the pressure
+Foam roller thoracic extensions|tspine|8|r|0|roller|1|Roller across the upper back, extend over it
+Foam roller T-spine rotations|tspine|8|r|1|roller|1|Side-lying, knees on the roller, open the arm
+Foam roller bridges|glutes,hams|10|r|0|roller|2|Feet on the roller, bridge without wobbling
+Foam roller dead bugs|core|8|r|1|roller|2|Lie along the roller, alternate reaches

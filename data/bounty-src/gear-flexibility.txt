@@ -1,0 +1,32 @@
+# name|areas|dose|unit|side|equip|lvl|cue
+Band hamstring stretch|hams|60|s|1|band|1|Leg straight up, pull gently, opposite leg long
+Band hamstring stretch to the side|adductors,hams|60|s|1|band|1|Open the leg out, opposite hip stays down
+Band hamstring stretch across the body|glutes,hips|60|s|1|band|1|Cross the leg over, shoulders down
+Band quad stretch (side-lying)|quads,hips|60|s|1|band|1|Pull the heel back, push the hip forward
+Band quad stretch (prone)|quads|60|s|1|band|1|Face down, band around the foot over the shoulder
+Band calf stretch (seated)|calves|60|s|1|band|1|Pull the toes back, leg straight
+Band king pigeon|quads,hips|30|s|1|band|3|From pigeon, band around the back foot over the shoulder
+Band dancer pose|quads,chest|30|s|1|band|3|Standing, kick the banded foot back and up
+Band standing split|hams|30|s|1|band|3|Band around the lifted foot, pull up gently
+Band seated forward fold|hams|60|s|0|band|1|Band around the feet, pull the chest forward
+Band pancake|adductors,hams|60|s|0|band-anchor|2|Anchor in front, pull the chest forward in straddle
+Band front split assist|hams,hips|60|s|1|band|3|Band around the front foot, ease into the split
+Band overhead lat stretch|lats|45|s|1|band-anchor|1|Sit back away from a high anchor
+Band chest stretch (anchored)|chest,shoulders|45|s|1|band-anchor|1|Turn away from a shoulder-height anchor
+Band shoulder dislocates (narrow)|shoulders,chest|8|r|0|band|2|Narrow the grip a little each set
+Band triceps stretch|arms,lats|45|s|1|band|1|Pull the top hand down with the band
+Band cow face arms|shoulders|45|s|1|band|2|Bridge the hands with the band behind the back
+Band glute stretch (figure-four)|glutes|60|s|1|band|1|Loop around the thigh, pull in
+Band supine twist|lowback,glutes|60|s|1|band|1|Leg across, band keeps the foot reaching
+Band hip flexor stretch (anchored)|hips,quads|60|s|1|band-anchor|2|Band pulls the hip forward in a half-kneel
+Band lat traction|lats|45|s|1|band-anchor|1|Let the band pull you long
+Band PNF hamstring (contract-relax)|hams|3|r|1|band|2|Press into the band 5 s, relax, go deeper
+Band PNF calf (contract-relax)|calves|3|r|1|band|2|Press the foot into the band 5 s, relax
+Band PNF quad (side-lying)|quads|3|r|1|band|2|Kick into the band 5 s, relax, pull deeper
+Foam roller supported bridge|lowback,hips|90|s|0|roller|1|Roller under the sacrum
+Foam roller chest opener|chest,tspine|120|s|0|roller|1|Lie along the roller, arms wide
+Foam roller hip flexor stretch|hips|60|s|1|roller|2|Hug one knee, other leg long and heavy
+Foam roller backbend|tspine,chest|60|s|0|roller|2|Roller across the shoulder blades, arms overhead
+Foam roller lat stretch (kneeling)|lats|45|s|1|roller|1|Roll the arm forward, sink the chest
+Foam roller calf stretch (toes up)|calves|45|s|1|roller|1|Toes on the roller, heel down
+Foam roller hamstring stretch (heel on roller)|hams|45|s|1|roller|1|Heel on the roller, hinge forward

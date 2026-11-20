@@ -1,0 +1,38 @@
+# name|areas|dose|unit|side|equip|lvl|cue
+Banded hip distraction (lunge)|hips|60|s|1|band-anchor|2|Band high on the front thigh pulling back, sink into the lunge
+Banded hip distraction (90/90)|hips|60|s|1|band-anchor|2|Band around the hip crease pulling out
+Banded hip internal rotation|hips|10|r|1|band-anchor|2|Band pulls the knee out, rotate inward against it
+Banded ankle dorsiflexion|ankles|10|r|1|band-anchor|1|Band low on the ankle pulling back, drive the knee forward
+Banded shoulder distraction (overhead)|shoulders,lats|60|s|1|band-anchor|2|Hand in the band anchored high, sit away
+Banded shoulder distraction (behind back)|shoulders,chest|45|s|1|band-anchor|2|Band anchored behind, step forward
+Banded sleeper stretch|shoulders|30|s|1|band|2|Band pulls the forearm down gently
+Banded pass-throughs|shoulders,chest|10|r|0|band|1|Wide grip, straight arms
+Band shoulder CARs|shoulders|5|r|1|band|2|Slow circle against light band tension
+Band external rotation at 90/90|shoulders|12|r|1|band-anchor|2|Elbow at shoulder height, rotate up
+Band face pulls|tspine,shoulders|15|r|0|band-anchor|1|Pull high, thumbs back
+Band thoracic rotation (anchored)|tspine|8|r|1|band-anchor|1|Half-kneeling, rotate away against the band
+Band open books|tspine,chest|8|r|1|band-anchor|1|Side-lying, band adds a gentle pull open
+Band hip flexor marches|hips,core|10|r|1|band|1|Lie down, band around the feet, drive one knee in
+Banded hamstring floss|hams|10|r|1|band|1|Band around the foot, bend and straighten the knee
+Banded leg lowers|hams,core|8|r|1|band|1|Banded leg up, lower the other slowly
+Banded adductor rock-backs|adductors|10|r|1|band-anchor|2|Band pulling the leg out, rock back
+Banded squat (deep hold)|hips,ankles|45|s|0|band-anchor|1|Hold an anchored band in front, sit deep
+Banded good mornings|hams,lowback|10|r|0|band|1|Hinge with a flat back
+Banded Cossack squats|adductors,hips|5|r|1|band-anchor|2|Hold a band in front for balance
+Banded wrist distraction|wrists|30|s|1|band-anchor|1|Band around the wrist, lean away
+Band elbow flexion/extension|arms|15|r|0|band|1|Slow curls and pushdowns for elbow range
+Foam roller thoracic extensions|tspine|10|r|0|roller|1|Three levels of the upper back
+Foam roller T-spine rotations|tspine|8|r|1|roller|1|Knees on the roller, open the arm
+Foam roller wall slides|shoulders,tspine|10|r|0|roller|1|Forearms on a roller against the wall, roll up
+Foam roller lat flossing|lats|8|r|1|roller|1|Arm on the roller, roll forward and back
+Foam roller hip flexor stretch|hips|45|s|1|roller|2|Roller under the sacrum, one knee hugged
+Foam roller pec stretch (snow angels)|chest,shoulders|8|r|0|roller|1|Lie along the roller, arms sweep
+Foam roller ankle rocks|ankles|10|r|1|roller|1|Toes on the roller, knee drives forward
+Foam roll upper back|tspine|45|s|0|roller|1|Slow rolls
+Foam roll lats|lats|45|s|1|roller|1|Arm overhead
+Foam roll adductors|adductors|45|s|1|roller|1|Leg out to the side
+Foam roll calves|calves|45|s|1|roller|1|Slow passes
+Foam roll quads|quads|45|s|1|roller|1|Slow passes
+Foam roll glutes|glutes|45|s|1|roller|1|Ankle over the knee
+Foam roller hamstring flossing|hams|10|r|1|roller|2|Pause on a spot, bend and straighten the knee
+Foam roller quad flossing|quads|10|r|1|roller|2|Pause on a spot, bend the knee

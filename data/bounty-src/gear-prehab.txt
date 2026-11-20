@@ -1,0 +1,75 @@
+# name|areas|dose|unit|side|equip|lvl|cue
+Band external rotation|shoulders|15|r|1|band-anchor|1|Elbow pinned with a towel, rotate out slowly
+Band internal rotation|shoulders|15|r|1|band-anchor|1|Elbow pinned, rotate in
+Band external rotation at 90/90|shoulders|12|r|1|band-anchor|2|Elbow at shoulder height, rotate up
+Band face pulls|tspine,shoulders|15|r|0|band-anchor|1|Pull to the forehead, thumbs back
+Band pull-aparts|tspine,shoulders|20|r|0|band|1|Straight arms, squeeze the back
+Band W pull-aparts|tspine,shoulders|15|r|0|band|1|Elbows at 90, rotate out
+Band Y raises|shoulders,tspine|12|r|0|band|1|Stand on the band, arms into a Y
+Band no-moneys|shoulders|15|r|0|band|1|Elbows at the sides, rotate the hands out
+Band serratus punches|shoulders|15|r|1|band-anchor|1|Punch forward and reach long
+Band push-up plus|shoulders,chest|10|r|0|band|2|Band across the back, extra inch at the top
+Band scaption raises|shoulders|12|r|0|band|1|Stand on the band, raise at 30 degrees in front
+Band lateral raises|shoulders|15|r|0|band|1|Stand on the band, raise to shoulder height
+Band rows|tspine,lats|15|r|0|band-anchor|1|Elbows past the ribs, squeeze
+Band single-arm row|tspine,lats|12|r|1|band-anchor|1|No twisting
+Band straight-arm pulldowns|lats,core|15|r|0|band-anchor|1|Straight arms, ribs down
+Band lat pulldown (kneeling)|lats,arms|15|r|0|band-anchor|1|Anchor high, pull the elbows to the ribs
+Band chest press|chest,shoulders|15|r|0|band-anchor|1|Press without arching
+Band chest fly|chest|15|r|0|band-anchor|1|Soft elbows, hug a tree
+Band overhead press|shoulders,arms|12|r|0|band|1|Ribs down
+Band biceps curls|arms|15|r|0|band|1|Slow lower
+Band hammer curls|arms,wrists|15|r|0|band|1|Thumbs up
+Band triceps pushdowns|arms|15|r|0|band-anchor|1|Elbows pinned
+Band overhead triceps extension|arms|15|r|0|band|1|Stand on the band, extend overhead
+Band wrist curls|wrists|20|r|0|band|1|Forearms on the thighs, curl up
+Band reverse wrist curls|wrists|20|r|0|band|1|Palms down, lift the hands
+Band wrist radial deviation|wrists|15|r|1|band|1|Thumb side lifts against the band
+Band finger extensions|wrists|20|r|0|band|1|Small band around the fingers, open wide
+Band Pallof press|core|12|r|1|band-anchor|1|Press out, hold 2 s, resist the twist
+Band Pallof press (half-kneeling)|core,hips|10|r|1|band-anchor|2|Inside knee down, squeeze the glute
+Band anti-rotation walkout|core|8|r|1|band-anchor|2|Step out sideways holding the band at the chest
+Band woodchops|core,tspine|12|r|1|band-anchor|1|High to low across the body
+Band reverse woodchops|core,tspine|12|r|1|band-anchor|1|Low to high across the body
+Banded dead bug|core|10|r|1|band-anchor|2|Hold the anchored band overhead
+Band kneeling crunch|core|15|r|0|band-anchor|1|Anchor high, crunch the ribs to the hips
+Band side bend|core,lowback|15|r|1|band|1|Stand on the band, bend away
+Banded lateral walks|glutes,hips|15|r|1|band|1|Mini band above the knees
+Banded monster walks|glutes,hips|15|r|0|band|1|Diagonal steps, stay low
+Banded glute bridges|glutes,hams|20|r|0|band|1|Push the knees out at the top
+Banded glute bridge hold|glutes|30|s|0|band|1|Hold the top, knees out
+Banded single-leg bridge|glutes,hams|10|r|1|band|2|Mini band, hips level
+Banded clamshells|glutes,hips|20|r|1|band|1|Open the knee against the band
+Banded side-lying abduction|glutes|15|r|1|band|1|Mini band at the ankles
+Banded fire hydrants|glutes,hips|15|r|1|band|1|Mini band above the knees
+Banded donkey kicks|glutes|15|r|1|band|1|Heel to the ceiling
+Banded kickbacks (standing)|glutes|15|r|1|band|1|No low back arch
+Banded hip abduction (standing)|glutes|15|r|1|band|1|Leg out to the side
+Banded squats|quads,glutes|15|r|0|band|1|Knees out against the band
+Banded squat pulses|quads,glutes|20|r|0|band|1|Mini band, stay low
+Banded split squat|quads,glutes|10|r|1|band|1|Stand on the band
+Banded RDL|hams,glutes|15|r|0|band|1|Hinge with a flat back
+Banded good mornings|hams,lowback|15|r|0|band|1|Loop behind the neck, hinge
+Band pull-through|glutes,hams|15|r|0|band-anchor|1|Anchor low behind, snap the hips
+Banded hamstring curl (prone)|hams|15|r|1|band-anchor|1|Anchor at the feet, curl the heel in
+Banded leg extension (seated)|quads,knees|15|r|1|band-anchor|1|Anchor behind the chair, straighten the knee
+Banded terminal knee extension|quads,knees|15|r|1|band-anchor|1|Band behind the knee, lock it straight
+Banded Copenhagen (assisted)|adductors|10|r|1|band-anchor|2|Band anchored, squeeze the leg in
+Banded adductor squeeze (standing)|adductors|15|r|1|band-anchor|1|Pull the leg across the body
+Banded hip flexor marches|hips,core|12|r|1|band|1|Band around the feet, standing or lying
+Banded psoas march (supine)|hips,core|10|r|1|band|2|Low back flat, drive the knee to the chest
+Banded ankle eversion|ankles|15|r|1|band|1|Turn the foot out against the band
+Banded ankle inversion|ankles|15|r|1|band|1|Turn the foot in against the band
+Banded ankle plantarflexion|calves,ankles|20|r|1|band|1|Seated, push the foot down against the band
+Banded ankle dorsiflexion (strength)|shins|20|r|1|band-anchor|1|Pull the toes up toward you
+Banded toe curls|feet|15|r|1|band|1|Curl the toes against a small band
+Foam roller bridges|glutes,hams|12|r|0|roller|2|Feet on the roller, stay steady
+Foam roller hamstring curls|hams|10|r|0|roller|3|Heels on the roller, bridge and curl in
+Foam roller dead bugs|core|10|r|1|roller|2|Lie along the roller, alternate reaches
+Foam roller plank|core,shoulders|30|s|0|roller|2|Forearms on the roller, stay steady
+Foam roller rollouts (kneeling)|core,lats|8|r|0|roller|3|Kneel, forearms on the roller, roll out and back
+Foam roller pikes|core,shoulders|8|r|0|roller|3|Feet on the roller in plank, pike the hips
+Foam roller knee tucks|core|10|r|0|roller|2|Shins on the roller, tuck the knees in
+Foam roller single-leg balance|ankles,hips|30|s|1|roller|3|Stand on the roller lengthwise, holding a wall
+Foam roller wall slides|shoulders,tspine|12|r|0|roller|1|Forearms on the roller against the wall
+Foam roller adductor squeeze|adductors|10|r|0|roller|1|Squeeze the roller between the knees, hold 5 s

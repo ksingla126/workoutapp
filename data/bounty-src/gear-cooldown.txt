@@ -1,0 +1,44 @@
+# name|areas|dose|unit|side|equip|lvl|cue
+Foam roll quads|quads|60|s|1|roller|1|Slow passes, pause 10 s on tender spots
+Foam roll hamstrings|hams|60|s|1|roller|1|Cross the other leg on top for more pressure
+Foam roll calves|calves|60|s|1|roller|1|Slow passes, rotate the foot in and out
+Foam roll glutes|glutes|60|s|1|roller|1|Ankle over the knee, lean toward the crossed side
+Foam roll upper back|tspine|60|s|0|roller|1|Hands behind the head, slow rolls
+Foam roll lats|lats|45|s|1|roller|1|Arm overhead, roll from armpit to mid ribs
+Foam roll adductors|adductors|45|s|1|roller|1|Leg out to the side, roll the inner thigh
+Foam roll hip flexors|hips|45|s|1|roller|1|Below the hip bone, breathe and relax
+Foam roll IT band area (outer thigh)|hips,quads|45|s|1|roller|2|Top foot down, go slow
+Foam roll TFL (front of hip)|hips|45|s|1|roller|1|Angle 45 degrees face down
+Foam roll shins (tibialis)|shins|45|s|0|roller|2|Kneel on the roller, roll the front of the shins
+Foam roll peroneals (outer calf)|calves|45|s|1|roller|1|Turn onto the outside of the calf
+Foam roll pecs|chest|45|s|1|roller|2|Face down, roller angled under the chest
+Foam roll triceps|arms|30|s|1|roller|1|Side-lying, arm overhead on the roller
+Foam roll forearms|wrists,arms|30|s|1|roller|1|Kneel, forearm on the roller, roll slowly
+Foam roll feet|feet|30|s|1|roller|1|Stand and roll the arch
+Foam roll lower back (gentle, side)|lowback|30|s|1|roller|2|Lean to one side, never roll straight on the spine
+Foam roll rear delts|shoulders|30|s|1|roller|1|Side-lying, roller behind the shoulder
+Foam roll QL (side)|lowback,lats|30|s|1|roller|2|Side-lying just above the hip, small motions
+Foam roller chest opener|chest,tspine|90|s|0|roller|1|Lie along the roller, arms wide, palms up
+Foam roller snow angels|chest,shoulders|8|r|0|roller|1|Lie along the roller, slide the arms like a snow angel
+Foam roller thoracic extensions|tspine|8|r|0|roller|1|Extend over the roller at three levels
+Foam roller T-spine rotations|tspine|8|r|1|roller|1|Side-lying, open the top arm
+Foam roller lat stretch (kneeling)|lats|30|s|1|roller|1|Arm on the roller, roll it forward, sink the chest
+Foam roller supported bridge|lowback,hips|60|s|0|roller|1|Roller under the sacrum, relax the legs
+Foam roller hip flexor stretch|hips|60|s|1|roller|2|Roller under the sacrum, hug one knee, other leg long
+Foam roller calf stretch (toes up)|calves|30|s|1|roller|1|Toes on the roller, heel down, lean in
+Band hamstring stretch|hams|45|s|1|band|1|Band around the foot, leg straight up
+Band hamstring stretch to the side|adductors|45|s|1|band|1|Open the banded leg out to the side
+Band hamstring stretch across the body|glutes,hips|45|s|1|band|1|Bring the banded leg across, shoulders down
+Band quad stretch (side-lying)|quads,hips|45|s|1|band|1|Band around the foot, pull the heel to the glute
+Band calf stretch (seated)|calves|45|s|1|band|1|Leg straight, pull the toes back with the band
+Band overhead lat stretch|lats|30|s|1|band-anchor|1|Hold the anchored band, sit the hips back
+Band chest stretch (anchored)|chest,shoulders|30|s|1|band-anchor|1|Anchor at shoulder height, turn away
+Band shoulder dislocates (slow)|shoulders,chest|8|r|0|band|1|Slow, wide grip
+Band triceps stretch|arms|30|s|1|band|1|Hold the band behind the back, pull the top hand down
+Band cross-body shoulder stretch|shoulders|30|s|1|band|1|Band pulls the arm gently across
+Band biceps stretch (anchored)|arms,chest|30|s|1|band-anchor|1|Anchor behind at hip height, turn away
+Band hip flexor stretch (anchored)|hips,quads|45|s|1|band-anchor|2|Band pulls the hip forward in a half-kneel
+Band lat traction|lats|30|s|1|band-anchor|1|Anchor high, sit back and let it pull
+Band glute stretch (figure-four)|glutes|45|s|1|band|1|Loop around the lower thigh, pull in
+Band supine twist|lowback|45|s|1|band|1|Leg across with a band around the foot
+Band ankle traction|ankles|30|s|1|band-anchor|1|Band around the ankle, lean away

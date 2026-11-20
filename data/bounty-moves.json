@@ -1,6 +1,6 @@
 {
  "version": 1,
- "about": "RankUp Bounties move library: bodyweight only (household items: mat, wall, chair, step, towel). Each move lists the categories it belongs to with that category's rank (1 = most common), dose, unit and per-side flag. cautions are screening tags for later filtering (impact, deep-knee, neck-load, deep-backbend, loaded-spinal-flexion, advanced, wrist-load).",
+ "about": "RankUp Bounties move library. Ranks 1-200 in each category are bodyweight (household items only: mat, wall, chair, step, towel); ranks after 200 use a foam roller or resistance band (gear: true; anchor: true means the band is tied to a door or post). Each move lists the categories it belongs to with that category's rank (1 = most common), dose, unit and per-side flag. cautions are screening tags for later filtering (impact, deep-knee, neck-load, deep-backbend, loaded-spinal-flexion, advanced, wrist-load).",
  "categories": [
   {
    "id": "warmup",
@@ -5863,6 +5863,1808 @@
    "cautions": []
   },
   {
+   "id": "band-pull-aparts",
+   "name": "Band pull-aparts",
+   "areas": [
+    "upper back",
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Straight arms at chest height, pull to the chest, no shrug",
+   "categories": {
+    "warmup": {
+     "rank": 201,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band pull-aparts",
+     "cue": "Straight arms at chest height, pull to the chest, no shrug"
+    },
+    "prehab": {
+     "rank": 205,
+     "dose": 20,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band pull-aparts",
+     "cue": "Straight arms, squeeze the back"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-dislocates",
+   "name": "Band dislocates",
+   "areas": [
+    "shoulders",
+    "chest"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Wide grip, straight arms over and behind, narrow the grip over time",
+   "categories": {
+    "warmup": {
+     "rank": 202,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band dislocates",
+     "cue": "Wide grip, straight arms over and behind, narrow the grip over time"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-face-pulls",
+   "name": "Band face pulls",
+   "areas": [
+    "upper back",
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Anchor at eye level, pull to the forehead, elbows high, thumbs back",
+   "categories": {
+    "warmup": {
+     "rank": 203,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band face pulls",
+     "cue": "Anchor at eye level, pull to the forehead, elbows high, thumbs back"
+    },
+    "mobility": {
+     "rank": 211,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band face pulls",
+     "cue": "Pull high, thumbs back"
+    },
+    "prehab": {
+     "rank": 204,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band face pulls",
+     "cue": "Pull to the forehead, thumbs back"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-external-rotation",
+   "name": "Band external rotation",
+   "areas": [
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Elbow pinned to the side with a towel, rotate out slowly",
+   "categories": {
+    "warmup": {
+     "rank": 204,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band external rotation",
+     "cue": "Elbow pinned to the side with a towel, rotate out slowly"
+    },
+    "prehab": {
+     "rank": 201,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band external rotation",
+     "cue": "Elbow pinned with a towel, rotate out slowly"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-internal-rotation",
+   "name": "Band internal rotation",
+   "areas": [
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Elbow pinned, rotate in across the belly",
+   "categories": {
+    "warmup": {
+     "rank": 205,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band internal rotation",
+     "cue": "Elbow pinned, rotate in across the belly"
+    },
+    "prehab": {
+     "rank": 202,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band internal rotation",
+     "cue": "Elbow pinned, rotate in"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-overhead-pull-aparts",
+   "name": "Band overhead pull-aparts",
+   "areas": [
+    "shoulders",
+    "upper back"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Arms overhead, pull the band down behind the head to the neck",
+   "categories": {
+    "warmup": {
+     "rank": 206,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band overhead pull-aparts",
+     "cue": "Arms overhead, pull the band down behind the head to the neck"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-diagonal-pull-aparts",
+   "name": "Band diagonal pull-aparts",
+   "areas": [
+    "upper back",
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "One hand high, one low, pull apart on the diagonal",
+   "categories": {
+    "warmup": {
+     "rank": 207,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band diagonal pull-aparts",
+     "cue": "One hand high, one low, pull apart on the diagonal"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-y-raises",
+   "name": "Band Y raises",
+   "areas": [
+    "shoulders",
+    "upper back"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Stand on the band, raise arms into a Y, thumbs up",
+   "categories": {
+    "warmup": {
+     "rank": 208,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band Y raises",
+     "cue": "Stand on the band, raise arms into a Y, thumbs up"
+    },
+    "prehab": {
+     "rank": 207,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band Y raises",
+     "cue": "Stand on the band, arms into a Y"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-w-pull-aparts",
+   "name": "Band W pull-aparts",
+   "areas": [
+    "upper back",
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Elbows bent at 90, rotate the hands out and squeeze",
+   "categories": {
+    "warmup": {
+     "rank": 209,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band W pull-aparts",
+     "cue": "Elbows bent at 90, rotate the hands out and squeeze"
+    },
+    "prehab": {
+     "rank": 206,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band W pull-aparts",
+     "cue": "Elbows at 90, rotate out"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-no-moneys",
+   "name": "Band no-moneys",
+   "areas": [
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Elbows at the sides, palms up, rotate the hands out",
+   "categories": {
+    "warmup": {
+     "rank": 210,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band no-moneys",
+     "cue": "Elbows at the sides, palms up, rotate the hands out"
+    },
+    "prehab": {
+     "rank": 208,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band no-moneys",
+     "cue": "Elbows at the sides, rotate the hands out"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-straight-arm-pulldowns",
+   "name": "Band straight-arm pulldowns",
+   "areas": [
+    "lats",
+    "core"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Anchor high, straight arms down to the thighs, ribs down",
+   "categories": {
+    "warmup": {
+     "rank": 211,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band straight-arm pulldowns",
+     "cue": "Anchor high, straight arms down to the thighs, ribs down"
+    },
+    "prehab": {
+     "rank": 215,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band straight-arm pulldowns",
+     "cue": "Straight arms, ribs down"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-rows",
+   "name": "Band rows",
+   "areas": [
+    "upper back",
+    "lats"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Anchor at chest height, pull elbows past the ribs",
+   "categories": {
+    "warmup": {
+     "rank": 212,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band rows",
+     "cue": "Anchor at chest height, pull elbows past the ribs"
+    },
+    "prehab": {
+     "rank": 213,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band rows",
+     "cue": "Elbows past the ribs, squeeze"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-chest-press",
+   "name": "Band chest press",
+   "areas": [
+    "chest",
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Anchor behind, press forward without arching",
+   "categories": {
+    "warmup": {
+     "rank": 213,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band chest press",
+     "cue": "Anchor behind, press forward without arching"
+    },
+    "prehab": {
+     "rank": 217,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band chest press",
+     "cue": "Press without arching"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-overhead-press",
+   "name": "Band overhead press",
+   "areas": [
+    "shoulders",
+    "arms"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Stand on the band, press overhead, ribs down",
+   "categories": {
+    "warmup": {
+     "rank": 214,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band overhead press",
+     "cue": "Stand on the band, press overhead, ribs down"
+    },
+    "prehab": {
+     "rank": 219,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band overhead press",
+     "cue": "Ribs down"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-push-up-plus",
+   "name": "Band push-up plus",
+   "areas": [
+    "shoulders",
+    "chest"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Band across the back, push the extra inch at the top",
+   "categories": {
+    "warmup": {
+     "rank": 215,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band push-up plus",
+     "cue": "Band across the back, push the extra inch at the top"
+    },
+    "prehab": {
+     "rank": 210,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band push-up plus",
+     "cue": "Band across the back, extra inch at the top"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": [
+    "wrist-load"
+   ]
+  },
+  {
+   "id": "band-serratus-punches",
+   "name": "Band serratus punches",
+   "areas": [
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Anchor behind, punch forward and reach long",
+   "categories": {
+    "warmup": {
+     "rank": 216,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band serratus punches",
+     "cue": "Anchor behind, punch forward and reach long"
+    },
+    "prehab": {
+     "rank": 209,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band serratus punches",
+     "cue": "Punch forward and reach long"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-lateral-walks",
+   "name": "Banded lateral walks",
+   "areas": [
+    "glutes",
+    "hips"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Mini band above the knees, half squat, toes forward",
+   "categories": {
+    "warmup": {
+     "rank": 217,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded lateral walks",
+     "cue": "Mini band above the knees, half squat, toes forward"
+    },
+    "prehab": {
+     "rank": 236,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded lateral walks",
+     "cue": "Mini band above the knees"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-monster-walks",
+   "name": "Banded monster walks",
+   "areas": [
+    "glutes",
+    "hips"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Mini band above the knees, step forward on the diagonal",
+   "categories": {
+    "warmup": {
+     "rank": 218,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Banded monster walks",
+     "cue": "Mini band above the knees, step forward on the diagonal"
+    },
+    "prehab": {
+     "rank": 237,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Banded monster walks",
+     "cue": "Diagonal steps, stay low"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-glute-bridges",
+   "name": "Banded glute bridges",
+   "areas": [
+    "glutes",
+    "hamstrings"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Mini band above the knees, push the knees out at the top",
+   "categories": {
+    "warmup": {
+     "rank": 219,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Banded glute bridges",
+     "cue": "Mini band above the knees, push the knees out at the top"
+    },
+    "recovery": {
+     "rank": 238,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Banded glute bridges (easy)",
+     "cue": "Mini band, slow and easy"
+    },
+    "prehab": {
+     "rank": 238,
+     "dose": 20,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Banded glute bridges",
+     "cue": "Push the knees out at the top"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-clamshells",
+   "name": "Banded clamshells",
+   "areas": [
+    "glutes",
+    "hips"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Mini band above the knees, open the top knee",
+   "categories": {
+    "warmup": {
+     "rank": 220,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded clamshells",
+     "cue": "Mini band above the knees, open the top knee"
+    },
+    "prehab": {
+     "rank": 241,
+     "dose": 20,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded clamshells",
+     "cue": "Open the knee against the band"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-squats",
+   "name": "Banded squats",
+   "areas": [
+    "quads",
+    "glutes"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Mini band above the knees, knees press out against it",
+   "categories": {
+    "warmup": {
+     "rank": 221,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Banded squats",
+     "cue": "Mini band above the knees, knees press out against it"
+    },
+    "prehab": {
+     "rank": 247,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Banded squats",
+     "cue": "Knees out against the band"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-fire-hydrants",
+   "name": "Banded fire hydrants",
+   "areas": [
+    "glutes",
+    "hips"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Mini band above the knees, on all fours",
+   "categories": {
+    "warmup": {
+     "rank": 222,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded fire hydrants",
+     "cue": "Mini band above the knees, on all fours"
+    },
+    "prehab": {
+     "rank": 243,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded fire hydrants",
+     "cue": "Mini band above the knees"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-donkey-kicks",
+   "name": "Banded donkey kicks",
+   "areas": [
+    "glutes"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Band around the foot and hands, press the heel up",
+   "categories": {
+    "warmup": {
+     "rank": 223,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded donkey kicks",
+     "cue": "Band around the foot and hands, press the heel up"
+    },
+    "prehab": {
+     "rank": 244,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded donkey kicks",
+     "cue": "Heel to the ceiling"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-kickbacks-standing",
+   "name": "Banded kickbacks (standing)",
+   "areas": [
+    "glutes"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Mini band at the ankles, kick back without arching",
+   "categories": {
+    "warmup": {
+     "rank": 224,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded kickbacks (standing)",
+     "cue": "Mini band at the ankles, kick back without arching"
+    },
+    "prehab": {
+     "rank": 245,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded kickbacks (standing)",
+     "cue": "No low back arch"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-hip-abduction-standing",
+   "name": "Banded hip abduction (standing)",
+   "areas": [
+    "glutes"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Mini band at the ankles, lift the leg out to the side",
+   "categories": {
+    "warmup": {
+     "rank": 225,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded hip abduction (standing)",
+     "cue": "Mini band at the ankles, lift the leg out to the side"
+    },
+    "prehab": {
+     "rank": 246,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded hip abduction (standing)",
+     "cue": "Leg out to the side"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-good-mornings",
+   "name": "Banded good mornings",
+   "areas": [
+    "hamstrings",
+    "glutes",
+    "lower back"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Stand on the band, loop behind the neck, hinge",
+   "categories": {
+    "warmup": {
+     "rank": 226,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Banded good mornings",
+     "cue": "Stand on the band, loop behind the neck, hinge"
+    },
+    "mobility": {
+     "rank": 219,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Banded good mornings",
+     "cue": "Hinge with a flat back"
+    },
+    "prehab": {
+     "rank": 251,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Banded good mornings",
+     "cue": "Loop behind the neck, hinge"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-rdl",
+   "name": "Banded RDL",
+   "areas": [
+    "hamstrings",
+    "glutes"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Stand on the band, hinge with a flat back",
+   "categories": {
+    "warmup": {
+     "rank": 227,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Banded RDL",
+     "cue": "Stand on the band, hinge with a flat back"
+    },
+    "prehab": {
+     "rank": 250,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Banded RDL",
+     "cue": "Hinge with a flat back"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-hip-hinge-pull-through",
+   "name": "Banded hip hinge (pull-through)",
+   "areas": [
+    "glutes",
+    "hamstrings"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Anchor low behind you, hinge and snap the hips forward",
+   "categories": {
+    "warmup": {
+     "rank": 228,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Banded hip hinge (pull-through)",
+     "cue": "Anchor low behind you, hinge and snap the hips forward"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-hip-flexor-marches",
+   "name": "Banded hip flexor marches",
+   "areas": [
+    "hips",
+    "core"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Band around the feet, lie down, drive one knee in",
+   "categories": {
+    "warmup": {
+     "rank": 229,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded hip flexor marches",
+     "cue": "Band around the feet, lie down, drive one knee in"
+    },
+    "prehab": {
+     "rank": 258,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded hip flexor marches",
+     "cue": "Band around the feet, standing or lying"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-leg-swings",
+   "name": "Banded leg swings",
+   "areas": [
+    "hips",
+    "hamstrings"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Band at the ankle, controlled swings",
+   "categories": {
+    "warmup": {
+     "rank": 230,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded leg swings",
+     "cue": "Band at the ankle, controlled swings"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-ankle-dorsiflexion",
+   "name": "Banded ankle dorsiflexion",
+   "areas": [
+    "ankles"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Band pulls the shin back, drive the knee forward",
+   "categories": {
+    "warmup": {
+     "rank": 231,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded ankle dorsiflexion",
+     "cue": "Band pulls the shin back, drive the knee forward"
+    },
+    "mobility": {
+     "rank": 204,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded ankle dorsiflexion",
+     "cue": "Band low on the ankle pulling back, drive the knee forward"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-split-squat",
+   "name": "Banded split squat",
+   "areas": [
+    "quads",
+    "glutes"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Stand on the band, hold at the shoulders",
+   "categories": {
+    "warmup": {
+     "rank": 232,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded split squat",
+     "cue": "Stand on the band, hold at the shoulders"
+    },
+    "prehab": {
+     "rank": 249,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded split squat",
+     "cue": "Stand on the band"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-woodchops",
+   "name": "Band woodchops",
+   "areas": [
+    "core",
+    "upper back"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Anchor high, chop down across the body",
+   "categories": {
+    "warmup": {
+     "rank": 233,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band woodchops",
+     "cue": "Anchor high, chop down across the body"
+    },
+    "prehab": {
+     "rank": 231,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band woodchops",
+     "cue": "High to low across the body"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": [
+    "impact"
+   ]
+  },
+  {
+   "id": "band-pallof-press",
+   "name": "Band Pallof press",
+   "areas": [
+    "core"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Side-on, press out, hold 2 s, resist the twist",
+   "categories": {
+    "warmup": {
+     "rank": 234,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band Pallof press",
+     "cue": "Side-on, press out, hold 2 s, resist the twist"
+    },
+    "prehab": {
+     "rank": 228,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band Pallof press",
+     "cue": "Press out, hold 2 s, resist the twist"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-anti-rotation-hold",
+   "name": "Band anti-rotation hold",
+   "areas": [
+    "core"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Arms out, don't let the band twist you",
+   "categories": {
+    "warmup": {
+     "rank": 235,
+     "dose": 20,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band anti-rotation hold",
+     "cue": "Arms out, don't let the band twist you"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "isometric",
+   "cautions": []
+  },
+  {
+   "id": "banded-dead-bug",
+   "name": "Banded dead bug",
+   "areas": [
+    "core"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Hold an anchored band overhead, extend opposite legs",
+   "categories": {
+    "warmup": {
+     "rank": 236,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded dead bug",
+     "cue": "Hold an anchored band overhead, extend opposite legs"
+    },
+    "prehab": {
+     "rank": 233,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded dead bug",
+     "cue": "Hold the anchored band overhead"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-shoulder-cars-pass-through-slow",
+   "name": "Band shoulder CARs (pass-through slow)",
+   "areas": [
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Very slow pass-throughs, stop at any pinch",
+   "categories": {
+    "warmup": {
+     "rank": 237,
+     "dose": 5,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band shoulder CARs (pass-through slow)",
+     "cue": "Very slow pass-throughs, stop at any pinch"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-biceps-curls",
+   "name": "Band biceps curls",
+   "areas": [
+    "arms"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Stand on the band, curl slowly",
+   "categories": {
+    "warmup": {
+     "rank": 238,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band biceps curls",
+     "cue": "Stand on the band, curl slowly"
+    },
+    "prehab": {
+     "rank": 220,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band biceps curls",
+     "cue": "Slow lower"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-triceps-pushdowns",
+   "name": "Band triceps pushdowns",
+   "areas": [
+    "arms"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Anchor high, elbows pinned, press down",
+   "categories": {
+    "warmup": {
+     "rank": 239,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band triceps pushdowns",
+     "cue": "Anchor high, elbows pinned, press down"
+    },
+    "prehab": {
+     "rank": 222,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band triceps pushdowns",
+     "cue": "Elbows pinned"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-wrist-curls",
+   "name": "Band wrist curls",
+   "areas": [
+    "wrists"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Stand on the band, curl the wrists only",
+   "categories": {
+    "warmup": {
+     "rank": 240,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band wrist curls",
+     "cue": "Stand on the band, curl the wrists only"
+    },
+    "prehab": {
+     "rank": 224,
+     "dose": 20,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band wrist curls",
+     "cue": "Forearms on the thighs, curl up"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-calves",
+   "name": "Foam roll calves",
+   "areas": [
+    "calves"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Quick passes, rotate the foot in and out",
+   "categories": {
+    "warmup": {
+     "rank": 241,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll calves",
+     "cue": "Quick passes, rotate the foot in and out"
+    },
+    "cooldown": {
+     "rank": 203,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll calves",
+     "cue": "Slow passes, rotate the foot in and out"
+    },
+    "mobility": {
+     "rank": 233,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll calves",
+     "cue": "Slow passes"
+    },
+    "recovery": {
+     "rank": 203,
+     "dose": 90,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll calves",
+     "cue": "Slow, rotate the foot in and out"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-quads",
+   "name": "Foam roll quads",
+   "areas": [
+    "quads"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Face down, quick passes hip to knee",
+   "categories": {
+    "warmup": {
+     "rank": 242,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll quads",
+     "cue": "Face down, quick passes hip to knee"
+    },
+    "cooldown": {
+     "rank": 201,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll quads",
+     "cue": "Slow passes, pause 10 s on tender spots"
+    },
+    "mobility": {
+     "rank": 234,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll quads",
+     "cue": "Slow passes"
+    },
+    "recovery": {
+     "rank": 201,
+     "dose": 90,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll quads",
+     "cue": "Slow passes, stop and breathe on tender spots"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-hamstrings",
+   "name": "Foam roll hamstrings",
+   "areas": [
+    "hamstrings"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Seated on the roller, quick passes",
+   "categories": {
+    "warmup": {
+     "rank": 243,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll hamstrings",
+     "cue": "Seated on the roller, quick passes"
+    },
+    "cooldown": {
+     "rank": 202,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll hamstrings",
+     "cue": "Cross the other leg on top for more pressure"
+    },
+    "recovery": {
+     "rank": 202,
+     "dose": 90,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll hamstrings",
+     "cue": "Cross the other leg on top for more pressure"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-glutes",
+   "name": "Foam roll glutes",
+   "areas": [
+    "glutes"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Ankle over the knee, lean into the hip",
+   "categories": {
+    "warmup": {
+     "rank": 244,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll glutes",
+     "cue": "Ankle over the knee, lean into the hip"
+    },
+    "cooldown": {
+     "rank": 204,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll glutes",
+     "cue": "Ankle over the knee, lean toward the crossed side"
+    },
+    "mobility": {
+     "rank": 235,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll glutes",
+     "cue": "Ankle over the knee"
+    },
+    "recovery": {
+     "rank": 204,
+     "dose": 90,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll glutes",
+     "cue": "Ankle over the knee, lean into the hip"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-upper-back",
+   "name": "Foam roll upper back",
+   "areas": [
+    "upper back"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Hands behind the head, hips up, roll the mid back",
+   "categories": {
+    "warmup": {
+     "rank": 245,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roll upper back",
+     "cue": "Hands behind the head, hips up, roll the mid back"
+    },
+    "cooldown": {
+     "rank": 205,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roll upper back",
+     "cue": "Hands behind the head, slow rolls"
+    },
+    "mobility": {
+     "rank": 230,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roll upper back",
+     "cue": "Slow rolls"
+    },
+    "recovery": {
+     "rank": 205,
+     "dose": 90,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roll upper back",
+     "cue": "Hug yourself to spread the shoulder blades"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-lats",
+   "name": "Foam roll lats",
+   "areas": [
+    "lats"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "On your side, arm overhead, small rolls",
+   "categories": {
+    "warmup": {
+     "rank": 246,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll lats",
+     "cue": "On your side, arm overhead, small rolls"
+    },
+    "cooldown": {
+     "rank": 206,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll lats",
+     "cue": "Arm overhead, roll from armpit to mid ribs"
+    },
+    "mobility": {
+     "rank": 231,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll lats",
+     "cue": "Arm overhead"
+    },
+    "recovery": {
+     "rank": 206,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll lats",
+     "cue": "Arm overhead, small rolls"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-adductors",
+   "name": "Foam roll adductors",
+   "areas": [
+    "adductors"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Face down, leg out to the side on the roller",
+   "categories": {
+    "warmup": {
+     "rank": 247,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll adductors",
+     "cue": "Face down, leg out to the side on the roller"
+    },
+    "cooldown": {
+     "rank": 207,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll adductors",
+     "cue": "Leg out to the side, roll the inner thigh"
+    },
+    "mobility": {
+     "rank": 232,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll adductors",
+     "cue": "Leg out to the side"
+    },
+    "recovery": {
+     "rank": 207,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll adductors",
+     "cue": "Leg out to the side"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-hip-flexors",
+   "name": "Foam roll hip flexors",
+   "areas": [
+    "hips"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Face down, roller just below the hip bone",
+   "categories": {
+    "warmup": {
+     "rank": 248,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll hip flexors",
+     "cue": "Face down, roller just below the hip bone"
+    },
+    "cooldown": {
+     "rank": 208,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll hip flexors",
+     "cue": "Below the hip bone, breathe and relax"
+    },
+    "recovery": {
+     "rank": 208,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll hip flexors",
+     "cue": "Just below the hip bone, breathe"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-it-band-area-outer-thigh",
+   "name": "Foam roll IT band area (outer thigh)",
+   "areas": [
+    "hips",
+    "quads"
+   ],
+   "equipment": "foam roller",
+   "level": 2,
+   "cue": "Side-lying, top foot down to control the pressure",
+   "categories": {
+    "warmup": {
+     "rank": 249,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll IT band area (outer thigh)",
+     "cue": "Side-lying, top foot down to control the pressure"
+    },
+    "cooldown": {
+     "rank": 209,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll IT band area (outer thigh)",
+     "cue": "Top foot down, go slow"
+    },
+    "recovery": {
+     "rank": 209,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll IT band area (outer thigh)",
+     "cue": "Control the pressure with the top foot"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-thoracic-extensions",
+   "name": "Foam roller thoracic extensions",
+   "areas": [
+    "upper back"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Roller across the upper back, extend over it",
+   "categories": {
+    "warmup": {
+     "rank": 250,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Foam roller thoracic extensions",
+     "cue": "Roller across the upper back, extend over it"
+    },
+    "cooldown": {
+     "rank": 222,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Foam roller thoracic extensions",
+     "cue": "Extend over the roller at three levels"
+    },
+    "mobility": {
+     "rank": 223,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Foam roller thoracic extensions",
+     "cue": "Three levels of the upper back"
+    },
+    "recovery": {
+     "rank": 225,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Foam roller thoracic extensions",
+     "cue": "Gentle extension at three levels"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-t-spine-rotations",
+   "name": "Foam roller T-spine rotations",
+   "areas": [
+    "upper back"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Side-lying, knees on the roller, open the arm",
+   "categories": {
+    "warmup": {
+     "rank": 251,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Foam roller T-spine rotations",
+     "cue": "Side-lying, knees on the roller, open the arm"
+    },
+    "cooldown": {
+     "rank": 223,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Foam roller T-spine rotations",
+     "cue": "Side-lying, open the top arm"
+    },
+    "mobility": {
+     "rank": 224,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Foam roller T-spine rotations",
+     "cue": "Knees on the roller, open the arm"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-bridges",
+   "name": "Foam roller bridges",
+   "areas": [
+    "glutes",
+    "hamstrings"
+   ],
+   "equipment": "foam roller",
+   "level": 2,
+   "cue": "Feet on the roller, bridge without wobbling",
+   "categories": {
+    "warmup": {
+     "rank": 252,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Foam roller bridges",
+     "cue": "Feet on the roller, bridge without wobbling"
+    },
+    "prehab": {
+     "rank": 265,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Foam roller bridges",
+     "cue": "Feet on the roller, stay steady"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-dead-bugs",
+   "name": "Foam roller dead bugs",
+   "areas": [
+    "core"
+   ],
+   "equipment": "foam roller",
+   "level": 2,
+   "cue": "Lie along the roller, alternate reaches",
+   "categories": {
+    "warmup": {
+     "rank": 253,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Foam roller dead bugs",
+     "cue": "Lie along the roller, alternate reaches"
+    },
+    "prehab": {
+     "rank": 267,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Foam roller dead bugs",
+     "cue": "Lie along the roller, alternate reaches"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
    "id": "walk-it-off",
    "name": "Walk it off",
    "areas": [
@@ -11709,6 +13511,1066 @@
    "cautions": []
   },
   {
+   "id": "foam-roll-tfl-front-of-hip",
+   "name": "Foam roll TFL (front of hip)",
+   "areas": [
+    "hips"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Angle 45 degrees face down",
+   "categories": {
+    "cooldown": {
+     "rank": 210,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll TFL (front of hip)",
+     "cue": "Angle 45 degrees face down"
+    },
+    "recovery": {
+     "rank": 210,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll TFL (front of hip)",
+     "cue": "Angled face down"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-shins-tibialis",
+   "name": "Foam roll shins (tibialis)",
+   "areas": [
+    "shins"
+   ],
+   "equipment": "foam roller",
+   "level": 2,
+   "cue": "Kneel on the roller, roll the front of the shins",
+   "categories": {
+    "cooldown": {
+     "rank": 211,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roll shins (tibialis)",
+     "cue": "Kneel on the roller, roll the front of the shins"
+    },
+    "recovery": {
+     "rank": 211,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roll shins (tibialis)",
+     "cue": "Kneel on the roller"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-peroneals-outer-calf",
+   "name": "Foam roll peroneals (outer calf)",
+   "areas": [
+    "calves"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Turn onto the outside of the calf",
+   "categories": {
+    "cooldown": {
+     "rank": 212,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll peroneals (outer calf)",
+     "cue": "Turn onto the outside of the calf"
+    },
+    "recovery": {
+     "rank": 212,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll peroneals (outer calf)",
+     "cue": "Outside of the calf"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-pecs",
+   "name": "Foam roll pecs",
+   "areas": [
+    "chest"
+   ],
+   "equipment": "foam roller",
+   "level": 2,
+   "cue": "Face down, roller angled under the chest",
+   "categories": {
+    "cooldown": {
+     "rank": 213,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll pecs",
+     "cue": "Face down, roller angled under the chest"
+    },
+    "recovery": {
+     "rank": 213,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll pecs",
+     "cue": "Roller angled under the chest"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-triceps",
+   "name": "Foam roll triceps",
+   "areas": [
+    "arms"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Side-lying, arm overhead on the roller",
+   "categories": {
+    "cooldown": {
+     "rank": 214,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll triceps",
+     "cue": "Side-lying, arm overhead on the roller"
+    },
+    "recovery": {
+     "rank": 214,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll triceps",
+     "cue": "Arm overhead on the roller"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-forearms",
+   "name": "Foam roll forearms",
+   "areas": [
+    "wrists",
+    "arms"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Kneel, forearm on the roller, roll slowly",
+   "categories": {
+    "cooldown": {
+     "rank": 215,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll forearms",
+     "cue": "Kneel, forearm on the roller, roll slowly"
+    },
+    "recovery": {
+     "rank": 215,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll forearms",
+     "cue": "Slow passes"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-feet",
+   "name": "Foam roll feet",
+   "areas": [
+    "feet"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Stand and roll the arch",
+   "categories": {
+    "cooldown": {
+     "rank": 216,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll feet",
+     "cue": "Stand and roll the arch"
+    },
+    "recovery": {
+     "rank": 216,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll feet",
+     "cue": "Roll the arch"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-lower-back-gentle-side",
+   "name": "Foam roll lower back (gentle, side)",
+   "areas": [
+    "lower back"
+   ],
+   "equipment": "foam roller",
+   "level": 2,
+   "cue": "Lean to one side, never roll straight on the spine",
+   "categories": {
+    "cooldown": {
+     "rank": 217,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll lower back (gentle, side)",
+     "cue": "Lean to one side, never roll straight on the spine"
+    },
+    "recovery": {
+     "rank": 219,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll lower back (gentle, side)",
+     "cue": "Lean to one side, avoid the spine"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-rear-delts",
+   "name": "Foam roll rear delts",
+   "areas": [
+    "shoulders"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Side-lying, roller behind the shoulder",
+   "categories": {
+    "cooldown": {
+     "rank": 218,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll rear delts",
+     "cue": "Side-lying, roller behind the shoulder"
+    },
+    "recovery": {
+     "rank": 217,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll rear delts",
+     "cue": "Roller behind the shoulder"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-ql-side",
+   "name": "Foam roll QL (side)",
+   "areas": [
+    "lower back",
+    "lats"
+   ],
+   "equipment": "foam roller",
+   "level": 2,
+   "cue": "Side-lying just above the hip, small motions",
+   "categories": {
+    "cooldown": {
+     "rank": 219,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll QL (side)",
+     "cue": "Side-lying just above the hip, small motions"
+    },
+    "recovery": {
+     "rank": 218,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roll QL (side)",
+     "cue": "Small motions above the hip"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-chest-opener",
+   "name": "Foam roller chest opener",
+   "areas": [
+    "chest",
+    "upper back"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Lie along the roller, arms wide, palms up",
+   "categories": {
+    "cooldown": {
+     "rank": 220,
+     "dose": 90,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roller chest opener",
+     "cue": "Lie along the roller, arms wide, palms up"
+    },
+    "flexibility": {
+     "rank": 226,
+     "dose": 120,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roller chest opener",
+     "cue": "Lie along the roller, arms wide"
+    },
+    "recovery": {
+     "rank": 221,
+     "dose": 180,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roller chest opener",
+     "cue": "Lie along the roller, arms wide, breathe"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-snow-angels",
+   "name": "Foam roller snow angels",
+   "areas": [
+    "chest",
+    "shoulders"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Lie along the roller, slide the arms like a snow angel",
+   "categories": {
+    "cooldown": {
+     "rank": 221,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Foam roller snow angels",
+     "cue": "Lie along the roller, slide the arms like a snow angel"
+    },
+    "recovery": {
+     "rank": 224,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Foam roller snow angels",
+     "cue": "Slow sweeps along the floor"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-lat-stretch-kneeling",
+   "name": "Foam roller lat stretch (kneeling)",
+   "areas": [
+    "lats"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Arm on the roller, roll it forward, sink the chest",
+   "categories": {
+    "cooldown": {
+     "rank": 224,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roller lat stretch (kneeling)",
+     "cue": "Arm on the roller, roll it forward, sink the chest"
+    },
+    "flexibility": {
+     "rank": 229,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roller lat stretch (kneeling)",
+     "cue": "Roll the arm forward, sink the chest"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-supported-bridge",
+   "name": "Foam roller supported bridge",
+   "areas": [
+    "lower back",
+    "hips"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Roller under the sacrum, relax the legs",
+   "categories": {
+    "cooldown": {
+     "rank": 225,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roller supported bridge",
+     "cue": "Roller under the sacrum, relax the legs"
+    },
+    "flexibility": {
+     "rank": 225,
+     "dose": 90,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roller supported bridge",
+     "cue": "Roller under the sacrum"
+    },
+    "recovery": {
+     "rank": 222,
+     "dose": 120,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roller supported bridge",
+     "cue": "Roller under the sacrum, legs relaxed"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-hip-flexor-stretch",
+   "name": "Foam roller hip flexor stretch",
+   "areas": [
+    "hips"
+   ],
+   "equipment": "foam roller",
+   "level": 2,
+   "cue": "Roller under the sacrum, hug one knee, other leg long",
+   "categories": {
+    "cooldown": {
+     "rank": 226,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roller hip flexor stretch",
+     "cue": "Roller under the sacrum, hug one knee, other leg long"
+    },
+    "mobility": {
+     "rank": 227,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roller hip flexor stretch",
+     "cue": "Roller under the sacrum, one knee hugged"
+    },
+    "flexibility": {
+     "rank": 227,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roller hip flexor stretch",
+     "cue": "Hug one knee, other leg long and heavy"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-calf-stretch-toes-up",
+   "name": "Foam roller calf stretch (toes up)",
+   "areas": [
+    "calves"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Toes on the roller, heel down, lean in",
+   "categories": {
+    "cooldown": {
+     "rank": 227,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roller calf stretch (toes up)",
+     "cue": "Toes on the roller, heel down, lean in"
+    },
+    "flexibility": {
+     "rank": 230,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roller calf stretch (toes up)",
+     "cue": "Toes on the roller, heel down"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-hamstring-stretch",
+   "name": "Band hamstring stretch",
+   "areas": [
+    "hamstrings"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Band around the foot, leg straight up",
+   "categories": {
+    "cooldown": {
+     "rank": 228,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band hamstring stretch",
+     "cue": "Band around the foot, leg straight up"
+    },
+    "flexibility": {
+     "rank": 201,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band hamstring stretch",
+     "cue": "Leg straight up, pull gently, opposite leg long"
+    },
+    "recovery": {
+     "rank": 227,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band hamstring stretch",
+     "cue": "Relaxed hold, leg straight up"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-hamstring-stretch-to-the-side",
+   "name": "Band hamstring stretch to the side",
+   "areas": [
+    "adductors",
+    "hamstrings"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Open the banded leg out to the side",
+   "categories": {
+    "cooldown": {
+     "rank": 229,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band hamstring stretch to the side",
+     "cue": "Open the banded leg out to the side"
+    },
+    "flexibility": {
+     "rank": 202,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band hamstring stretch to the side",
+     "cue": "Open the leg out, opposite hip stays down"
+    },
+    "recovery": {
+     "rank": 228,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band hamstring stretch to the side",
+     "cue": "Leg opens out, relax"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-hamstring-stretch-across-the-body",
+   "name": "Band hamstring stretch across the body",
+   "areas": [
+    "glutes",
+    "hips"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Bring the banded leg across, shoulders down",
+   "categories": {
+    "cooldown": {
+     "rank": 230,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band hamstring stretch across the body",
+     "cue": "Bring the banded leg across, shoulders down"
+    },
+    "flexibility": {
+     "rank": 203,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band hamstring stretch across the body",
+     "cue": "Cross the leg over, shoulders down"
+    },
+    "recovery": {
+     "rank": 229,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band hamstring stretch across the body",
+     "cue": "Leg across, relax"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-quad-stretch-side-lying",
+   "name": "Band quad stretch (side-lying)",
+   "areas": [
+    "quads",
+    "hips"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Band around the foot, pull the heel to the glute",
+   "categories": {
+    "cooldown": {
+     "rank": 231,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band quad stretch (side-lying)",
+     "cue": "Band around the foot, pull the heel to the glute"
+    },
+    "flexibility": {
+     "rank": 204,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band quad stretch (side-lying)",
+     "cue": "Pull the heel back, push the hip forward"
+    },
+    "recovery": {
+     "rank": 231,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band quad stretch (side-lying)",
+     "cue": "Gentle pull"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-calf-stretch-seated",
+   "name": "Band calf stretch (seated)",
+   "areas": [
+    "calves"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Leg straight, pull the toes back with the band",
+   "categories": {
+    "cooldown": {
+     "rank": 232,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band calf stretch (seated)",
+     "cue": "Leg straight, pull the toes back with the band"
+    },
+    "flexibility": {
+     "rank": 206,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band calf stretch (seated)",
+     "cue": "Pull the toes back, leg straight"
+    },
+    "recovery": {
+     "rank": 230,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band calf stretch (seated)",
+     "cue": "Pull the toes back gently"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-overhead-lat-stretch",
+   "name": "Band overhead lat stretch",
+   "areas": [
+    "lats"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Hold the anchored band, sit the hips back",
+   "categories": {
+    "cooldown": {
+     "rank": 233,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band overhead lat stretch",
+     "cue": "Hold the anchored band, sit the hips back"
+    },
+    "flexibility": {
+     "rank": 213,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band overhead lat stretch",
+     "cue": "Sit back away from a high anchor"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-chest-stretch-anchored",
+   "name": "Band chest stretch (anchored)",
+   "areas": [
+    "chest",
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Anchor at shoulder height, turn away",
+   "categories": {
+    "cooldown": {
+     "rank": 234,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band chest stretch (anchored)",
+     "cue": "Anchor at shoulder height, turn away"
+    },
+    "flexibility": {
+     "rank": 214,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band chest stretch (anchored)",
+     "cue": "Turn away from a shoulder-height anchor"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-shoulder-dislocates",
+   "name": "Band shoulder dislocates (slow)",
+   "areas": [
+    "shoulders",
+    "chest"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Slow, wide grip",
+   "categories": {
+    "cooldown": {
+     "rank": 235,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band shoulder dislocates (slow)",
+     "cue": "Slow, wide grip"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-triceps-stretch",
+   "name": "Band triceps stretch",
+   "areas": [
+    "arms",
+    "lats"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Hold the band behind the back, pull the top hand down",
+   "categories": {
+    "cooldown": {
+     "rank": 236,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band triceps stretch",
+     "cue": "Hold the band behind the back, pull the top hand down"
+    },
+    "flexibility": {
+     "rank": 216,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band triceps stretch",
+     "cue": "Pull the top hand down with the band"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-cross-body-shoulder-stretch",
+   "name": "Band cross-body shoulder stretch",
+   "areas": [
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Band pulls the arm gently across",
+   "categories": {
+    "cooldown": {
+     "rank": 237,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band cross-body shoulder stretch",
+     "cue": "Band pulls the arm gently across"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-biceps-stretch-anchored",
+   "name": "Band biceps stretch (anchored)",
+   "areas": [
+    "arms",
+    "chest"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Anchor behind at hip height, turn away",
+   "categories": {
+    "cooldown": {
+     "rank": 238,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band biceps stretch (anchored)",
+     "cue": "Anchor behind at hip height, turn away"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-hip-flexor-stretch-anchored",
+   "name": "Band hip flexor stretch (anchored)",
+   "areas": [
+    "hips",
+    "quads"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Band pulls the hip forward in a half-kneel",
+   "categories": {
+    "cooldown": {
+     "rank": 239,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band hip flexor stretch (anchored)",
+     "cue": "Band pulls the hip forward in a half-kneel"
+    },
+    "flexibility": {
+     "rank": 220,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band hip flexor stretch (anchored)",
+     "cue": "Band pulls the hip forward in a half-kneel"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-lat-traction",
+   "name": "Band lat traction",
+   "areas": [
+    "lats"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Anchor high, sit back and let it pull",
+   "categories": {
+    "cooldown": {
+     "rank": 240,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band lat traction",
+     "cue": "Anchor high, sit back and let it pull"
+    },
+    "flexibility": {
+     "rank": 221,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band lat traction",
+     "cue": "Let the band pull you long"
+    },
+    "recovery": {
+     "rank": 232,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band lat traction",
+     "cue": "Let it pull, breathe"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-glute-stretch-figure-four",
+   "name": "Band glute stretch (figure-four)",
+   "areas": [
+    "glutes"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Loop around the lower thigh, pull in",
+   "categories": {
+    "cooldown": {
+     "rank": 241,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band glute stretch (figure-four)",
+     "cue": "Loop around the lower thigh, pull in"
+    },
+    "flexibility": {
+     "rank": 218,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band glute stretch (figure-four)",
+     "cue": "Loop around the thigh, pull in"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-supine-twist",
+   "name": "Band supine twist",
+   "areas": [
+    "lower back",
+    "glutes"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Leg across with a band around the foot",
+   "categories": {
+    "cooldown": {
+     "rank": 242,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band supine twist",
+     "cue": "Leg across with a band around the foot"
+    },
+    "flexibility": {
+     "rank": 219,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band supine twist",
+     "cue": "Leg across, band keeps the foot reaching"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-ankle-traction",
+   "name": "Band ankle traction",
+   "areas": [
+    "ankles"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Band around the ankle, lean away",
+   "categories": {
+    "cooldown": {
+     "rank": 243,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band ankle traction",
+     "cue": "Band around the ankle, lean away"
+    },
+    "recovery": {
+     "rank": 234,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band ankle traction",
+     "cue": "Band around the ankle, lean away"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
    "id": "hip-cars-quadruped",
    "name": "Hip CARs (quadruped)",
    "areas": [
@@ -15165,6 +18027,619 @@
    "cautions": []
   },
   {
+   "id": "banded-hip-distraction-lunge",
+   "name": "Banded hip distraction (lunge)",
+   "areas": [
+    "hips"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Band high on the front thigh pulling back, sink into the lunge",
+   "categories": {
+    "mobility": {
+     "rank": 201,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Banded hip distraction (lunge)",
+     "cue": "Band high on the front thigh pulling back, sink into the lunge"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "banded-hip-distraction-90-90",
+   "name": "Banded hip distraction (90/90)",
+   "areas": [
+    "hips"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Band around the hip crease pulling out",
+   "categories": {
+    "mobility": {
+     "rank": 202,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Banded hip distraction (90/90)",
+     "cue": "Band around the hip crease pulling out"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "banded-hip-internal-rotation",
+   "name": "Banded hip internal rotation",
+   "areas": [
+    "hips"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Band pulls the knee out, rotate inward against it",
+   "categories": {
+    "mobility": {
+     "rank": 203,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded hip internal rotation",
+     "cue": "Band pulls the knee out, rotate inward against it"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-shoulder-distraction-overhead",
+   "name": "Banded shoulder distraction (overhead)",
+   "areas": [
+    "shoulders",
+    "lats"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Hand in the band anchored high, sit away",
+   "categories": {
+    "mobility": {
+     "rank": 205,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Banded shoulder distraction (overhead)",
+     "cue": "Hand in the band anchored high, sit away"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "banded-shoulder-distraction-behind-back",
+   "name": "Banded shoulder distraction (behind back)",
+   "areas": [
+    "shoulders",
+    "chest"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Band anchored behind, step forward",
+   "categories": {
+    "mobility": {
+     "rank": 206,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Banded shoulder distraction (behind back)",
+     "cue": "Band anchored behind, step forward"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "banded-sleeper-stretch",
+   "name": "Banded sleeper stretch",
+   "areas": [
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Band pulls the forearm down gently",
+   "categories": {
+    "mobility": {
+     "rank": 207,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Banded sleeper stretch",
+     "cue": "Band pulls the forearm down gently"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "banded-pass-throughs",
+   "name": "Banded pass-throughs",
+   "areas": [
+    "shoulders",
+    "chest"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Wide grip, straight arms",
+   "categories": {
+    "mobility": {
+     "rank": 208,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Banded pass-throughs",
+     "cue": "Wide grip, straight arms"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-shoulder-cars",
+   "name": "Band shoulder CARs",
+   "areas": [
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Slow circle against light band tension",
+   "categories": {
+    "mobility": {
+     "rank": 209,
+     "dose": 5,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band shoulder CARs",
+     "cue": "Slow circle against light band tension"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-external-rotation-at-90-90",
+   "name": "Band external rotation at 90/90",
+   "areas": [
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Elbow at shoulder height, rotate up",
+   "categories": {
+    "mobility": {
+     "rank": 210,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band external rotation at 90/90",
+     "cue": "Elbow at shoulder height, rotate up"
+    },
+    "prehab": {
+     "rank": 203,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band external rotation at 90/90",
+     "cue": "Elbow at shoulder height, rotate up"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-thoracic-rotation-anchored",
+   "name": "Band thoracic rotation (anchored)",
+   "areas": [
+    "upper back"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Half-kneeling, rotate away against the band",
+   "categories": {
+    "mobility": {
+     "rank": 212,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band thoracic rotation (anchored)",
+     "cue": "Half-kneeling, rotate away against the band"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-open-books",
+   "name": "Band open books",
+   "areas": [
+    "upper back",
+    "chest"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Side-lying, band adds a gentle pull open",
+   "categories": {
+    "mobility": {
+     "rank": 213,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band open books",
+     "cue": "Side-lying, band adds a gentle pull open"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-hip-flexor-marches",
+   "name": "Band hip flexor marches",
+   "areas": [
+    "hips",
+    "core"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Lie down, band around the feet, drive one knee in",
+   "categories": {
+    "mobility": {
+     "rank": 214,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band hip flexor marches",
+     "cue": "Lie down, band around the feet, drive one knee in"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-hamstring-floss",
+   "name": "Banded hamstring floss",
+   "areas": [
+    "hamstrings"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Band around the foot, bend and straighten the knee",
+   "categories": {
+    "mobility": {
+     "rank": 215,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded hamstring floss",
+     "cue": "Band around the foot, bend and straighten the knee"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-leg-lowers",
+   "name": "Banded leg lowers",
+   "areas": [
+    "hamstrings",
+    "core"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Banded leg up, lower the other slowly",
+   "categories": {
+    "mobility": {
+     "rank": 216,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded leg lowers",
+     "cue": "Banded leg up, lower the other slowly"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-adductor-rock-backs",
+   "name": "Banded adductor rock-backs",
+   "areas": [
+    "adductors"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Band pulling the leg out, rock back",
+   "categories": {
+    "mobility": {
+     "rank": 217,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded adductor rock-backs",
+     "cue": "Band pulling the leg out, rock back"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-squat-deep-hold",
+   "name": "Banded squat (deep hold)",
+   "areas": [
+    "hips",
+    "ankles"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Hold an anchored band in front, sit deep",
+   "categories": {
+    "mobility": {
+     "rank": 218,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Banded squat (deep hold)",
+     "cue": "Hold an anchored band in front, sit deep"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "isometric",
+   "cautions": []
+  },
+  {
+   "id": "banded-cossack-squats",
+   "name": "Banded Cossack squats",
+   "areas": [
+    "adductors",
+    "hips"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Hold a band in front for balance",
+   "categories": {
+    "mobility": {
+     "rank": 220,
+     "dose": 5,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded Cossack squats",
+     "cue": "Hold a band in front for balance"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-wrist-distraction",
+   "name": "Banded wrist distraction",
+   "areas": [
+    "wrists"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Band around the wrist, lean away",
+   "categories": {
+    "mobility": {
+     "rank": 221,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Banded wrist distraction",
+     "cue": "Band around the wrist, lean away"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-elbow-flexion-extension",
+   "name": "Band elbow flexion/extension",
+   "areas": [
+    "arms"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Slow curls and pushdowns for elbow range",
+   "categories": {
+    "mobility": {
+     "rank": 222,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band elbow flexion/extension",
+     "cue": "Slow curls and pushdowns for elbow range"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-wall-slides",
+   "name": "Foam roller wall slides",
+   "areas": [
+    "shoulders",
+    "upper back"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Forearms on a roller against the wall, roll up",
+   "categories": {
+    "mobility": {
+     "rank": 225,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Foam roller wall slides",
+     "cue": "Forearms on a roller against the wall, roll up"
+    },
+    "prehab": {
+     "rank": 273,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Foam roller wall slides",
+     "cue": "Forearms on the roller against the wall"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-lat-flossing",
+   "name": "Foam roller lat flossing",
+   "areas": [
+    "lats"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Arm on the roller, roll forward and back",
+   "categories": {
+    "mobility": {
+     "rank": 226,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Foam roller lat flossing",
+     "cue": "Arm on the roller, roll forward and back"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-pec-stretch-snow-angels",
+   "name": "Foam roller pec stretch (snow angels)",
+   "areas": [
+    "chest",
+    "shoulders"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Lie along the roller, arms sweep",
+   "categories": {
+    "mobility": {
+     "rank": 228,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Foam roller pec stretch (snow angels)",
+     "cue": "Lie along the roller, arms sweep"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-ankle-rocks",
+   "name": "Foam roller ankle rocks",
+   "areas": [
+    "ankles"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Toes on the roller, knee drives forward",
+   "categories": {
+    "mobility": {
+     "rank": 229,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Foam roller ankle rocks",
+     "cue": "Toes on the roller, knee drives forward"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-hamstring-flossing",
+   "name": "Foam roller hamstring flossing",
+   "areas": [
+    "hamstrings"
+   ],
+   "equipment": "foam roller",
+   "level": 2,
+   "cue": "Pause on a spot, bend and straighten the knee",
+   "categories": {
+    "mobility": {
+     "rank": 236,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Foam roller hamstring flossing",
+     "cue": "Pause on a spot, bend and straighten the knee"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-quad-flossing",
+   "name": "Foam roller quad flossing",
+   "areas": [
+    "quads"
+   ],
+   "equipment": "foam roller",
+   "level": 2,
+   "cue": "Pause on a spot, bend the knee",
+   "categories": {
+    "mobility": {
+     "rank": 237,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Foam roller quad flossing",
+     "cue": "Pause on a spot, bend the knee"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
    "id": "low-lunge",
    "name": "Low lunge",
    "areas": [
@@ -17585,6 +21060,337 @@
    "cautions": []
   },
   {
+   "id": "band-quad-stretch-prone",
+   "name": "Band quad stretch (prone)",
+   "areas": [
+    "quads"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Face down, band around the foot over the shoulder",
+   "categories": {
+    "flexibility": {
+     "rank": 205,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band quad stretch (prone)",
+     "cue": "Face down, band around the foot over the shoulder"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-king-pigeon",
+   "name": "Band king pigeon",
+   "areas": [
+    "quads",
+    "hips"
+   ],
+   "equipment": "resistance band",
+   "level": 3,
+   "cue": "From pigeon, band around the back foot over the shoulder",
+   "categories": {
+    "flexibility": {
+     "rank": 207,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band king pigeon",
+     "cue": "From pigeon, band around the back foot over the shoulder"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": [
+    "deep-backbend"
+   ]
+  },
+  {
+   "id": "band-dancer-pose",
+   "name": "Band dancer pose",
+   "areas": [
+    "quads",
+    "chest"
+   ],
+   "equipment": "resistance band",
+   "level": 3,
+   "cue": "Standing, kick the banded foot back and up",
+   "categories": {
+    "flexibility": {
+     "rank": 208,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band dancer pose",
+     "cue": "Standing, kick the banded foot back and up"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-standing-split",
+   "name": "Band standing split",
+   "areas": [
+    "hamstrings"
+   ],
+   "equipment": "resistance band",
+   "level": 3,
+   "cue": "Band around the lifted foot, pull up gently",
+   "categories": {
+    "flexibility": {
+     "rank": 209,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band standing split",
+     "cue": "Band around the lifted foot, pull up gently"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-seated-forward-fold",
+   "name": "Band seated forward fold",
+   "areas": [
+    "hamstrings"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Band around the feet, pull the chest forward",
+   "categories": {
+    "flexibility": {
+     "rank": 210,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Band seated forward fold",
+     "cue": "Band around the feet, pull the chest forward"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-pancake",
+   "name": "Band pancake",
+   "areas": [
+    "adductors",
+    "hamstrings"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Anchor in front, pull the chest forward in straddle",
+   "categories": {
+    "flexibility": {
+     "rank": 211,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Band pancake",
+     "cue": "Anchor in front, pull the chest forward in straddle"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-front-split-assist",
+   "name": "Band front split assist",
+   "areas": [
+    "hamstrings",
+    "hips"
+   ],
+   "equipment": "resistance band",
+   "level": 3,
+   "cue": "Band around the front foot, ease into the split",
+   "categories": {
+    "flexibility": {
+     "rank": 212,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band front split assist",
+     "cue": "Band around the front foot, ease into the split"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-shoulder-dislocates-narrow",
+   "name": "Band shoulder dislocates (narrow)",
+   "areas": [
+    "shoulders",
+    "chest"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Narrow the grip a little each set",
+   "categories": {
+    "flexibility": {
+     "rank": 215,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band shoulder dislocates (narrow)",
+     "cue": "Narrow the grip a little each set"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-cow-face-arms",
+   "name": "Band cow face arms",
+   "areas": [
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Bridge the hands with the band behind the back",
+   "categories": {
+    "flexibility": {
+     "rank": 217,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band cow face arms",
+     "cue": "Bridge the hands with the band behind the back"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-pnf-hamstring-contract-relax",
+   "name": "Band PNF hamstring (contract-relax)",
+   "areas": [
+    "hamstrings"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Press into the band 5 s, relax, go deeper",
+   "categories": {
+    "flexibility": {
+     "rank": 222,
+     "dose": 3,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band PNF hamstring (contract-relax)",
+     "cue": "Press into the band 5 s, relax, go deeper"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-pnf-calf-contract-relax",
+   "name": "Band PNF calf (contract-relax)",
+   "areas": [
+    "calves"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Press the foot into the band 5 s, relax",
+   "categories": {
+    "flexibility": {
+     "rank": 223,
+     "dose": 3,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band PNF calf (contract-relax)",
+     "cue": "Press the foot into the band 5 s, relax"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-pnf-quad-side-lying",
+   "name": "Band PNF quad (side-lying)",
+   "areas": [
+    "quads"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Kick into the band 5 s, relax, pull deeper",
+   "categories": {
+    "flexibility": {
+     "rank": 224,
+     "dose": 3,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band PNF quad (side-lying)",
+     "cue": "Kick into the band 5 s, relax, pull deeper"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-backbend",
+   "name": "Foam roller backbend",
+   "areas": [
+    "upper back",
+    "chest"
+   ],
+   "equipment": "foam roller",
+   "level": 2,
+   "cue": "Roller across the shoulder blades, arms overhead",
+   "categories": {
+    "flexibility": {
+     "rank": 228,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roller backbend",
+     "cue": "Roller across the shoulder blades, arms overhead"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-hamstring-stretch-heel-on-roller",
+   "name": "Foam roller hamstring stretch (heel on roller)",
+   "areas": [
+    "hamstrings"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Heel on the roller, hinge forward",
+   "categories": {
+    "flexibility": {
+     "rank": 231,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roller hamstring stretch (heel on roller)",
+     "cue": "Heel on the roller, hinge forward"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
    "id": "easy-walk",
    "name": "Easy walk",
    "areas": [
@@ -19515,6 +23321,172 @@
     }
    },
    "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "foam-roll-neck-base-of-skull",
+   "name": "Foam roll neck (base of skull)",
+   "areas": [
+    "neck"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Roller under the neck, small head turns",
+   "categories": {
+    "recovery": {
+     "rank": 220,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roll neck (base of skull)",
+     "cue": "Roller under the neck, small head turns"
+    }
+   },
+   "gear": true,
+   "kind": "self-massage",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-legs-up-rest",
+   "name": "Foam roller legs-up rest",
+   "areas": [
+    "hamstrings",
+    "lower back"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Roller under the sacrum, legs up to the sky",
+   "categories": {
+    "recovery": {
+     "rank": 223,
+     "dose": 120,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roller legs-up rest",
+     "cue": "Roller under the sacrum, legs up to the sky"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-breathing-lengthwise",
+   "name": "Foam roller breathing (lengthwise)",
+   "areas": [
+    "full body",
+    "chest"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Lie along the roller, slow belly breaths",
+   "categories": {
+    "recovery": {
+     "rank": 226,
+     "dose": 120,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roller breathing (lengthwise)",
+     "cue": "Lie along the roller, slow belly breaths"
+    }
+   },
+   "gear": true,
+   "kind": "breathing",
+   "cautions": []
+  },
+  {
+   "id": "band-shoulder-distraction-overhead",
+   "name": "Band shoulder distraction (overhead)",
+   "areas": [
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Sit away, relax the shoulder",
+   "categories": {
+    "recovery": {
+     "rank": 233,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band shoulder distraction (overhead)",
+     "cue": "Sit away, relax the shoulder"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-hip-distraction-lying",
+   "name": "Band hip distraction (lying)",
+   "areas": [
+    "hips"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Band around the ankle, lie back and relax the leg",
+   "categories": {
+    "recovery": {
+     "rank": 235,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Band hip distraction (lying)",
+     "cue": "Band around the ankle, lie back and relax the leg"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "band-pull-aparts-light",
+   "name": "Band pull-aparts (light)",
+   "areas": [
+    "upper back"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Light band, easy rhythm",
+   "categories": {
+    "recovery": {
+     "rank": 236,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band pull-aparts (light)",
+     "cue": "Light band, easy rhythm"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-external-rotation-light",
+   "name": "Band external rotation (light)",
+   "areas": [
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Light band, smooth reps",
+   "categories": {
+    "recovery": {
+     "rank": 237,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band external rotation (light)",
+     "cue": "Light band, smooth reps"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
    "cautions": []
   },
   {
@@ -22340,6 +26312,917 @@
     }
    },
    "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-scaption-raises",
+   "name": "Band scaption raises",
+   "areas": [
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Stand on the band, raise at 30 degrees in front",
+   "categories": {
+    "prehab": {
+     "rank": 211,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band scaption raises",
+     "cue": "Stand on the band, raise at 30 degrees in front"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-lateral-raises",
+   "name": "Band lateral raises",
+   "areas": [
+    "shoulders"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Stand on the band, raise to shoulder height",
+   "categories": {
+    "prehab": {
+     "rank": 212,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band lateral raises",
+     "cue": "Stand on the band, raise to shoulder height"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-single-arm-row",
+   "name": "Band single-arm row",
+   "areas": [
+    "upper back",
+    "lats"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "No twisting",
+   "categories": {
+    "prehab": {
+     "rank": 214,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band single-arm row",
+     "cue": "No twisting"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-lat-pulldown-kneeling",
+   "name": "Band lat pulldown (kneeling)",
+   "areas": [
+    "lats",
+    "arms"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Anchor high, pull the elbows to the ribs",
+   "categories": {
+    "prehab": {
+     "rank": 216,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band lat pulldown (kneeling)",
+     "cue": "Anchor high, pull the elbows to the ribs"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-chest-fly",
+   "name": "Band chest fly",
+   "areas": [
+    "chest"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Soft elbows, hug a tree",
+   "categories": {
+    "prehab": {
+     "rank": 218,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band chest fly",
+     "cue": "Soft elbows, hug a tree"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-hammer-curls",
+   "name": "Band hammer curls",
+   "areas": [
+    "arms",
+    "wrists"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Thumbs up",
+   "categories": {
+    "prehab": {
+     "rank": 221,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band hammer curls",
+     "cue": "Thumbs up"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-overhead-triceps-extension",
+   "name": "Band overhead triceps extension",
+   "areas": [
+    "arms"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Stand on the band, extend overhead",
+   "categories": {
+    "prehab": {
+     "rank": 223,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band overhead triceps extension",
+     "cue": "Stand on the band, extend overhead"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-reverse-wrist-curls",
+   "name": "Band reverse wrist curls",
+   "areas": [
+    "wrists"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Palms down, lift the hands",
+   "categories": {
+    "prehab": {
+     "rank": 225,
+     "dose": 20,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band reverse wrist curls",
+     "cue": "Palms down, lift the hands"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-wrist-radial-deviation",
+   "name": "Band wrist radial deviation",
+   "areas": [
+    "wrists"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Thumb side lifts against the band",
+   "categories": {
+    "prehab": {
+     "rank": 226,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band wrist radial deviation",
+     "cue": "Thumb side lifts against the band"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-finger-extensions",
+   "name": "Band finger extensions",
+   "areas": [
+    "wrists"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Small band around the fingers, open wide",
+   "categories": {
+    "prehab": {
+     "rank": 227,
+     "dose": 20,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band finger extensions",
+     "cue": "Small band around the fingers, open wide"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-pallof-press-half-kneeling",
+   "name": "Band Pallof press (half-kneeling)",
+   "areas": [
+    "core",
+    "hips"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Inside knee down, squeeze the glute",
+   "categories": {
+    "prehab": {
+     "rank": 229,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band Pallof press (half-kneeling)",
+     "cue": "Inside knee down, squeeze the glute"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-anti-rotation-walkout",
+   "name": "Band anti-rotation walkout",
+   "areas": [
+    "core"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Step out sideways holding the band at the chest",
+   "categories": {
+    "prehab": {
+     "rank": 230,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band anti-rotation walkout",
+     "cue": "Step out sideways holding the band at the chest"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-reverse-woodchops",
+   "name": "Band reverse woodchops",
+   "areas": [
+    "core",
+    "upper back"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Low to high across the body",
+   "categories": {
+    "prehab": {
+     "rank": 232,
+     "dose": 12,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band reverse woodchops",
+     "cue": "Low to high across the body"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": [
+    "impact"
+   ]
+  },
+  {
+   "id": "band-kneeling-crunch",
+   "name": "Band kneeling crunch",
+   "areas": [
+    "core"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Anchor high, crunch the ribs to the hips",
+   "categories": {
+    "prehab": {
+     "rank": 234,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band kneeling crunch",
+     "cue": "Anchor high, crunch the ribs to the hips"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-side-bend",
+   "name": "Band side bend",
+   "areas": [
+    "core",
+    "lower back"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Stand on the band, bend away",
+   "categories": {
+    "prehab": {
+     "rank": 235,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Band side bend",
+     "cue": "Stand on the band, bend away"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-glute-bridge-hold",
+   "name": "Banded glute bridge hold",
+   "areas": [
+    "glutes"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Hold the top, knees out",
+   "categories": {
+    "prehab": {
+     "rank": 239,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Banded glute bridge hold",
+     "cue": "Hold the top, knees out"
+    }
+   },
+   "gear": true,
+   "kind": "isometric",
+   "cautions": []
+  },
+  {
+   "id": "banded-single-leg-bridge",
+   "name": "Banded single-leg bridge",
+   "areas": [
+    "glutes",
+    "hamstrings"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Mini band, hips level",
+   "categories": {
+    "prehab": {
+     "rank": 240,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded single-leg bridge",
+     "cue": "Mini band, hips level"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-side-lying-abduction",
+   "name": "Banded side-lying abduction",
+   "areas": [
+    "glutes"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Mini band at the ankles",
+   "categories": {
+    "prehab": {
+     "rank": 242,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded side-lying abduction",
+     "cue": "Mini band at the ankles"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-squat-pulses",
+   "name": "Banded squat pulses",
+   "areas": [
+    "quads",
+    "glutes"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Mini band, stay low",
+   "categories": {
+    "prehab": {
+     "rank": 248,
+     "dose": 20,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Banded squat pulses",
+     "cue": "Mini band, stay low"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "band-pull-through",
+   "name": "Band pull-through",
+   "areas": [
+    "glutes",
+    "hamstrings"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Anchor low behind, snap the hips",
+   "categories": {
+    "prehab": {
+     "rank": 252,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Band pull-through",
+     "cue": "Anchor low behind, snap the hips"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-hamstring-curl-prone",
+   "name": "Banded hamstring curl (prone)",
+   "areas": [
+    "hamstrings"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Anchor at the feet, curl the heel in",
+   "categories": {
+    "prehab": {
+     "rank": 253,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded hamstring curl (prone)",
+     "cue": "Anchor at the feet, curl the heel in"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-leg-extension-seated",
+   "name": "Banded leg extension (seated)",
+   "areas": [
+    "quads",
+    "knees"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Anchor behind the chair, straighten the knee",
+   "categories": {
+    "prehab": {
+     "rank": 254,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded leg extension (seated)",
+     "cue": "Anchor behind the chair, straighten the knee"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-terminal-knee-extension",
+   "name": "Banded terminal knee extension",
+   "areas": [
+    "quads",
+    "knees"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Band behind the knee, lock it straight",
+   "categories": {
+    "prehab": {
+     "rank": 255,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded terminal knee extension",
+     "cue": "Band behind the knee, lock it straight"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-copenhagen-assisted",
+   "name": "Banded Copenhagen (assisted)",
+   "areas": [
+    "adductors"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Band anchored, squeeze the leg in",
+   "categories": {
+    "prehab": {
+     "rank": 256,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded Copenhagen (assisted)",
+     "cue": "Band anchored, squeeze the leg in"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": [
+    "advanced"
+   ]
+  },
+  {
+   "id": "banded-adductor-squeeze-standing",
+   "name": "Banded adductor squeeze (standing)",
+   "areas": [
+    "adductors"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Pull the leg across the body",
+   "categories": {
+    "prehab": {
+     "rank": 257,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded adductor squeeze (standing)",
+     "cue": "Pull the leg across the body"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "isometric",
+   "cautions": []
+  },
+  {
+   "id": "banded-psoas-march-supine",
+   "name": "Banded psoas march (supine)",
+   "areas": [
+    "hips",
+    "core"
+   ],
+   "equipment": "resistance band",
+   "level": 2,
+   "cue": "Low back flat, drive the knee to the chest",
+   "categories": {
+    "prehab": {
+     "rank": 259,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded psoas march (supine)",
+     "cue": "Low back flat, drive the knee to the chest"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-ankle-eversion",
+   "name": "Banded ankle eversion",
+   "areas": [
+    "ankles"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Turn the foot out against the band",
+   "categories": {
+    "prehab": {
+     "rank": 260,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded ankle eversion",
+     "cue": "Turn the foot out against the band"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-ankle-inversion",
+   "name": "Banded ankle inversion",
+   "areas": [
+    "ankles"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Turn the foot in against the band",
+   "categories": {
+    "prehab": {
+     "rank": 261,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded ankle inversion",
+     "cue": "Turn the foot in against the band"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-ankle-plantarflexion",
+   "name": "Banded ankle plantarflexion",
+   "areas": [
+    "calves",
+    "ankles"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Seated, push the foot down against the band",
+   "categories": {
+    "prehab": {
+     "rank": 262,
+     "dose": 20,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded ankle plantarflexion",
+     "cue": "Seated, push the foot down against the band"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-ankle-dorsiflexion-strength",
+   "name": "Banded ankle dorsiflexion (strength)",
+   "areas": [
+    "shins"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Pull the toes up toward you",
+   "categories": {
+    "prehab": {
+     "rank": 263,
+     "dose": 20,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded ankle dorsiflexion (strength)",
+     "cue": "Pull the toes up toward you"
+    }
+   },
+   "gear": true,
+   "anchor": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "banded-toe-curls",
+   "name": "Banded toe curls",
+   "areas": [
+    "feet"
+   ],
+   "equipment": "resistance band",
+   "level": 1,
+   "cue": "Curl the toes against a small band",
+   "categories": {
+    "prehab": {
+     "rank": 264,
+     "dose": 15,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Banded toe curls",
+     "cue": "Curl the toes against a small band"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-hamstring-curls",
+   "name": "Foam roller hamstring curls",
+   "areas": [
+    "hamstrings"
+   ],
+   "equipment": "foam roller",
+   "level": 3,
+   "cue": "Heels on the roller, bridge and curl in",
+   "categories": {
+    "prehab": {
+     "rank": 266,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Foam roller hamstring curls",
+     "cue": "Heels on the roller, bridge and curl in"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-plank",
+   "name": "Foam roller plank",
+   "areas": [
+    "core",
+    "shoulders"
+   ],
+   "equipment": "foam roller",
+   "level": 2,
+   "cue": "Forearms on the roller, stay steady",
+   "categories": {
+    "prehab": {
+     "rank": 268,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Foam roller plank",
+     "cue": "Forearms on the roller, stay steady"
+    }
+   },
+   "gear": true,
+   "kind": "isometric",
+   "cautions": [
+    "wrist-load"
+   ]
+  },
+  {
+   "id": "foam-roller-rollouts-kneeling",
+   "name": "Foam roller rollouts (kneeling)",
+   "areas": [
+    "core",
+    "lats"
+   ],
+   "equipment": "foam roller",
+   "level": 3,
+   "cue": "Kneel, forearms on the roller, roll out and back",
+   "categories": {
+    "prehab": {
+     "rank": 269,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Foam roller rollouts (kneeling)",
+     "cue": "Kneel, forearms on the roller, roll out and back"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-pikes",
+   "name": "Foam roller pikes",
+   "areas": [
+    "core",
+    "shoulders"
+   ],
+   "equipment": "foam roller",
+   "level": 3,
+   "cue": "Feet on the roller in plank, pike the hips",
+   "categories": {
+    "prehab": {
+     "rank": 270,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Foam roller pikes",
+     "cue": "Feet on the roller in plank, pike the hips"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-knee-tucks",
+   "name": "Foam roller knee tucks",
+   "areas": [
+    "core"
+   ],
+   "equipment": "foam roller",
+   "level": 2,
+   "cue": "Shins on the roller, tuck the knees in",
+   "categories": {
+    "prehab": {
+     "rank": 271,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Foam roller knee tucks",
+     "cue": "Shins on the roller, tuck the knees in"
+    }
+   },
+   "gear": true,
+   "kind": "dynamic",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-single-leg-balance",
+   "name": "Foam roller single-leg balance",
+   "areas": [
+    "ankles",
+    "hips"
+   ],
+   "equipment": "foam roller",
+   "level": 3,
+   "cue": "Stand on the roller lengthwise, holding a wall",
+   "categories": {
+    "prehab": {
+     "rank": 272,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Foam roller single-leg balance",
+     "cue": "Stand on the roller lengthwise, holding a wall"
+    }
+   },
+   "gear": true,
+   "kind": "static",
+   "cautions": []
+  },
+  {
+   "id": "foam-roller-adductor-squeeze",
+   "name": "Foam roller adductor squeeze",
+   "areas": [
+    "adductors"
+   ],
+   "equipment": "foam roller",
+   "level": 1,
+   "cue": "Squeeze the roller between the knees, hold 5 s",
+   "categories": {
+    "prehab": {
+     "rank": 274,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Foam roller adductor squeeze",
+     "cue": "Squeeze the roller between the knees, hold 5 s"
+    }
+   },
+   "gear": true,
+   "kind": "isometric",
    "cautions": []
   }
  ]
