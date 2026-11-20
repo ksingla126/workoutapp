@@ -252,9 +252,12 @@ html .live.lvt-on{background:radial-gradient(90% 50% at 50% 0%,color-mix(in srgb
 .lvt-queue{display:flex;justify-content:center;gap:12px;align-items:flex-end}
 .lvt-foot{flex-shrink:0;padding:4px 0 2px;display:flex;flex-direction:column;gap:12px}@media (max-height:780px){.lvt-rw{transform:scale(.84);margin:-12px 0}.lvt-name{font-size:22px}.lvt-floor{height:46px}#liveIn.lvt{gap:9px}}@media (max-height:680px){.lvt-rw{transform:scale(.72);margin:-24px 0}.lvt-sys{display:none}}
 .lvt-ins{display:flex;gap:10px;position:relative}
-.lvt-nt{all:unset;cursor:pointer;position:absolute;right:0;top:-6px;width:28px;height:21px;border-radius:6px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--mt-m) 40%,transparent);background:#0B0B0E;color:var(--mt-l)}
-.lvt-nt svg{width:12px;height:12px}.lvt-nt b{position:absolute;top:-7px;right:-7px;min-width:15px;height:15px;padding:0 3px;box-sizing:border-box;border-radius:4px;background:var(--rk);color:var(--rk-ink);font:900 9.5px/15px "Barlow Semi Condensed",sans-serif;text-align:center}
-.lvt-nt:focus-visible{outline:2px solid var(--mt-l);outline-offset:2px}
+#liveIn.lvt .lvt-ins:has(.lvt-nt) .lvt-step>span:first-child{height:34px;display:flex;align-items:center}
+#liveIn.lvt .lvt-ins:has(.lvt-nt) .lvt-step{gap:8px}
+#liveIn.lvt .lvt-nt{all:unset;box-sizing:border-box;cursor:pointer;position:absolute;right:0;top:0;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(245,241,230,.07);color:var(--mut)}
+#liveIn.lvt .lvt-nt svg{width:15px;height:15px}#liveIn.lvt .lvt-nt b{position:absolute;top:-6px;left:-7px;min-width:16px;height:16px;padding:0 3px;box-sizing:border-box;border-radius:5px;background:var(--rk);color:var(--rk-ink);font:900 10px/16px "Barlow Semi Condensed",sans-serif;text-align:center}
+#liveIn.lvt .lvt-nt:active{background:rgba(245,241,230,.12)}
+#liveIn.lvt .lvt-nt:focus-visible{outline:2px solid var(--lvt-rmid);outline-offset:2px}
 .ntw{position:fixed;inset:0;z-index:950;display:flex;flex-direction:column;justify-content:flex-end}
 .ntbg{all:unset;position:absolute;inset:0;background:rgba(2,4,8,.72);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
 .ntcard{position:relative;max-width:520px;width:100%;margin:0 auto;border-radius:22px 22px 0 0;padding:3px 3px 0;background:linear-gradient(90deg,var(--mt-d),var(--mt-m) 40%,var(--mt-l) 60%,var(--mt-d));animation:ntUp .2s ease-out}
