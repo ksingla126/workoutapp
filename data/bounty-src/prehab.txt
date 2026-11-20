@@ -1,0 +1,202 @@
+# name|areas|dose|unit|side|equip|lvl|cue
+Plank|core,shoulders|45|s|0|mat|1|Glutes tight, push the floor away, ribs down
+Side plank|core,glutes|30|s|1|mat|2|Stack the hips, straight line
+Dead bug|core|10|r|1|mat|1|Low back flat, exhale fully on each reach
+Bird dog|core,lowback,glutes|10|r|1|mat|1|Reach long, pause 2 s, hips square
+Glute bridge|glutes,hams|15|r|0|mat|1|Ribs down, squeeze 1 s at the top
+Single-leg glute bridge|glutes,hams|10|r|1|mat|2|Hips level the whole time
+Hollow body hold|core|30|s|0|mat|2|Low back pinned, arms and legs long
+Superman hold|lowback,glutes|30|s|0|mat|1|Lift a few inches, long neck
+Prone Y raises|shoulders,tspine|12|r|0|mat|1|Thumbs up, no shrug
+Prone T raises|shoulders,tspine|12|r|0|mat|1|Squeeze the shoulder blades
+Prone W raises|shoulders,tspine|12|r|0|mat|1|Elbows bent, down and back
+Side-lying external rotation|shoulders|15|r|1|mat|1|Elbow pinned at the side, rotate up slowly
+Scapular push-ups|shoulders|12|r|0|none|1|Arms straight, shoulder blades move only
+Push-up plus|shoulders,chest|10|r|0|none|2|Push the extra inch at the top
+Wall slides|shoulders,tspine|12|r|0|wall|1|Forearms on the wall, ribs down
+Clamshells|glutes,hips|20|r|1|mat|1|Heels together, open the knee, pelvis still
+Side-lying leg raises|glutes|15|r|1|mat|1|Lift slightly behind, toes forward
+Fire hydrants|glutes,hips|15|r|1|mat|1|Back flat, knee out to the side
+Donkey kicks|glutes|15|r|1|mat|1|Heel to the ceiling, no arch
+Copenhagen plank (short lever)|adductors,core|20|s|1|chair|3|Top knee on the bench, lift the hips
+Copenhagen plank (long lever)|adductors,core|15|s|1|chair|3|Top ankle on the bench, straight body
+Nordic curl (assisted)|hams|5|r|0|mat|3|Anchor the heels under a couch, lower as slow as you can
+Hamstring walkouts|hams,glutes|6|r|0|mat|2|From a bridge, walk the heels out and back
+Single-leg RDL (bodyweight)|hams,glutes,ankles|10|r|1|none|2|Hips square, hinge with control
+Tibialis raises|shins|20|r|0|wall|1|Back on the wall, toes up high
+Calf raises|calves|20|r|0|none|1|Full range, 1 s pause at the top
+Single-leg calf raises|calves,ankles|12|r|1|step|2|Heel below the step, slow up and down
+Bent-knee calf raises|calves|15|r|0|none|1|Knees bent, works the soleus
+Soleus wall sit raises|calves|15|r|0|wall|2|Wall sit, lift the heels
+Isometric calf hold|calves|30|s|1|none|2|Hold halfway up on one leg
+Short foot drill|feet,ankles|10|r|1|none|1|Arch lifts, toes stay relaxed
+Toe yoga|feet|10|r|0|none|1|Big toe alone, then the other four
+Single-leg balance|ankles,hips|30|s|1|none|1|Soft knee, steady breathing
+Single-leg balance with eyes closed|ankles|20|s|1|none|2|Stand tall, quiet ankle
+Star excursion reach|ankles,glutes|3|r|1|none|2|Reach three directions with the free foot
+Ankle alphabet|ankles|1|r|1|none|1|Draw the alphabet with the toes
+Heel walks|shins|30|s|0|none|1|Toes up, walk on the heels
+Toe walks|calves,feet|30|s|0|none|1|High on the toes, tall posture
+Spanish squat hold (wall)|quads,knees|30|s|0|wall|2|Wall sit with the shins vertical
+Wall sit|quads|45|s|0|wall|1|Thighs parallel, back flat
+Single-leg wall sit|quads,glutes|20|s|1|wall|3|One foot lifted, hips level
+Step-downs|quads,knees|10|r|1|step|2|Lower slowly, knee tracks over the toes
+Split squat isometric|quads,glutes|30|s|1|none|2|Hold just above the floor
+Reverse Nordic|quads|6|r|0|mat|3|Kneel tall, lean back in a straight line
+Terminal knee extension (towel)|quads,knees|15|r|1|towel|1|Towel behind the knee around a post, straighten
+Lateral step-ups|glutes,quads|10|r|1|step|2|Drive through the step leg only
+Lateral lunges|adductors,glutes|8|r|1|none|1|Sit into one hip
+Cossack squats|adductors,hips|6|r|1|none|2|Deep to one side, other leg straight
+Adductor squeeze (pillow)|adductors|10|r|0|towel|1|Squeeze a pillow between the knees 5 s
+Side plank with top leg lift|glutes,adductors,core|8|r|1|mat|3|Lift the top leg, hips stay up
+Side plank hip dips|core,glutes|10|r|1|mat|2|Lower an inch, drive back up
+Hip airplanes|glutes,hips|5|r|1|none|3|Rotate the pelvis open and closed on one leg
+Bridge march|glutes,core|10|r|1|mat|2|Hips level as you lift each knee
+Hip thrust (couch)|glutes,hams|15|r|0|chair|1|Chin tucked, squeeze at the top
+Single-leg hip thrust (couch)|glutes|10|r|1|chair|2|Drive through one heel
+Frog pumps|glutes|20|r|0|mat|1|Soles together, small fast bridges
+Lateral band walk (no band)|glutes,hips|12|r|1|none|1|Half squat, slow steps
+Monster walks (no band)|glutes|12|r|0|none|1|Diagonal steps, stay low
+Pallof press (towel and doorframe)|core|10|r|1|towel|2|Hold a towel looped on a post, press out, resist twisting
+Plank shoulder taps|core,shoulders|12|r|1|none|2|Feet wide, hips still
+Bear hold|core,shoulders|30|s|0|none|1|Knees hover, back flat
+Bear shoulder taps|core,shoulders|10|r|1|none|2|Knees hover, tap without rocking
+Mountain climbers (slow)|core,hips|10|r|1|none|1|Slow knee drive, hips level
+Reverse crunch|core|12|r|0|mat|1|Curl the hips up, lower slowly
+Crunch|core|15|r|0|mat|1|Ribs to hips, slow lower
+Bicycle crunches|core|20|r|0|mat|1|Slow, shoulder to opposite knee
+Leg raises|core,hips|10|r|0|mat|2|Low back stays down
+Flutter kicks|core|30|s|0|mat|1|Small kicks, back flat
+Scissor kicks|core,hips|20|r|0|mat|1|Cross the legs over and under
+V-ups|core|8|r|0|mat|3|Hands and feet meet at the top
+Tuck-ups|core|10|r|0|mat|2|Knees and chest meet
+Russian twists|core|20|r|0|mat|1|Rotate from the ribs, feet down or up
+Heel taps (lying)|core|20|r|0|mat|1|Shoulders up, reach side to side
+Hollow rocks|core|10|r|0|mat|3|Hold the hollow shape and rock
+Plank up-downs|core,arms|8|r|0|mat|2|Elbows to hands, hips steady
+Plank jacks|core|20|r|0|none|2|Feet jump in and out
+Side plank rotations|core,tspine|8|r|1|mat|2|Thread the top arm under and open
+Long-lever plank|core|20|s|0|mat|3|Elbows further forward than the shoulders
+RKC plank|core,glutes|20|s|0|mat|2|Squeeze everything as hard as you can
+Stir the pot (floor)|core|8|r|1|mat|3|In plank, draw small circles with the elbows
+Body saw (towel on floor)|core|8|r|0|towel|3|Feet on a towel, slide back and forward
+Hollow body to arch rolls|core,lowback|6|r|0|mat|2|Roll from hollow to superman
+Superman pulls|lats,lowback|10|r|0|mat|1|Pull the elbows to the ribs while lifted
+Back extensions (floor)|lowback,glutes|12|r|0|mat|1|Face down, lift the chest
+Reverse hyper (bench)|glutes,lowback|12|r|0|chair|2|Hips on the edge, lift the legs
+Swimmers (prone)|lowback,shoulders|20|r|0|mat|1|Flutter arms and legs
+Prone cobra hold|tspine,lowback|30|s|0|mat|1|Lift the chest, rotate the thumbs out
+Reverse snow angels|tspine,shoulders|10|r|0|mat|1|Hover the arms the whole time
+Doorway rows (towel)|tspine,lats|12|r|0|towel|1|Towel around a post, lean back, pull
+Inverted row (table)|tspine,lats,arms|8|r|0|chair|2|Lie under a sturdy table, pull the chest up
+Isometric towel pull-aparts|shoulders,tspine|20|s|0|towel|1|Pull the towel apart hard for 10 s
+Isometric external rotation (doorframe)|shoulders|20|s|1|wall|1|Back of the wrist presses into the frame
+Isometric internal rotation (doorframe)|shoulders|20|s|1|wall|1|Palm presses into the frame
+Wall angels|shoulders,tspine|10|r|0|wall|2|Stay in contact with the wall
+Wall push-up plus|shoulders|12|r|0|wall|1|Extra protraction at the end
+Serratus wall slides|shoulders|10|r|0|wall|1|Forearms on the wall, slide up, push away
+Pike push-ups|shoulders,arms|8|r|0|none|2|Hips high, head between the hands
+Push-ups|chest,arms|12|r|0|none|2|Straight body, full range
+Diamond push-ups|arms,chest|8|r|0|none|2|Hands close, elbows back
+Wide push-ups|chest|10|r|0|none|2|Hands wide, chest to the floor
+Decline push-ups|chest,shoulders|8|r|0|chair|3|Feet on a bench
+Incline push-ups|chest,arms|12|r|0|chair|1|Hands on a bench
+Knee push-ups|chest,arms|12|r|0|mat|1|Straight line from the knees
+Chair dips|arms,chest|10|r|0|chair|2|Elbows back, shoulders down
+Isometric push-up hold|chest,arms,core|20|s|0|none|2|Hold halfway down
+Plank to push-up|arms,core|8|r|0|mat|2|Elbows to hands without hips swaying
+Shoulder taps on wall|shoulders,core|12|r|1|wall|1|Incline plank, tap opposite shoulders
+Neck isometrics|neck|10|s|0|none|1|Press into the hand in 4 directions
+Chin tucks|neck|12|r|0|none|1|Draw the head straight back
+Prone chin tuck lift|neck,tspine|10|r|0|mat|1|Face down, lift the head an inch with a tuck
+Wrist curls (bodyweight press)|wrists|15|r|0|none|1|Press the palm into the other hand and curl
+Finger extensions|wrists|20|r|0|none|1|Open the hand wide against resistance from the other
+Fist to spread|wrists|20|r|0|none|1|Make a tight fist, then spread wide
+Wrist push-up holds|wrists,arms|20|s|0|mat|2|On the knees, weight on the wrists
+Knuckle push-up hold|wrists,arms|15|s|0|mat|2|Stack the wrists straight
+Fingertip plank|wrists,arms|15|s|0|mat|3|Fingers spread, light weight
+Grip squeeze (towel)|arms,wrists|20|s|0|towel|1|Wring a towel hard
+Dead hang (doorframe grip)|arms,shoulders|20|s|0|wall|2|Hold the top of a door frame if possible
+Squats|quads,glutes|20|r|0|none|1|Full range, steady tempo
+Jump squats|quads,glutes|10|r|0|none|2|Land soft, reset each rep
+Reverse lunges|quads,glutes|10|r|1|none|1|Drop straight down
+Walking lunges|quads,glutes|10|r|1|none|1|Long steps, upright torso
+Bulgarian split squat|quads,glutes|8|r|1|chair|2|Back foot on a bench, drop straight down
+Step-ups|quads,glutes|10|r|1|step|1|Drive through the heel
+Curtsy lunges|glutes,adductors|10|r|1|none|1|Step back and across
+Sumo squat pulses|adductors,glutes|20|r|0|none|1|Wide stance, small pulses
+Squat hold|quads|30|s|0|none|1|Thighs parallel, chest up
+Pistol squat (assisted)|quads,glutes|5|r|1|wall|3|Hold a frame, lower on one leg
+Skater squats|quads,glutes|6|r|1|none|3|Back knee taps the floor behind
+Lunge jumps|quads,glutes|8|r|1|none|3|Land soft, switch in the air
+Burpees|full|10|r|0|none|3|Smooth rhythm, land soft
+Squat thrusts|full|10|r|0|none|2|Hands down, feet back and in
+High knees|hips,calves|30|s|0|none|1|Knees up, fast feet
+Jumping jacks|full|45|s|0|none|1|Light rhythm
+Skater hops|glutes,ankles|10|r|1|none|2|Stick each landing
+Pogo hops|calves,ankles|30|r|0|none|1|Stiff ankles, quick bounces
+Single-leg pogo hops|calves,ankles|15|r|1|none|2|Small hops, stay tall
+Lateral line hops|calves,ankles|20|r|0|none|2|Quick hops over a line
+Broad jumps|glutes,quads|6|r|0|none|3|Stick each landing
+Tuck jumps|quads,core|8|r|0|none|3|Knees to chest, land quiet
+Bear crawl|shoulders,core|30|s|0|none|2|Knees hover, slow
+Crab walk|shoulders,glutes|30|s|0|none|2|Hips up
+Inchworm push-ups|chest,hams,core|6|r|0|none|2|Walk out, push-up, walk back
+Shadow boxing|shoulders,core|60|s|0|none|1|Fast hands, stay light
+Mountain climbers|core,hips|30|s|0|none|2|Fast knees, hips level
+Plank to down dog|shoulders,core|10|r|0|mat|1|Push the hips up and back
+Turkish get-up (bodyweight)|shoulders,hips,core|3|r|1|mat|2|Slow, step by step
+Hip extension from quadruped|glutes|12|r|1|mat|1|No arch in the low back
+Kneeling hip thrust|glutes|15|r|0|mat|1|Kneel tall, sit back, drive the hips forward
+Good mornings (bodyweight)|hams,lowback|15|r|0|none|1|Hips back, flat back
+Single-leg deadlift reach|hams,ankles|8|r|1|none|2|Reach toward the floor, back leg long
+Glute bridge isometric|glutes|30|s|0|mat|1|Hold the top, squeeze hard
+Hamstring bridge (straight legs)|hams|10|r|0|chair|2|Heels on a bench, legs straight, lift
+Slider leg curls (towel)|hams|8|r|0|towel|3|Heels on a towel, bridge and curl in
+Isometric hamstring heel dig|hams|20|s|1|mat|1|On your back, dig the heel into the floor
+Ankle eversion isometric|ankles|15|s|1|none|1|Press the outside of the foot into a wall
+Ankle inversion isometric|ankles|15|s|1|none|1|Press the inside of the foot into a chair leg
+Balance reach on toes|calves,ankles|20|s|1|none|3|Rise onto one toe, hold steady
+Hip hike|glutes,hips|12|r|1|step|1|On a step, drop and lift the pelvis
+Knee-to-wall isometric push|hips|20|s|1|wall|1|Press the knee out into the wall
+Wall hip flexor march hold|hips,core|20|s|1|wall|2|Back on the wall, knee above hip, hold
+Standing knee raise hold|hips,core|20|s|1|none|1|Knee above the hip, tall posture
+Psoas march (supine)|hips,core|10|r|1|mat|2|Low back flat, slowly lower and lift
+Seated leg lifts|hips,quads|10|r|1|mat|2|Sit tall, lift the straight leg
+Supine leg lowers|core,hams|10|r|1|mat|1|One leg up, lower the other
+90/90 hip lift-offs|hips|6|r|1|mat|3|Lift the back knee in 90/90
+Hip flexor lift-offs|hips|8|r|1|mat|3|Seated, lift a straight leg off the floor
+Side-lying hip abduction hold|glutes|20|s|1|mat|1|Top leg lifted, hold
+Banded-style clamshell hold (no band)|glutes|20|s|1|mat|1|Hold the open position
+Standing hip abduction|glutes|15|r|1|wall|1|Hold the wall, lift the leg out to the side
+Standing hip extension|glutes|15|r|1|wall|1|Hold the wall, push the leg back
+Lateral plank walk|shoulders,core|10|r|1|none|2|Walk hands and feet sideways
+Reverse plank|glutes,hams,shoulders|30|s|0|mat|2|Hips up, chest open
+Tabletop hold|glutes,shoulders|30|s|0|mat|1|Hips up flat, shoulders over the wrists
+Hollow hold tucked|core|30|s|0|mat|1|Knees bent, low back down
+Boat pose|core,hips|30|s|0|mat|2|Tall spine, legs lifted
+L-sit tuck (chair)|core,arms|15|s|0|chair|3|Hands on two chairs, lift the knees
+Plank with leg lift|core,glutes|10|r|1|mat|2|Lift one leg, hips stay square
+Side plank star|core,glutes|15|s|1|mat|3|Top arm and leg lifted
+Kneeling side plank|core|30|s|1|mat|1|Bottom knee down
+Wall plank|core|30|s|0|wall|1|Hands on the wall, straight body
+Breathing brace holds|core|5|r|0|none|1|Brace 360 degrees, hold 10 s
+Prone I raises|shoulders,tspine|12|r|0|mat|1|Arms overhead, lift with thumbs up
+Prone external rotation (90/90)|shoulders|12|r|0|mat|2|Face down, elbows at 90, rotate the hands up
+Wall external rotation slide|shoulders|10|r|1|wall|1|Elbow on the wall, rotate up
+Bird dog with elbow-to-knee|core,lowback|8|r|1|mat|2|Crunch in, then reach long
+Dead bug with hold|core|6|r|1|mat|2|Hold the reach 3 s
+Glute bridge with abduction|glutes|15|r|0|mat|1|At the top, push the knees out
+Single-leg balance with reach|ankles,hips|6|r|1|none|2|Reach forward, side and back
+Calf raise isometric (both)|calves|45|s|0|none|1|Hold halfway up
+Toe raises (tibialis, standing)|shins|20|r|0|none|1|Rock back onto the heels
+Big toe press|feet|10|r|1|none|1|Press the big toe down, lift the others
+Arch lift holds|feet|10|s|1|none|1|Lift the arch, hold
+Hip flexor isometric (wall)|hips|20|s|1|wall|1|Press the knee into the hand
+Adductor isometric (squeeze fists)|adductors|10|s|0|none|1|Squeeze fists between the knees hard
+Lateral lunge hold|adductors|20|s|1|none|1|Hold the bottom position
+Split squat with pause|quads,glutes|8|r|1|none|2|Pause 2 s at the bottom
+Tempo squats (3-1-3)|quads,glutes|10|r|0|none|1|3 s down, 1 s pause, 3 s up
+Wall slide squats|quads|10|r|0|wall|1|Back on the wall, slide down and up
+Hip thrust isometric (couch)|glutes|30|s|0|chair|1|Hold the top
+Side-lying adduction lifts|adductors|15|r|1|mat|1|Lift the bottom leg

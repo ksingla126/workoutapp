@@ -1,0 +1,202 @@
+# name|areas|dose|unit|side|equip|lvl|cue
+Seated forward fold|hams,lowback|60|s|0|mat|1|Hinge from the hips, long spine, relax the neck
+Standing forward fold|hams,lowback|60|s|0|none|1|Soft knees to start, let the head hang
+Butterfly stretch|adductors,hips|60|s|0|mat|1|Sit tall, let the knees fall open
+Pigeon pose|glutes,hips|90|s|1|mat|2|Square the hips, fold forward when ready
+Lizard pose|hips,adductors|60|s|1|mat|2|Foot outside the hand, sink the hips
+Low lunge|hips,quads|60|s|1|mat|1|Back knee down, tuck the pelvis, sink forward
+Half splits|hams|60|s|1|mat|1|Hips over the back knee, front leg straight, flat back
+Front splits (supported)|hams,hips|60|s|1|towel|3|Blocks or books under the hands, hips square
+Middle splits (supported)|adductors|60|s|0|mat|3|Hands down, slide the feet wide slowly
+Pancake stretch|adductors,hams|60|s|0|mat|2|Legs wide, fold from the hips, chest forward
+Frog pose|adductors,hips|90|s|0|mat|2|Knees wide, ankles in line with knees
+Couch stretch|quads,hips|90|s|1|wall|2|Back knee in the corner, tall torso
+Kneeling hip flexor stretch|hips,quads|60|s|1|mat|1|Squeeze the back glute
+Lying hamstring stretch|hams|60|s|1|towel|1|Towel around the foot, leg straight up
+Wide-leg forward fold|hams,adductors|60|s|0|none|1|Feet wide, fold with a long spine
+Downward dog|hams,calves,shoulders|60|s|0|mat|1|Long spine, heels sink
+Child's pose|lowback,lats|90|s|0|mat|1|Knees wide, arms long
+Puppy pose|lats,tspine,shoulders|60|s|0|mat|1|Hips over knees, chest melts down
+Cobra stretch|lowback,abs|45|s|0|mat|1|Gentle press, shoulders down
+Upward dog|lowback,chest,abs|30|s|0|mat|2|Thighs lift, shoulders back
+Camel pose|quads,hips,chest|30|s|0|mat|2|Hands on the low back or heels, hips forward
+Bridge pose|hips,chest,quads|30|s|0|mat|1|Shoulders under, lift the chest toward the chin
+Wheel pose|chest,shoulders,hips|20|s|0|mat|3|Press up from the floor, arms straight
+Bow pose|quads,chest,hips|30|s|0|mat|2|Hold the ankles, kick into the hands
+Reclined hero|quads,ankles|60|s|0|mat|3|Sit between the heels, lean back carefully
+Hero pose|quads,ankles|60|s|0|mat|2|Sit between or on the heels, tall spine
+Fire log pose|glutes,hips|60|s|1|mat|2|Shins stacked, fold forward
+Cow face pose (legs)|glutes,hips|60|s|1|mat|2|Knees stacked, sit tall or fold
+Cow face arms|shoulders,arms|45|s|1|towel|2|Use a towel to bridge the hands
+Head-to-knee pose|hams,lowback|60|s|1|mat|1|Fold over the straight leg
+Revolved head-to-knee|lats,hams|45|s|1|mat|2|Side bend over the straight leg
+Seated straddle|adductors,hams|60|s|0|mat|1|Walk the hands forward
+Seated side straddle|adductors,lats|45|s|1|mat|1|Reach over one leg
+Supine butterfly|adductors,hips|90|s|0|mat|1|On your back, soles together
+Happy baby|hips,lowback,adductors|60|s|0|mat|1|Hold the feet, knees to armpits
+Reclined pigeon|glutes,hips|60|s|1|mat|1|Thread the hands, pull the thigh in
+Figure-four stretch|glutes,hips|60|s|1|mat|1|Ankle over knee, draw the leg in
+Supine spinal twist|lowback,glutes|60|s|1|mat|1|Knee across, shoulders down
+Seated spinal twist|tspine,glutes|45|s|1|mat|1|Rotate from the ribs, tall spine
+Thread the needle|tspine,shoulders|45|s|1|mat|1|Shoulder and ear rest down
+Eagle arms|shoulders,tspine|45|s|1|none|1|Lift the elbows, breathe into the back
+Doorway chest stretch|chest,shoulders|45|s|1|wall|1|Forearm on the frame, step through
+Cross-body shoulder stretch|shoulders|45|s|1|none|1|Arm across, shoulder down
+Overhead triceps stretch|arms,lats|45|s|1|none|1|Gently press the elbow back
+Sleeper stretch|shoulders|45|s|1|mat|2|Gentle pressure only
+Wall lat stretch|lats,shoulders|45|s|0|wall|1|Walk back, sink the chest
+Kneeling lat stretch|lats|45|s|1|chair|1|Elbow on the bench, sit back
+Standing side stretch|lats,core|45|s|1|none|1|Reach up and over
+Gate pose|lats,adductors|45|s|1|mat|1|Kneeling, one leg out, reach over
+Mermaid stretch|lats,hips|45|s|1|mat|1|Seated with legs to one side, reach over
+Triangle pose|hams,adductors,lats|45|s|1|none|1|Straight legs, reach long, open the chest
+Extended side angle|adductors,lats|45|s|1|none|1|Front knee bent, long line from heel to hand
+Pyramid pose|hams,calves|45|s|1|none|1|Hips square, fold over the front leg
+Warrior 1 hold|hips,quads|45|s|1|none|1|Back heel down, hips forward, arms up
+Warrior 2 hold|adductors,hips|45|s|1|none|1|Front knee over the ankle, arms long
+Reverse warrior|lats,hips|30|s|1|none|1|Lean back, long side body
+Garland pose|hips,adductors|60|s|0|none|1|Deep squat, palms together, chest up
+Deep squat hold|hips,ankles|90|s|0|none|1|Heels down, relax into it
+Wall calf stretch|calves|45|s|1|wall|1|Back leg straight, heel down
+Bent-knee calf stretch|calves,ankles|45|s|1|wall|1|Bend the back knee
+Calf stretch on step|calves|45|s|1|step|1|Heel drops off the step
+Soleus stretch on step|calves|45|s|1|step|1|Knee bent, heel down
+Ankle dorsiflexion stretch|ankles,calves|45|s|1|wall|1|Toes up the wall, lean in
+Top-of-foot stretch|feet,shins|45|s|0|mat|1|Kneel with the feet flat, sit back
+Toe stretch (kneeling)|feet|45|s|0|mat|1|Toes tucked, sit back
+Plantar fascia stretch|feet|45|s|1|none|1|Pull the toes back toward the shin
+Standing quad stretch|quads|45|s|1|wall|1|Knees together, tuck the pelvis
+Lying quad stretch|quads|45|s|1|mat|1|On your side, heel to glute
+Prone quad stretch|quads,hips|45|s|1|mat|1|Face down, pull the heel in
+Half frog|quads,hips|45|s|1|mat|2|Face down, one heel pulled to the hip
+Kneeling quad stretch (wall)|quads,hips|60|s|1|wall|2|Shin up the wall, lift the torso slowly
+Wrist flexor stretch|wrists,arms|45|s|1|none|1|Palm up, pull the fingers back
+Wrist extensor stretch|wrists,arms|45|s|1|none|1|Palm down, press the hand down
+Reverse prayer|wrists,shoulders|45|s|0|none|2|Palms together behind the back
+Behind-back hand clasp|chest,shoulders|45|s|0|none|1|Lift gently, chest proud
+Neck side stretch|neck|45|s|1|none|1|Ear to shoulder, other hand reaches down
+Upper trap stretch|neck,shoulders|45|s|1|none|1|Head down and to the side, hand guides
+Levator scapulae stretch|neck|45|s|1|none|1|Nose to armpit
+Scalene stretch|neck|45|s|1|none|1|Pin the collarbone, tilt and look up
+Supine chest opener|chest|90|s|0|towel|1|Rolled towel along the spine, arms wide
+Supported fish pose|chest,tspine|90|s|0|towel|1|Towel under the shoulder blades
+Thoracic extension over towel|tspine|60|s|0|towel|1|Arms overhead, breathe deep
+Sphinx pose|lowback|60|s|0|mat|1|Forearms down, belly soft
+Seal stretch|lowback,abs|30|s|0|mat|2|Arms straight, hips down, gentle
+Legs up the wall|hams,lowback|120|s|0|wall|1|Let the legs relax against the wall
+Wall straddle|adductors|120|s|0|wall|1|Legs up the wall, let them slide open
+Wall hamstring stretch|hams|60|s|1|wall|1|One leg up the doorframe
+Elevated pigeon (bench)|glutes,hips|60|s|1|chair|1|Hips square, fold forward
+Hamstring stretch on bench|hams|45|s|1|chair|1|Heel on the bench, flat back
+Standing glute stretch on bench|glutes|45|s|1|chair|1|Shin on the bench, fold
+Seated figure-four (chair)|glutes|45|s|1|chair|1|Lean forward with a flat back
+90/90 hold|hips,glutes|60|s|1|mat|1|Lean over the front shin
+Frog with side reach|adductors,lats|30|s|1|mat|2|From frog, reach one arm over
+Straddle side bend|adductors,lats|45|s|1|mat|2|Reach over toward one foot
+Pancake with towel|adductors,hams|60|s|0|towel|2|Hold a towel at the feet, pull the chest forward
+Seated pike with towel|hams|60|s|0|towel|1|Towel around the feet, pull gently
+Supine straddle (hands)|adductors|60|s|0|mat|1|On your back, hold the inner thighs, open
+Side-lying quad and hip stretch|quads,hips|45|s|1|mat|1|Push the hip forward
+Bretzel stretch|tspine,quads,hips|60|s|1|mat|2|Rotate the chest back
+Lying side stretch (banana)|lats,core|60|s|1|mat|1|Curve the body to one side
+Shoulder extension stretch|shoulders,chest|45|s|0|chair|1|Hands on a bench behind, sink
+Biceps wall stretch|arms,chest|45|s|1|wall|1|Palm on the wall behind, rotate away
+Pec minor stretch (corner)|chest,shoulders|45|s|0|wall|1|Lean into the corner
+Overhead shoulder stretch (wall)|shoulders,lats|45|s|0|wall|1|Hands high, sink through
+Lying arm overhead stretch|lats,shoulders|60|s|0|mat|1|Arms overhead on the floor, ribs down
+Cactus arms (supine)|chest,shoulders|60|s|0|mat|1|Arms in a cactus, let them rest
+Prone shoulder stretch (arm out)|chest,shoulders|45|s|1|mat|1|Roll away from the outstretched arm
+Kneeling shin stretch|shins,ankles|45|s|0|mat|1|Lift the knees slightly
+Standing IT band stretch|hips|45|s|1|none|1|Cross behind, lean the hips out
+Crossed-leg forward fold|glutes,lowback|45|s|1|mat|1|Walk the hands forward
+Bound angle forward fold|adductors,lowback|60|s|0|mat|1|Soles together, fold forward
+Wide child's pose|hips,adductors|90|s|0|mat|1|Knees wide, sit back
+Reclined hand-to-big-toe|hams,adductors|45|s|1|towel|1|Leg up, then open to the side
+Revolved triangle|hams,tspine|30|s|1|none|2|Square hips, rotate over the front leg
+Standing split|hams|30|s|1|none|3|Fold and lift the back leg high
+King pigeon (supported)|quads,hips|30|s|1|towel|3|Pigeon, catch the back foot with a towel
+Lunge with quad pull|quads,hips|45|s|1|mat|2|Low lunge, pull the back heel in
+Seated cross-legged side bend|lats|45|s|1|mat|1|One hand down, reach over
+Shoulder stand (supported)|neck,tspine|30|s|0|wall|3|Feet on the wall, careful with the neck
+Plow pose|hams,tspine|30|s|0|mat|3|Feet over the head, keep the neck relaxed
+Seated wide-angle twist|tspine,adductors|30|s|1|mat|2|Straddle, rotate toward one leg
+Seated calf pull|calves|45|s|1|towel|1|Towel around the foot, leg straight
+Downward dog calf press|calves|30|s|1|mat|1|Press one heel down at a time
+Low squat with heel lifts|ankles,hips|45|s|0|none|1|Shift weight, lift one heel at a time
+Half-kneeling hamstring stretch|hams|45|s|1|mat|1|Front leg straight, flat back
+Runner's lunge|hips,hams|45|s|1|mat|1|Hands down, back knee off the floor
+Twisted lunge|hips,tspine|45|s|1|mat|1|Back knee down, rotate toward the front leg
+Pigeon with twist|glutes,tspine|45|s|1|mat|2|Rotate toward the front leg
+Sleeping swan|glutes,hips|90|s|1|mat|2|Pigeon, fold all the way down, relax
+Dragon pose|hips,quads|60|s|1|mat|2|Deep lunge, hands inside the foot
+Winged dragon|hips,adductors|45|s|1|mat|3|Dragon, let the front knee fall out
+Saddle pose|quads,lowback|60|s|0|mat|3|Reclined hero with support
+Caterpillar pose|hams,lowback|120|s|0|mat|1|Seated fold, round and relax completely
+Dragonfly pose|adductors,hams|90|s|0|mat|1|Seated straddle, round forward
+Shoelace pose|glutes,hips|90|s|0|mat|2|Knees stacked, fold
+Square pose|glutes,hips|90|s|1|mat|2|Shins stacked parallel
+Melting heart pose|tspine,shoulders|90|s|0|mat|1|Hips up, chest down, arms long
+Banana pose|lats,core|90|s|1|mat|1|On your back, curve to one side
+Deer pose|hips|90|s|1|mat|1|Both knees bent to one side
+Toe squat|feet|45|s|0|mat|2|Kneel with toes tucked, sit back
+Ankle pose|shins,ankles|60|s|0|mat|1|Sit on the heels with the tops of feet down
+Snail pose|tspine,hams|60|s|0|mat|3|Plow with bent knees
+Supported bridge|lowback,hips|120|s|0|towel|1|Folded towel under the sacrum
+Reclined twist|lowback|90|s|1|mat|1|Knees to one side, arms wide
+Corpse pose|full|180|s|0|mat|1|Breathe, let everything go heavy
+Hamstring PNF contract-relax|hams|3|r|1|towel|2|Press into the towel 5 s, relax, go deeper
+Hip flexor PNF|hips|3|r|1|mat|2|Press the back knee down 5 s, relax, sink deeper
+Adductor PNF (butterfly)|adductors|3|r|0|mat|2|Press the knees up into the hands 5 s, relax
+Calf PNF on wall|calves|3|r|1|wall|2|Press the toes into the wall 5 s, relax, lean in
+Pec PNF in doorway|chest|3|r|1|wall|2|Press the arm into the frame 5 s, relax, step through
+Lat PNF on bench|lats|3|r|0|chair|2|Press the elbows down 5 s, relax, sink
+Quad PNF (couch)|quads|3|r|1|wall|3|Press the shin into the wall 5 s, relax
+Glute PNF (figure-four)|glutes|3|r|1|mat|2|Press the knee into the hand 5 s, relax
+Active hamstring stretch (leg raise hold)|hams|20|s|1|mat|2|Lift and hold the straight leg without hands
+Active pigeon lift|hips|8|r|1|mat|3|In pigeon, lift the back knee off the floor
+Front split slides|hams,hips|5|r|1|towel|3|Slide into split range slowly, back out
+Side split slides|adductors|5|r|0|towel|3|Slide wide slowly, control back in
+Jefferson curl (slow)|hams,lowback|5|r|0|none|2|Roll down one vertebra at a time
+Pike stretch|hams|60|s|0|mat|2|Legs together, chest to thighs
+Seated toe touch with flexed feet|hams,calves|45|s|0|mat|1|Pull the toes back while folding
+Standing hamstring stretch|hams|45|s|1|none|1|Heel forward, hinge
+Cross-legged forward fold|hips,lowback|45|s|0|mat|1|Walk the hands forward
+Seated knee-to-chest|glutes,lowback|45|s|1|mat|1|Hug one knee in, sit tall
+Single knee to chest|lowback,glutes|45|s|1|mat|1|Other leg long
+Knees to chest|lowback|60|s|0|mat|1|Hug both knees
+Supine figure-four twist|glutes,lowback|45|s|1|mat|1|Let the knees drop to the side
+Lying glute stretch|glutes|45|s|1|mat|1|Knee toward the opposite shoulder
+Lying IT band stretch|hips|45|s|1|towel|1|Leg crosses the body with a towel
+Kneeling side bend|lats|45|s|1|mat|1|Tall kneeling, reach over
+Seated neck flexion|neck|45|s|0|none|1|Hands behind the head, let it drop
+Chin-to-chest roll|neck|45|s|0|none|1|Gently roll the head side to side down low
+Wrist prayer stretch|wrists|45|s|0|none|1|Palms together, lower slowly
+Fingers back on floor|wrists,arms|45|s|0|mat|1|Kneel, fingers toward the knees
+Forearm extensor wall stretch|wrists,arms|45|s|1|wall|1|Back of the hand on the wall
+Thumb stretch|wrists|30|s|1|none|1|Thumb in a fist, tilt down
+Chest stretch on floor (side-lying)|chest|45|s|1|mat|1|Arm out, roll away
+Standing back bend|lowback,abs|20|s|0|none|1|Hands on the low back, lean back gently
+Wall back bend walk-down|lowback,chest|5|r|0|wall|3|Walk the hands down a wall carefully
+Supported camel|quads,hips|30|s|0|chair|2|Hands on a chair behind, hips forward
+Hip flexor stretch on couch|hips,quads|60|s|1|chair|2|Back shin on the couch
+Lunge with side reach|hips,lats|45|s|1|mat|1|Reach away from the back leg
+Revolved low lunge|hips,tspine|45|s|1|mat|2|Twist toward the front leg
+Hamstring stretch with ankle flex|hams,calves|45|s|1|towel|1|Pull the toes back with a towel
+Seated calf and hamstring stretch|hams,calves|60|s|0|mat|1|Legs long, grab the feet
+Lying hip flexor stretch (bed edge)|hips|60|s|1|chair|1|Lie at the edge, let one leg hang
+Seated hamstring stretch (chair)|hams|45|s|1|chair|1|Heel down, hinge forward
+Kneeling hamstring with rotation|hams,tspine|30|s|1|mat|2|Half-kneeling straight leg, rotate the chest
+Calf stretch in down dog|calves|45|s|1|mat|1|Press one heel down
+Squat with elbows on knees|hips,adductors|60|s|0|none|1|Press the knees out with the elbows
+Standing straddle side reach|adductors,lats|30|s|1|none|1|Wide stance, reach over toward one side
+Supine twist with leg straight|lowback,hams|45|s|1|mat|1|Straight leg crosses the body
+Prone hip internal rotation|hips|45|s|0|mat|1|Knees bent, feet fall out
+Side-lying shoulder stretch (towel)|shoulders|30|s|1|towel|1|Towel behind the back, pull upward
+Gentle back bend over chair|tspine,chest|45|s|0|chair|1|Upper back on the chair back
+Supported wheel (over chair)|chest,tspine|30|s|0|chair|3|Upper back over the seat, arms overhead
+Hip flexor stretch with side reach|hips,lats|45|s|1|mat|1|Reach away from the back leg
+Standing pigeon on bench|glutes|45|s|1|chair|1|Shin on the bench, fold
+Kneeling forearm stretch|wrists|45|s|0|mat|1|Hands flipped, lean back
+Neck flexion stretch|neck|45|s|0|none|1|Clasp hands, let the head drop
+Seated straddle with rotation|adductors,tspine|45|s|1|mat|2|Rotate toward one leg
+Ankle pose with lean back|shins,quads|45|s|0|mat|2|Lean back on the hands

@@ -1,0 +1,1201 @@
+category,rank,move,dose,unit,per_side,areas,equipment,level,kind,cautions,cue,move_id
+Warm-up,1,Jumping jacks,30,sec,,full body; calves; shoulders,none,1,dynamic,impact,"Land soft on the balls of your feet, arms all the way overhead",jumping-jacks
+Warm-up,2,Arm circles,10,reps,,shoulders,none,1,dynamic,,"Small to big circles, then reverse; keep ribs down",arm-circles
+Warm-up,3,High knees,30,sec,,hips; quads; calves,none,1,dynamic,,"Drive knees to hip height, quick light feet",high-knees
+Warm-up,4,Butt kicks,30,sec,,hamstrings; quads,none,1,dynamic,,"Heels toward glutes, stay tall, quick turnover",butt-kicks
+Warm-up,5,Bodyweight squats,12,reps,,quads; glutes; hips,none,1,dynamic,,"Sit between your heels, knees track over toes, chest up",bodyweight-squats
+Warm-up,6,Leg swings (front to back),12,reps,yes,hips; hamstrings,wall,1,dynamic,,"Hold a wall, swing from the hip, keep torso still",leg-swings-front-to-back
+Warm-up,7,Leg swings (side to side),12,reps,yes,hips; adductors,wall,1,dynamic,,"Face the wall, swing across the body, hips square",leg-swings-side-to-side
+Warm-up,8,Walking lunges,10,reps,yes,quads; glutes; hips,none,1,dynamic,,"Long step, back knee kisses the floor, front shin vertical",walking-lunges
+Warm-up,9,World's greatest stretch,5,reps,yes,hips; upper back; hamstrings,none,2,dynamic,,"Lunge, elbow to instep, rotate and reach up, then straighten front leg",worlds-greatest-stretch
+Warm-up,10,Inchworms,6,reps,,hamstrings; shoulders; core,none,1,dynamic,,"Walk hands out to plank, walk feet to hands, legs as straight as you can",inchworms
+Warm-up,11,Hip circles,10,reps,yes,hips,none,1,dynamic,,"Hands on hips, draw big slow circles each way",hip-circles
+Warm-up,12,Torso twists,20,reps,,upper back; core,none,1,dynamic,,"Arms loose, rotate through the upper back, pivot the back foot",torso-twists
+Warm-up,13,Glute bridges,12,reps,,glutes; hamstrings,mat,1,dynamic,,"Ribs down, drive through heels, squeeze 1 s at the top",glute-bridges
+Warm-up,14,Cat-cow,10,reps,,upper back; lower back,mat,1,dynamic,,"Move one vertebra at a time, breathe in to arch, out to round",cat-cow
+Warm-up,15,Lateral lunges,8,reps,yes,adductors; glutes; quads,none,1,dynamic,,"Sit into one hip, other leg straight, feet flat",lateral-lunges
+Warm-up,16,Mountain climbers,30,sec,,core; hips; shoulders,none,1,dynamic,,"Hips level with shoulders, knees drive to chest",mountain-climbers
+Warm-up,17,Skips (in place),30,sec,,calves; hips,none,1,dynamic,impact,"Light rhythmic hops, opposite arm and knee rise",skips-in-place
+Warm-up,18,Push-ups,10,reps,,chest; shoulders; arms,none,2,dynamic,wrist-load,"Body in a straight line, elbows about 45 degrees",push-ups
+Warm-up,19,Shoulder rolls,10,reps,,shoulders; neck,none,1,dynamic,,"Lift, roll back and down, slow and big",shoulder-rolls
+Warm-up,20,Neck rolls (half circles),6,reps,,neck,none,1,dynamic,,"Ear to shoulder, roll chin across the chest; no full back circles",neck-rolls-half-circles
+Warm-up,21,Walking knee hugs,8,reps,yes,hips; glutes,none,1,dynamic,,"Pull knee to chest, rise onto the standing toes",walking-knee-hugs
+Warm-up,22,Walking quad pulls,8,reps,yes,quads; hips,none,1,dynamic,,"Heel to glute, knee points down, squeeze the standing glute",walking-quad-pulls
+Warm-up,23,Frankenstein walks,10,reps,yes,hamstrings,none,1,dynamic,,"Straight-leg kick toward the opposite hand, stay tall",frankenstein-walks
+Warm-up,24,Spiderman lunge with reach,5,reps,yes,hips; upper back,none,2,dynamic,,"Foot outside the hand, sink the hips, rotate the arm to the sky",spiderman-lunge-with-reach
+Warm-up,25,Hip openers (gate open),8,reps,yes,hips; adductors,none,1,dynamic,,"Knee up, rotate it out wide, step down; reverse for gate close",hip-openers-gate-open
+Warm-up,26,Hip closers (gate close),8,reps,yes,hips,none,1,dynamic,,"Knee comes from the side, across the front, down",hip-closers-gate-close
+Warm-up,27,Ankle circles,10,reps,yes,ankles,none,1,dynamic,,"Big slow circles both ways, toes lead",ankle-circles
+Warm-up,28,Calf raises,15,reps,,calves; ankles,none,1,dynamic,,"Full rise, 1 s pause, slow lower",calf-raises
+Warm-up,29,Wrist circles,10,reps,,wrists,none,1,dynamic,,"Interlace fingers, roll both directions",wrist-circles
+Warm-up,30,Cross-body arm swings,15,reps,,shoulders; chest,none,1,dynamic,,"Open wide then hug across, alternate the top arm",cross-body-arm-swings
+Warm-up,31,Overhead arm reaches,10,reps,,shoulders; lats,none,1,dynamic,,"Reach up and slightly back, ribs stay down",overhead-arm-reaches
+Warm-up,32,Good mornings (bodyweight),12,reps,,hamstrings; lower back; glutes,none,1,dynamic,,"Hands behind head, hips back, flat back, feel the hamstrings",good-mornings
+Warm-up,33,Hip hinge drill,10,reps,,hamstrings; glutes,wall,1,dynamic,,"Push hips back to touch the wall behind you, shins vertical",hip-hinge-drill
+Warm-up,34,Squat to stand,8,reps,,hamstrings; hips; adductors,none,1,dynamic,,"Fold, grab toes, drop hips, lift chest, then straighten legs",squat-to-stand
+Warm-up,35,Prisoner squats,12,reps,,quads; glutes; upper back,none,1,dynamic,,"Hands behind head, elbows wide, chest proud",prisoner-squats
+Warm-up,36,Reverse lunges,8,reps,yes,quads; glutes,none,1,dynamic,,"Step back, drop straight down, push through the front heel",reverse-lunges
+Warm-up,37,Lunge with overhead reach,6,reps,yes,hips; lats; quads,none,1,dynamic,,"Reverse lunge and reach both arms up, lean slightly away",lunge-with-overhead-reach
+Warm-up,38,Lunge with twist,6,reps,yes,hips; upper back,none,1,dynamic,,"Lunge, rotate toward the front knee",lunge-with-twist
+Warm-up,39,Bear crawl,20,sec,,shoulders; core; quads,none,2,dynamic,wrist-load,"Knees hover an inch off the floor, opposite hand and foot move",bear-crawl
+Warm-up,40,Crab walk,20,sec,,shoulders; glutes; arms,none,2,dynamic,wrist-load,"Hips up, walk on hands and feet",crab-walk
+Warm-up,41,Plank,30,sec,,core; shoulders,mat,1,isometric,wrist-load,"Squeeze glutes, push the floor away, ribs down",plank
+Warm-up,42,Side plank,20,sec,yes,core; glutes,mat,2,isometric,wrist-load,"Stack hips, straight line head to heels",side-plank
+Warm-up,43,Dead bug,8,reps,yes,core,mat,1,dynamic,,"Low back flat, exhale fully as you reach opposite arm and leg",dead-bug
+Warm-up,44,Bird dog,8,reps,yes,core; glutes; lower back,mat,1,dynamic,,"Reach long, don't let the hips rotate, pause 2 s",bird-dog
+Warm-up,45,Plank shoulder taps,10,reps,yes,core; shoulders,none,2,isometric,wrist-load,"Feet wide, hips stay still as you tap",plank-shoulder-taps
+Warm-up,46,Scapular push-ups,10,reps,,shoulders; upper back,none,1,dynamic,wrist-load,"Arms straight, let the chest sink then push the floor away",scapular-push-ups
+Warm-up,47,Prone Y raises,10,reps,,shoulders; upper back,mat,1,dynamic,,"Face down, thumbs up, lift arms in a Y without shrugging",prone-y-raises
+Warm-up,48,Prone T raises,10,reps,,shoulders; upper back,mat,1,dynamic,,"Arms out to the sides, squeeze shoulder blades together",prone-t-raises
+Warm-up,49,Wall slides,10,reps,,shoulders; upper back,wall,1,dynamic,,"Back and forearms on the wall, slide up without the low back arching",wall-slides
+Warm-up,50,Thoracic rotations (quadruped),6,reps,yes,upper back,mat,1,dynamic,,"Hand behind head, rotate elbow to the ceiling, hips still",thoracic-rotations-quadruped
+Warm-up,51,Open books,8,reps,yes,upper back; chest,mat,1,dynamic,,"On your side, knees stacked, open the top arm to the floor behind you",open-books
+Warm-up,52,Lateral shuffles,20,sec,,hips; adductors; calves,none,1,dynamic,,"Low athletic stance, feet never cross",lateral-shuffles
+Warm-up,53,Carioca,20,sec,,hips; core,none,2,dynamic,,"Grapevine sideways, hips rotate, light on feet",carioca
+Warm-up,54,Fast feet,20,sec,,calves; ankles,none,1,dynamic,,"Quick small steps in place, on the balls of the feet",fast-feet
+Warm-up,55,Pogo hops,20,reps,,calves; ankles,none,1,dynamic,impact,"Stiff ankles, quick small bounces",pogo-hops
+Warm-up,56,Squat jumps,8,reps,,quads; glutes; calves,none,2,dynamic,impact,"Sink, explode up, land soft back into the squat",squat-jumps
+Warm-up,57,Split squat (bodyweight),8,reps,yes,quads; glutes; hips,none,1,dynamic,,"Stay in the staggered stance, lower straight down",split-squat
+Warm-up,58,Cossack squats,5,reps,yes,adductors; hips; quads,none,2,dynamic,,"Sit deep to one side, other leg straight with toes up",cossack-squats
+Warm-up,59,Single-leg RDL (bodyweight),8,reps,yes,hamstrings; glutes; ankles,none,2,dynamic,,"Hinge on one leg, back leg long, hips square",single-leg-rdl
+Warm-up,60,Hip airplanes,5,reps,yes,glutes; hips,none,3,dynamic,,"Hinge on one leg, rotate the pelvis open and closed",hip-airplanes
+Warm-up,61,Fire hydrants,10,reps,yes,glutes; hips,mat,1,dynamic,,"On all fours, knee out to the side, keep the back flat",fire-hydrants
+Warm-up,62,Donkey kicks,12,reps,yes,glutes,mat,1,dynamic,,"On all fours, press the heel to the ceiling, no low back arch",donkey-kicks
+Warm-up,63,Clamshells,15,reps,yes,glutes; hips,mat,1,dynamic,,"Side-lying, heels together, open the top knee",clamshells
+Warm-up,64,Side-lying leg raises,12,reps,yes,glutes; hips,mat,1,dynamic,,"Toes forward, lift slightly behind you",side-lying-leg-raises
+Warm-up,65,Superman hold,20,sec,,lower back; glutes; shoulders,mat,1,isometric,,"Lift arms and legs a few inches, long neck",superman-hold
+Warm-up,66,Hollow body hold,20,sec,,core,mat,2,isometric,,"Low back glued to the floor, arms and legs long",hollow-body-hold
+Warm-up,67,Glute bridge march,8,reps,yes,glutes; core; hips,mat,2,dynamic,,"Hold the bridge, lift one knee at a time, hips level",glute-bridge-march
+Warm-up,68,Single-leg glute bridge,8,reps,yes,glutes; hamstrings,mat,2,dynamic,,"Drive through one heel, other knee hugged or straight",single-leg-glute-bridge
+Warm-up,69,Toy soldiers,10,reps,yes,hamstrings; core,none,1,dynamic,,Straight-leg kick to an outstretched hand while walking,toy-soldiers
+Warm-up,70,Straight-leg bound kicks,10,reps,yes,hamstrings; hips,none,2,dynamic,impact,"Skip forward kicking a straight leg, pull the ground back",straight-leg-bound-kicks
+Warm-up,71,A-skips,20,sec,,hips; calves,none,2,dynamic,impact,"Skip with knee drive, strike the ground under the hip",a-skips
+Warm-up,72,B-skips,20,sec,,hamstrings; hips,none,3,dynamic,impact,A-skip plus a leg extension and paw back,b-skips
+Warm-up,73,Grapevine,20,sec,,hips; adductors,none,1,dynamic,,"Step behind, side, in front; stay low and light",grapevine
+Warm-up,74,Arm swings (overhead and down),15,reps,,shoulders,none,1,dynamic,,Swing both arms up and down in a relaxed rhythm,arm-swings-overhead-and-down
+Warm-up,75,Hug and open,12,reps,,chest; upper back,none,1,dynamic,,"Hug yourself, then open the arms wide and squeeze the back",hug-and-open
+Warm-up,76,Pass-throughs (towel),10,reps,,shoulders; chest,towel,1,dynamic,,"Wide grip on a towel, sweep over and behind with straight arms",pass-throughs-towel
+Warm-up,77,Shoulder dislocates (towel),10,reps,,shoulders,towel,2,dynamic,,"Same as pass-throughs, narrow the grip slowly over time",shoulder-dislocates-towel
+Warm-up,78,Wall angels,10,reps,,shoulders; upper back,wall,2,dynamic,,"Head, upper back and butt on the wall, arms make a snow angel",wall-angels
+Warm-up,79,Reach-backs (standing),10,reps,,chest; shoulders,none,1,dynamic,,"Arms out to the sides, pulse back gently",reach-backs-standing
+Warm-up,80,Pike push-ups,8,reps,,shoulders; arms,none,2,dynamic,wrist-load,"Hips high, head lowers between the hands",pike-push-ups
+Warm-up,81,Downward dog,30,sec,,hamstrings; calves; shoulders,mat,1,static,wrist-load,"Push hips up and back, heels toward the floor",downward-dog
+Warm-up,82,Down dog to cobra,8,reps,,lower back; shoulders; hamstrings,mat,1,dynamic,wrist-load,Flow down through the hips into a gentle back bend and back,down-dog-to-cobra
+Warm-up,83,Walking downward dog (pedal feet),30,sec,,calves; hamstrings,mat,1,dynamic,wrist-load,"In down dog, bend one knee as the other heel drops",walking-downward-dog-pedal-feet
+Warm-up,84,Plank walkouts,6,reps,,core; shoulders; hamstrings,none,1,isometric,wrist-load,"From standing walk out to plank, hold 1 s, walk back",plank-walkouts
+Warm-up,85,Plank to down dog,8,reps,,shoulders; hamstrings; core,mat,1,isometric,wrist-load,"Push hips up and back, then return to a strong plank",plank-to-down-dog
+Warm-up,86,Plank jacks,20,sec,,core; calves,none,2,isometric,impact; wrist-load,Jump feet in and out like a jumping jack in plank,plank-jacks
+Warm-up,87,Squat thrusts,8,reps,,full body; core; quads,none,2,dynamic,,"Hands down, jump feet back to plank and back in",squat-thrusts
+Warm-up,88,Burpees,6,reps,,full body,none,3,dynamic,impact,"Squat, plank, chest to floor, jump up",burpees
+Warm-up,89,Star jumps,8,reps,,full body; calves,none,2,dynamic,impact,Squat then explode up into an X shape,star-jumps
+Warm-up,90,Seal jacks,30,sec,,chest; shoulders; calves,none,1,dynamic,impact,Jumping jack with arms clapping in front at chest height,seal-jacks
+Warm-up,91,Cross jacks,30,sec,,adductors; shoulders,none,1,dynamic,impact,Jumping jack crossing feet and arms each rep,cross-jacks
+Warm-up,92,Half jacks,30,sec,,shoulders; calves,none,1,dynamic,impact,"Arms only to shoulder height, light hops",half-jacks
+Warm-up,93,Skater hops,10,reps,yes,glutes; hips; ankles,none,2,dynamic,impact,"Leap sideways, land soft on one leg, stick it",skater-hops
+Warm-up,94,Lateral bounds,8,reps,yes,glutes; adductors,none,3,dynamic,impact,"Push off hard sideways, land and hold 1 s",lateral-bounds
+Warm-up,95,Tuck jumps,6,reps,,quads; core,none,3,dynamic,impact,"Knees to chest, land quietly",tuck-jumps
+Warm-up,96,Broad jumps,5,reps,,glutes; quads; hamstrings,none,3,dynamic,impact,"Swing arms, jump forward, land soft and stick",broad-jumps
+Warm-up,97,Jump rope (imaginary),30,sec,,calves; ankles,none,1,dynamic,impact,"Small fast bounces, wrists turn the rope",jump-rope-imaginary
+Warm-up,98,Shadow boxing,60,sec,,shoulders; core; full body,none,1,dynamic,,"Stay light on your feet, snap punches, guard up",shadow-boxing
+Warm-up,99,Squat with arm raise,10,reps,,quads; shoulders,none,1,dynamic,,Arms rise overhead as you stand,squat-with-arm-raise
+Warm-up,100,Sumo squats,12,reps,,adductors; glutes,none,1,dynamic,,"Wide stance, toes out, sit straight down",sumo-squats
+Warm-up,101,Narrow squats,10,reps,,quads,none,1,dynamic,,"Feet together, sit back, knees track forward",narrow-squats
+Warm-up,102,Pulse squats,20,reps,,quads; glutes,none,2,dynamic,,"Stay low, small pulses near the bottom",pulse-squats
+Warm-up,103,Curtsy lunges,8,reps,yes,glutes; adductors,none,1,dynamic,,"Step back and across, hips stay square",curtsy-lunges
+Warm-up,104,Lunge pulses,10,reps,yes,quads; glutes,none,2,dynamic,,"Low lunge, small bounces at the bottom",lunge-pulses
+Warm-up,105,Step-ups,10,reps,yes,quads; glutes,step,1,dynamic,,"Whole foot on the step, drive through the heel",step-ups
+Warm-up,106,Wall sit,30,sec,,quads,wall,1,isometric,,"Thighs parallel, back flat on the wall",wall-sit
+Warm-up,107,Heel walks,20,sec,,shins; ankles,none,1,dynamic,,"Toes up, walk on your heels",heel-walks
+Warm-up,108,Toe walks,20,sec,,calves; feet,none,1,dynamic,,"Up on the balls of your feet, tall posture",toe-walks
+Warm-up,109,Tibialis raises,15,reps,,shins; ankles,wall,1,dynamic,,"Back against a wall, lift toes toward shins",tibialis-raises
+Warm-up,110,Ankle rocks (knee to wall),10,reps,yes,ankles; calves,wall,1,dynamic,,"Foot a hand away from wall, drive the knee forward, heel down",ankle-rocks-knee-to-wall
+Warm-up,111,Hip flexor marches,10,reps,yes,hips; core,none,1,dynamic,,"Standing tall, lift knee above hip, hold 1 s",hip-flexor-marches
+Warm-up,112,Standing hip CARs,3,reps,yes,hips,wall,2,dynamic,,"Knee up, out, around and back; slow and controlled, pelvis still",standing-hip-cars
+Warm-up,113,Shoulder CARs,3,reps,yes,shoulders,none,2,dynamic,,"Biggest slowest circle you can draw, rest of body still",shoulder-cars
+Warm-up,114,Spine waves,8,reps,,upper back; lower back,none,1,dynamic,,Roll the spine forward and back like a wave,spine-waves
+Warm-up,115,Standing side bends,8,reps,yes,core; lats,none,1,dynamic,,"Reach up and over, hips stay centered",standing-side-bends
+Warm-up,116,Standing cat-cow,8,reps,,upper back,none,1,dynamic,,"Hands on knees, round then arch the back",standing-cat-cow
+Warm-up,117,Scorpion (prone),6,reps,yes,hips; lower back; upper back,mat,2,dynamic,,"Face down, swing one heel across toward the opposite hand",scorpion-prone
+Warm-up,118,Lying windshield wipers,10,reps,yes,hips; lower back,mat,1,dynamic,,"On your back, knees bent, let them fall side to side",lying-windshield-wipers
+Warm-up,119,Supine leg lowers,8,reps,yes,core; hamstrings,mat,1,dynamic,,"One leg up, lower the other slowly, low back down",supine-leg-lowers
+Warm-up,120,Heel touches (lying),20,reps,,core,mat,1,dynamic,,"Shoulders slightly up, reach side to side",heel-touches-lying
+Warm-up,121,Bicycle crunches,20,reps,,core,mat,1,dynamic,,"Slow, shoulder to opposite knee, other leg long",bicycle-crunches
+Warm-up,122,Reverse crunch,10,reps,,core,mat,1,dynamic,,"Curl hips off the floor, lower slowly",reverse-crunch
+Warm-up,123,Flutter kicks,20,sec,,core; hips,mat,1,dynamic,,"Low back pressed down, small fast kicks",flutter-kicks
+Warm-up,124,Bear hold,20,sec,,core; shoulders,none,1,isometric,wrist-load,"Knees hover an inch off the floor, back flat",bear-hold
+Warm-up,125,Lateral plank walk,10,reps,yes,shoulders; core,none,2,isometric,wrist-load,Walk hands and feet sideways in plank,lateral-plank-walk
+Warm-up,126,Inchworm to push-up,5,reps,,chest; hamstrings; core,none,2,dynamic,wrist-load,"Walk out, one push-up, walk back",inchworm-to-push-up
+Warm-up,127,T push-ups,6,reps,yes,chest; upper back; core,none,2,dynamic,wrist-load,"Push-up, rotate into a side plank, reach up",t-push-ups
+Warm-up,128,Hindu push-ups,6,reps,,chest; shoulders; hips,none,3,dynamic,wrist-load,"Dive from pike through to cobra, push back",hindu-push-ups
+Warm-up,129,Knee push-ups,10,reps,,chest; arms,mat,1,dynamic,wrist-load,Straight line from knees to head,knee-push-ups
+Warm-up,130,Incline push-ups,10,reps,,chest; arms,chair,1,dynamic,wrist-load,"Hands on a bench or counter, body straight",incline-push-ups
+Warm-up,131,Arm scissors,20,reps,,shoulders; chest,none,1,dynamic,,"Arms out front, cross over and under quickly",arm-scissors
+Warm-up,132,Front raises (bodyweight),12,reps,,shoulders,none,1,dynamic,,"Straight arms up to eye level, slow lower",front-raises
+Warm-up,133,Lateral raise pulses,20,reps,,shoulders,none,1,dynamic,,"Arms at shoulder height, small pulses",lateral-raise-pulses
+Warm-up,134,Reverse snow angels,8,reps,,upper back; shoulders,mat,1,dynamic,,"Face down, sweep arms from hips to overhead, hovering",reverse-snow-angels
+Warm-up,135,Prone W raises,10,reps,,upper back; shoulders,mat,1,dynamic,,"Elbows bent, squeeze shoulder blades down and back",prone-w-raises
+Warm-up,136,Chin tucks,10,reps,,neck,none,1,dynamic,,"Draw the head straight back, make a double chin",chin-tucks
+Warm-up,137,Neck side tilts,6,reps,yes,neck,none,1,dynamic,,"Ear toward shoulder, shoulder stays down",neck-side-tilts
+Warm-up,138,Neck rotations,6,reps,yes,neck,none,1,dynamic,,"Turn to look over each shoulder, slow",neck-rotations
+Warm-up,139,Finger flicks,20,reps,,wrists,none,1,dynamic,,"Make a fist, then flick fingers wide",finger-flicks
+Warm-up,140,Wrist rocks (quadruped),10,reps,,wrists,mat,1,dynamic,wrist-load,"Hands flat, rock shoulders forward and back over the wrists",wrist-rocks-quadruped
+Warm-up,141,Reverse wrist rocks,10,reps,,wrists,mat,1,dynamic,wrist-load,"Backs of hands down, fingers toward knees, gentle rocks",reverse-wrist-rocks
+Warm-up,142,Prayer to reverse prayer,8,reps,,wrists,none,1,dynamic,,"Palms together, lower toward the waist, flip to backs together",prayer-to-reverse-prayer
+Warm-up,143,Jog in place,60,sec,,full body; calves,none,1,dynamic,,"Easy relaxed jog, breathe through the nose",jog-in-place
+Warm-up,144,March in place,60,sec,,hips,none,1,dynamic,,"Knees up, arms swinging, tall posture",march-in-place
+Warm-up,145,Run-throughs (strides in place),20,sec,,hips; calves,none,2,dynamic,,"Quick, tall running form at about 70%",run-throughs-strides-in-place
+Warm-up,146,Pogo hops forward and back,20,reps,,calves; ankles,none,2,dynamic,impact,Bounce over an imaginary line front to back,pogo-hops-forward-and-back
+Warm-up,147,Side-to-side line hops,20,reps,,calves; ankles,none,2,dynamic,impact,"Feet together, hop over a line side to side",side-to-side-line-hops
+Warm-up,148,Single-leg hops,10,reps,yes,calves; ankles,none,2,dynamic,impact,"Small quick hops on one foot, stay tall",single-leg-hops
+Warm-up,149,Lunge jumps,6,reps,yes,quads; glutes,none,3,dynamic,impact,"Switch legs in the air, land soft in a lunge",lunge-jumps
+Warm-up,150,Stance switches (split jacks),20,sec,,quads; hips,none,2,dynamic,impact,Small hops switching the front foot,stance-switches-split-jacks
+Warm-up,151,Deep squat hold,30,sec,,hips; ankles; adductors,none,1,isometric,deep-knee,"Heels down, elbows push knees out, chest up",deep-squat-hold
+Warm-up,152,Squat pry,30,sec,,hips; adductors,none,1,static,,"In a deep squat, shift side to side and pry knees out",squat-pry
+Warm-up,153,Kneeling hip flexor rock,10,reps,yes,hips; quads,mat,1,dynamic,,"Half-kneeling, squeeze the back glute, rock forward",kneeling-hip-flexor-rock
+Warm-up,154,90/90 hip switches,8,reps,,hips,mat,1,dynamic,,"Seated, knees bent 90, rotate both legs side to side",90-90-hip-switches
+Warm-up,155,Leg cradles,8,reps,yes,hips; glutes,none,1,dynamic,,Lift the shin and hug it to your chest while standing tall,leg-cradles
+Warm-up,156,Walking hamstring scoops,8,reps,yes,hamstrings,none,1,dynamic,,"Heel forward, toes up, scoop the arms low to high",walking-hamstring-scoops
+Warm-up,157,Single-leg toe touch,8,reps,yes,hamstrings; glutes; ankles,none,2,dynamic,,"Hinge and reach for the floor, back leg lifts",single-leg-toe-touch
+Warm-up,158,Lateral leg swings into lunge,6,reps,yes,adductors; hips,none,2,dynamic,,"Swing the leg out, step into a side lunge",lateral-leg-swings-into-lunge
+Warm-up,159,Reverse lunge with knee drive,8,reps,yes,quads; glutes; hips,none,2,dynamic,,"Step back, drive the knee up to finish standing",reverse-lunge-with-knee-drive
+Warm-up,160,Lunge matrix,3,reps,yes,quads; glutes; adductors; hips,none,2,dynamic,,"Lunge forward, side, and back on each leg",lunge-matrix
+Warm-up,161,Squat to reach,8,reps,,quads; upper back,none,1,dynamic,,"At the bottom of the squat, reach one arm up and rotate",squat-to-reach
+Warm-up,162,Thread the needle,6,reps,yes,upper back; shoulders,mat,1,dynamic,,"On all fours, slide one arm under, then reach it up",thread-the-needle
+Warm-up,163,Child's pose to cobra,6,reps,,lower back; hips,mat,1,dynamic,,Flow from sitting back on heels to a soft back bend,childs-pose-to-cobra
+Warm-up,164,Quadruped rock backs,10,reps,,hips; lower back,mat,1,dynamic,,"On all fours, rock hips toward heels with a flat back",quadruped-rock-backs
+Warm-up,165,Quadruped hip circles,6,reps,yes,hips; lower back,mat,1,dynamic,,"On all fours, draw circles with the hips",quadruped-hip-circles
+Warm-up,166,Hip extension march (bridge),10,reps,,glutes; hamstrings,mat,1,dynamic,,"Small bridge, alternate lifting heels",hip-extension-march-bridge
+Warm-up,167,Lateral band walk (no band),10,reps,yes,glutes; hips,none,1,dynamic,,"Half squat, step sideways slowly, toes forward",lateral-band-walk-no-band
+Warm-up,168,Monster walks (no band),10,reps,,glutes; hips,none,1,dynamic,,"Half squat, step diagonally forward",monster-walks-no-band
+Warm-up,169,Copenhagen plank (short lever),15,sec,yes,adductors; core,chair,3,isometric,advanced; wrist-load,"Top knee on a bench, lift hips, bottom leg hangs",copenhagen-plank-short-lever
+Warm-up,170,Side plank hip dips,8,reps,yes,core; glutes,mat,2,isometric,wrist-load,Lower the hips an inch and drive back up,side-plank-hip-dips
+Warm-up,171,Side-lying windmill,6,reps,yes,upper back; chest,mat,1,dynamic,,"Knees stacked, sweep the top arm in a big circle",side-lying-windmill
+Warm-up,172,Prone press-up,8,reps,,lower back,mat,1,dynamic,,"Hips stay down, press the chest up gently",prone-press-up
+Warm-up,173,Swimmers (prone),20,reps,,upper back; lower back; shoulders,mat,1,dynamic,,"Face down, flutter arms and legs slightly",swimmers-prone
+Warm-up,174,Snow angels (lying),10,reps,,shoulders,mat,1,dynamic,,"On your back, slide arms along the floor overhead and down",snow-angels-lying
+Warm-up,175,Arm circles (big),10,reps,,shoulders,none,1,dynamic,,"Huge slow circles, front and back",arm-circles-big
+Warm-up,176,Overhead side reach,8,reps,yes,lats; core,none,1,dynamic,,"Reach up and over, feel the side body open",overhead-side-reach
+Warm-up,177,Standing chest openers,10,reps,,chest,none,1,dynamic,,"Hands behind the head, open elbows wide",standing-chest-openers
+Warm-up,178,Behind-back hand clasp,20,sec,,chest; shoulders,none,1,static,,"Clasp hands behind you, lift gently, chest proud",behind-back-hand-clasp
+Warm-up,179,Kneeling thoracic extension,8,reps,,upper back; lats,chair,1,dynamic,,"Elbows on a bench, sink the chest toward the floor",kneeling-thoracic-extension
+Warm-up,180,Glute squeeze holds,10,reps,,glutes,none,1,isometric,,"Stand tall, squeeze glutes hard for 3 s",glute-squeeze-holds
+Warm-up,181,Single-leg balance,30,sec,yes,ankles; hips,none,1,static,,"Stand on one foot, soft knee, steady breath",single-leg-balance
+Warm-up,182,Single-leg balance reach,5,reps,yes,ankles; hips; hamstrings,none,2,dynamic,,"Reach the free foot forward, side and back",single-leg-balance-reach
+Warm-up,183,Star excursion reach,3,reps,yes,ankles; glutes; hips,none,2,dynamic,,"Balance on one leg, tap the other foot in three directions",star-excursion-reach
+Warm-up,184,Box breathing (pre-lift),4,breaths,,core,none,1,breathing,,"4 s in, 4 s hold, 4 s out, 4 s hold",box-breathing-pre-lift
+Warm-up,185,Brace practice,5,reps,,core,none,1,dynamic,,"Breathe in 360 degrees around the waist, brace, hold 5 s",brace-practice
+Warm-up,186,Bodyweight hip thrust (couch),12,reps,,glutes; hamstrings,chair,1,dynamic,,"Upper back on the couch, chin tucked, squeeze at the top",bodyweight-hip-thrust-couch
+Warm-up,187,Wall push-ups,12,reps,,chest; arms,wall,1,dynamic,wrist-load,"Hands on wall, body straight, chest to the wall",wall-push-ups
+Warm-up,188,Doorway Y raise,10,reps,,shoulders; upper back,wall,1,dynamic,,"Back to the wall, slide arms up into a Y",doorway-y-raise
+Warm-up,189,Kneeling arm sweeps,8,reps,yes,upper back; shoulders,mat,1,dynamic,,"Half-kneeling, sweep the arm up and back, follow with your eyes",kneeling-arm-sweeps
+Warm-up,190,Squat pulses with arm reach,15,reps,,quads; shoulders,none,1,dynamic,,"Pulse at the bottom, reach overhead each pulse",squat-pulses-with-arm-reach
+Warm-up,191,Reverse lunge to T-balance,5,reps,yes,glutes; hamstrings; ankles,none,3,dynamic,,"Lunge back, then hinge into a T on the front leg",reverse-lunge-to-t-balance
+Warm-up,192,Speed skaters (low impact),10,reps,yes,glutes; hips,none,1,dynamic,,"Step side to side, back leg sweeps behind",speed-skaters-low-impact
+Warm-up,193,Lateral lunge reach,6,reps,yes,adductors; hamstrings,none,1,dynamic,,Side lunge and reach both hands to the floor,lateral-lunge-reach
+Warm-up,194,Pec flys (bodyweight squeeze),12,reps,,chest,none,1,isometric,,"Arms wide, sweep together, squeeze the chest",pec-flys-bodyweight-squeeze
+Warm-up,195,Push-up plus,10,reps,,shoulders; chest,none,2,dynamic,wrist-load,"At the top, push further to spread the shoulder blades",push-up-plus
+Warm-up,196,Elbow plank to high plank,8,reps,,core; arms,mat,2,isometric,wrist-load,"Step up one hand at a time, hips steady",elbow-plank-to-high-plank
+Warm-up,197,Shoulder taps on wall,10,reps,yes,shoulders; core,wall,1,dynamic,,"Incline plank on the wall, tap opposite shoulders",shoulder-taps-on-wall
+Warm-up,198,Hand walk (inchworm wide),5,reps,,shoulders; core,none,2,dynamic,,"Walk hands far out past the shoulders, then back",hand-walk-inchworm-wide
+Warm-up,199,Groiners,8,reps,yes,hips; adductors,none,2,dynamic,,"From plank, jump one foot outside the hand, switch",groiners
+Warm-up,200,Leg raise to hip lift,8,reps,,core,mat,2,dynamic,,"Raise the legs, then lift the hips off the floor",leg-raise-to-hip-lift
+Cool-down,1,Walk it off,60,sec,,full body,none,1,dynamic,,"Easy walk, slow nasal breathing, let the heart rate settle",walk-it-off
+Cool-down,2,Child's pose,60,sec,,lower back; lats; hips,mat,1,static,,"Knees wide, sit back on heels, arms long",childs-pose
+Cool-down,3,Standing quad stretch,30,sec,yes,quads; hips,wall,1,static,,"Heel to glute, knees together, tuck the pelvis",standing-quad-stretch
+Cool-down,4,Standing hamstring stretch,30,sec,yes,hamstrings,none,1,static,,"Heel forward, toes up, hinge with a flat back",standing-hamstring-stretch
+Cool-down,5,Seated forward fold,45,sec,,hamstrings; lower back,mat,1,static,,"Legs long, fold from the hips, reach for the shins",seated-forward-fold
+Cool-down,6,Figure-four stretch (lying),45,sec,yes,glutes; hips,mat,1,static,,"Ankle over knee, pull the bottom thigh in",figure-four-stretch-lying
+Cool-down,7,Cobra stretch,30,sec,,lower back; core,mat,1,static,,"Hips down, gentle press, shoulders away from ears",cobra-stretch
+Cool-down,8,Downward dog,45,sec,,hamstrings; calves; shoulders,mat,1,static,wrist-load,"Long spine, heels sink toward the floor",downward-dog
+Cool-down,9,Wall calf stretch,30,sec,yes,calves,wall,1,static,,"Back leg straight, heel down, lean in",wall-calf-stretch
+Cool-down,10,Bent-knee calf stretch,30,sec,yes,calves; ankles,wall,1,static,,Same as the calf stretch but bend the back knee,bent-knee-calf-stretch
+Cool-down,11,Cross-body shoulder stretch,30,sec,yes,shoulders,none,1,static,,"Pull the arm across at chest height, shoulder down",cross-body-shoulder-stretch
+Cool-down,12,Overhead triceps stretch,30,sec,yes,arms; lats,none,1,static,,"Hand down the back, gently press the elbow",overhead-triceps-stretch
+Cool-down,13,Doorway chest stretch,30,sec,yes,chest; shoulders,wall,1,static,,"Forearm on the frame at shoulder height, step through",doorway-chest-stretch
+Cool-down,14,Kneeling hip flexor stretch,45,sec,yes,hips; quads,mat,1,static,,"Squeeze the back glute, tuck the pelvis, shift forward",kneeling-hip-flexor-stretch
+Cool-down,15,Butterfly stretch,45,sec,,adductors; hips,mat,1,static,,"Soles together, sit tall, knees fall open",butterfly-stretch
+Cool-down,16,Supine spinal twist,45,sec,yes,lower back; glutes; upper back,mat,1,static,,"Knee across the body, shoulders stay down",supine-spinal-twist
+Cool-down,17,Happy baby,45,sec,,hips; lower back; adductors,mat,1,static,,"Hold the feet, knees toward armpits, rock gently",happy-baby
+Cool-down,18,Pigeon pose,60,sec,yes,glutes; hips,mat,2,static,,"Front shin angled, hips square, fold forward if comfortable",pigeon-pose
+Cool-down,19,Lying hamstring stretch,45,sec,yes,hamstrings,towel,1,static,,"Towel around the foot, leg straight up, knee soft",lying-hamstring-stretch
+Cool-down,20,Thread the needle (hold),30,sec,yes,upper back; shoulders,mat,1,dynamic,,"Shoulder and ear rest on the floor, breathe into the upper back",thread-the-needle
+Cool-down,21,Cat-cow (slow),8,reps,,upper back; lower back,mat,1,dynamic,,"Exhale to round, inhale to arch, very slow",cat-cow
+Cool-down,22,Seated spinal twist,30,sec,yes,upper back; glutes,mat,1,static,,"Sit tall, hug the bent knee, rotate from the ribs",seated-spinal-twist
+Cool-down,23,Standing side stretch,30,sec,yes,lats; core,none,1,static,,"Reach up and over, hips stay level",standing-side-stretch
+Cool-down,24,Neck side stretch,30,sec,yes,neck,none,1,static,,"Ear to shoulder, other hand reaches to the floor",neck-side-stretch
+Cool-down,25,Upper trap stretch,30,sec,yes,neck; shoulders,none,1,static,,Hand gently guides the head down and forward,upper-trap-stretch
+Cool-down,26,Levator scapulae stretch,30,sec,yes,neck,none,1,static,,"Nose toward the armpit, gentle hand assist",levator-scapulae-stretch
+Cool-down,27,Chin tuck hold,20,sec,,neck,none,1,isometric,,"Draw the head back, lengthen the back of the neck",chin-tuck-hold
+Cool-down,28,Behind-back hand clasp,30,sec,,chest; shoulders,none,1,static,,"Clasp hands, lift gently, chest proud",behind-back-hand-clasp
+Cool-down,29,Wrist flexor stretch,30,sec,yes,wrists; arms,none,1,static,,"Arm straight, palm up, pull the fingers back",wrist-flexor-stretch
+Cool-down,30,Wrist extensor stretch,30,sec,yes,wrists; arms,none,1,static,,"Arm straight, palm down, press the hand down",wrist-extensor-stretch
+Cool-down,31,Legs up the wall,90,sec,,hamstrings; lower back; full body,wall,1,static,,"Hips close to the wall, arms relaxed, slow breathing",legs-up-the-wall
+Cool-down,32,Supine butterfly,60,sec,,adductors; hips,mat,1,static,,"On your back, soles together, knees fall open",supine-butterfly
+Cool-down,33,Knees to chest,45,sec,,lower back; glutes,mat,1,dynamic,,"Hug both knees, gently rock side to side",knees-to-chest
+Cool-down,34,Single knee to chest,30,sec,yes,lower back; glutes,mat,1,static,,Other leg long on the floor,single-knee-to-chest
+Cool-down,35,Sphinx pose,45,sec,,lower back,mat,1,static,,"Forearms down, chest lifts, belly relaxed",sphinx-pose
+Cool-down,36,Puppy pose,45,sec,,lats; upper back; shoulders,mat,1,static,,"Hips over knees, chest melts to the floor",puppy-pose
+Cool-down,37,Lizard pose,45,sec,yes,hips; adductors,mat,2,static,,"Foot outside the hand, lower the hips, back knee down",lizard-pose
+Cool-down,38,Low lunge (anjaneyasana),45,sec,yes,hips; quads,mat,1,static,,"Back knee down, arms up, sink forward",low-lunge-anjaneyasana
+Cool-down,39,Half splits,45,sec,yes,hamstrings,mat,1,static,,"Shift hips back over the back knee, front leg straight",half-splits
+Cool-down,40,Wide-leg forward fold,45,sec,,hamstrings; adductors,none,1,static,,"Feet wide, fold with a long spine, hands to floor",wide-leg-forward-fold
+Cool-down,41,Standing forward fold,45,sec,,hamstrings; lower back,none,1,static,,"Soft knees, let the head hang, sway gently",standing-forward-fold
+Cool-down,42,Ragdoll,45,sec,,hamstrings; lower back; neck,none,1,static,,"Hold opposite elbows, hang and breathe",ragdoll
+Cool-down,43,Seated straddle stretch,45,sec,,adductors; hamstrings,mat,1,static,,"Legs wide, walk the hands forward",seated-straddle-stretch
+Cool-down,44,Frog stretch,45,sec,,adductors; hips,mat,2,static,deep-knee,"Knees wide, ankles in line with knees, rock back",frog-stretch
+Cool-down,45,Supine figure-four twist,30,sec,yes,glutes; lower back,mat,1,static,,"Figure-four, then let both knees drop to the side",supine-figure-four-twist
+Cool-down,46,Reclined spinal twist with arms wide,45,sec,yes,lower back; chest,mat,1,static,,"Knees stacked to one side, look the other way",reclined-spinal-twist-with-arms-wide
+Cool-down,47,Lying quad stretch,30,sec,yes,quads,mat,1,static,,"On your side, pull the heel back, knees together",lying-quad-stretch
+Cool-down,48,Prone quad stretch,30,sec,yes,quads; hips,mat,1,static,,"Face down, pull the heel toward the glute",prone-quad-stretch
+Cool-down,49,Standing figure-four,30,sec,yes,glutes; hips,wall,2,static,,"Ankle over the opposite knee, sit back",standing-figure-four
+Cool-down,50,Seated figure-four,45,sec,yes,glutes,chair,1,static,,"Ankle over knee on a chair, lean forward",seated-figure-four
+Cool-down,51,Standing IT band stretch,30,sec,yes,hips; glutes,none,1,static,,"Cross one leg behind, lean the hips out",standing-it-band-stretch
+Cool-down,52,Side-lying open book hold,30,sec,yes,upper back; chest,mat,1,isometric,,Top arm rests open on the floor behind you,side-lying-open-book-hold
+Cool-down,53,Kneeling lat stretch,30,sec,yes,lats,chair,1,static,,"Elbow on a bench, sit the hips back",kneeling-lat-stretch
+Cool-down,54,Wall lat stretch,30,sec,,lats; shoulders,wall,1,static,,"Hands on the wall, walk back, sink the chest",wall-lat-stretch
+Cool-down,55,Doorway pec stretch (high),30,sec,yes,chest,wall,1,static,,"Arm higher on the frame, targets the lower chest",doorway-pec-stretch-high
+Cool-down,56,Biceps wall stretch,30,sec,yes,arms; chest,wall,1,static,,"Palm on wall behind you, rotate away",biceps-wall-stretch
+Cool-down,57,Sleeper stretch,30,sec,yes,shoulders,mat,2,static,,"Side-lying, gently press the forearm toward the floor",sleeper-stretch
+Cool-down,58,Shoulder extension stretch,30,sec,,shoulders; chest,chair,1,static,,"Hands on a bench behind you, sink the hips",shoulder-extension-stretch
+Cool-down,59,Eagle arms,30,sec,yes,shoulders; upper back,none,1,static,,"Wrap the arms, lift the elbows, breathe into the back",eagle-arms
+Cool-down,60,Cow face arms,30,sec,yes,shoulders; arms,towel,2,static,,"Reach behind the back from above and below, use a towel",cow-face-arms
+Cool-down,61,Reverse prayer,30,sec,,wrists; shoulders,none,2,static,,"Palms together behind the back, elbows back",reverse-prayer
+Cool-down,62,Supine chest opener,60,sec,,chest,towel,1,static,,"Lie on a rolled towel along the spine, arms wide",supine-chest-opener
+Cool-down,63,Thoracic extension over towel,60,sec,,upper back,towel,1,dynamic,,"Rolled towel across the upper back, arms overhead",thoracic-extension-over-towel
+Cool-down,64,Bridge hold (gentle),30,sec,,glutes; hips,mat,1,isometric,,"Low bridge, breathe, let the hip flexors open",bridge-hold
+Cool-down,65,Reclined hand-to-big-toe,30,sec,yes,hamstrings; adductors,towel,1,static,,"Leg up with a towel, then open it to the side",reclined-hand-to-big-toe
+Cool-down,66,Ankle dorsiflexion stretch,30,sec,yes,ankles; calves,wall,1,static,,"Toes up the wall, lean in",ankle-dorsiflexion-stretch
+Cool-down,67,Plantar fascia stretch,30,sec,yes,feet,none,1,static,,Pull the toes back toward the shin,plantar-fascia-stretch
+Cool-down,68,Toe stretch (kneeling),30,sec,,feet,mat,1,static,,"Kneel with toes tucked, sit back gently",toe-stretch-kneeling
+Cool-down,69,Top-of-foot stretch,30,sec,,feet; ankles; shins,mat,1,static,,"Kneel with the tops of the feet flat, sit back",top-of-foot-stretch
+Cool-down,70,Shin stretch (standing),30,sec,yes,shins; ankles,none,1,static,,"Toe tucked behind you, gently press forward",shin-stretch-standing
+Cool-down,71,Deep squat hold,45,sec,,hips; ankles; adductors,none,1,isometric,deep-knee,"Heels down, elbows press the knees out",deep-squat-hold
+Cool-down,72,Garland pose,45,sec,,hips; adductors,none,1,static,deep-knee,"Wide deep squat, palms together, chest up",garland-pose
+Cool-down,73,Seated hamstring stretch (single),30,sec,yes,hamstrings,mat,1,static,,"One leg bent, fold over the straight leg",seated-hamstring-stretch-single
+Cool-down,74,Seated glute stretch,30,sec,yes,glutes,mat,1,static,,"Cross the leg over, hug the knee toward the chest",seated-glute-stretch
+Cool-down,75,Supine adductor stretch,45,sec,,adductors,wall,1,static,,"Legs up the wall, let them slide open",supine-adductor-stretch
+Cool-down,76,Side-lying quad and hip stretch,30,sec,yes,quads; hips,mat,1,static,,"Pull the heel back, push the hip forward",side-lying-quad-and-hip-stretch
+Cool-down,77,Kneeling side stretch (gate pose),30,sec,yes,lats; adductors,mat,1,static,,"One leg out, reach over toward it",kneeling-side-stretch-gate-pose
+Cool-down,78,Extended child's pose (side),30,sec,yes,lats,mat,1,static,,From child's pose walk hands to one side,extended-childs-pose-side
+Cool-down,79,Standing back extension,5,reps,,lower back; core,none,1,dynamic,,"Hands on low back, lean back gently",standing-back-extension
+Cool-down,80,Corpse pose with breathing,120,sec,,full body,mat,1,breathing,,"Lie still, long exhales, let everything go heavy",corpse-pose-with-breathing
+Cool-down,81,Box breathing,60,sec,,full body,none,1,breathing,,"4 in, 4 hold, 4 out, 4 hold",box-breathing
+Cool-down,82,4-7-8 breathing,4,breaths,,full body,none,1,breathing,,"In 4, hold 7, out 8 through the mouth",4-7-8-breathing
+Cool-down,83,Diaphragmatic breathing,60,sec,,core; full body,mat,1,breathing,,"Hand on belly, belly rises before the chest",diaphragmatic-breathing
+Cool-down,84,Physiological sigh,5,breaths,,full body,none,1,breathing,,"Two inhales through the nose, one long exhale",physiological-sigh
+Cool-down,85,Crocodile breathing,60,sec,,lower back; core,mat,1,breathing,,"Face down, breathe into the lower back",crocodile-breathing
+Cool-down,86,Supported fish pose,60,sec,,chest; upper back,towel,1,static,,Folded towel under the shoulder blades,supported-fish-pose
+Cool-down,87,Reclined bound angle,90,sec,,hips; adductors,mat,1,static,impact,"On your back, soles together, arms relaxed",reclined-bound-angle
+Cool-down,88,Seated neck release,30,sec,yes,neck,none,1,static,,"Sit on your hand, tilt the head away",seated-neck-release
+Cool-down,89,Shoulder rolls (slow),10,reps,,shoulders; neck,none,1,dynamic,,Big slow rolls backward,shoulder-rolls
+Cool-down,90,Forearm stretch on floor,30,sec,,wrists; arms,mat,1,static,,"Kneel, fingers toward knees, sit back gently",forearm-stretch-on-floor
+Cool-down,91,Finger stretch,20,sec,yes,wrists,none,1,static,,Pull each finger back gently,finger-stretch
+Cool-down,92,Overhead reach with clasp,30,sec,,lats; shoulders,none,1,static,,"Interlace, palms up, reach tall",overhead-reach-with-clasp
+Cool-down,93,Standing calf stretch on step,30,sec,yes,calves,step,1,static,,"Heel drops off the step, knee straight",standing-calf-stretch-on-step
+Cool-down,94,Soleus stretch on step,30,sec,yes,calves,step,1,static,,Same as above with the knee bent,soleus-stretch-on-step
+Cool-down,95,Hip flexor stretch on couch,45,sec,yes,hips; quads,chair,2,static,,"Back shin up the couch, squeeze glute",hip-flexor-stretch-on-couch
+Cool-down,96,Couch stretch,60,sec,yes,quads; hips,wall,2,static,,"Back knee in the corner, shin up the wall, tall torso",couch-stretch
+Cool-down,97,Supine hamstring floss,10,reps,yes,hamstrings,mat,1,dynamic,,"Leg up, gently bend and straighten the knee",supine-hamstring-floss
+Cool-down,98,Lying glute stretch,30,sec,yes,glutes,mat,1,static,,Pull the knee toward the opposite shoulder,lying-glute-stretch
+Cool-down,99,Prone hip internal rotation,30,sec,,hips,mat,1,dynamic,,"Face down, knees bent, let the feet fall out",prone-hip-internal-rotation
+Cool-down,100,Seated 90/90 hold,45,sec,yes,hips; glutes,mat,1,isometric,,"Front and back legs at 90, lean over the front shin",seated-90-90-hold
+Cool-down,101,Supine twist with leg straight,30,sec,yes,lower back; hamstrings,mat,1,static,,Straight leg crosses the body,supine-twist-with-leg-straight
+Cool-down,102,Standing wide adductor stretch,30,sec,yes,adductors,none,1,static,,"Wide stance, shift to one side, other leg straight",standing-wide-adductor-stretch
+Cool-down,103,Kneeling adductor rock-back,10,reps,yes,adductors; hips,mat,1,dynamic,,"One leg out to the side, rock the hips back",kneeling-adductor-rock-back
+Cool-down,104,Standing hip circles (slow),5,reps,yes,hips,none,1,dynamic,,Large slow circles to loosen up,standing-hip-circles
+Cool-down,105,Gentle spinal rolls (standing),5,reps,,lower back; hamstrings,none,1,dynamic,,"Roll down, then up one vertebra at a time",gentle-spinal-rolls-standing
+Cool-down,106,Neck flexion stretch,30,sec,,neck,none,1,static,,"Clasp hands behind the head, let it drop",neck-flexion-stretch
+Cool-down,107,Scalene stretch,30,sec,yes,neck,none,1,static,,"Tilt and look up slightly, pin the collarbone down",scalene-stretch
+Cool-down,108,Pec minor stretch (corner),30,sec,,chest; shoulders,wall,1,static,,"Hands on both walls of a corner, lean in",pec-minor-stretch-corner
+Cool-down,109,Serratus stretch (child's pose reach),30,sec,yes,lats,mat,1,static,,"Walk the hands to one side, sink",serratus-stretch-childs-pose-reach
+Cool-down,110,Quadratus lumborum stretch,30,sec,yes,lower back; core,none,1,static,,"Cross legs, reach up and over",quadratus-lumborum-stretch
+Cool-down,111,Seated side bend,30,sec,yes,lats; core,mat,1,static,,"Cross-legged, one hand down, other arm over",seated-side-bend
+Cool-down,112,Gentle supine rocking,60,sec,,lower back,mat,1,static,,"Hug knees, rock side to side",gentle-supine-rocking
+Cool-down,113,Lying side stretch (banana),45,sec,yes,lats; core,mat,1,static,,"On your back, curve the body to one side",lying-side-stretch-banana
+Cool-down,114,Supported bridge,60,sec,,lower back; hips,towel,1,static,,"Folded towel under the sacrum, relax",supported-bridge
+Cool-down,115,Low lunge twist,30,sec,yes,hips; upper back,mat,1,static,,"Back knee down, rotate toward the front leg",low-lunge-twist
+Cool-down,116,Half kneeling hamstring stretch,30,sec,yes,hamstrings,mat,1,static,,"Front leg straight, hinge forward",half-kneeling-hamstring-stretch
+Cool-down,117,Standing toe touch,30,sec,,hamstrings; lower back,none,1,static,,"Soft knees, let gravity pull you down",standing-toe-touch
+Cool-down,118,Wall hamstring stretch,45,sec,yes,hamstrings,wall,1,static,,"Lie in a doorway, one leg up the wall",wall-hamstring-stretch
+Cool-down,119,Calf stretch in down dog,30,sec,yes,calves,mat,1,static,wrist-load,Press one heel down at a time,calf-stretch-in-down-dog
+Cool-down,120,Wall shoulder flexion stretch,30,sec,,shoulders; lats,wall,1,static,,"Hands high on the wall, sink the chest through",wall-shoulder-flexion-stretch
+Cool-down,121,Arm across chest with twist,30,sec,yes,shoulders; upper back,none,1,static,,"Arm across, turn the torso away",arm-across-chest-with-twist
+Cool-down,122,Rotator cuff stretch (towel),30,sec,yes,shoulders,towel,1,static,,"Towel behind the back, gently pull upward",rotator-cuff-stretch-towel
+Cool-down,123,Wrist circles (slow),10,reps,,wrists,none,1,dynamic,,Slow and loose to finish,wrist-circles
+Cool-down,124,Ankle circles (seated),10,reps,yes,ankles,none,1,dynamic,,Slow circles both directions,ankle-circles-seated
+Cool-down,125,Foot massage roll,60,sec,yes,feet,none,1,self-massage,,Roll a ball or bottle under the foot,foot-massage-roll
+Cool-down,126,Tibialis stretch kneeling,30,sec,,shins; ankles,mat,1,static,,"Kneel with feet flat, sit back, lift knees slightly",tibialis-stretch-kneeling
+Cool-down,127,Hip flexor stretch with side reach,30,sec,yes,hips; lats,mat,1,static,,"Kneeling lunge, reach up and over away from the back leg",hip-flexor-stretch-with-side-reach
+Cool-down,128,Standing chest stretch with clasp,30,sec,,chest,none,1,static,,"Interlace behind, lift and open",standing-chest-stretch-with-clasp
+Cool-down,129,Standing cat stretch,30,sec,,upper back,none,1,static,,"Round the upper back, reach the arms forward",standing-cat-stretch
+Cool-down,130,Prayer stretch,30,sec,,wrists; chest,none,1,static,,"Palms together at chest, lower slowly",prayer-stretch
+Cool-down,131,Seated forward fold with strap,45,sec,,hamstrings,towel,1,static,,"Towel around the feet, pull the chest forward",seated-forward-fold-with-strap
+Cool-down,132,Reclined pigeon,45,sec,yes,glutes; hips,mat,1,static,,"On your back, thread the hands, pull the thigh in",reclined-pigeon
+Cool-down,133,Supine knee drops,10,reps,,hips; lower back,mat,1,dynamic,,"Knees bent, let them sway side to side slowly",supine-knee-drops
+Cool-down,134,Supine leg cross stretch,30,sec,yes,glutes; hips,mat,1,static,,"Leg crosses the body, opposite hand guides",supine-leg-cross-stretch
+Cool-down,135,Half lord of the fishes,30,sec,yes,upper back; glutes,mat,2,static,,Seated twist with the leg crossed over,half-lord-of-the-fishes
+Cool-down,136,Seated cat-cow,8,reps,,upper back,chair,1,dynamic,,"Hands on knees, round and arch slowly",seated-cat-cow
+Cool-down,137,Seated neck stretch,30,sec,yes,neck,chair,1,static,,"Hold the chair seat, tilt the head away",seated-neck-stretch
+Cool-down,138,Standing chest and biceps stretch,30,sec,,chest; arms,none,1,static,,"Arms back, palms out, thumbs down",standing-chest-and-biceps-stretch
+Cool-down,139,Thumb and forearm stretch,30,sec,yes,wrists,none,1,static,,"Thumb in fist, tilt the wrist down",thumb-and-forearm-stretch
+Cool-down,140,Supine shoulder opener (cactus),60,sec,,chest; shoulders,mat,1,static,,Arms in a cactus shape on the floor,supine-shoulder-opener-cactus
+Cool-down,141,Gentle sun breaths,5,reps,,full body,none,1,breathing,,"Inhale arms up, exhale fold down",gentle-sun-breaths
+Cool-down,142,Hip shift child's pose,30,sec,yes,hips; lats,mat,1,static,,"In child's pose, shift the hips to one side",hip-shift-childs-pose
+Cool-down,143,Wide child's pose,60,sec,,hips; adductors,mat,1,static,,"Knees as wide as the mat, sit back",wide-childs-pose
+Cool-down,144,Pigeon with twist,30,sec,yes,glutes; upper back,mat,2,static,,"From pigeon, rotate toward the front leg",pigeon-with-twist
+Cool-down,145,Low squat with twist,30,sec,yes,hips; upper back,none,1,static,,"Deep squat, one arm up, rotate",low-squat-with-twist
+Cool-down,146,Standing quad stretch with reach,30,sec,yes,quads; hips,none,2,static,,Hold the foot and reach the free arm up,standing-quad-stretch-with-reach
+Cool-down,147,Hip hike stretch,30,sec,yes,hips; lower back,step,1,static,,"Stand on a step, let one hip drop",hip-hike-stretch
+Cool-down,148,Downward dog knee bends,10,reps,,hamstrings; calves,mat,1,dynamic,wrist-load,Alternate bending the knees in down dog,downward-dog-knee-bends
+Cool-down,149,Supine marching with breath,10,reps,yes,core; hips,mat,1,breathing,,Exhale as each knee comes up,supine-marching-with-breath
+Cool-down,150,Seated wide side reach,30,sec,yes,adductors; lats,mat,1,static,,"Legs wide, reach over toward one foot",seated-wide-side-reach
+Cool-down,151,Kneeling forearm stretch,30,sec,,wrists; arms,mat,1,static,,"Hands flipped, gentle lean back",kneeling-forearm-stretch
+Cool-down,152,Gentle neck nods,10,reps,,neck,none,1,dynamic,,"Small nods yes, then no",gentle-neck-nods
+Cool-down,153,Eye-level arm circles (slow),8,reps,,shoulders,none,1,dynamic,,Slow small circles to finish,eye-level-arm-circles
+Cool-down,154,Shaking out,30,sec,,full body,none,1,dynamic,,Shake arms and legs loose,shaking-out
+Cool-down,155,Light jog to walk,120,sec,,full body,none,1,dynamic,,Ease from a jog down to a walk,light-jog-to-walk
+Cool-down,156,Standing quad stretch with wall lean,30,sec,yes,quads; hips,wall,1,static,,"Hold the foot, lean the hips forward into the wall",standing-quad-stretch-with-wall-lean
+Cool-down,157,Slow walking lunge,6,reps,yes,hips; quads,none,1,dynamic,,"Long slow steps, hold the bottom 2 s",slow-walking-lunge
+Cool-down,158,Frog to forward fold,5,reps,,adductors; hamstrings,none,1,dynamic,deep-knee,"Deep squat, then straighten the legs",frog-to-forward-fold
+Cool-down,159,Standing glute stretch on bench,30,sec,yes,glutes,chair,1,static,,"Shin on the bench, fold forward",standing-glute-stretch-on-bench
+Cool-down,160,Hamstring stretch on bench,30,sec,yes,hamstrings,chair,1,static,,"Heel on the bench, fold with a flat back",hamstring-stretch-on-bench
+Cool-down,161,Calf stretch on wall (toe up),30,sec,yes,calves,wall,1,static,,"Toes up the wall, heel down, lean in",calf-stretch-on-wall-toe-up
+Cool-down,162,Seated toe pull,30,sec,yes,calves; hamstrings,mat,1,static,,"Legs long, pull the toes back",seated-toe-pull
+Cool-down,163,Doorframe lat hang,30,sec,yes,lats; lower back,wall,1,static,,"Hold the doorframe, sit the hips back and away",doorframe-lat-hang
+Cool-down,164,Lying arm overhead stretch,45,sec,,lats; shoulders,mat,1,static,,"On your back, arms overhead, ribs down",lying-arm-overhead-stretch
+Cool-down,165,Supine side-lying chest stretch,30,sec,yes,chest,mat,1,static,,"Face down, arm out, roll away from it",supine-side-lying-chest-stretch
+Cool-down,166,Bound angle forward fold,45,sec,,adductors; lower back,mat,1,static,impact,"Soles together, fold forward",bound-angle-forward-fold
+Cool-down,167,Head-to-knee pose,45,sec,yes,hamstrings; lower back,mat,1,static,,"One leg bent, fold over the straight leg",head-to-knee-pose
+Cool-down,168,Reclined twist with knees bent,45,sec,yes,lower back,mat,1,dynamic,,"Arms wide, knees to one side",reclined-twist-with-knees-bent
+Cool-down,169,Breathing in child's pose,60,sec,,lower back; full body,mat,1,breathing,,Breathe into the back of the ribs,breathing-in-childs-pose
+Cool-down,170,Kneeling shin and quad stretch,30,sec,,quads; shins,mat,1,static,,Kneel and lean back gently on the hands,kneeling-shin-and-quad-stretch
+Cool-down,171,Elevated pigeon (bench),30,sec,yes,glutes; hips,chair,1,static,,"Front shin on the bench, hips square",elevated-pigeon-bench
+Cool-down,172,Crossed-leg forward fold,30,sec,yes,glutes; lower back,mat,1,static,,"Seated cross-legged, walk the hands forward",crossed-leg-forward-fold
+Cool-down,173,Mermaid stretch,30,sec,yes,lats; hips,mat,1,static,,"Seated with legs to one side, reach over",mermaid-stretch
+Cool-down,174,Seated shoulder squeeze,10,reps,,upper back,none,1,isometric,,"Squeeze the blades back and down, release",seated-shoulder-squeeze
+Cool-down,175,Prone shoulder stretch (arm out),30,sec,yes,chest; shoulders,mat,1,static,,"Face down, arm out, roll onto the opposite side",prone-shoulder-stretch-arm-out
+Cool-down,176,Gentle back bend over chair,30,sec,,upper back; chest,chair,1,static,deep-backbend,"Upper back on the chair back, arms overhead",gentle-back-bend-over-chair
+Cool-down,177,Calm walk with long exhales,120,sec,,full body,none,1,dynamic,,"Inhale 3 steps, exhale 5 steps",calm-walk-with-long-exhales
+Cool-down,178,Kneeling hip flexor stretch with arm reach,30,sec,yes,hips; lats,mat,1,static,,"Reach up and slightly back, squeeze the back glute",kneeling-hip-flexor-stretch-with-arm-reach
+Cool-down,179,Low lunge with quad pull,30,sec,yes,quads; hips,mat,2,static,,"Back knee down, catch the back foot",low-lunge-with-quad-pull
+Cool-down,180,Pyramid pose,30,sec,yes,hamstrings; calves,none,1,static,,"Hips square, fold over the front leg",pyramid-pose
+Cool-down,181,Triangle pose,30,sec,yes,hamstrings; adductors; lats,none,1,static,,"Reach long, open the chest",triangle-pose
+Cool-down,182,Seated butterfly with fold,45,sec,,adductors; lower back,mat,1,static,,Fold with a long spine,seated-butterfly-with-fold
+Cool-down,183,Revolved head-to-knee,30,sec,yes,lats; hamstrings,mat,2,static,,Side bend over the straight leg,revolved-head-to-knee
+Cool-down,184,Melting heart pose,60,sec,,upper back; shoulders,mat,1,static,,"Hips up, chest down, arms long",melting-heart-pose
+Cool-down,185,Caterpillar pose,90,sec,,hamstrings; lower back,mat,1,static,,"Seated fold, round and relax",caterpillar-pose
+Cool-down,186,Dragonfly pose,60,sec,,adductors; hamstrings,mat,1,static,,"Wide legs, round forward",dragonfly-pose
+Cool-down,187,Deer pose,60,sec,yes,hips,mat,1,static,,Both knees bent to one side,deer-pose
+Cool-down,188,Banana pose,60,sec,yes,lats; core,mat,1,static,,Curve to one side on your back,banana-pose
+Cool-down,189,Constructive rest,120,sec,,lower back; hips,mat,1,breathing,,"Knees bent and touching, feet wide",constructive-rest
+Cool-down,190,Supported child's pose (pillow),90,sec,,lower back; hips,towel,1,static,,Pillow under the chest,supported-childs-pose-pillow
+Cool-down,191,Calf massage (hands),45,sec,yes,calves,none,1,self-massage,,Knead from the ankle up,calf-massage-hands
+Cool-down,192,Quad massage (hands),45,sec,yes,quads,none,1,self-massage,,Long strokes toward the hip,quad-massage-hands
+Cool-down,193,Upper back ball massage (wall),60,sec,,upper back; shoulders,wall,1,self-massage,,"Ball between the back and wall, roll slowly",upper-back-ball-massage-wall
+Cool-down,194,Glute ball massage,60,sec,yes,glutes,none,1,self-massage,,"Sit on a ball, cross the ankle over the knee",glute-ball-massage
+Cool-down,195,Pec ball massage (wall),45,sec,yes,chest,wall,1,self-massage,,Ball under the collarbone into the wall,pec-ball-massage-wall
+Cool-down,196,Forearm massage,45,sec,yes,arms; wrists,none,1,self-massage,,Thumb glides from wrist to elbow,forearm-massage
+Cool-down,197,Alternate nostril breathing,90,sec,,full body,none,1,breathing,,Switch nostrils each breath,alternate-nostril-breathing
+Cool-down,198,Extended exhale breathing,90,sec,,full body,none,1,breathing,,Exhale twice as long as the inhale,extended-exhale-breathing
+Cool-down,199,Humming breath,60,sec,,full body,none,1,breathing,,Hum on each exhale,humming-breath
+Cool-down,200,Progressive muscle relaxation,180,sec,,full body,mat,1,breathing,,"Tense 5 s, release, move up the body",progressive-muscle-relaxation
+Mobility,1,90/90 hip switches,8,reps,,hips,mat,1,dynamic,,"Sit tall, rotate both knees side to side without using hands if you can",90-90-hip-switches
+Mobility,2,Cat-cow,10,reps,,upper back; lower back,mat,1,dynamic,,"Segment by segment, breathe with the movement",cat-cow
+Mobility,3,World's greatest stretch,5,reps,yes,hips; upper back; hamstrings,none,2,dynamic,,"Lunge, elbow to instep, rotate and reach, straighten the front leg",worlds-greatest-stretch
+Mobility,4,Hip CARs (quadruped),3,reps,yes,hips,mat,2,dynamic,,"Draw the biggest circle with the knee, spine stays still",hip-cars-quadruped
+Mobility,5,Shoulder CARs,3,reps,yes,shoulders,none,2,dynamic,,"Slow full circle, keep the ribs down and the torso still",shoulder-cars
+Mobility,6,Thoracic rotations (quadruped),8,reps,yes,upper back,mat,1,dynamic,,"Hand behind head, rotate open and closed",thoracic-rotations-quadruped
+Mobility,7,Open books,8,reps,yes,upper back; chest,mat,1,dynamic,,"Knees stacked, follow the hand with your eyes",open-books
+Mobility,8,Deep squat hold,60,sec,,hips; ankles; adductors,none,1,isometric,deep-knee,"Heels down, chest up, pry the knees out with the elbows",deep-squat-hold
+Mobility,9,Wall slides,10,reps,,shoulders; upper back,wall,1,dynamic,,"Forearms on the wall, slide up without arching",wall-slides
+Mobility,10,Ankle rocks (knee to wall),10,reps,yes,ankles; calves,wall,1,dynamic,,"Heel stays down, knee drives over the toes",ankle-rocks-knee-to-wall
+Mobility,11,Thread the needle,8,reps,yes,upper back; shoulders,mat,1,dynamic,,"Slide under, then reach up to the ceiling",thread-the-needle
+Mobility,12,Couch stretch,60,sec,yes,quads; hips,wall,2,static,,"Squeeze the back glute, stay tall",couch-stretch
+Mobility,13,Cossack squats,5,reps,yes,adductors; hips; quads,none,2,dynamic,,"Sit deep to one side, straight leg toes up",cossack-squats
+Mobility,14,Spine CARs (standing),3,reps,,upper back; lower back,none,2,dynamic,,"Roll down, side bend, extend, rotate; one segment at a time",spine-cars-standing
+Mobility,15,Neck CARs,3,reps,,neck,none,1,dynamic,,"Slow half circles, chin to chest, ear to shoulder; avoid cranking back",neck-cars
+Mobility,16,Wrist CARs,5,reps,yes,wrists,none,1,dynamic,,"Fist closed, draw slow full circles",wrist-cars
+Mobility,17,Ankle CARs,5,reps,yes,ankles,none,1,dynamic,,"Seated or standing, largest circle possible",ankle-cars
+Mobility,18,Pigeon pose,60,sec,yes,glutes; hips,mat,2,static,,"Square hips, breathe into the front hip",pigeon-pose
+Mobility,19,Frog stretch rock-backs,10,reps,,adductors; hips,mat,2,dynamic,deep-knee,"Knees wide, rock the hips back and forward",frog-stretch-rock-backs
+Mobility,20,Hip airplanes,5,reps,yes,glutes; hips,none,3,dynamic,,Rotate the pelvis open and closed on one leg,hip-airplanes
+Mobility,21,Scorpion (prone),6,reps,yes,hips; lower back; upper back,mat,2,dynamic,,"Face down, heel crosses toward the opposite hand",scorpion-prone
+Mobility,22,Windshield wipers (supine),10,reps,yes,hips; lower back,mat,1,dynamic,,"Knees bent wide, drop both side to side",windshield-wipers-supine
+Mobility,23,Shinbox get-ups,4,reps,yes,hips; glutes,mat,3,dynamic,,"From 90/90, rise to tall kneeling without hands",shinbox-get-ups
+Mobility,24,Prone press-up,10,reps,,lower back,mat,1,dynamic,,"Hips heavy, press the chest up",prone-press-up
+Mobility,25,Quadruped rock-backs,10,reps,,hips; lower back,mat,1,dynamic,,"Flat back, sit hips toward heels",quadruped-rock-backs
+Mobility,26,Half-kneeling hip flexor rocks,10,reps,yes,hips; quads,mat,1,dynamic,,"Tuck the pelvis, rock forward slowly",half-kneeling-hip-flexor-rocks
+Mobility,27,Spiderman lunge with rotation,5,reps,yes,hips; upper back,none,2,dynamic,,"Foot outside the hand, rotate and reach up",spiderman-lunge-with-rotation
+Mobility,28,Squat pry,45,sec,,hips; adductors,none,1,static,,Shift side to side in the bottom of the squat,squat-pry
+Mobility,29,Downward dog to cobra flow,8,reps,,lower back; shoulders; hamstrings,mat,1,dynamic,wrist-load,"Slow flow, breathe in to cobra, out to down dog",downward-dog-to-cobra-flow
+Mobility,30,Inchworms,6,reps,,hamstrings; shoulders; core,none,1,dynamic,,"Legs as straight as you can, walk out and back",inchworms
+Mobility,31,Leg swings (front to back),12,reps,yes,hips; hamstrings,wall,1,dynamic,,"Swing from the hip, controlled height",leg-swings-front-to-back
+Mobility,32,Leg swings (side to side),12,reps,yes,hips; adductors,wall,1,dynamic,,"Swing across and out, hips square",leg-swings-side-to-side
+Mobility,33,Hip circles (standing),10,reps,yes,hips,none,1,dynamic,,Big slow circles each way,hip-circles-standing
+Mobility,34,Shoulder pass-throughs (towel),10,reps,,shoulders; chest,towel,1,dynamic,,"Straight arms, wide grip, over and back",shoulder-pass-throughs-towel
+Mobility,35,Sleeper stretch,30,sec,yes,shoulders,mat,2,static,,"Side-lying, gently rotate the forearm down",sleeper-stretch
+Mobility,36,Prone Y-T-W,5,reps,,shoulders; upper back,mat,1,dynamic,,"Five reps of each letter, thumbs up, no shrugging",prone-y-t-w
+Mobility,37,Wall angels,10,reps,,shoulders; upper back,wall,2,dynamic,,"Keep head, upper back and butt on the wall",wall-angels
+Mobility,38,Thoracic extension over towel,10,reps,,upper back,towel,1,dynamic,,"Towel roll under the upper back, extend over it gently",thoracic-extension-over-towel
+Mobility,39,Side-lying windmill,8,reps,yes,upper back; chest,mat,1,dynamic,,"Big circle with the top arm, eyes follow",side-lying-windmill
+Mobility,40,Quadruped thoracic reach-through,8,reps,yes,upper back; lats,mat,1,dynamic,,"Reach under, then open to the sky",quadruped-thoracic-reach-through
+Mobility,41,Lizard pose with rotation,5,reps,yes,hips; upper back,mat,2,dynamic,,"Foot outside the hand, rotate the arm up",lizard-pose-with-rotation
+Mobility,42,Half-kneeling ankle mobilization,10,reps,yes,ankles,mat,1,dynamic,,Knee drives forward over the pinky toe,half-kneeling-ankle-mobilization
+Mobility,43,Elevated pigeon (bench),45,sec,yes,glutes; hips,chair,1,static,,"Front shin on the bench, hips square",elevated-pigeon-bench
+Mobility,44,Seated hip internal rotation lifts,8,reps,yes,hips,mat,2,dynamic,,"From 90/90, lift the back foot off the floor",seated-hip-internal-rotation-lifts
+Mobility,45,Seated hip external rotation lifts,8,reps,yes,hips,mat,2,dynamic,,"From 90/90, lift the front knee off the floor",seated-hip-external-rotation-lifts
+Mobility,46,Hip flexor marches (supine),10,reps,yes,hips; core,mat,1,dynamic,,"Low back flat, lift the knee past 90",hip-flexor-marches-supine
+Mobility,47,Active straight-leg raises,8,reps,yes,hamstrings; hips,mat,1,dynamic,,"Lift the straight leg as high as you can, slowly lower",active-straight-leg-raises
+Mobility,48,Standing hamstring scoops,8,reps,yes,hamstrings,none,1,dynamic,,"Heel forward, toes up, scoop low to high",standing-hamstring-scoops
+Mobility,49,Jefferson curl (bodyweight),5,reps,,hamstrings; lower back,none,2,dynamic,loaded-spinal-flexion,"Roll down slowly from the head, then roll up",jefferson-curl
+Mobility,50,Good mornings (bodyweight),10,reps,,hamstrings; lower back; glutes,none,1,dynamic,,"Hips back, flat back, feel the stretch",good-mornings
+Mobility,51,Kneeling lat stretch rock,8,reps,,lats,chair,1,dynamic,,"Elbows on a bench, sink the hips back",kneeling-lat-stretch-rock
+Mobility,52,Puppy pose,45,sec,,lats; upper back; shoulders,mat,1,static,,"Hips over knees, chest toward the floor",puppy-pose
+Mobility,53,Wrist rocks (quadruped),10,reps,,wrists,mat,1,dynamic,wrist-load,Shift over the hands forward and back,wrist-rocks-quadruped
+Mobility,54,Reverse wrist rocks,10,reps,,wrists,mat,1,dynamic,wrist-load,"Backs of hands down, gentle rocks",reverse-wrist-rocks
+Mobility,55,Finger extensions,20,reps,,wrists,none,1,dynamic,,Open the hand wide from a fist,finger-extensions
+Mobility,56,Chin tucks,10,reps,,neck,none,1,dynamic,,Draw the head straight back,chin-tucks
+Mobility,57,Neck rotations,6,reps,yes,neck,none,1,dynamic,,Look over each shoulder slowly,neck-rotations
+Mobility,58,Scapular push-ups,10,reps,,shoulders; upper back,none,1,dynamic,wrist-load,"Arms straight, shoulder blades only",scapular-push-ups
+Mobility,59,Scapular pulls (doorframe),10,reps,,shoulders; lats,wall,1,dynamic,,"Hold the frame, pull the shoulder blades back",scapular-pulls-doorframe
+Mobility,60,Shoulder flexion lift-offs,8,reps,,shoulders,mat,2,dynamic,,"Face down, arms overhead, lift the hands off the floor",shoulder-flexion-lift-offs
+Mobility,61,Lying external rotation (side-lying),12,reps,yes,shoulders,mat,1,dynamic,,"Elbow pinned to the side, rotate the forearm up",lying-external-rotation-side-lying
+Mobility,62,Doorway chest opener,30,sec,yes,chest; shoulders,wall,1,static,,"Forearm on the frame, step through",doorway-chest-opener
+Mobility,63,Behind-back reaches,8,reps,yes,shoulders,none,1,dynamic,,"Reach up the back, switch hands",behind-back-reaches
+Mobility,64,Arm circles,10,reps,,shoulders,none,1,dynamic,,"Small to big, both directions",arm-circles
+Mobility,65,Reach-roll-lift,6,reps,yes,shoulders; upper back,mat,2,dynamic,,"In child's pose, reach, rotate thumb up, lift the arm",reach-roll-lift
+Mobility,66,Bretzel stretch,45,sec,yes,upper back; quads; hips,mat,2,static,,"Side-lying, top knee down, hold the bottom foot, rotate back",bretzel-stretch
+Mobility,67,Hip switches with reach,6,reps,yes,hips; upper back,mat,2,dynamic,,"In 90/90, reach forward over the front shin",hip-switches-with-reach
+Mobility,68,Supine figure-four rocks,10,reps,yes,glutes; hips,mat,1,dynamic,,Rock the knees side to side in figure-four,supine-figure-four-rocks
+Mobility,69,Frog pose,60,sec,,adductors; hips,mat,2,static,deep-knee,"Ankles in line with the knees, sink back",frog-pose
+Mobility,70,Butterfly with fold,45,sec,,adductors,mat,1,static,,"Soles together, fold with a long spine",butterfly-with-fold
+Mobility,71,Side lunge rocks,10,reps,yes,adductors,none,1,dynamic,,Shift side to side in a wide stance,side-lunge-rocks
+Mobility,72,Adductor rock-backs,10,reps,yes,adductors; hips,mat,1,dynamic,,"Kneeling with one leg out, rock back",adductor-rock-backs
+Mobility,73,Low lunge to half splits,6,reps,yes,hips; hamstrings,mat,1,dynamic,,"Flow between the two, breathe",low-lunge-to-half-splits
+Mobility,74,Deep lunge hold,45,sec,yes,hips; quads,none,1,isometric,,"Back knee off the floor, sink the hips",deep-lunge-hold
+Mobility,75,Squat to stand,8,reps,,hamstrings; hips; adductors,none,1,dynamic,,"Toes in hands, drop the hips, lift the chest, straighten",squat-to-stand
+Mobility,76,Goblet squat hold (bodyweight),45,sec,,hips; ankles,none,1,isometric,,"Hands together, elbows inside the knees",goblet-squat-hold
+Mobility,77,Tibialis raises,15,reps,,shins; ankles,wall,1,dynamic,,"Back to the wall, lift the toes high",tibialis-raises
+Mobility,78,Calf raises with pause at bottom,12,reps,,calves; ankles,step,1,dynamic,,"Heels below the step, pause in the stretch",calf-raises-with-pause-at-bottom
+Mobility,79,Toe yoga,10,reps,,feet,none,1,dynamic,,"Lift the big toe alone, then the other four",toe-yoga
+Mobility,80,Short foot drill,10,reps,yes,feet; ankles,none,1,dynamic,,"Pull the ball of the foot toward the heel, arch lifts",short-foot-drill
+Mobility,81,Kneeling toe stretch,45,sec,,feet,mat,1,static,,"Toes tucked, sit back gently",kneeling-toe-stretch
+Mobility,82,Single-leg balance with eyes closed,20,sec,yes,ankles,none,2,static,,"Stand tall, soft knee, steady",single-leg-balance-with-eyes-closed
+Mobility,83,Hip hinge with dowel (towel),10,reps,,hamstrings; lower back,towel,1,dynamic,,"Towel along the spine, keep three points of contact",hip-hinge-with-dowel-towel
+Mobility,84,Kneeling thoracic rotation,8,reps,yes,upper back,mat,1,dynamic,,"Sit back on heels, hand behind head, rotate",kneeling-thoracic-rotation
+Mobility,85,Seated thoracic rotation,8,reps,yes,upper back,chair,1,dynamic,,"Arms crossed, rotate from the ribs",seated-thoracic-rotation
+Mobility,86,Bench T-spine extension,10,reps,,upper back; lats,chair,1,dynamic,,"Elbows on the bench, sink the chest",bench-t-spine-extension
+Mobility,87,Pec minor stretch (corner),30,sec,,chest; shoulders,wall,1,static,,"Lean into the corner, shoulders down",pec-minor-stretch-corner
+Mobility,88,Lat flossing in child's pose,8,reps,yes,lats,mat,1,dynamic,,"Walk the hands to one side, breathe",lat-flossing-in-childs-pose
+Mobility,89,Quadratus lumborum stretch,30,sec,yes,lower back; core,none,1,static,,"Cross the legs, reach up and over",quadratus-lumborum-stretch
+Mobility,90,Standing side bends,8,reps,yes,core; lats,none,1,dynamic,,"Reach up and over, hips centered",standing-side-bends
+Mobility,91,Supine knee hugs,45,sec,,lower back; glutes,mat,1,static,,"Hug both knees, rock gently",supine-knee-hugs
+Mobility,92,Pelvic tilts (supine),12,reps,,lower back; core,mat,1,dynamic,,Flatten and arch the low back slowly,pelvic-tilts-supine
+Mobility,93,Bird dog,8,reps,yes,core; glutes; lower back,mat,1,dynamic,,"Reach long, pause, hips square",bird-dog
+Mobility,94,Dead bug,8,reps,yes,core,mat,1,dynamic,,"Exhale fully, back flat",dead-bug
+Mobility,95,Glute bridge with hold,10,reps,,glutes; hips,mat,1,isometric,,Squeeze 3 s at the top,glute-bridge-with-hold
+Mobility,96,Hip extension from quadruped,10,reps,yes,glutes,mat,1,dynamic,,"Kick the heel up, no low back arch",hip-extension-from-quadruped
+Mobility,97,Fire hydrants,10,reps,yes,glutes; hips,mat,1,dynamic,,"Knee out to the side, back flat",fire-hydrants
+Mobility,98,Clamshells,15,reps,yes,glutes; hips,mat,1,dynamic,,"Heels together, open the top knee",clamshells
+Mobility,99,Lateral leg raises,12,reps,yes,glutes,mat,1,dynamic,,"Side-lying, lift slightly behind",lateral-leg-raises
+Mobility,100,Prone hip internal rotation,10,reps,,hips,mat,1,dynamic,,"Face down, knees bent, let the feet fall out",prone-hip-internal-rotation
+Mobility,101,Supine hip internal rotation drops,10,reps,yes,hips,mat,1,dynamic,,"Knees bent wide, drop one knee inward",supine-hip-internal-rotation-drops
+Mobility,102,Kneeling hip internal rotation lift,8,reps,yes,hips,mat,2,dynamic,,"On all fours, lift the foot out to the side",kneeling-hip-internal-rotation-lift
+Mobility,103,Standing hip CARs,3,reps,yes,hips,wall,2,dynamic,,"Knee up, out, around and back, pelvis still",standing-hip-cars
+Mobility,104,Hip openers and closers,8,reps,yes,hips; adductors,none,1,dynamic,,"Knee circles out, then in",hip-openers-and-closers
+Mobility,105,Leg cradles,8,reps,yes,hips; glutes,none,1,dynamic,,Hug the shin to the chest standing tall,leg-cradles
+Mobility,106,Walking knee hugs,8,reps,yes,hips; glutes,none,1,dynamic,,"Pull the knee in, rise onto the toes",walking-knee-hugs
+Mobility,107,Frankenstein walks,10,reps,yes,hamstrings,none,1,dynamic,,Straight-leg kick to the opposite hand,frankenstein-walks
+Mobility,108,Hamstring floss (supine),10,reps,yes,hamstrings,mat,1,dynamic,,"Leg up, bend and straighten the knee",hamstring-floss-supine
+Mobility,109,Active pancake lifts,8,reps,,adductors; hamstrings,mat,3,dynamic,,"Seated straddle, lift the hands and lean forward",active-pancake-lifts
+Mobility,110,Seated straddle reach,45,sec,,adductors; hamstrings,mat,1,static,,"Legs wide, walk the hands forward",seated-straddle-reach
+Mobility,111,Tall kneeling hip shifts,10,reps,yes,hips,mat,1,dynamic,,"Shift the hips side to side, stay tall",tall-kneeling-hip-shifts
+Mobility,112,Standing quad stretch,30,sec,yes,quads; hips,wall,1,static,,"Heel to glute, knees together",standing-quad-stretch
+Mobility,113,Kneeling quad rocks,10,reps,,quads,mat,2,dynamic,,"Kneel, lean back slowly with a straight line",kneeling-quad-rocks
+Mobility,114,Heel sits,45,sec,,quads; ankles,mat,1,static,deep-knee,"Sit back on the heels, tops of feet flat",heel-sits
+Mobility,115,Ankle circles,10,reps,yes,ankles,none,1,dynamic,,Big slow circles,ankle-circles
+Mobility,116,Calf stretch (wall),30,sec,yes,calves,wall,1,static,,"Back heel down, lean in",calf-stretch-wall
+Mobility,117,Down dog pedal,30,sec,,calves; hamstrings,mat,1,static,wrist-load,Alternate bending the knees,down-dog-pedal
+Mobility,118,Plank to down dog,8,reps,,shoulders; hamstrings; core,mat,1,isometric,wrist-load,Push the hips up and back,plank-to-down-dog
+Mobility,119,Bear to squat,8,reps,,hips; ankles; shoulders,none,2,dynamic,wrist-load,"From bear stance, sit back into a deep squat",bear-to-squat
+Mobility,120,Crab reach,5,reps,yes,chest; shoulders; hips,none,2,dynamic,wrist-load,"From crab, lift the hips and reach over",crab-reach
+Mobility,121,Lateral lunge with reach,6,reps,yes,adductors; hamstrings,none,1,dynamic,,"Side lunge, reach to the foot",lateral-lunge-with-reach
+Mobility,122,Curtsy lunge rotation,6,reps,yes,glutes; upper back,none,2,dynamic,,Curtsy lunge and rotate over the front leg,curtsy-lunge-rotation
+Mobility,123,Overhead squat (arms up),8,reps,,shoulders; hips; ankles,none,2,dynamic,,"Arms up by the ears, sit deep, chest up",overhead-squat-arms-up
+Mobility,124,Wall-facing squat,8,reps,,hips; upper back,wall,3,dynamic,,"Toes near the wall, squat without touching it",wall-facing-squat
+Mobility,125,Pistol squat assisted,5,reps,yes,hips; ankles; quads; glutes,wall,3,dynamic,deep-knee,"Hold a doorframe, lower on one leg",pistol-squat-assisted
+Mobility,126,Tabletop bridge,5,reps,,chest; shoulders; hips,mat,1,dynamic,wrist-load,"Hands behind, lift the hips flat",tabletop-bridge
+Mobility,127,Glute bridge march,8,reps,yes,glutes; core; hips,mat,2,dynamic,,"Hold the bridge, alternate knees",glute-bridge-march
+Mobility,128,Shoulder bridge with arms overhead,5,reps,,chest; upper back,mat,2,dynamic,,Bridge with the arms reaching overhead,shoulder-bridge-with-arms-overhead
+Mobility,129,Cobra pulses,10,reps,,lower back,mat,1,dynamic,,"Small gentle lifts, hips down",cobra-pulses
+Mobility,130,Superman to child's pose,8,reps,,lower back; glutes,mat,1,isometric,,"Lift, then sit back",superman-to-childs-pose
+Mobility,131,Sphinx to cobra,8,reps,,lower back,mat,1,dynamic,,"Forearms to hands, slow",sphinx-to-cobra
+Mobility,132,Cat-cow with side bend,6,reps,yes,upper back; lats,mat,1,dynamic,,Add a side curve looking toward the hip,cat-cow-with-side-bend
+Mobility,133,Quadruped circles,6,reps,yes,upper back; hips,mat,1,dynamic,,Circle the spine and hips together,quadruped-circles
+Mobility,134,Kneeling rib rotation,8,reps,yes,upper back,mat,1,dynamic,,"Hands on the floor, rotate the arm up",kneeling-rib-rotation
+Mobility,135,Seated forward fold pulses,10,reps,,hamstrings,mat,1,dynamic,,"Gentle pulses, flat back",seated-forward-fold-pulses
+Mobility,136,Standing toe touch flow,8,reps,,hamstrings; lower back,none,1,dynamic,,"Reach up, then fold down slowly",standing-toe-touch-flow
+Mobility,137,Hip flexor stretch with reach,30,sec,yes,hips; lats,mat,1,static,,Reach up and over away from the back leg,hip-flexor-stretch-with-reach
+Mobility,138,Prone scorpion with reach,5,reps,yes,hips; upper back,mat,2,dynamic,,"Heel across, arm reaching wide",prone-scorpion-with-reach
+Mobility,139,Supine twist with reach,6,reps,yes,lower back; upper back,mat,1,dynamic,,"Knees to the side, reach the top arm over",supine-twist-with-reach
+Mobility,140,Russian baby maker,45,sec,,hips; adductors,none,1,static,,"Deep squat, elbows press knees, sway side to side",russian-baby-maker
+Mobility,141,Lateral squat walk,10,reps,yes,adductors; hips,none,1,dynamic,,"Low squat, step side to side",lateral-squat-walk
+Mobility,142,Duck walk,20,sec,,hips; ankles; quads,none,2,dynamic,deep-knee,Stay in a deep squat and walk forward,duck-walk
+Mobility,143,Crawling (bear),20,sec,,shoulders; core; hips,none,2,dynamic,wrist-load,"Knees hover, opposite limbs move",crawling-bear
+Mobility,144,Crab walk,20,sec,,shoulders; glutes; arms,none,2,dynamic,wrist-load,"Hips up, walk on hands and feet",crab-walk
+Mobility,145,Ape walk,20,sec,,hips; adductors; shoulders,none,2,dynamic,,"Deep squat, hands down, hop sideways",ape-walk
+Mobility,146,Lizard crawl,20,sec,,hips; shoulders; core,none,3,dynamic,wrist-load,"Low crawl, knee to elbow",lizard-crawl
+Mobility,147,Spinal waves (standing),8,reps,,upper back; lower back,none,1,dynamic,,Roll the spine forward and back,spinal-waves-standing
+Mobility,148,Chest openers with rotation,8,reps,yes,chest; upper back,none,1,dynamic,,"Arms wide, rotate the torso",chest-openers-with-rotation
+Mobility,149,Halo (bodyweight),6,reps,yes,shoulders; neck,none,1,dynamic,,Clasped hands circle the head,halo
+Mobility,150,Overhead reach with side lean,8,reps,yes,lats,none,1,dynamic,,Reach up and lean away,overhead-reach-with-side-lean
+Mobility,151,Hug and open,10,reps,,chest; upper back,none,1,dynamic,,"Hug, then open wide",hug-and-open
+Mobility,152,Prone arm circles,10,reps,,shoulders,mat,1,dynamic,,"Face down, arms out, small circles",prone-arm-circles
+Mobility,153,Prone swimmers,10,reps,,shoulders; upper back,mat,2,dynamic,,"Hands sweep from overhead to the low back, hovering",prone-swimmers
+Mobility,154,Lying shoulder external rotation stretch,30,sec,,shoulders,mat,1,static,,"On your back, arms in a cactus, let the hands fall back",lying-shoulder-external-rotation-stretch
+Mobility,155,Kneeling shoulder flexion stretch,30,sec,,shoulders; lats,chair,1,static,,"Hands on a bench, sink the chest",kneeling-shoulder-flexion-stretch
+Mobility,156,Shoulder extension rock,8,reps,,shoulders; chest,chair,1,dynamic,,"Hands on a bench behind you, dip the hips",shoulder-extension-rock
+Mobility,157,Skin the cat regression (floor),5,reps,,shoulders; chest,mat,3,dynamic,advanced,"Sit, hands behind, walk them back slowly",skin-the-cat-regression-floor
+Mobility,158,German hang regression (floor),20,sec,,shoulders; chest,chair,3,static,advanced,"Hands on a bench behind, sink the hips",german-hang-regression-floor
+Mobility,159,Elbow circles,10,reps,,arms,none,1,dynamic,,Small circles at the elbow,elbow-circles
+Mobility,160,Forearm rotations,15,reps,,wrists; arms,none,1,dynamic,,Palms up and down quickly,forearm-rotations
+Mobility,161,Finger walks up the wall,5,reps,yes,shoulders,wall,1,dynamic,,Walk the fingers up the wall as high as you can,finger-walks-up-the-wall
+Mobility,162,Wall shoulder flexion lift-offs,8,reps,,shoulders,wall,2,dynamic,,"Face the wall, lift the hands away",wall-shoulder-flexion-lift-offs
+Mobility,163,Standing T-spine rotation with hip hinge,6,reps,yes,upper back; hamstrings,none,1,dynamic,,"Hinge, reach one hand down, other up",standing-t-spine-rotation-with-hip-hinge
+Mobility,164,Hip hinge with rotation,6,reps,yes,hamstrings; upper back,none,2,dynamic,,"Hinge, rotate the torso toward one leg",hip-hinge-with-rotation
+Mobility,165,Single-leg RDL reach,6,reps,yes,hamstrings; ankles,none,2,dynamic,,Hinge and reach the floor on one leg,single-leg-rdl-reach
+Mobility,166,Star excursion reach,3,reps,yes,ankles; glutes; hips,none,2,dynamic,,"Balance on one leg, reach three directions",star-excursion-reach
+Mobility,167,Lunge matrix,3,reps,yes,quads; glutes; adductors; hips,none,2,dynamic,,"Forward, side, back on each leg",lunge-matrix
+Mobility,168,Kneeling Adductor stretch with rotation,6,reps,yes,adductors; upper back,mat,2,dynamic,,"One leg out, rotate the arm up",kneeling-adductor-stretch-with-rotation
+Mobility,169,Supine leg circles,6,reps,yes,hips,mat,1,dynamic,,"Straight leg draws circles, pelvis still",supine-leg-circles
+Mobility,170,Bent-knee fallouts,10,reps,yes,hips; adductors,mat,1,dynamic,,"Let one knee drop out slowly, pelvis still",bent-knee-fallouts
+Mobility,171,Seated knee hugs to twist,6,reps,yes,hips; upper back,mat,1,dynamic,,"Hug one knee, twist toward it",seated-knee-hugs-to-twist
+Mobility,172,Wall hip flexor stretch,45,sec,yes,hips; quads,wall,2,static,,"Back shin up the wall, tuck the pelvis",wall-hip-flexor-stretch
+Mobility,173,Hip lift-offs (seated 90/90),6,reps,yes,hips,mat,3,dynamic,,Lift the back knee off the floor in 90/90,hip-lift-offs-seated-90-90
+Mobility,174,Hip flexor lift-offs,8,reps,yes,hips,mat,3,dynamic,,"Seated tall, lift a straight leg off the floor",hip-flexor-lift-offs
+Mobility,175,Compression lifts,8,reps,,hips; core,mat,3,dynamic,,"Seated pike, lift both legs an inch",compression-lifts
+Mobility,176,Pike compressions,10,reps,,hamstrings; core,mat,2,dynamic,,"Seated pike, pull toward the legs",pike-compressions
+Mobility,177,Straddle compression lifts,8,reps,yes,adductors; core,mat,3,dynamic,,"In straddle, lift one leg at a time",straddle-compression-lifts
+Mobility,178,Neck isometrics,10,sec,,neck,none,1,isometric,,Press the head into the hand in 4 directions,neck-isometrics
+Mobility,179,Eye-follow rotations,6,reps,yes,neck; upper back,none,1,dynamic,,Follow the hand with your eyes as it sweeps,eye-follow-rotations
+Mobility,180,Seated spine twist,30,sec,yes,upper back,chair,1,static,,"Hold the chair back, rotate",seated-spine-twist
+Mobility,181,Child's pose side reach,30,sec,yes,lats,mat,1,static,,Walk the hands to one side,childs-pose-side-reach
+Mobility,182,Kneeling hip circles,6,reps,yes,hips,mat,1,dynamic,,"Tall kneeling, circle the hips",kneeling-hip-circles
+Mobility,183,Standing heel-toe walks,20,sec,,ankles; shins,none,1,dynamic,,Alternate walking on heels and toes,standing-heel-toe-walks
+Mobility,184,Ankle dorsiflexion pulses,12,reps,yes,ankles,step,1,dynamic,,"Toes on a step, pulse the knee forward",ankle-dorsiflexion-pulses
+Mobility,185,Soleus raises (bent knee),15,reps,,calves,none,1,dynamic,,"Knees bent, rise slowly",soleus-raises-bent-knee
+Mobility,186,Shin box flow,6,reps,,hips,mat,2,dynamic,,Switch between 90/90 and shin box sitting,shin-box-flow
+Mobility,187,Turkish get-up (bodyweight),3,reps,yes,shoulders; hips; core,mat,2,dynamic,,"Fist to the sky, follow the steps slowly",turkish-get-up
+Mobility,188,Deep squat with T-spine rotation,5,reps,yes,hips; upper back,none,1,dynamic,deep-knee,"Squat low, rotate one arm up",deep-squat-with-t-spine-rotation
+Mobility,189,Prayer squat rocks,10,reps,,hips; ankles,none,1,dynamic,,"Deep squat, rock forward over the toes",prayer-squat-rocks
+Mobility,190,Kneeling hip flexor CARs,3,reps,yes,hips,mat,2,dynamic,,"Half-kneeling, circle the back hip slowly",kneeling-hip-flexor-cars
+Mobility,191,Elbow CARs,5,reps,yes,arms,none,1,dynamic,,Slow full circles at the elbow,elbow-cars
+Mobility,192,Scapular CARs,5,reps,yes,shoulders; upper back,none,1,dynamic,,"Shrug, retract, depress, protract in a slow circle",scapular-cars
+Mobility,193,Toe CARs,5,reps,yes,feet,none,1,dynamic,,Circle each big toe slowly,toe-cars
+Mobility,194,Knee CARs (seated),5,reps,yes,knees,chair,2,dynamic,,"Thigh still, circle the lower leg",knee-cars-seated
+Mobility,195,Pelvic CARs (standing),5,reps,,hips; lower back,none,1,dynamic,,"Circle the pelvis, upper body still",pelvic-cars-standing
+Mobility,196,Rib cage circles,6,reps,,upper back,none,2,dynamic,,"Move the ribs in a circle, hips still",rib-cage-circles
+Mobility,197,Rib cage shifts,10,reps,,upper back; lats,none,1,dynamic,,Slide the ribs side to side over the hips,rib-cage-shifts
+Mobility,198,Head turns in deep squat,6,reps,yes,hips; neck,none,1,dynamic,deep-knee,"Sit deep, look slowly over each shoulder",head-turns-in-deep-squat
+Mobility,199,Seated 90/90 with arm reach,6,reps,yes,hips; upper back,mat,1,dynamic,,"Reach over the front shin, then rotate",seated-90-90-with-arm-reach
+Mobility,200,Lateral lunge with rotation,5,reps,yes,adductors; upper back,none,2,dynamic,,"Side lunge, rotate toward the bent knee",lateral-lunge-with-rotation
+Flexibility,1,Seated forward fold,60,sec,,hamstrings; lower back,mat,1,static,,"Hinge from the hips, long spine, relax the neck",seated-forward-fold
+Flexibility,2,Standing forward fold,60,sec,,hamstrings; lower back,none,1,static,,"Soft knees to start, let the head hang",standing-forward-fold
+Flexibility,3,Butterfly stretch,60,sec,,adductors; hips,mat,1,static,,"Sit tall, let the knees fall open",butterfly-stretch
+Flexibility,4,Pigeon pose,90,sec,yes,glutes; hips,mat,2,static,,"Square the hips, fold forward when ready",pigeon-pose
+Flexibility,5,Lizard pose,60,sec,yes,hips; adductors,mat,2,static,,"Foot outside the hand, sink the hips",lizard-pose
+Flexibility,6,Low lunge,60,sec,yes,hips; quads,mat,1,static,,"Back knee down, tuck the pelvis, sink forward",low-lunge
+Flexibility,7,Half splits,60,sec,yes,hamstrings,mat,1,static,,"Hips over the back knee, front leg straight, flat back",half-splits
+Flexibility,8,Front splits (supported),60,sec,yes,hamstrings; hips,towel,3,static,,"Blocks or books under the hands, hips square",front-splits-supported
+Flexibility,9,Middle splits (supported),60,sec,,adductors,mat,3,static,,"Hands down, slide the feet wide slowly",middle-splits-supported
+Flexibility,10,Pancake stretch,60,sec,,adductors; hamstrings,mat,2,static,,"Legs wide, fold from the hips, chest forward",pancake-stretch
+Flexibility,11,Frog pose,90,sec,,adductors; hips,mat,2,static,deep-knee,"Knees wide, ankles in line with knees",frog-pose
+Flexibility,12,Couch stretch,90,sec,yes,quads; hips,wall,2,static,,"Back knee in the corner, tall torso",couch-stretch
+Flexibility,13,Kneeling hip flexor stretch,60,sec,yes,hips; quads,mat,1,static,,Squeeze the back glute,kneeling-hip-flexor-stretch
+Flexibility,14,Lying hamstring stretch,60,sec,yes,hamstrings,towel,1,static,,"Towel around the foot, leg straight up",lying-hamstring-stretch
+Flexibility,15,Wide-leg forward fold,60,sec,,hamstrings; adductors,none,1,static,,"Feet wide, fold with a long spine",wide-leg-forward-fold
+Flexibility,16,Downward dog,60,sec,,hamstrings; calves; shoulders,mat,1,static,wrist-load,"Long spine, heels sink",downward-dog
+Flexibility,17,Child's pose,90,sec,,lower back; lats; hips,mat,1,static,,"Knees wide, arms long",childs-pose
+Flexibility,18,Puppy pose,60,sec,,lats; upper back; shoulders,mat,1,static,,"Hips over knees, chest melts down",puppy-pose
+Flexibility,19,Cobra stretch,45,sec,,lower back; core,mat,1,static,,"Gentle press, shoulders down",cobra-stretch
+Flexibility,20,Upward dog,30,sec,,lower back; chest; core,mat,2,static,deep-backbend,"Thighs lift, shoulders back",upward-dog
+Flexibility,21,Camel pose,30,sec,,quads; hips; chest,mat,2,static,deep-backbend,"Hands on the low back or heels, hips forward",camel-pose
+Flexibility,22,Bridge pose,30,sec,,hips; chest; quads,mat,1,static,,"Shoulders under, lift the chest toward the chin",bridge-pose
+Flexibility,23,Wheel pose,20,sec,,chest; shoulders; hips,mat,3,static,deep-backbend,"Press up from the floor, arms straight",wheel-pose
+Flexibility,24,Bow pose,30,sec,,quads; chest; hips,mat,2,static,deep-backbend,"Hold the ankles, kick into the hands",bow-pose
+Flexibility,25,Reclined hero,60,sec,,quads; ankles,mat,3,static,deep-knee,"Sit between the heels, lean back carefully",reclined-hero
+Flexibility,26,Hero pose,60,sec,,quads; ankles,mat,2,static,deep-knee,"Sit between or on the heels, tall spine",hero-pose
+Flexibility,27,Fire log pose,60,sec,yes,glutes; hips,mat,2,static,,"Shins stacked, fold forward",fire-log-pose
+Flexibility,28,Cow face pose (legs),60,sec,yes,glutes; hips,mat,2,static,,"Knees stacked, sit tall or fold",cow-face-pose-legs
+Flexibility,29,Cow face arms,45,sec,yes,shoulders; arms,towel,2,static,,Use a towel to bridge the hands,cow-face-arms
+Flexibility,30,Head-to-knee pose,60,sec,yes,hamstrings; lower back,mat,1,static,,Fold over the straight leg,head-to-knee-pose
+Flexibility,31,Revolved head-to-knee,45,sec,yes,lats; hamstrings,mat,2,static,,Side bend over the straight leg,revolved-head-to-knee
+Flexibility,32,Seated straddle,60,sec,,adductors; hamstrings,mat,1,static,,Walk the hands forward,seated-straddle
+Flexibility,33,Seated side straddle,45,sec,yes,adductors; lats,mat,1,static,,Reach over one leg,seated-side-straddle
+Flexibility,34,Supine butterfly,90,sec,,adductors; hips,mat,1,static,,"On your back, soles together",supine-butterfly
+Flexibility,35,Happy baby,60,sec,,hips; lower back; adductors,mat,1,static,,"Hold the feet, knees to armpits",happy-baby
+Flexibility,36,Reclined pigeon,60,sec,yes,glutes; hips,mat,1,static,,"Thread the hands, pull the thigh in",reclined-pigeon
+Flexibility,37,Figure-four stretch,60,sec,yes,glutes; hips,mat,1,static,,"Ankle over knee, draw the leg in",figure-four-stretch
+Flexibility,38,Supine spinal twist,60,sec,yes,lower back; glutes; upper back,mat,1,static,,"Knee across, shoulders down",supine-spinal-twist
+Flexibility,39,Seated spinal twist,45,sec,yes,upper back; glutes,mat,1,static,,"Rotate from the ribs, tall spine",seated-spinal-twist
+Flexibility,40,Thread the needle,45,sec,yes,upper back; shoulders,mat,1,dynamic,,Shoulder and ear rest down,thread-the-needle
+Flexibility,41,Eagle arms,45,sec,yes,shoulders; upper back,none,1,static,,"Lift the elbows, breathe into the back",eagle-arms
+Flexibility,42,Doorway chest stretch,45,sec,yes,chest; shoulders,wall,1,static,,"Forearm on the frame, step through",doorway-chest-stretch
+Flexibility,43,Cross-body shoulder stretch,45,sec,yes,shoulders,none,1,static,,"Arm across, shoulder down",cross-body-shoulder-stretch
+Flexibility,44,Overhead triceps stretch,45,sec,yes,arms; lats,none,1,static,,Gently press the elbow back,overhead-triceps-stretch
+Flexibility,45,Sleeper stretch,45,sec,yes,shoulders,mat,2,static,,Gentle pressure only,sleeper-stretch
+Flexibility,46,Wall lat stretch,45,sec,,lats; shoulders,wall,1,static,,"Walk back, sink the chest",wall-lat-stretch
+Flexibility,47,Kneeling lat stretch,45,sec,yes,lats,chair,1,static,,"Elbow on the bench, sit back",kneeling-lat-stretch
+Flexibility,48,Standing side stretch,45,sec,yes,lats; core,none,1,static,,Reach up and over,standing-side-stretch
+Flexibility,49,Gate pose,45,sec,yes,lats; adductors,mat,1,static,,"Kneeling, one leg out, reach over",gate-pose
+Flexibility,50,Mermaid stretch,45,sec,yes,lats; hips,mat,1,static,,"Seated with legs to one side, reach over",mermaid-stretch
+Flexibility,51,Triangle pose,45,sec,yes,hamstrings; adductors; lats,none,1,static,,"Straight legs, reach long, open the chest",triangle-pose
+Flexibility,52,Extended side angle,45,sec,yes,adductors; lats,none,1,static,,"Front knee bent, long line from heel to hand",extended-side-angle
+Flexibility,53,Pyramid pose,45,sec,yes,hamstrings; calves,none,1,static,,"Hips square, fold over the front leg",pyramid-pose
+Flexibility,54,Warrior 1 hold,45,sec,yes,hips; quads,none,1,isometric,,"Back heel down, hips forward, arms up",warrior-1-hold
+Flexibility,55,Warrior 2 hold,45,sec,yes,adductors; hips,none,1,isometric,,"Front knee over the ankle, arms long",warrior-2-hold
+Flexibility,56,Reverse warrior,30,sec,yes,lats; hips,none,1,static,,"Lean back, long side body",reverse-warrior
+Flexibility,57,Garland pose,60,sec,,hips; adductors,none,1,static,deep-knee,"Deep squat, palms together, chest up",garland-pose
+Flexibility,58,Deep squat hold,90,sec,,hips; ankles; adductors,none,1,isometric,deep-knee,"Heels down, relax into it",deep-squat-hold
+Flexibility,59,Wall calf stretch,45,sec,yes,calves,wall,1,static,,"Back leg straight, heel down",wall-calf-stretch
+Flexibility,60,Bent-knee calf stretch,45,sec,yes,calves; ankles,wall,1,static,,Bend the back knee,bent-knee-calf-stretch
+Flexibility,61,Calf stretch on step,45,sec,yes,calves,step,1,static,,Heel drops off the step,calf-stretch-on-step
+Flexibility,62,Soleus stretch on step,45,sec,yes,calves,step,1,static,,"Knee bent, heel down",soleus-stretch-on-step
+Flexibility,63,Ankle dorsiflexion stretch,45,sec,yes,ankles; calves,wall,1,static,,"Toes up the wall, lean in",ankle-dorsiflexion-stretch
+Flexibility,64,Top-of-foot stretch,45,sec,,feet; ankles; shins,mat,1,static,,"Kneel with the feet flat, sit back",top-of-foot-stretch
+Flexibility,65,Toe stretch (kneeling),45,sec,,feet,mat,1,static,,"Toes tucked, sit back",toe-stretch-kneeling
+Flexibility,66,Plantar fascia stretch,45,sec,yes,feet,none,1,static,,Pull the toes back toward the shin,plantar-fascia-stretch
+Flexibility,67,Standing quad stretch,45,sec,yes,quads; hips,wall,1,static,,"Knees together, tuck the pelvis",standing-quad-stretch
+Flexibility,68,Lying quad stretch,45,sec,yes,quads,mat,1,static,,"On your side, heel to glute",lying-quad-stretch
+Flexibility,69,Prone quad stretch,45,sec,yes,quads; hips,mat,1,static,,"Face down, pull the heel in",prone-quad-stretch
+Flexibility,70,Half frog,45,sec,yes,quads; hips,mat,2,static,deep-knee,"Face down, one heel pulled to the hip",half-frog
+Flexibility,71,Kneeling quad stretch (wall),60,sec,yes,quads; hips,wall,2,static,,"Shin up the wall, lift the torso slowly",kneeling-quad-stretch-wall
+Flexibility,72,Wrist flexor stretch,45,sec,yes,wrists; arms,none,1,static,,"Palm up, pull the fingers back",wrist-flexor-stretch
+Flexibility,73,Wrist extensor stretch,45,sec,yes,wrists; arms,none,1,static,,"Palm down, press the hand down",wrist-extensor-stretch
+Flexibility,74,Reverse prayer,45,sec,,wrists; shoulders,none,2,static,,Palms together behind the back,reverse-prayer
+Flexibility,75,Behind-back hand clasp,45,sec,,chest; shoulders,none,1,static,,"Lift gently, chest proud",behind-back-hand-clasp
+Flexibility,76,Neck side stretch,45,sec,yes,neck,none,1,static,,"Ear to shoulder, other hand reaches down",neck-side-stretch
+Flexibility,77,Upper trap stretch,45,sec,yes,neck; shoulders,none,1,static,,"Head down and to the side, hand guides",upper-trap-stretch
+Flexibility,78,Levator scapulae stretch,45,sec,yes,neck,none,1,static,,Nose to armpit,levator-scapulae-stretch
+Flexibility,79,Scalene stretch,45,sec,yes,neck,none,1,static,,"Pin the collarbone, tilt and look up",scalene-stretch
+Flexibility,80,Supine chest opener,90,sec,,chest,towel,1,static,,"Rolled towel along the spine, arms wide",supine-chest-opener
+Flexibility,81,Supported fish pose,90,sec,,chest; upper back,towel,1,static,,Towel under the shoulder blades,supported-fish-pose
+Flexibility,82,Thoracic extension over towel,60,sec,,upper back,towel,1,dynamic,,"Arms overhead, breathe deep",thoracic-extension-over-towel
+Flexibility,83,Sphinx pose,60,sec,,lower back,mat,1,static,,"Forearms down, belly soft",sphinx-pose
+Flexibility,84,Seal stretch,30,sec,,lower back; core,mat,2,static,deep-backbend,"Arms straight, hips down, gentle",seal-stretch
+Flexibility,85,Legs up the wall,120,sec,,hamstrings; lower back; full body,wall,1,static,,Let the legs relax against the wall,legs-up-the-wall
+Flexibility,86,Wall straddle,120,sec,,adductors,wall,1,static,,"Legs up the wall, let them slide open",wall-straddle
+Flexibility,87,Wall hamstring stretch,60,sec,yes,hamstrings,wall,1,static,,One leg up the doorframe,wall-hamstring-stretch
+Flexibility,88,Elevated pigeon (bench),60,sec,yes,glutes; hips,chair,1,static,,"Hips square, fold forward",elevated-pigeon-bench
+Flexibility,89,Hamstring stretch on bench,45,sec,yes,hamstrings,chair,1,static,,"Heel on the bench, flat back",hamstring-stretch-on-bench
+Flexibility,90,Standing glute stretch on bench,45,sec,yes,glutes,chair,1,static,,"Shin on the bench, fold",standing-glute-stretch-on-bench
+Flexibility,91,Seated figure-four (chair),45,sec,yes,glutes,chair,1,static,,Lean forward with a flat back,seated-figure-four-chair
+Flexibility,92,90/90 hold,60,sec,yes,hips; glutes,mat,1,isometric,,Lean over the front shin,90-90-hold
+Flexibility,93,Frog with side reach,30,sec,yes,adductors; lats,mat,2,static,deep-knee,"From frog, reach one arm over",frog-with-side-reach
+Flexibility,94,Straddle side bend,45,sec,yes,adductors; lats,mat,2,static,,Reach over toward one foot,straddle-side-bend
+Flexibility,95,Pancake with towel,60,sec,,adductors; hamstrings,towel,2,static,,"Hold a towel at the feet, pull the chest forward",pancake-with-towel
+Flexibility,96,Seated pike with towel,60,sec,,hamstrings,towel,1,static,,"Towel around the feet, pull gently",seated-pike-with-towel
+Flexibility,97,Supine straddle (hands),60,sec,,adductors,mat,1,static,,"On your back, hold the inner thighs, open",supine-straddle-hands
+Flexibility,98,Side-lying quad and hip stretch,45,sec,yes,quads; hips,mat,1,static,,Push the hip forward,side-lying-quad-and-hip-stretch
+Flexibility,99,Bretzel stretch,60,sec,yes,upper back; quads; hips,mat,2,static,,Rotate the chest back,bretzel-stretch
+Flexibility,100,Lying side stretch (banana),60,sec,yes,lats; core,mat,1,static,,Curve the body to one side,lying-side-stretch-banana
+Flexibility,101,Shoulder extension stretch,45,sec,,shoulders; chest,chair,1,static,,"Hands on a bench behind, sink",shoulder-extension-stretch
+Flexibility,102,Biceps wall stretch,45,sec,yes,arms; chest,wall,1,static,,"Palm on the wall behind, rotate away",biceps-wall-stretch
+Flexibility,103,Pec minor stretch (corner),45,sec,,chest; shoulders,wall,1,static,,Lean into the corner,pec-minor-stretch-corner
+Flexibility,104,Overhead shoulder stretch (wall),45,sec,,shoulders; lats,wall,1,static,,"Hands high, sink through",overhead-shoulder-stretch-wall
+Flexibility,105,Lying arm overhead stretch,60,sec,,lats; shoulders,mat,1,static,,"Arms overhead on the floor, ribs down",lying-arm-overhead-stretch
+Flexibility,106,Cactus arms (supine),60,sec,,chest; shoulders,mat,1,static,,"Arms in a cactus, let them rest",cactus-arms-supine
+Flexibility,107,Prone shoulder stretch (arm out),45,sec,yes,chest; shoulders,mat,1,static,,Roll away from the outstretched arm,prone-shoulder-stretch-arm-out
+Flexibility,108,Kneeling shin stretch,45,sec,,shins; ankles,mat,1,static,,Lift the knees slightly,kneeling-shin-stretch
+Flexibility,109,Standing IT band stretch,45,sec,yes,hips; glutes,none,1,static,,"Cross behind, lean the hips out",standing-it-band-stretch
+Flexibility,110,Crossed-leg forward fold,45,sec,yes,glutes; lower back,mat,1,static,,Walk the hands forward,crossed-leg-forward-fold
+Flexibility,111,Bound angle forward fold,60,sec,,adductors; lower back,mat,1,static,impact,"Soles together, fold forward",bound-angle-forward-fold
+Flexibility,112,Wide child's pose,90,sec,,hips; adductors,mat,1,static,,"Knees wide, sit back",wide-childs-pose
+Flexibility,113,Reclined hand-to-big-toe,45,sec,yes,hamstrings; adductors,towel,1,static,,"Leg up, then open to the side",reclined-hand-to-big-toe
+Flexibility,114,Revolved triangle,30,sec,yes,hamstrings; upper back,none,2,static,,"Square hips, rotate over the front leg",revolved-triangle
+Flexibility,115,Standing split,30,sec,yes,hamstrings,none,3,static,,Fold and lift the back leg high,standing-split
+Flexibility,116,King pigeon (supported),30,sec,yes,quads; hips,towel,3,static,deep-backbend,"Pigeon, catch the back foot with a towel",king-pigeon-supported
+Flexibility,117,Lunge with quad pull,45,sec,yes,quads; hips,mat,2,static,,"Low lunge, pull the back heel in",lunge-with-quad-pull
+Flexibility,118,Seated cross-legged side bend,45,sec,yes,lats,mat,1,static,,"One hand down, reach over",seated-cross-legged-side-bend
+Flexibility,119,Shoulder stand (supported),30,sec,,neck; upper back,wall,3,static,neck-load,"Feet on the wall, careful with the neck",shoulder-stand-supported
+Flexibility,120,Plow pose,30,sec,,hamstrings; upper back,mat,3,static,neck-load,"Feet over the head, keep the neck relaxed",plow-pose
+Flexibility,121,Seated wide-angle twist,30,sec,yes,upper back; adductors,mat,2,static,,"Straddle, rotate toward one leg",seated-wide-angle-twist
+Flexibility,122,Seated calf pull,45,sec,yes,calves,towel,1,static,,"Towel around the foot, leg straight",seated-calf-pull
+Flexibility,123,Downward dog calf press,30,sec,yes,calves,mat,1,static,wrist-load,Press one heel down at a time,downward-dog-calf-press
+Flexibility,124,Low squat with heel lifts,45,sec,,ankles; hips,none,1,static,,"Shift weight, lift one heel at a time",low-squat-with-heel-lifts
+Flexibility,125,Half-kneeling hamstring stretch,45,sec,yes,hamstrings,mat,1,static,,"Front leg straight, flat back",half-kneeling-hamstring-stretch
+Flexibility,126,Runner's lunge,45,sec,yes,hips; hamstrings,mat,1,dynamic,,"Hands down, back knee off the floor",runners-lunge
+Flexibility,127,Twisted lunge,45,sec,yes,hips; upper back,mat,1,static,,"Back knee down, rotate toward the front leg",twisted-lunge
+Flexibility,128,Pigeon with twist,45,sec,yes,glutes; upper back,mat,2,static,,Rotate toward the front leg,pigeon-with-twist
+Flexibility,129,Sleeping swan,90,sec,yes,glutes; hips,mat,2,static,,"Pigeon, fold all the way down, relax",sleeping-swan
+Flexibility,130,Dragon pose,60,sec,yes,hips; quads,mat,2,static,,"Deep lunge, hands inside the foot",dragon-pose
+Flexibility,131,Winged dragon,45,sec,yes,hips; adductors,mat,3,static,,"Dragon, let the front knee fall out",winged-dragon
+Flexibility,132,Saddle pose,60,sec,,quads; lower back,mat,3,static,deep-knee,Reclined hero with support,saddle-pose
+Flexibility,133,Caterpillar pose,120,sec,,hamstrings; lower back,mat,1,static,,"Seated fold, round and relax completely",caterpillar-pose
+Flexibility,134,Dragonfly pose,90,sec,,adductors; hamstrings,mat,1,static,,"Seated straddle, round forward",dragonfly-pose
+Flexibility,135,Shoelace pose,90,sec,,glutes; hips,mat,2,static,,"Knees stacked, fold",shoelace-pose
+Flexibility,136,Square pose,90,sec,yes,glutes; hips,mat,2,static,,Shins stacked parallel,square-pose
+Flexibility,137,Melting heart pose,90,sec,,upper back; shoulders,mat,1,static,,"Hips up, chest down, arms long",melting-heart-pose
+Flexibility,138,Banana pose,90,sec,yes,lats; core,mat,1,static,,"On your back, curve to one side",banana-pose
+Flexibility,139,Deer pose,90,sec,yes,hips,mat,1,static,,Both knees bent to one side,deer-pose
+Flexibility,140,Toe squat,45,sec,,feet,mat,2,static,deep-knee,"Kneel with toes tucked, sit back",toe-squat
+Flexibility,141,Ankle pose,60,sec,,shins; ankles,mat,1,static,,Sit on the heels with the tops of feet down,ankle-pose
+Flexibility,142,Snail pose,60,sec,,upper back; hamstrings,mat,3,static,neck-load,Plow with bent knees,snail-pose
+Flexibility,143,Supported bridge,120,sec,,lower back; hips,towel,1,static,,Folded towel under the sacrum,supported-bridge
+Flexibility,144,Reclined twist,90,sec,yes,lower back,mat,1,static,,"Knees to one side, arms wide",reclined-twist
+Flexibility,145,Corpse pose,180,sec,,full body,mat,1,breathing,,"Breathe, let everything go heavy",corpse-pose
+Flexibility,146,Hamstring PNF contract-relax,3,reps,yes,hamstrings,towel,2,dynamic,,"Press into the towel 5 s, relax, go deeper",hamstring-pnf-contract-relax
+Flexibility,147,Hip flexor PNF,3,reps,yes,hips,mat,2,dynamic,,"Press the back knee down 5 s, relax, sink deeper",hip-flexor-pnf
+Flexibility,148,Adductor PNF (butterfly),3,reps,,adductors,mat,2,dynamic,,"Press the knees up into the hands 5 s, relax",adductor-pnf-butterfly
+Flexibility,149,Calf PNF on wall,3,reps,yes,calves,wall,2,dynamic,,"Press the toes into the wall 5 s, relax, lean in",calf-pnf-on-wall
+Flexibility,150,Pec PNF in doorway,3,reps,yes,chest,wall,2,dynamic,,"Press the arm into the frame 5 s, relax, step through",pec-pnf-in-doorway
+Flexibility,151,Lat PNF on bench,3,reps,,lats,chair,2,dynamic,,"Press the elbows down 5 s, relax, sink",lat-pnf-on-bench
+Flexibility,152,Quad PNF (couch),3,reps,yes,quads,wall,3,dynamic,,"Press the shin into the wall 5 s, relax",quad-pnf-couch
+Flexibility,153,Glute PNF (figure-four),3,reps,yes,glutes,mat,2,dynamic,,"Press the knee into the hand 5 s, relax",glute-pnf-figure-four
+Flexibility,154,Active hamstring stretch (leg raise hold),20,sec,yes,hamstrings,mat,2,isometric,,Lift and hold the straight leg without hands,active-hamstring-stretch-leg-raise-hold
+Flexibility,155,Active pigeon lift,8,reps,yes,hips,mat,3,dynamic,,"In pigeon, lift the back knee off the floor",active-pigeon-lift
+Flexibility,156,Front split slides,5,reps,yes,hamstrings; hips,towel,3,dynamic,,"Slide into split range slowly, back out",front-split-slides
+Flexibility,157,Side split slides,5,reps,,adductors,towel,3,dynamic,,"Slide wide slowly, control back in",side-split-slides
+Flexibility,158,Jefferson curl (slow),5,reps,,hamstrings; lower back,none,2,dynamic,loaded-spinal-flexion,Roll down one vertebra at a time,jefferson-curl
+Flexibility,159,Pike stretch,60,sec,,hamstrings,mat,2,static,,"Legs together, chest to thighs",pike-stretch
+Flexibility,160,Seated toe touch with flexed feet,45,sec,,hamstrings; calves,mat,1,dynamic,,Pull the toes back while folding,seated-toe-touch-with-flexed-feet
+Flexibility,161,Standing hamstring stretch,45,sec,yes,hamstrings,none,1,static,,"Heel forward, hinge",standing-hamstring-stretch
+Flexibility,162,Cross-legged forward fold,45,sec,,hips; lower back,mat,1,static,,Walk the hands forward,cross-legged-forward-fold
+Flexibility,163,Seated knee-to-chest,45,sec,yes,glutes; lower back,mat,1,static,,"Hug one knee in, sit tall",seated-knee-to-chest
+Flexibility,164,Single knee to chest,45,sec,yes,lower back; glutes,mat,1,static,,Other leg long,single-knee-to-chest
+Flexibility,165,Knees to chest,60,sec,,lower back; glutes,mat,1,dynamic,,Hug both knees,knees-to-chest
+Flexibility,166,Supine figure-four twist,45,sec,yes,glutes; lower back,mat,1,static,,Let the knees drop to the side,supine-figure-four-twist
+Flexibility,167,Lying glute stretch,45,sec,yes,glutes,mat,1,static,,Knee toward the opposite shoulder,lying-glute-stretch
+Flexibility,168,Lying IT band stretch,45,sec,yes,hips,towel,1,static,,Leg crosses the body with a towel,lying-it-band-stretch
+Flexibility,169,Kneeling side bend,45,sec,yes,lats,mat,1,static,,"Tall kneeling, reach over",kneeling-side-bend
+Flexibility,170,Seated neck flexion,45,sec,,neck,none,1,static,,"Hands behind the head, let it drop",seated-neck-flexion
+Flexibility,171,Chin-to-chest roll,45,sec,,neck,none,1,static,,Gently roll the head side to side down low,chin-to-chest-roll
+Flexibility,172,Wrist prayer stretch,45,sec,,wrists,none,1,static,,"Palms together, lower slowly",wrist-prayer-stretch
+Flexibility,173,Fingers back on floor,45,sec,,wrists; arms,mat,1,static,,"Kneel, fingers toward the knees",fingers-back-on-floor
+Flexibility,174,Forearm extensor wall stretch,45,sec,yes,wrists; arms,wall,1,static,,Back of the hand on the wall,forearm-extensor-wall-stretch
+Flexibility,175,Thumb stretch,30,sec,yes,wrists,none,1,static,,"Thumb in a fist, tilt down",thumb-stretch
+Flexibility,176,Chest stretch on floor (side-lying),45,sec,yes,chest,mat,1,static,,"Arm out, roll away",chest-stretch-on-floor-side-lying
+Flexibility,177,Standing back bend,20,sec,,lower back; core,none,1,static,deep-backbend,"Hands on the low back, lean back gently",standing-back-bend
+Flexibility,178,Wall back bend walk-down,5,reps,,lower back; chest,wall,3,dynamic,deep-backbend,Walk the hands down a wall carefully,wall-back-bend-walk-down
+Flexibility,179,Supported camel,30,sec,,quads; hips,chair,2,static,deep-backbend,"Hands on a chair behind, hips forward",supported-camel
+Flexibility,180,Hip flexor stretch on couch,60,sec,yes,hips; quads,chair,2,static,,Back shin on the couch,hip-flexor-stretch-on-couch
+Flexibility,181,Lunge with side reach,45,sec,yes,hips; lats,mat,1,static,,Reach away from the back leg,lunge-with-side-reach
+Flexibility,182,Revolved low lunge,45,sec,yes,hips; upper back,mat,2,static,,Twist toward the front leg,revolved-low-lunge
+Flexibility,183,Hamstring stretch with ankle flex,45,sec,yes,hamstrings; calves,towel,1,static,,Pull the toes back with a towel,hamstring-stretch-with-ankle-flex
+Flexibility,184,Seated calf and hamstring stretch,60,sec,,hamstrings; calves,mat,1,static,,"Legs long, grab the feet",seated-calf-and-hamstring-stretch
+Flexibility,185,Lying hip flexor stretch (bed edge),60,sec,yes,hips,chair,1,static,,"Lie at the edge, let one leg hang",lying-hip-flexor-stretch-bed-edge
+Flexibility,186,Seated hamstring stretch (chair),45,sec,yes,hamstrings,chair,1,static,,"Heel down, hinge forward",seated-hamstring-stretch-chair
+Flexibility,187,Kneeling hamstring with rotation,30,sec,yes,hamstrings; upper back,mat,2,static,,"Half-kneeling straight leg, rotate the chest",kneeling-hamstring-with-rotation
+Flexibility,188,Calf stretch in down dog,45,sec,yes,calves,mat,1,static,wrist-load,Press one heel down,calf-stretch-in-down-dog
+Flexibility,189,Squat with elbows on knees,60,sec,,hips; adductors,none,1,dynamic,,Press the knees out with the elbows,squat-with-elbows-on-knees
+Flexibility,190,Standing straddle side reach,30,sec,yes,adductors; lats,none,1,static,,"Wide stance, reach over toward one side",standing-straddle-side-reach
+Flexibility,191,Supine twist with leg straight,45,sec,yes,lower back; hamstrings,mat,1,static,,Straight leg crosses the body,supine-twist-with-leg-straight
+Flexibility,192,Prone hip internal rotation,45,sec,,hips,mat,1,dynamic,,"Knees bent, feet fall out",prone-hip-internal-rotation
+Flexibility,193,Side-lying shoulder stretch (towel),30,sec,yes,shoulders,towel,1,static,,"Towel behind the back, pull upward",side-lying-shoulder-stretch-towel
+Flexibility,194,Gentle back bend over chair,45,sec,,upper back; chest,chair,1,static,deep-backbend,Upper back on the chair back,gentle-back-bend-over-chair
+Flexibility,195,Supported wheel (over chair),30,sec,,chest; upper back,chair,3,static,deep-backbend,"Upper back over the seat, arms overhead",supported-wheel-over-chair
+Flexibility,196,Hip flexor stretch with side reach,45,sec,yes,hips; lats,mat,1,static,,Reach away from the back leg,hip-flexor-stretch-with-side-reach
+Flexibility,197,Standing pigeon on bench,45,sec,yes,glutes,chair,1,static,,"Shin on the bench, fold",standing-pigeon-on-bench
+Flexibility,198,Kneeling forearm stretch,45,sec,,wrists; arms,mat,1,static,,"Hands flipped, lean back",kneeling-forearm-stretch
+Flexibility,199,Neck flexion stretch,45,sec,,neck,none,1,static,,"Clasp hands, let the head drop",neck-flexion-stretch
+Flexibility,200,Seated straddle with rotation,45,sec,yes,adductors; upper back,mat,2,static,,Rotate toward one leg,seated-straddle-with-rotation
+Recovery,1,Easy walk,300,sec,,full body,none,1,dynamic,,"Conversational pace, relaxed shoulders, nasal breathing",easy-walk
+Recovery,2,Diaphragmatic breathing,120,sec,,core; full body,mat,1,breathing,,"Hand on belly, belly rises before the chest",diaphragmatic-breathing
+Recovery,3,Box breathing,120,sec,,full body,none,1,breathing,,"4 in, 4 hold, 4 out, 4 hold",box-breathing
+Recovery,4,4-7-8 breathing,4,breaths,,full body,none,1,breathing,,"In 4, hold 7, out 8",4-7-8-breathing
+Recovery,5,Physiological sigh,5,breaths,,full body,none,1,breathing,,"Double inhale through the nose, long exhale",physiological-sigh
+Recovery,6,Legs up the wall,180,sec,,hamstrings; lower back; full body,wall,1,static,,"Hips near the wall, let the legs drain",legs-up-the-wall
+Recovery,7,Child's pose,90,sec,,lower back; lats; hips,mat,1,static,,Breathe into the back of the ribs,childs-pose
+Recovery,8,Supine spinal twist,60,sec,yes,lower back; glutes; upper back,mat,1,static,,Let gravity do the work,supine-spinal-twist
+Recovery,9,Knees to chest rocking,60,sec,,lower back,mat,1,dynamic,,"Hug the knees, rock side to side",knees-to-chest-rocking
+Recovery,10,Cat-cow (slow),10,reps,,upper back; lower back,mat,1,dynamic,,"Long breaths, slow motion",cat-cow
+Recovery,11,Corpse pose,300,sec,,full body,mat,1,breathing,,"Body heavy, scan from the toes to the head",corpse-pose
+Recovery,12,Body scan,300,sec,,full body,mat,1,breathing,,"Notice each area, let it soften",body-scan
+Recovery,13,Crocodile breathing,120,sec,,lower back; core,mat,1,breathing,,"Face down, breathe into the lower back",crocodile-breathing
+Recovery,14,Supported bridge,120,sec,,lower back; hips,towel,1,static,,"Towel under the sacrum, relax",supported-bridge
+Recovery,15,Reclined bound angle,120,sec,,hips; adductors,mat,1,static,impact,"Soles together, arms relaxed",reclined-bound-angle
+Recovery,16,Supported fish pose,120,sec,,chest; upper back,towel,1,static,,Towel under the shoulder blades,supported-fish-pose
+Recovery,17,Happy baby,60,sec,,hips; lower back; adductors,mat,1,static,,Gentle rock side to side,happy-baby
+Recovery,18,Figure-four stretch,60,sec,yes,glutes; hips,mat,1,static,,Relax the shoulders,figure-four-stretch
+Recovery,19,Pigeon pose (passive),90,sec,yes,glutes; hips,mat,2,static,,"Fold down, let the hip soften",pigeon-pose
+Recovery,20,Seated forward fold (relaxed),90,sec,,hamstrings; lower back,mat,1,static,,"Round and relax, no forcing",seated-forward-fold
+Recovery,21,Puppy pose,60,sec,,lats; upper back; shoulders,mat,1,static,,Let the chest sink,puppy-pose
+Recovery,22,Thread the needle,45,sec,yes,upper back; shoulders,mat,1,dynamic,,"Rest the shoulder down, breathe",thread-the-needle
+Recovery,23,Sphinx pose,90,sec,,lower back,mat,1,static,,"Belly soft, just rest",sphinx-pose
+Recovery,24,Wall calf stretch,45,sec,yes,calves,wall,1,static,,"Heel down, gentle lean",wall-calf-stretch
+Recovery,25,Ankle circles,10,reps,yes,ankles,none,1,dynamic,,"Slow, loosen the joint",ankle-circles
+Recovery,26,Foot rolling (ball or bottle),60,sec,yes,feet,none,1,self-massage,,Slow pressure along the arch,foot-rolling-ball-or-bottle
+Recovery,27,Calf self-massage,60,sec,yes,calves,none,1,self-massage,,Knead from the ankle up toward the knee,calf-self-massage
+Recovery,28,Quad self-massage,60,sec,yes,quads,none,1,self-massage,,"Palm pressure, long strokes toward the hip",quad-self-massage
+Recovery,29,Hamstring self-massage (ball),60,sec,yes,hamstrings,none,1,self-massage,,"Sit on a ball under the thigh, slowly roll",hamstring-self-massage-ball
+Recovery,30,Glute self-massage (ball),60,sec,yes,glutes,none,1,self-massage,,"Ball under the glute, cross the ankle over the knee",glute-self-massage-ball
+Recovery,31,Upper back ball massage (wall),60,sec,,upper back; shoulders,wall,1,self-massage,,"Ball between the back and the wall, roll slowly",upper-back-ball-massage-wall
+Recovery,32,Pec ball massage (wall),45,sec,yes,chest,wall,1,self-massage,,Ball under the collarbone into the wall,pec-ball-massage-wall
+Recovery,33,Forearm self-massage,45,sec,yes,arms; wrists,none,1,self-massage,,Thumb glides from wrist to elbow,forearm-self-massage
+Recovery,34,Neck self-massage,45,sec,,neck,none,1,self-massage,,"Fingertips at the base of the skull, small circles",neck-self-massage
+Recovery,35,Jaw release,30,sec,,neck,none,1,static,,"Let the jaw hang, massage the cheeks",jaw-release
+Recovery,36,Scalp massage,30,sec,,neck,none,1,self-massage,,Fingertips in small circles,scalp-massage
+Recovery,37,Shoulder rolls (slow),10,reps,,shoulders; neck,none,1,dynamic,,Big slow backward rolls,shoulder-rolls
+Recovery,38,Neck side stretch,45,sec,yes,neck,none,1,static,,"Ear to shoulder, breathe",neck-side-stretch
+Recovery,39,Chin tucks,10,reps,,neck,none,1,dynamic,,Lengthen the back of the neck,chin-tucks
+Recovery,40,Gentle neck nods,10,reps,,neck,none,1,dynamic,,Small yes and no movements,gentle-neck-nods
+Recovery,41,Pelvic tilts (supine),15,reps,,lower back; core,mat,1,dynamic,,Slow rocking of the pelvis,pelvic-tilts-supine
+Recovery,42,Windshield wipers (supine),10,reps,yes,hips; lower back,mat,1,dynamic,,Knees sway side to side slowly,windshield-wipers-supine
+Recovery,43,Supine marching,10,reps,yes,hips; core,mat,1,dynamic,,Exhale as each knee lifts,supine-marching
+Recovery,44,Glute bridge (easy),10,reps,,glutes; hamstrings,mat,1,dynamic,,"Low bridge, slow tempo",glute-bridge
+Recovery,45,Bird dog (slow),6,reps,yes,core; glutes; lower back,mat,1,dynamic,,"Long reach, 3 s hold",bird-dog
+Recovery,46,Dead bug (slow),6,reps,yes,core,mat,1,dynamic,,Exhale fully,dead-bug
+Recovery,47,Gentle spinal rolls (standing),5,reps,,lower back; hamstrings,none,1,dynamic,,Roll down and up slowly,gentle-spinal-rolls-standing
+Recovery,48,Standing forward fold (ragdoll),60,sec,,hamstrings; lower back,none,1,static,,"Hold opposite elbows, sway",standing-forward-fold-ragdoll
+Recovery,49,Hip circles (slow),6,reps,yes,hips,none,1,dynamic,,Loosen up gently,hip-circles
+Recovery,50,Arm swings (relaxed),20,reps,,shoulders,none,1,dynamic,,Let the arms swing like ropes,arm-swings
+Recovery,51,Shaking out,30,sec,,full body,none,1,dynamic,,Shake arms and legs loose,shaking-out
+Recovery,52,Easy jog,300,sec,,full body,none,2,dynamic,,"Very easy, could hold a full conversation",easy-jog
+Recovery,53,Light cycling motion (supine),30,sec,,hips; quads,mat,1,static,,"On your back, pedal slowly",light-cycling-motion-supine
+Recovery,54,Ankle pumps (elevated legs),20,reps,,calves; ankles,wall,1,dynamic,,"Legs up, point and flex the feet",ankle-pumps-elevated-legs
+Recovery,55,Calf raises (slow),10,reps,,calves; ankles,none,1,dynamic,,"Slow up and down, increase blood flow",calf-raises
+Recovery,56,Toe spreading,10,reps,,feet,none,1,dynamic,,"Spread the toes wide, hold 3 s",toe-spreading
+Recovery,57,Toe curls,10,reps,,feet,none,1,dynamic,,Scrunch a towel with the toes,toe-curls
+Recovery,58,Big toe stretch,30,sec,yes,feet,none,1,static,,Pull the big toe back gently,big-toe-stretch
+Recovery,59,Plantar fascia stretch,30,sec,yes,feet,none,1,static,,Toes back toward the shin,plantar-fascia-stretch
+Recovery,60,Kneeling toe stretch,30,sec,,feet,mat,1,static,,"Toes tucked, sit back gently",kneeling-toe-stretch
+Recovery,61,Top-of-foot stretch,30,sec,,feet; ankles; shins,mat,1,static,,"Tops of the feet down, sit back",top-of-foot-stretch
+Recovery,62,Butterfly stretch,60,sec,,adductors; hips,mat,1,static,,Relax the knees down,butterfly-stretch
+Recovery,63,Supine butterfly,90,sec,,adductors; hips,mat,1,static,,"On your back, soles together",supine-butterfly
+Recovery,64,Seated spinal twist,45,sec,yes,upper back; glutes,mat,1,static,,"Gentle rotation, breathe",seated-spinal-twist
+Recovery,65,Open books,6,reps,yes,upper back; chest,mat,1,dynamic,,"Slow, follow the hand with the eyes",open-books
+Recovery,66,Side-lying open book hold,45,sec,yes,upper back; chest,mat,1,isometric,,Let the arm rest open,side-lying-open-book-hold
+Recovery,67,Doorway chest stretch,45,sec,yes,chest; shoulders,wall,1,static,,Gentle lean,doorway-chest-stretch
+Recovery,68,Cross-body shoulder stretch,30,sec,yes,shoulders,none,1,static,,Relax the shoulder down,cross-body-shoulder-stretch
+Recovery,69,Overhead triceps stretch,30,sec,yes,arms; lats,none,1,static,,Gentle press,overhead-triceps-stretch
+Recovery,70,Wrist circles,10,reps,,wrists,none,1,dynamic,,Slow both ways,wrist-circles
+Recovery,71,Finger stretch,20,sec,yes,wrists,none,1,static,,Pull each finger back gently,finger-stretch
+Recovery,72,Prayer stretch,30,sec,,wrists; chest,none,1,static,,"Palms together, lower slowly",prayer-stretch
+Recovery,73,Hamstring floss (supine),10,reps,yes,hamstrings,mat,1,dynamic,,"Leg up, bend and straighten slowly",hamstring-floss-supine
+Recovery,74,Lying hamstring stretch,45,sec,yes,hamstrings,towel,1,static,,Towel around the foot,lying-hamstring-stretch
+Recovery,75,Kneeling hip flexor stretch,45,sec,yes,hips; quads,mat,1,static,,"Gentle, tuck the pelvis",kneeling-hip-flexor-stretch
+Recovery,76,Low lunge,45,sec,yes,hips; quads,mat,1,static,,"Back knee down, sink gently",low-lunge
+Recovery,77,Lying quad stretch,45,sec,yes,quads,mat,1,static,,"On your side, heel to glute",lying-quad-stretch
+Recovery,78,Couch stretch (gentle),60,sec,yes,quads; hips,wall,2,static,,"Less depth, more breathing",couch-stretch
+Recovery,79,Deep squat hold (supported),45,sec,,hips; ankles,wall,1,isometric,deep-knee,"Hold a doorframe, sink down",deep-squat-hold-supported
+Recovery,80,Wide child's pose,90,sec,,hips; adductors,mat,1,static,,"Knees wide, relax",wide-childs-pose
+Recovery,81,Reclined twist,60,sec,yes,lower back,mat,1,static,,"Knees to one side, arms wide",reclined-twist
+Recovery,82,Banana pose,60,sec,yes,lats; core,mat,1,static,,Curve to one side on your back,banana-pose
+Recovery,83,Caterpillar pose,120,sec,,hamstrings; lower back,mat,1,static,,Round and relax completely,caterpillar-pose
+Recovery,84,Dragonfly pose,90,sec,,adductors; hamstrings,mat,1,static,,"Wide legs, round forward",dragonfly-pose
+Recovery,85,Melting heart pose,90,sec,,upper back; shoulders,mat,1,static,,"Hips up, chest down",melting-heart-pose
+Recovery,86,Sleeping swan,120,sec,yes,glutes; hips,mat,2,static,,Fold all the way down,sleeping-swan
+Recovery,87,Deer pose,90,sec,yes,hips,mat,1,static,,Both knees to one side,deer-pose
+Recovery,88,Supported child's pose (pillow),120,sec,,lower back; hips,towel,1,static,,Pillow under the chest,supported-childs-pose-pillow
+Recovery,89,Supported reclining twist (pillow),90,sec,yes,lower back,towel,1,static,,Pillow between the knees,supported-reclining-twist-pillow
+Recovery,90,Viparita karani with pillow,180,sec,,hamstrings; lower back,wall,1,static,,"Pillow under the hips, legs up the wall",viparita-karani-with-pillow
+Recovery,91,Constructive rest,180,sec,,lower back; hips,mat,1,breathing,,"On your back, knees bent and touching, feet wide",constructive-rest
+Recovery,92,Supine arms overhead,60,sec,,lats; shoulders,mat,1,static,,Let the arms rest overhead,supine-arms-overhead
+Recovery,93,Cactus arms (supine),60,sec,,chest; shoulders,mat,1,static,,Arms rest in a cactus shape,cactus-arms-supine
+Recovery,94,Thoracic extension over towel,60,sec,,upper back,towel,1,dynamic,,Breathe deep over the towel,thoracic-extension-over-towel
+Recovery,95,Lying chest opener (towel along spine),120,sec,,chest,towel,1,static,,"Arms wide, palms up",lying-chest-opener-towel-along-spine
+Recovery,96,Prone relaxation,90,sec,,lower back,mat,1,breathing,,"Face down, head on the hands, breathe",prone-relaxation
+Recovery,97,Walking with long exhales,180,sec,,full body,none,1,dynamic,,"Inhale 3 steps, exhale 5 steps",walking-with-long-exhales
+Recovery,98,Nasal breathing walk,300,sec,,full body,none,1,breathing,,"Mouth closed the whole time, easy pace",nasal-breathing-walk
+Recovery,99,Humming breath,60,sec,,full body,none,1,breathing,,"Inhale through the nose, hum the exhale",humming-breath
+Recovery,100,Alternate nostril breathing,120,sec,,full body,none,1,breathing,,"Close one nostril, switch each breath",alternate-nostril-breathing
+Recovery,101,Coherent breathing (5-5),180,sec,,full body,none,1,breathing,,"5 s in, 5 s out",coherent-breathing-5-5
+Recovery,102,Extended exhale breathing,120,sec,,full body,none,1,breathing,,Exhale twice as long as the inhale,extended-exhale-breathing
+Recovery,103,Progressive muscle relaxation,300,sec,,full body,mat,1,breathing,,"Tense each muscle group 5 s, then release",progressive-muscle-relaxation
+Recovery,104,Mindful sitting,180,sec,,full body,none,1,breathing,,"Sit tall, notice the breath",mindful-sitting
+Recovery,105,Eye palming,60,sec,,neck,none,1,breathing,,Warm palms over closed eyes,eye-palming
+Recovery,106,Jaw and face relaxation,45,sec,,neck,none,1,breathing,,"Soften the jaw, tongue, and brow",jaw-and-face-relaxation
+Recovery,107,Gentle side bends,8,reps,yes,lats,none,1,dynamic,,Slow reaches over,gentle-side-bends
+Recovery,108,Standing cat-cow,8,reps,,upper back,none,1,dynamic,,"Hands on knees, slow",standing-cat-cow
+Recovery,109,Seated cat-cow,8,reps,,upper back,chair,1,dynamic,,Slow rounding and arching,seated-cat-cow
+Recovery,110,Seated neck release,45,sec,yes,neck,none,1,static,,"Hold the chair, tilt away",seated-neck-release
+Recovery,111,Seated figure-four,45,sec,yes,glutes,chair,1,static,,Lean forward gently,seated-figure-four
+Recovery,112,Seated hamstring stretch (chair),45,sec,yes,hamstrings,chair,1,static,,"Leg out, heel down, hinge",seated-hamstring-stretch-chair
+Recovery,113,Chair spinal twist,45,sec,yes,upper back,chair,1,static,,"Hold the backrest, rotate",chair-spinal-twist
+Recovery,114,Standing calf stretch on step,45,sec,yes,calves,step,1,static,,Let the heel sink,standing-calf-stretch-on-step
+Recovery,115,Soleus stretch on step,45,sec,yes,calves,step,1,static,,Knee bent,soleus-stretch-on-step
+Recovery,116,Ankle dorsiflexion rocks,10,reps,yes,ankles,wall,1,dynamic,,Knee toward the wall slowly,ankle-dorsiflexion-rocks
+Recovery,117,Hip flexor stretch with side reach,45,sec,yes,hips; lats,mat,1,static,,Reach away from the back leg,hip-flexor-stretch-with-side-reach
+Recovery,118,Supine figure-four twist,45,sec,yes,glutes; lower back,mat,1,static,,Let the knees drop,supine-figure-four-twist
+Recovery,119,Lying glute stretch,45,sec,yes,glutes,mat,1,static,,Knee toward the opposite shoulder,lying-glute-stretch
+Recovery,120,Reclined pigeon,60,sec,yes,glutes; hips,mat,1,static,,"Thread the hands, relax",reclined-pigeon
+Recovery,121,Frog pose (gentle),60,sec,,adductors; hips,mat,2,static,deep-knee,"Less depth, breathe",frog-pose
+Recovery,122,90/90 hold,60,sec,yes,hips; glutes,mat,1,isometric,,Lean over the front shin,90-90-hold
+Recovery,123,Half splits (gentle),45,sec,yes,hamstrings,mat,1,static,,Soft front knee is fine,half-splits
+Recovery,124,Seated straddle (relaxed),90,sec,,adductors; hamstrings,mat,1,static,,"Round forward, relax",seated-straddle
+Recovery,125,Down dog (relaxed),45,sec,,hamstrings; calves,mat,1,static,wrist-load,Bend the knees as needed,down-dog
+Recovery,126,Gentle cobra,30,sec,,lower back,mat,1,static,,"Low height, relaxed shoulders",gentle-cobra
+Recovery,127,Standing quad stretch,30,sec,yes,quads; hips,wall,1,static,,Knees together,standing-quad-stretch
+Recovery,128,Standing side stretch,30,sec,yes,lats; core,none,1,static,,Reach up and over,standing-side-stretch
+Recovery,129,Eagle arms,30,sec,yes,shoulders; upper back,none,1,static,,Breathe into the upper back,eagle-arms
+Recovery,130,Upper trap stretch,30,sec,yes,neck; shoulders,none,1,static,,Hand guides the head gently,upper-trap-stretch
+Recovery,131,Levator scapulae stretch,30,sec,yes,neck,none,1,static,,Nose to armpit,levator-scapulae-stretch
+Recovery,132,Pec minor stretch (corner),45,sec,,chest; shoulders,wall,1,static,,Lean gently,pec-minor-stretch-corner
+Recovery,133,Wall lat stretch,45,sec,,lats; shoulders,wall,1,static,,Sink the chest,wall-lat-stretch
+Recovery,134,Kneeling lat stretch,45,sec,yes,lats,chair,1,static,,Sit the hips back,kneeling-lat-stretch
+Recovery,135,Forearm stretch on floor,30,sec,,wrists; arms,mat,1,static,,Gentle lean back,forearm-stretch-on-floor
+Recovery,136,Wrist extensor stretch,30,sec,yes,wrists; arms,none,1,static,,"Palm down, press gently",wrist-extensor-stretch
+Recovery,137,Wrist flexor stretch,30,sec,yes,wrists; arms,none,1,static,,"Palm up, pull back gently",wrist-flexor-stretch
+Recovery,138,Lymphatic leg drain,120,sec,,full body,wall,1,static,,"Legs up the wall, gentle ankle pumps",lymphatic-leg-drain
+Recovery,139,Easy mobility walk (arm circles),120,sec,,shoulders; full body,none,1,dynamic,,Walk with slow arm circles,easy-mobility-walk-arm-circles
+Recovery,140,Easy stair walk,120,sec,,full body; calves,step,1,dynamic,,Slow steady steps,easy-stair-walk
+Recovery,141,Hip flexor release (prone ball),60,sec,yes,hips,none,2,static,,"Ball just inside the hip bone, breathe",hip-flexor-release-prone-ball
+Recovery,142,Lat ball release (side-lying),60,sec,yes,lats,none,1,self-massage,,"Ball under the armpit, small rolls",lat-ball-release-side-lying
+Recovery,143,TFL ball release,60,sec,yes,hips,none,1,self-massage,,Ball on the front of the outer hip,tfl-ball-release
+Recovery,144,Peroneal massage,45,sec,yes,calves,none,1,self-massage,,Thumb along the outside of the shin,peroneal-massage
+Recovery,145,Shin massage,45,sec,yes,shins,none,1,self-massage,,Thumbs alongside the shin bone,shin-massage
+Recovery,146,Achilles massage,45,sec,yes,calves; ankles,none,1,self-massage,,Pinch and glide gently,achilles-massage
+Recovery,147,Arch massage with thumbs,45,sec,yes,feet,none,1,self-massage,,Firm pressure along the arch,arch-massage-with-thumbs
+Recovery,148,Hand massage,45,sec,yes,wrists,none,1,self-massage,,Thumb circles in the palm,hand-massage
+Recovery,149,Gentle twisting walk,60,sec,,upper back,none,1,dynamic,,Swing the arms across as you walk,gentle-twisting-walk
+Recovery,150,Standing hip sway,30,sec,,hips,none,1,dynamic,,Shift the hips side to side gently,standing-hip-sway
+Recovery,151,Knee circles,8,reps,,knees,none,1,dynamic,,"Hands on knees, small circles",knee-circles
+Recovery,152,Seated knee extensions,10,reps,yes,quads; knees,chair,1,dynamic,,"Straighten the leg slowly, hold 2 s",seated-knee-extensions
+Recovery,153,Heel slides,10,reps,yes,knees; hamstrings,mat,1,dynamic,,"On your back, slide the heel in and out",heel-slides
+Recovery,154,Quad sets,10,reps,yes,quads; knees,mat,1,dynamic,,"Leg straight, press the knee down 5 s",quad-sets
+Recovery,155,Straight leg raise (gentle),8,reps,yes,quads; hips,mat,1,dynamic,,"Opposite knee bent, lift slowly",straight-leg-raise
+Recovery,156,Clamshells (easy),10,reps,yes,glutes; hips,mat,1,dynamic,,"Small range, slow",clamshells
+Recovery,157,Side-lying leg circles,6,reps,yes,hips,mat,1,dynamic,,Small slow circles,side-lying-leg-circles
+Recovery,158,Supine leg circles,6,reps,yes,hips,mat,1,dynamic,,"Straight leg, pelvis still",supine-leg-circles
+Recovery,159,Gentle bear rocks,10,reps,,hips; shoulders,mat,1,dynamic,wrist-load,"On all fours, rock back and forward",gentle-bear-rocks
+Recovery,160,Quadruped rock-backs,10,reps,,hips; lower back,mat,1,dynamic,,"Flat back, sit to the heels",quadruped-rock-backs
+Recovery,161,Prone press-up (gentle),8,reps,,lower back,mat,1,dynamic,,"Small range, hips down",prone-press-up
+Recovery,162,Standing back extension,5,reps,,lower back; core,none,1,dynamic,,"Hands on hips, gentle lean back",standing-back-extension
+Recovery,163,Neck rotations,6,reps,yes,neck,none,1,dynamic,,Slow look over each shoulder,neck-rotations
+Recovery,164,Shoulder blade squeezes,10,reps,,upper back,none,1,isometric,,"Squeeze 3 s, release",shoulder-blade-squeezes
+Recovery,165,Hug and rock,30,sec,,upper back,none,1,static,,"Hug yourself, sway gently",hug-and-rock
+Recovery,166,Seated breathing with arms up,5,breaths,,lats; full body,none,1,breathing,,"Inhale arms up, exhale down",seated-breathing-with-arms-up
+Recovery,167,Sun breaths,5,reps,,full body,none,1,breathing,,"Inhale arms up, exhale fold",sun-breaths
+Recovery,168,Tai chi weight shifts,60,sec,,hips; ankles,none,1,dynamic,,Slow shifts heel to toe,tai-chi-weight-shifts
+Recovery,169,Slow-motion squats,5,reps,,quads; hips,none,1,dynamic,,"5 s down, 5 s up",slow-motion-squats
+Recovery,170,Balance hold with breath,30,sec,yes,ankles,none,1,breathing,,"Stand on one leg, slow breaths",balance-hold-with-breath
+Recovery,171,Gentle lunge rocks,10,reps,yes,hips,none,1,dynamic,,Small forward and back rocks,gentle-lunge-rocks
+Recovery,172,Supine leg drops (bent knee),8,reps,yes,core; hips,mat,1,dynamic,,Let one knee fall out slowly,supine-leg-drops-bent-knee
+Recovery,173,Restorative goddess pose,120,sec,,hips; adductors,towel,1,static,,"Soles together, pillows under the knees",restorative-goddess-pose
+Recovery,174,Sleep-ready breathing,180,sec,,full body,mat,1,breathing,,"Lie down, slow 4 in, 6 out",sleep-ready-breathing
+Recovery,175,Supine hamstring stretch with towel,60,sec,yes,hamstrings,towel,1,static,,Relax the shoulders,supine-hamstring-stretch-with-towel
+Recovery,176,Wall straddle,120,sec,,adductors,wall,1,static,,"Legs up the wall, let them slide open",wall-straddle
+Recovery,177,Supine twist with breathing,60,sec,yes,lower back,mat,1,breathing,,Breathe into the stretched side,supine-twist-with-breathing
+Recovery,178,Kneeling shin stretch,45,sec,,shins; ankles,mat,1,static,,Gentle lean back,kneeling-shin-stretch
+Recovery,179,Half-kneeling hamstring stretch,45,sec,yes,hamstrings,mat,1,static,,"Flat back, soft hinge",half-kneeling-hamstring-stretch
+Recovery,180,Seated ankle circles,10,reps,yes,ankles,chair,1,dynamic,,"Slow, both ways",seated-ankle-circles
+Recovery,181,Foot rocking (heel to toe),20,reps,,feet; ankles,none,1,dynamic,,Slow rock back and forth,foot-rocking-heel-to-toe
+Recovery,182,Gentle march in place,60,sec,,hips,none,1,dynamic,,"Easy pace, breathe",gentle-march-in-place
+Recovery,183,Spinal waves (standing),8,reps,,upper back; lower back,none,1,dynamic,,Slow and loose,spinal-waves-standing
+Recovery,184,Shoulder blade circles,8,reps,,upper back; shoulders,none,1,dynamic,,Slow circles with the blades,shoulder-blade-circles
+Recovery,185,Neck stretch with breath,45,sec,yes,neck,none,1,breathing,,Exhale to soften further,neck-stretch-with-breath
+Recovery,186,Head-to-knee pose,60,sec,yes,hamstrings; lower back,mat,1,static,,Relax forward,head-to-knee-pose
+Recovery,187,Garland pose,60,sec,,hips; adductors,none,1,static,deep-knee,"Deep squat, palms together",garland-pose
+Recovery,188,Lizard pose (gentle),45,sec,yes,hips; adductors,mat,2,static,,Back knee down,lizard-pose
+Recovery,189,Low lunge twist,45,sec,yes,hips; upper back,mat,1,static,,"Back knee down, gentle rotation",low-lunge-twist
+Recovery,190,Puppy pose with breath,60,sec,,lats,mat,1,breathing,,Breathe into the armpits,puppy-pose-with-breath
+Recovery,191,Supine side stretch,45,sec,yes,lats,mat,1,static,,"Arms overhead, walk feet to one side",supine-side-stretch
+Recovery,192,Reclined hand-to-big-toe,45,sec,yes,hamstrings; adductors,towel,1,static,,Relaxed hold with a towel,reclined-hand-to-big-toe
+Recovery,193,Seated forward fold with towel,60,sec,,hamstrings,towel,1,static,,Let the towel support you,seated-forward-fold-with-towel
+Recovery,194,Lying arm overhead stretch,60,sec,,lats; shoulders,mat,1,static,,Ribs down,lying-arm-overhead-stretch
+Recovery,195,Gentle hip rolls (prone),10,reps,,hips; lower back,mat,1,dynamic,,"Face down, roll the hips side to side",gentle-hip-rolls-prone
+Recovery,196,Belly breathing in child's pose,90,sec,,lower back,mat,1,breathing,,Belly presses into the thighs,belly-breathing-in-childs-pose
+Recovery,197,Supine knee circles,6,reps,,hips; lower back,mat,1,dynamic,,"Hug knees, draw small circles",supine-knee-circles
+Recovery,198,Seated shoulder rolls,10,reps,,shoulders,chair,1,dynamic,,Slow backward rolls,seated-shoulder-rolls
+Recovery,199,Hands-on-heart breathing,60,sec,,full body,none,1,breathing,,Feel the heartbeat slow down,hands-on-heart-breathing
+Recovery,200,Floor sit with legs crossed,90,sec,,hips,mat,1,static,,"Sit tall, switch the front leg halfway",floor-sit-with-legs-crossed
+Prehab / Finisher,1,Plank,45,sec,,core; shoulders,mat,1,isometric,wrist-load,"Glutes tight, push the floor away, ribs down",plank
+Prehab / Finisher,2,Side plank,30,sec,yes,core; glutes,mat,2,isometric,wrist-load,"Stack the hips, straight line",side-plank
+Prehab / Finisher,3,Dead bug,10,reps,yes,core,mat,1,dynamic,,"Low back flat, exhale fully on each reach",dead-bug
+Prehab / Finisher,4,Bird dog,10,reps,yes,core; glutes; lower back,mat,1,dynamic,,"Reach long, pause 2 s, hips square",bird-dog
+Prehab / Finisher,5,Glute bridge,15,reps,,glutes; hamstrings,mat,1,dynamic,,"Ribs down, squeeze 1 s at the top",glute-bridge
+Prehab / Finisher,6,Single-leg glute bridge,10,reps,yes,glutes; hamstrings,mat,2,dynamic,,Hips level the whole time,single-leg-glute-bridge
+Prehab / Finisher,7,Hollow body hold,30,sec,,core,mat,2,isometric,,"Low back pinned, arms and legs long",hollow-body-hold
+Prehab / Finisher,8,Superman hold,30,sec,,lower back; glutes; shoulders,mat,1,isometric,,"Lift a few inches, long neck",superman-hold
+Prehab / Finisher,9,Prone Y raises,12,reps,,shoulders; upper back,mat,1,dynamic,,"Thumbs up, no shrug",prone-y-raises
+Prehab / Finisher,10,Prone T raises,12,reps,,shoulders; upper back,mat,1,dynamic,,Squeeze the shoulder blades,prone-t-raises
+Prehab / Finisher,11,Prone W raises,12,reps,,upper back; shoulders,mat,1,dynamic,,"Elbows bent, down and back",prone-w-raises
+Prehab / Finisher,12,Side-lying external rotation,15,reps,yes,shoulders,mat,1,dynamic,,"Elbow pinned at the side, rotate up slowly",side-lying-external-rotation
+Prehab / Finisher,13,Scapular push-ups,12,reps,,shoulders; upper back,none,1,dynamic,wrist-load,"Arms straight, shoulder blades move only",scapular-push-ups
+Prehab / Finisher,14,Push-up plus,10,reps,,shoulders; chest,none,2,dynamic,wrist-load,Push the extra inch at the top,push-up-plus
+Prehab / Finisher,15,Wall slides,12,reps,,shoulders; upper back,wall,1,dynamic,,"Forearms on the wall, ribs down",wall-slides
+Prehab / Finisher,16,Clamshells,20,reps,yes,glutes; hips,mat,1,dynamic,,"Heels together, open the knee, pelvis still",clamshells
+Prehab / Finisher,17,Side-lying leg raises,15,reps,yes,glutes; hips,mat,1,dynamic,,"Lift slightly behind, toes forward",side-lying-leg-raises
+Prehab / Finisher,18,Fire hydrants,15,reps,yes,glutes; hips,mat,1,dynamic,,"Back flat, knee out to the side",fire-hydrants
+Prehab / Finisher,19,Donkey kicks,15,reps,yes,glutes,mat,1,dynamic,,"Heel to the ceiling, no arch",donkey-kicks
+Prehab / Finisher,20,Copenhagen plank (short lever),20,sec,yes,adductors; core,chair,3,isometric,advanced; wrist-load,"Top knee on the bench, lift the hips",copenhagen-plank-short-lever
+Prehab / Finisher,21,Copenhagen plank (long lever),15,sec,yes,adductors; core,chair,3,isometric,advanced; wrist-load,"Top ankle on the bench, straight body",copenhagen-plank-long-lever
+Prehab / Finisher,22,Nordic curl (assisted),5,reps,,hamstrings,mat,3,dynamic,advanced,"Anchor the heels under a couch, lower as slow as you can",nordic-curl-assisted
+Prehab / Finisher,23,Hamstring walkouts,6,reps,,hamstrings; glutes,mat,2,dynamic,,"From a bridge, walk the heels out and back",hamstring-walkouts
+Prehab / Finisher,24,Single-leg RDL (bodyweight),10,reps,yes,hamstrings; glutes; ankles,none,2,dynamic,,"Hips square, hinge with control",single-leg-rdl
+Prehab / Finisher,25,Tibialis raises,20,reps,,shins; ankles,wall,1,dynamic,,"Back on the wall, toes up high",tibialis-raises
+Prehab / Finisher,26,Calf raises,20,reps,,calves; ankles,none,1,dynamic,,"Full range, 1 s pause at the top",calf-raises
+Prehab / Finisher,27,Single-leg calf raises,12,reps,yes,calves; ankles,step,2,dynamic,,"Heel below the step, slow up and down",single-leg-calf-raises
+Prehab / Finisher,28,Bent-knee calf raises,15,reps,,calves,none,1,dynamic,,"Knees bent, works the soleus",bent-knee-calf-raises
+Prehab / Finisher,29,Soleus wall sit raises,15,reps,,calves,wall,2,isometric,,"Wall sit, lift the heels",soleus-wall-sit-raises
+Prehab / Finisher,30,Isometric calf hold,30,sec,yes,calves,none,2,isometric,,Hold halfway up on one leg,isometric-calf-hold
+Prehab / Finisher,31,Short foot drill,10,reps,yes,feet; ankles,none,1,dynamic,,"Arch lifts, toes stay relaxed",short-foot-drill
+Prehab / Finisher,32,Toe yoga,10,reps,,feet,none,1,dynamic,,"Big toe alone, then the other four",toe-yoga
+Prehab / Finisher,33,Single-leg balance,30,sec,yes,ankles; hips,none,1,static,,"Soft knee, steady breathing",single-leg-balance
+Prehab / Finisher,34,Single-leg balance with eyes closed,20,sec,yes,ankles,none,2,static,,"Stand tall, quiet ankle",single-leg-balance-with-eyes-closed
+Prehab / Finisher,35,Star excursion reach,3,reps,yes,ankles; glutes; hips,none,2,dynamic,,Reach three directions with the free foot,star-excursion-reach
+Prehab / Finisher,36,Ankle alphabet,1,reps,yes,ankles,none,1,dynamic,,Draw the alphabet with the toes,ankle-alphabet
+Prehab / Finisher,37,Heel walks,30,sec,,shins; ankles,none,1,dynamic,,"Toes up, walk on the heels",heel-walks
+Prehab / Finisher,38,Toe walks,30,sec,,calves; feet,none,1,dynamic,,"High on the toes, tall posture",toe-walks
+Prehab / Finisher,39,Spanish squat hold (wall),30,sec,,quads; knees,wall,2,isometric,,Wall sit with the shins vertical,spanish-squat-hold-wall
+Prehab / Finisher,40,Wall sit,45,sec,,quads,wall,1,isometric,,"Thighs parallel, back flat",wall-sit
+Prehab / Finisher,41,Single-leg wall sit,20,sec,yes,quads; glutes,wall,3,isometric,,"One foot lifted, hips level",single-leg-wall-sit
+Prehab / Finisher,42,Step-downs,10,reps,yes,quads; knees,step,2,dynamic,,"Lower slowly, knee tracks over the toes",step-downs
+Prehab / Finisher,43,Split squat isometric,30,sec,yes,quads; glutes,none,2,isometric,,Hold just above the floor,split-squat-isometric
+Prehab / Finisher,44,Reverse Nordic,6,reps,,quads,mat,3,dynamic,deep-knee; advanced,"Kneel tall, lean back in a straight line",reverse-nordic
+Prehab / Finisher,45,Terminal knee extension (towel),15,reps,yes,quads; knees,towel,1,dynamic,,"Towel behind the knee around a post, straighten",terminal-knee-extension-towel
+Prehab / Finisher,46,Lateral step-ups,10,reps,yes,glutes; quads,step,2,dynamic,,Drive through the step leg only,lateral-step-ups
+Prehab / Finisher,47,Lateral lunges,8,reps,yes,adductors; glutes; quads,none,1,dynamic,,Sit into one hip,lateral-lunges
+Prehab / Finisher,48,Cossack squats,6,reps,yes,adductors; hips; quads,none,2,dynamic,,"Deep to one side, other leg straight",cossack-squats
+Prehab / Finisher,49,Adductor squeeze (pillow),10,reps,,adductors,towel,1,isometric,,Squeeze a pillow between the knees 5 s,adductor-squeeze-pillow
+Prehab / Finisher,50,Side plank with top leg lift,8,reps,yes,glutes; adductors; core,mat,3,isometric,wrist-load,"Lift the top leg, hips stay up",side-plank-with-top-leg-lift
+Prehab / Finisher,51,Side plank hip dips,10,reps,yes,core; glutes,mat,2,isometric,wrist-load,"Lower an inch, drive back up",side-plank-hip-dips
+Prehab / Finisher,52,Hip airplanes,5,reps,yes,glutes; hips,none,3,dynamic,,Rotate the pelvis open and closed on one leg,hip-airplanes
+Prehab / Finisher,53,Bridge march,10,reps,yes,glutes; core,mat,2,dynamic,,Hips level as you lift each knee,bridge-march
+Prehab / Finisher,54,Hip thrust (couch),15,reps,,glutes; hamstrings,chair,1,dynamic,,"Chin tucked, squeeze at the top",hip-thrust-couch
+Prehab / Finisher,55,Single-leg hip thrust (couch),10,reps,yes,glutes,chair,2,dynamic,,Drive through one heel,single-leg-hip-thrust-couch
+Prehab / Finisher,56,Frog pumps,20,reps,,glutes,mat,1,dynamic,deep-knee,"Soles together, small fast bridges",frog-pumps
+Prehab / Finisher,57,Lateral band walk (no band),12,reps,yes,glutes; hips,none,1,dynamic,,"Half squat, slow steps",lateral-band-walk-no-band
+Prehab / Finisher,58,Monster walks (no band),12,reps,,glutes; hips,none,1,dynamic,,"Diagonal steps, stay low",monster-walks-no-band
+Prehab / Finisher,59,Pallof press (towel and doorframe),10,reps,yes,core,towel,2,dynamic,,"Hold a towel looped on a post, press out, resist twisting",pallof-press-towel-and-doorframe
+Prehab / Finisher,60,Plank shoulder taps,12,reps,yes,core; shoulders,none,2,isometric,wrist-load,"Feet wide, hips still",plank-shoulder-taps
+Prehab / Finisher,61,Bear hold,30,sec,,core; shoulders,none,1,isometric,wrist-load,"Knees hover, back flat",bear-hold
+Prehab / Finisher,62,Bear shoulder taps,10,reps,yes,core; shoulders,none,2,dynamic,wrist-load,"Knees hover, tap without rocking",bear-shoulder-taps
+Prehab / Finisher,63,Mountain climbers (slow),10,reps,yes,core; hips; shoulders,none,1,dynamic,,"Slow knee drive, hips level",mountain-climbers
+Prehab / Finisher,64,Reverse crunch,12,reps,,core,mat,1,dynamic,,"Curl the hips up, lower slowly",reverse-crunch
+Prehab / Finisher,65,Crunch,15,reps,,core,mat,1,dynamic,,"Ribs to hips, slow lower",crunch
+Prehab / Finisher,66,Bicycle crunches,20,reps,,core,mat,1,dynamic,,"Slow, shoulder to opposite knee",bicycle-crunches
+Prehab / Finisher,67,Leg raises,10,reps,,core; hips,mat,2,dynamic,,Low back stays down,leg-raises
+Prehab / Finisher,68,Flutter kicks,30,sec,,core; hips,mat,1,dynamic,,"Small kicks, back flat",flutter-kicks
+Prehab / Finisher,69,Scissor kicks,20,reps,,core; hips,mat,1,dynamic,,Cross the legs over and under,scissor-kicks
+Prehab / Finisher,70,V-ups,8,reps,,core,mat,3,dynamic,advanced,Hands and feet meet at the top,v-ups
+Prehab / Finisher,71,Tuck-ups,10,reps,,core,mat,2,dynamic,,Knees and chest meet,tuck-ups
+Prehab / Finisher,72,Russian twists,20,reps,,core,mat,1,dynamic,,"Rotate from the ribs, feet down or up",russian-twists
+Prehab / Finisher,73,Heel taps (lying),20,reps,,core,mat,1,dynamic,,"Shoulders up, reach side to side",heel-taps-lying
+Prehab / Finisher,74,Hollow rocks,10,reps,,core,mat,3,dynamic,advanced,Hold the hollow shape and rock,hollow-rocks
+Prehab / Finisher,75,Plank up-downs,8,reps,,core; arms,mat,2,isometric,wrist-load,"Elbows to hands, hips steady",plank-up-downs
+Prehab / Finisher,76,Plank jacks,20,reps,,core; calves,none,2,isometric,impact; wrist-load,Feet jump in and out,plank-jacks
+Prehab / Finisher,77,Side plank rotations,8,reps,yes,core; upper back,mat,2,isometric,wrist-load,Thread the top arm under and open,side-plank-rotations
+Prehab / Finisher,78,Long-lever plank,20,sec,,core,mat,3,isometric,wrist-load,Elbows further forward than the shoulders,long-lever-plank
+Prehab / Finisher,79,RKC plank,20,sec,,core; glutes,mat,2,isometric,wrist-load,Squeeze everything as hard as you can,rkc-plank
+Prehab / Finisher,80,Stir the pot (floor),8,reps,yes,core,mat,3,dynamic,advanced,"In plank, draw small circles with the elbows",stir-the-pot-floor
+Prehab / Finisher,81,Body saw (towel on floor),8,reps,,core,towel,3,dynamic,advanced,"Feet on a towel, slide back and forward",body-saw-towel-on-floor
+Prehab / Finisher,82,Hollow body to arch rolls,6,reps,,core; lower back,mat,2,isometric,,Roll from hollow to superman,hollow-body-to-arch-rolls
+Prehab / Finisher,83,Superman pulls,10,reps,,lats; lower back,mat,1,isometric,,Pull the elbows to the ribs while lifted,superman-pulls
+Prehab / Finisher,84,Back extensions (floor),12,reps,,lower back; glutes,mat,1,dynamic,,"Face down, lift the chest",back-extensions-floor
+Prehab / Finisher,85,Reverse hyper (bench),12,reps,,glutes; lower back,chair,2,dynamic,,"Hips on the edge, lift the legs",reverse-hyper-bench
+Prehab / Finisher,86,Swimmers (prone),20,reps,,upper back; lower back; shoulders,mat,1,dynamic,,Flutter arms and legs,swimmers-prone
+Prehab / Finisher,87,Prone cobra hold,30,sec,,upper back; lower back,mat,1,isometric,,"Lift the chest, rotate the thumbs out",prone-cobra-hold
+Prehab / Finisher,88,Reverse snow angels,10,reps,,upper back; shoulders,mat,1,dynamic,,Hover the arms the whole time,reverse-snow-angels
+Prehab / Finisher,89,Doorway rows (towel),12,reps,,upper back; lats,towel,1,dynamic,,"Towel around a post, lean back, pull",doorway-rows-towel
+Prehab / Finisher,90,Inverted row (table),8,reps,,upper back; lats; arms,chair,2,dynamic,,"Lie under a sturdy table, pull the chest up",inverted-row-table
+Prehab / Finisher,91,Isometric towel pull-aparts,20,sec,,shoulders; upper back,towel,1,isometric,,Pull the towel apart hard for 10 s,isometric-towel-pull-aparts
+Prehab / Finisher,92,Isometric external rotation (doorframe),20,sec,yes,shoulders,wall,1,isometric,,Back of the wrist presses into the frame,isometric-external-rotation-doorframe
+Prehab / Finisher,93,Isometric internal rotation (doorframe),20,sec,yes,shoulders,wall,1,isometric,,Palm presses into the frame,isometric-internal-rotation-doorframe
+Prehab / Finisher,94,Wall angels,10,reps,,shoulders; upper back,wall,2,dynamic,,Stay in contact with the wall,wall-angels
+Prehab / Finisher,95,Wall push-up plus,12,reps,,shoulders,wall,1,dynamic,wrist-load,Extra protraction at the end,wall-push-up-plus
+Prehab / Finisher,96,Serratus wall slides,10,reps,,shoulders,wall,1,dynamic,,"Forearms on the wall, slide up, push away",serratus-wall-slides
+Prehab / Finisher,97,Pike push-ups,8,reps,,shoulders; arms,none,2,dynamic,wrist-load,"Hips high, head between the hands",pike-push-ups
+Prehab / Finisher,98,Push-ups,12,reps,,chest; shoulders; arms,none,2,dynamic,wrist-load,"Straight body, full range",push-ups
+Prehab / Finisher,99,Diamond push-ups,8,reps,,arms; chest,none,2,dynamic,wrist-load,"Hands close, elbows back",diamond-push-ups
+Prehab / Finisher,100,Wide push-ups,10,reps,,chest,none,2,dynamic,wrist-load,"Hands wide, chest to the floor",wide-push-ups
+Prehab / Finisher,101,Decline push-ups,8,reps,,chest; shoulders,chair,3,dynamic,wrist-load,Feet on a bench,decline-push-ups
+Prehab / Finisher,102,Incline push-ups,12,reps,,chest; arms,chair,1,dynamic,wrist-load,Hands on a bench,incline-push-ups
+Prehab / Finisher,103,Knee push-ups,12,reps,,chest; arms,mat,1,dynamic,wrist-load,Straight line from the knees,knee-push-ups
+Prehab / Finisher,104,Chair dips,10,reps,,arms; chest,chair,2,dynamic,wrist-load,"Elbows back, shoulders down",chair-dips
+Prehab / Finisher,105,Isometric push-up hold,20,sec,,chest; arms; core,none,2,isometric,wrist-load,Hold halfway down,isometric-push-up-hold
+Prehab / Finisher,106,Plank to push-up,8,reps,,arms; core,mat,2,isometric,wrist-load,Elbows to hands without hips swaying,plank-to-push-up
+Prehab / Finisher,107,Shoulder taps on wall,12,reps,yes,shoulders; core,wall,1,dynamic,,"Incline plank, tap opposite shoulders",shoulder-taps-on-wall
+Prehab / Finisher,108,Neck isometrics,10,sec,,neck,none,1,isometric,,Press into the hand in 4 directions,neck-isometrics
+Prehab / Finisher,109,Chin tucks,12,reps,,neck,none,1,dynamic,,Draw the head straight back,chin-tucks
+Prehab / Finisher,110,Prone chin tuck lift,10,reps,,neck; upper back,mat,1,dynamic,,"Face down, lift the head an inch with a tuck",prone-chin-tuck-lift
+Prehab / Finisher,111,Wrist curls (bodyweight press),15,reps,,wrists,none,1,dynamic,,Press the palm into the other hand and curl,wrist-curls-bodyweight-press
+Prehab / Finisher,112,Finger extensions,20,reps,,wrists,none,1,dynamic,,Open the hand wide against resistance from the other,finger-extensions
+Prehab / Finisher,113,Fist to spread,20,reps,,wrists,none,1,dynamic,,"Make a tight fist, then spread wide",fist-to-spread
+Prehab / Finisher,114,Wrist push-up holds,20,sec,,wrists; arms,mat,2,isometric,wrist-load,"On the knees, weight on the wrists",wrist-push-up-holds
+Prehab / Finisher,115,Knuckle push-up hold,15,sec,,wrists; arms,mat,2,isometric,wrist-load,Stack the wrists straight,knuckle-push-up-hold
+Prehab / Finisher,116,Fingertip plank,15,sec,,wrists; arms,mat,3,isometric,advanced; wrist-load,"Fingers spread, light weight",fingertip-plank
+Prehab / Finisher,117,Grip squeeze (towel),20,sec,,arms; wrists,towel,1,isometric,,Wring a towel hard,grip-squeeze-towel
+Prehab / Finisher,118,Dead hang (doorframe grip),20,sec,,arms; shoulders,wall,2,static,,Hold the top of a door frame if possible,dead-hang-doorframe-grip
+Prehab / Finisher,119,Squats,20,reps,,quads; glutes,none,1,dynamic,,"Full range, steady tempo",squats
+Prehab / Finisher,120,Jump squats,10,reps,,quads; glutes,none,2,dynamic,impact,"Land soft, reset each rep",jump-squats
+Prehab / Finisher,121,Reverse lunges,10,reps,yes,quads; glutes,none,1,dynamic,,Drop straight down,reverse-lunges
+Prehab / Finisher,122,Walking lunges,10,reps,yes,quads; glutes; hips,none,1,dynamic,,"Long steps, upright torso",walking-lunges
+Prehab / Finisher,123,Bulgarian split squat,8,reps,yes,quads; glutes,chair,2,dynamic,,"Back foot on a bench, drop straight down",bulgarian-split-squat
+Prehab / Finisher,124,Step-ups,10,reps,yes,quads; glutes,step,1,dynamic,,Drive through the heel,step-ups
+Prehab / Finisher,125,Curtsy lunges,10,reps,yes,glutes; adductors,none,1,dynamic,,Step back and across,curtsy-lunges
+Prehab / Finisher,126,Sumo squat pulses,20,reps,,adductors; glutes,none,1,dynamic,,"Wide stance, small pulses",sumo-squat-pulses
+Prehab / Finisher,127,Squat hold,30,sec,,quads,none,1,isometric,,"Thighs parallel, chest up",squat-hold
+Prehab / Finisher,128,Pistol squat (assisted),5,reps,yes,hips; ankles; quads; glutes,wall,3,dynamic,deep-knee,"Hold a frame, lower on one leg",pistol-squat-assisted
+Prehab / Finisher,129,Skater squats,6,reps,yes,quads; glutes,none,3,dynamic,,Back knee taps the floor behind,skater-squats
+Prehab / Finisher,130,Lunge jumps,8,reps,yes,quads; glutes,none,3,dynamic,impact,"Land soft, switch in the air",lunge-jumps
+Prehab / Finisher,131,Burpees,10,reps,,full body,none,3,dynamic,impact,"Smooth rhythm, land soft",burpees
+Prehab / Finisher,132,Squat thrusts,10,reps,,full body; core; quads,none,2,dynamic,,"Hands down, feet back and in",squat-thrusts
+Prehab / Finisher,133,High knees,30,sec,,hips; quads; calves,none,1,dynamic,,"Knees up, fast feet",high-knees
+Prehab / Finisher,134,Jumping jacks,45,sec,,full body; calves; shoulders,none,1,dynamic,impact,Light rhythm,jumping-jacks
+Prehab / Finisher,135,Skater hops,10,reps,yes,glutes; hips; ankles,none,2,dynamic,impact,Stick each landing,skater-hops
+Prehab / Finisher,136,Pogo hops,30,reps,,calves; ankles,none,1,dynamic,impact,"Stiff ankles, quick bounces",pogo-hops
+Prehab / Finisher,137,Single-leg pogo hops,15,reps,yes,calves; ankles,none,2,dynamic,impact,"Small hops, stay tall",single-leg-pogo-hops
+Prehab / Finisher,138,Lateral line hops,20,reps,,calves; ankles,none,2,dynamic,impact,Quick hops over a line,lateral-line-hops
+Prehab / Finisher,139,Broad jumps,6,reps,,glutes; quads; hamstrings,none,3,dynamic,impact,Stick each landing,broad-jumps
+Prehab / Finisher,140,Tuck jumps,8,reps,,quads; core,none,3,dynamic,impact,"Knees to chest, land quiet",tuck-jumps
+Prehab / Finisher,141,Bear crawl,30,sec,,shoulders; core; quads,none,2,dynamic,wrist-load,"Knees hover, slow",bear-crawl
+Prehab / Finisher,142,Crab walk,30,sec,,shoulders; glutes; arms,none,2,dynamic,wrist-load,Hips up,crab-walk
+Prehab / Finisher,143,Inchworm push-ups,6,reps,,chest; hamstrings; core,none,2,dynamic,wrist-load,"Walk out, push-up, walk back",inchworm-push-ups
+Prehab / Finisher,144,Shadow boxing,60,sec,,shoulders; core; full body,none,1,dynamic,,"Fast hands, stay light",shadow-boxing
+Prehab / Finisher,145,Plank to down dog,10,reps,,shoulders; hamstrings; core,mat,1,isometric,wrist-load,Push the hips up and back,plank-to-down-dog
+Prehab / Finisher,146,Turkish get-up (bodyweight),3,reps,yes,shoulders; hips; core,mat,2,dynamic,,"Slow, step by step",turkish-get-up
+Prehab / Finisher,147,Hip extension from quadruped,12,reps,yes,glutes,mat,1,dynamic,,No arch in the low back,hip-extension-from-quadruped
+Prehab / Finisher,148,Kneeling hip thrust,15,reps,,glutes,mat,1,dynamic,,"Kneel tall, sit back, drive the hips forward",kneeling-hip-thrust
+Prehab / Finisher,149,Good mornings (bodyweight),15,reps,,hamstrings; lower back; glutes,none,1,dynamic,,"Hips back, flat back",good-mornings
+Prehab / Finisher,150,Single-leg deadlift reach,8,reps,yes,hamstrings; ankles,none,2,dynamic,,"Reach toward the floor, back leg long",single-leg-deadlift-reach
+Prehab / Finisher,151,Glute bridge isometric,30,sec,,glutes,mat,1,isometric,,"Hold the top, squeeze hard",glute-bridge-isometric
+Prehab / Finisher,152,Hamstring bridge (straight legs),10,reps,,hamstrings,chair,2,dynamic,,"Heels on a bench, legs straight, lift",hamstring-bridge-straight-legs
+Prehab / Finisher,153,Slider leg curls (towel),8,reps,,hamstrings,towel,3,dynamic,,"Heels on a towel, bridge and curl in",slider-leg-curls-towel
+Prehab / Finisher,154,Isometric hamstring heel dig,20,sec,yes,hamstrings,mat,1,isometric,,"On your back, dig the heel into the floor",isometric-hamstring-heel-dig
+Prehab / Finisher,155,Ankle eversion isometric,15,sec,yes,ankles,none,1,isometric,,Press the outside of the foot into a wall,ankle-eversion-isometric
+Prehab / Finisher,156,Ankle inversion isometric,15,sec,yes,ankles,none,1,isometric,,Press the inside of the foot into a chair leg,ankle-inversion-isometric
+Prehab / Finisher,157,Balance reach on toes,20,sec,yes,calves; ankles,none,3,static,,"Rise onto one toe, hold steady",balance-reach-on-toes
+Prehab / Finisher,158,Hip hike,12,reps,yes,glutes; hips,step,1,dynamic,,"On a step, drop and lift the pelvis",hip-hike
+Prehab / Finisher,159,Knee-to-wall isometric push,20,sec,yes,hips,wall,1,isometric,,Press the knee out into the wall,knee-to-wall-isometric-push
+Prehab / Finisher,160,Wall hip flexor march hold,20,sec,yes,hips; core,wall,2,isometric,,"Back on the wall, knee above hip, hold",wall-hip-flexor-march-hold
+Prehab / Finisher,161,Standing knee raise hold,20,sec,yes,hips; core,none,1,isometric,,"Knee above the hip, tall posture",standing-knee-raise-hold
+Prehab / Finisher,162,Psoas march (supine),10,reps,yes,hips; core,mat,2,dynamic,,"Low back flat, slowly lower and lift",psoas-march-supine
+Prehab / Finisher,163,Seated leg lifts,10,reps,yes,hips; quads,mat,2,dynamic,,"Sit tall, lift the straight leg",seated-leg-lifts
+Prehab / Finisher,164,Supine leg lowers,10,reps,yes,core; hamstrings,mat,1,dynamic,,"One leg up, lower the other",supine-leg-lowers
+Prehab / Finisher,165,90/90 hip lift-offs,6,reps,yes,hips,mat,3,dynamic,,Lift the back knee in 90/90,90-90-hip-lift-offs
+Prehab / Finisher,166,Hip flexor lift-offs,8,reps,yes,hips,mat,3,dynamic,,"Seated, lift a straight leg off the floor",hip-flexor-lift-offs
+Prehab / Finisher,167,Side-lying hip abduction hold,20,sec,yes,glutes,mat,1,isometric,,"Top leg lifted, hold",side-lying-hip-abduction-hold
+Prehab / Finisher,168,Banded-style clamshell hold (no band),20,sec,yes,glutes,mat,1,isometric,,Hold the open position,banded-style-clamshell-hold-no-band
+Prehab / Finisher,169,Standing hip abduction,15,reps,yes,glutes,wall,1,dynamic,,"Hold the wall, lift the leg out to the side",standing-hip-abduction
+Prehab / Finisher,170,Standing hip extension,15,reps,yes,glutes,wall,1,dynamic,,"Hold the wall, push the leg back",standing-hip-extension
+Prehab / Finisher,171,Lateral plank walk,10,reps,yes,shoulders; core,none,2,isometric,wrist-load,Walk hands and feet sideways,lateral-plank-walk
+Prehab / Finisher,172,Reverse plank,30,sec,,glutes; hamstrings; shoulders,mat,2,isometric,wrist-load,"Hips up, chest open",reverse-plank
+Prehab / Finisher,173,Tabletop hold,30,sec,,glutes; shoulders,mat,1,isometric,wrist-load,"Hips up flat, shoulders over the wrists",tabletop-hold
+Prehab / Finisher,174,Hollow hold tucked,30,sec,,core,mat,1,isometric,,"Knees bent, low back down",hollow-hold-tucked
+Prehab / Finisher,175,Boat pose,30,sec,,core; hips,mat,2,isometric,,"Tall spine, legs lifted",boat-pose
+Prehab / Finisher,176,L-sit tuck (chair),15,sec,,core; arms,chair,3,isometric,advanced,"Hands on two chairs, lift the knees",l-sit-tuck-chair
+Prehab / Finisher,177,Plank with leg lift,10,reps,yes,core; glutes,mat,2,isometric,wrist-load,"Lift one leg, hips stay square",plank-with-leg-lift
+Prehab / Finisher,178,Side plank star,15,sec,yes,core; glutes,mat,3,isometric,wrist-load,Top arm and leg lifted,side-plank-star
+Prehab / Finisher,179,Kneeling side plank,30,sec,yes,core,mat,1,isometric,wrist-load,Bottom knee down,kneeling-side-plank
+Prehab / Finisher,180,Wall plank,30,sec,,core,wall,1,isometric,wrist-load,"Hands on the wall, straight body",wall-plank
+Prehab / Finisher,181,Breathing brace holds,5,reps,,core,none,1,breathing,,"Brace 360 degrees, hold 10 s",breathing-brace-holds
+Prehab / Finisher,182,Prone I raises,12,reps,,shoulders; upper back,mat,1,dynamic,,"Arms overhead, lift with thumbs up",prone-i-raises
+Prehab / Finisher,183,Prone external rotation (90/90),12,reps,,shoulders,mat,2,dynamic,,"Face down, elbows at 90, rotate the hands up",prone-external-rotation-90-90
+Prehab / Finisher,184,Wall external rotation slide,10,reps,yes,shoulders,wall,1,dynamic,,"Elbow on the wall, rotate up",wall-external-rotation-slide
+Prehab / Finisher,185,Bird dog with elbow-to-knee,8,reps,yes,core; lower back,mat,2,dynamic,,"Crunch in, then reach long",bird-dog-with-elbow-to-knee
+Prehab / Finisher,186,Dead bug with hold,6,reps,yes,core,mat,2,isometric,,Hold the reach 3 s,dead-bug-with-hold
+Prehab / Finisher,187,Glute bridge with abduction,15,reps,,glutes,mat,1,dynamic,,"At the top, push the knees out",glute-bridge-with-abduction
+Prehab / Finisher,188,Single-leg balance with reach,6,reps,yes,ankles; hips,none,2,dynamic,,"Reach forward, side and back",single-leg-balance-with-reach
+Prehab / Finisher,189,Calf raise isometric (both),45,sec,,calves,none,1,isometric,,Hold halfway up,calf-raise-isometric-both
+Prehab / Finisher,190,"Toe raises (tibialis, standing)",20,reps,,shins,none,1,dynamic,,Rock back onto the heels,toe-raises-tibialis-standing
+Prehab / Finisher,191,Big toe press,10,reps,yes,feet,none,1,dynamic,,"Press the big toe down, lift the others",big-toe-press
+Prehab / Finisher,192,Arch lift holds,10,sec,yes,feet,none,1,isometric,,"Lift the arch, hold",arch-lift-holds
+Prehab / Finisher,193,Hip flexor isometric (wall),20,sec,yes,hips,wall,1,isometric,,Press the knee into the hand,hip-flexor-isometric-wall
+Prehab / Finisher,194,Adductor isometric (squeeze fists),10,sec,,adductors,none,1,isometric,,Squeeze fists between the knees hard,adductor-isometric-squeeze-fists
+Prehab / Finisher,195,Lateral lunge hold,20,sec,yes,adductors,none,1,isometric,,Hold the bottom position,lateral-lunge-hold
+Prehab / Finisher,196,Split squat with pause,8,reps,yes,quads; glutes,none,2,dynamic,,Pause 2 s at the bottom,split-squat-with-pause
+Prehab / Finisher,197,Tempo squats (3-1-3),10,reps,,quads; glutes,none,1,dynamic,,"3 s down, 1 s pause, 3 s up",tempo-squats-3-1-3
+Prehab / Finisher,198,Wall slide squats,10,reps,,quads,wall,1,dynamic,,"Back on the wall, slide down and up",wall-slide-squats
+Prehab / Finisher,199,Hip thrust isometric (couch),30,sec,,glutes,chair,1,isometric,,Hold the top,hip-thrust-isometric-couch
+Prehab / Finisher,200,Side-lying adduction lifts,15,reps,yes,adductors,mat,1,dynamic,,Lift the bottom leg,side-lying-adduction-lifts

@@ -1,0 +1,211 @@
+# name|areas|dose|unit|side|equip|lvl|cue
+Easy walk|full|300|s|0|none|1|Conversational pace, relaxed shoulders, nasal breathing
+Diaphragmatic breathing|core,full|120|s|0|mat|1|Hand on belly, belly rises before the chest
+Box breathing|full|120|s|0|none|1|4 in, 4 hold, 4 out, 4 hold
+4-7-8 breathing|full|4|br|0|none|1|In 4, hold 7, out 8
+Physiological sigh|full|5|br|0|none|1|Double inhale through the nose, long exhale
+Legs up the wall|hams,lowback,full|180|s|0|wall|1|Hips near the wall, let the legs drain
+Child's pose|lowback,hips|90|s|0|mat|1|Breathe into the back of the ribs
+Supine spinal twist|lowback,glutes|60|s|1|mat|1|Let gravity do the work
+Knees to chest rocking|lowback|60|s|0|mat|1|Hug the knees, rock side to side
+Cat-cow (slow)|tspine,lowback|10|r|0|mat|1|Long breaths, slow motion
+Corpse pose|full|300|s|0|mat|1|Body heavy, scan from the toes to the head
+Body scan|full|300|s|0|mat|1|Notice each area, let it soften
+Crocodile breathing|lowback,core|120|s|0|mat|1|Face down, breathe into the lower back
+Supported bridge|lowback,hips|120|s|0|towel|1|Towel under the sacrum, relax
+Reclined bound angle|hips,adductors|120|s|0|mat|1|Soles together, arms relaxed
+Supported fish pose|chest,tspine|120|s|0|towel|1|Towel under the shoulder blades
+Happy baby|hips,lowback|60|s|0|mat|1|Gentle rock side to side
+Figure-four stretch|glutes,hips|60|s|1|mat|1|Relax the shoulders
+Pigeon pose (passive)|glutes,hips|90|s|1|mat|2|Fold down, let the hip soften
+Seated forward fold (relaxed)|hams,lowback|90|s|0|mat|1|Round and relax, no forcing
+Puppy pose|lats,tspine|60|s|0|mat|1|Let the chest sink
+Thread the needle|tspine,shoulders|45|s|1|mat|1|Rest the shoulder down, breathe
+Sphinx pose|lowback|90|s|0|mat|1|Belly soft, just rest
+Wall calf stretch|calves|45|s|1|wall|1|Heel down, gentle lean
+Ankle circles|ankles|10|r|1|none|1|Slow, loosen the joint
+Foot rolling (ball or bottle)|feet|60|s|1|none|1|Slow pressure along the arch
+Calf self-massage|calves|60|s|1|none|1|Knead from the ankle up toward the knee
+Quad self-massage|quads|60|s|1|none|1|Palm pressure, long strokes toward the hip
+Hamstring self-massage (ball)|hams|60|s|1|none|1|Sit on a ball under the thigh, slowly roll
+Glute self-massage (ball)|glutes|60|s|1|none|1|Ball under the glute, cross the ankle over the knee
+Upper back ball massage (wall)|tspine,shoulders|60|s|0|wall|1|Ball between the back and the wall, roll slowly
+Pec ball massage (wall)|chest|45|s|1|wall|1|Ball under the collarbone into the wall
+Forearm self-massage|arms,wrists|45|s|1|none|1|Thumb glides from wrist to elbow
+Neck self-massage|neck|45|s|0|none|1|Fingertips at the base of the skull, small circles
+Jaw release|neck|30|s|0|none|1|Let the jaw hang, massage the cheeks
+Scalp massage|neck|30|s|0|none|1|Fingertips in small circles
+Shoulder rolls (slow)|shoulders,neck|10|r|0|none|1|Big slow backward rolls
+Neck side stretch|neck|45|s|1|none|1|Ear to shoulder, breathe
+Chin tucks|neck|10|r|0|none|1|Lengthen the back of the neck
+Gentle neck nods|neck|10|r|0|none|1|Small yes and no movements
+Pelvic tilts (supine)|lowback|15|r|0|mat|1|Slow rocking of the pelvis
+Windshield wipers (supine)|hips,lowback|10|r|1|mat|1|Knees sway side to side slowly
+Supine marching|hips,core|10|r|1|mat|1|Exhale as each knee lifts
+Glute bridge (easy)|glutes|10|r|0|mat|1|Low bridge, slow tempo
+Bird dog (slow)|core,lowback|6|r|1|mat|1|Long reach, 3 s hold
+Dead bug (slow)|core|6|r|1|mat|1|Exhale fully
+Gentle spinal rolls (standing)|lowback,hams|5|r|0|none|1|Roll down and up slowly
+Standing forward fold (ragdoll)|hams,lowback|60|s|0|none|1|Hold opposite elbows, sway
+Hip circles (slow)|hips|6|r|1|none|1|Loosen up gently
+Arm swings (relaxed)|shoulders|20|r|0|none|1|Let the arms swing like ropes
+Shaking out|full|30|s|0|none|1|Shake arms and legs loose
+Easy jog|full|300|s|0|none|2|Very easy, could hold a full conversation
+Light cycling motion (supine)|hips,quads|30|s|0|mat|1|On your back, pedal slowly
+Ankle pumps (elevated legs)|calves,ankles|20|r|0|wall|1|Legs up, point and flex the feet
+Calf raises (slow)|calves|10|r|0|none|1|Slow up and down, increase blood flow
+Toe spreading|feet|10|r|0|none|1|Spread the toes wide, hold 3 s
+Toe curls|feet|10|r|0|none|1|Scrunch a towel with the toes
+Big toe stretch|feet|30|s|1|none|1|Pull the big toe back gently
+Plantar fascia stretch|feet|30|s|1|none|1|Toes back toward the shin
+Kneeling toe stretch|feet|30|s|0|mat|1|Toes tucked, sit back gently
+Top-of-foot stretch|shins,feet|30|s|0|mat|1|Tops of the feet down, sit back
+Butterfly stretch|adductors|60|s|0|mat|1|Relax the knees down
+Supine butterfly|adductors,hips|90|s|0|mat|1|On your back, soles together
+Seated spinal twist|tspine|45|s|1|mat|1|Gentle rotation, breathe
+Open books|tspine,chest|6|r|1|mat|1|Slow, follow the hand with the eyes
+Side-lying open book hold|tspine,chest|45|s|1|mat|1|Let the arm rest open
+Doorway chest stretch|chest|45|s|1|wall|1|Gentle lean
+Cross-body shoulder stretch|shoulders|30|s|1|none|1|Relax the shoulder down
+Overhead triceps stretch|arms|30|s|1|none|1|Gentle press
+Wrist circles|wrists|10|r|0|none|1|Slow both ways
+Finger stretch|wrists|20|s|1|none|1|Pull each finger back gently
+Prayer stretch|wrists|30|s|0|none|1|Palms together, lower slowly
+Hamstring floss (supine)|hams|10|r|1|mat|1|Leg up, bend and straighten slowly
+Lying hamstring stretch|hams|45|s|1|towel|1|Towel around the foot
+Kneeling hip flexor stretch|hips|45|s|1|mat|1|Gentle, tuck the pelvis
+Low lunge|hips,quads|45|s|1|mat|1|Back knee down, sink gently
+Lying quad stretch|quads|45|s|1|mat|1|On your side, heel to glute
+Couch stretch (gentle)|quads,hips|60|s|1|wall|2|Less depth, more breathing
+Deep squat hold (supported)|hips,ankles|45|s|0|wall|1|Hold a doorframe, sink down
+Wide child's pose|hips|90|s|0|mat|1|Knees wide, relax
+Reclined twist|lowback|60|s|1|mat|1|Knees to one side, arms wide
+Banana pose|lats,core|60|s|1|mat|1|Curve to one side on your back
+Caterpillar pose|hams,lowback|120|s|0|mat|1|Round and relax completely
+Dragonfly pose|adductors,hams|90|s|0|mat|1|Wide legs, round forward
+Melting heart pose|tspine,shoulders|90|s|0|mat|1|Hips up, chest down
+Sleeping swan|glutes,hips|120|s|1|mat|2|Fold all the way down
+Deer pose|hips|90|s|1|mat|1|Both knees to one side
+Supported child's pose (pillow)|lowback,hips|120|s|0|towel|1|Pillow under the chest
+Supported reclining twist (pillow)|lowback|90|s|1|towel|1|Pillow between the knees
+Viparita karani with pillow|hams,lowback|180|s|0|wall|1|Pillow under the hips, legs up the wall
+Constructive rest|lowback,hips|180|s|0|mat|1|On your back, knees bent and touching, feet wide
+Supine arms overhead|lats,shoulders|60|s|0|mat|1|Let the arms rest overhead
+Cactus arms (supine)|chest|60|s|0|mat|1|Arms rest in a cactus shape
+Thoracic extension over towel|tspine|60|s|0|towel|1|Breathe deep over the towel
+Lying chest opener (towel along spine)|chest|120|s|0|towel|1|Arms wide, palms up
+Prone relaxation|lowback|90|s|0|mat|1|Face down, head on the hands, breathe
+Walking with long exhales|full|180|s|0|none|1|Inhale 3 steps, exhale 5 steps
+Nasal breathing walk|full|300|s|0|none|1|Mouth closed the whole time, easy pace
+Humming breath|full|60|s|0|none|1|Inhale through the nose, hum the exhale
+Alternate nostril breathing|full|120|s|0|none|1|Close one nostril, switch each breath
+Coherent breathing (5-5)|full|180|s|0|none|1|5 s in, 5 s out
+Extended exhale breathing|full|120|s|0|none|1|Exhale twice as long as the inhale
+Progressive muscle relaxation|full|300|s|0|mat|1|Tense each muscle group 5 s, then release
+Mindful sitting|full|180|s|0|none|1|Sit tall, notice the breath
+Gratitude cool-down|full|60|s|0|none|1|Name three things that went well today
+Eye palming|neck|60|s|0|none|1|Warm palms over closed eyes
+Jaw and face relaxation|neck|45|s|0|none|1|Soften the jaw, tongue, and brow
+Gentle side bends|lats|8|r|1|none|1|Slow reaches over
+Standing cat-cow|tspine|8|r|0|none|1|Hands on knees, slow
+Seated cat-cow|tspine|8|r|0|chair|1|Slow rounding and arching
+Seated neck release|neck|45|s|1|chair|1|Hold the chair, tilt away
+Seated figure-four|glutes|45|s|1|chair|1|Lean forward gently
+Seated hamstring stretch (chair)|hams|45|s|1|chair|1|Leg out, heel down, hinge
+Chair spinal twist|tspine|45|s|1|chair|1|Hold the backrest, rotate
+Standing calf stretch on step|calves|45|s|1|step|1|Let the heel sink
+Soleus stretch on step|calves|45|s|1|step|1|Knee bent
+Ankle dorsiflexion rocks|ankles|10|r|1|wall|1|Knee toward the wall slowly
+Hip flexor stretch with side reach|hips,lats|45|s|1|mat|1|Reach away from the back leg
+Supine figure-four twist|glutes,lowback|45|s|1|mat|1|Let the knees drop
+Lying glute stretch|glutes|45|s|1|mat|1|Knee toward the opposite shoulder
+Reclined pigeon|glutes|60|s|1|mat|1|Thread the hands, relax
+Frog pose (gentle)|adductors|60|s|0|mat|2|Less depth, breathe
+90/90 hold|hips|60|s|1|mat|1|Lean over the front shin
+Half splits (gentle)|hams|45|s|1|mat|1|Soft front knee is fine
+Seated straddle (relaxed)|adductors|90|s|0|mat|1|Round forward, relax
+Down dog (relaxed)|hams,calves|45|s|0|mat|1|Bend the knees as needed
+Gentle cobra|lowback|30|s|0|mat|1|Low height, relaxed shoulders
+Standing quad stretch|quads|30|s|1|wall|1|Knees together
+Standing side stretch|lats|30|s|1|none|1|Reach up and over
+Eagle arms|shoulders|30|s|1|none|1|Breathe into the upper back
+Upper trap stretch|neck|30|s|1|none|1|Hand guides the head gently
+Levator scapulae stretch|neck|30|s|1|none|1|Nose to armpit
+Pec minor stretch (corner)|chest|45|s|0|wall|1|Lean gently
+Wall lat stretch|lats|45|s|0|wall|1|Sink the chest
+Kneeling lat stretch|lats|45|s|1|chair|1|Sit the hips back
+Forearm stretch on floor|wrists|30|s|0|mat|1|Gentle lean back
+Wrist extensor stretch|wrists|30|s|1|none|1|Palm down, press gently
+Wrist flexor stretch|wrists|30|s|1|none|1|Palm up, pull back gently
+Lymphatic leg drain|full|120|s|0|wall|1|Legs up the wall, gentle ankle pumps
+Easy mobility walk (arm circles)|shoulders,full|120|s|0|none|1|Walk with slow arm circles
+Easy stair walk|full,calves|120|s|0|step|1|Slow steady steps
+Contrast shower|full|300|s|0|none|1|30 s cool, 60 s warm, repeat; end cool
+Cold face splash|full|30|s|0|none|1|Calms the nervous system quickly
+Warm bath soak|full|600|s|0|none|1|Relax the whole body
+Hydration break|full|60|s|0|none|1|Slow sips of water, sit down
+Hip flexor release (prone ball)|hips|60|s|1|none|2|Ball just inside the hip bone, breathe
+Lat ball release (side-lying)|lats|60|s|1|none|1|Ball under the armpit, small rolls
+TFL ball release|hips|60|s|1|none|1|Ball on the front of the outer hip
+Peroneal massage|calves|45|s|1|none|1|Thumb along the outside of the shin
+Shin massage|shins|45|s|1|none|1|Thumbs alongside the shin bone
+Achilles massage|calves,ankles|45|s|1|none|1|Pinch and glide gently
+Arch massage with thumbs|feet|45|s|1|none|1|Firm pressure along the arch
+Hand massage|wrists|45|s|1|none|1|Thumb circles in the palm
+Gentle twisting walk|tspine|60|s|0|none|1|Swing the arms across as you walk
+Standing hip sway|hips|30|s|0|none|1|Shift the hips side to side gently
+Knee circles|knees|8|r|0|none|1|Hands on knees, small circles
+Seated knee extensions|quads,knees|10|r|1|chair|1|Straighten the leg slowly, hold 2 s
+Heel slides|knees,hams|10|r|1|mat|1|On your back, slide the heel in and out
+Quad sets|quads,knees|10|r|1|mat|1|Leg straight, press the knee down 5 s
+Straight leg raise (gentle)|quads,hips|8|r|1|mat|1|Opposite knee bent, lift slowly
+Clamshells (easy)|glutes|10|r|1|mat|1|Small range, slow
+Side-lying leg circles|hips|6|r|1|mat|1|Small slow circles
+Supine leg circles|hips|6|r|1|mat|1|Straight leg, pelvis still
+Gentle bear rocks|hips,shoulders|10|r|0|mat|1|On all fours, rock back and forward
+Quadruped rock-backs|hips,lowback|10|r|0|mat|1|Flat back, sit to the heels
+Prone press-up (gentle)|lowback|8|r|0|mat|1|Small range, hips down
+Standing back extension|lowback|5|r|0|none|1|Hands on hips, gentle lean back
+Neck rotations|neck|6|r|1|none|1|Slow look over each shoulder
+Shoulder blade squeezes|tspine|10|r|0|none|1|Squeeze 3 s, release
+Hug and rock|tspine|30|s|0|none|1|Hug yourself, sway gently
+Seated breathing with arms up|lats,full|5|br|0|none|1|Inhale arms up, exhale down
+Sun breaths|full|5|r|0|none|1|Inhale arms up, exhale fold
+Tai chi weight shifts|hips,ankles|60|s|0|none|1|Slow shifts heel to toe
+Slow-motion squats|quads,hips|5|r|0|none|1|5 s down, 5 s up
+Balance hold with breath|ankles|30|s|1|none|1|Stand on one leg, slow breaths
+Gentle lunge rocks|hips|10|r|1|none|1|Small forward and back rocks
+Supine leg drops (bent knee)|core,hips|8|r|1|mat|1|Let one knee fall out slowly
+Restorative goddess pose|hips,adductors|120|s|0|towel|1|Soles together, pillows under the knees
+Sleep-ready breathing|full|180|s|0|mat|1|Lie down, slow 4 in, 6 out
+Supine hamstring stretch with towel|hams|60|s|1|towel|1|Relax the shoulders
+Wall straddle|adductors|120|s|0|wall|1|Legs up the wall, let them slide open
+Supine twist with breathing|lowback|60|s|1|mat|1|Breathe into the stretched side
+Kneeling shin stretch|shins|45|s|0|mat|1|Gentle lean back
+Half-kneeling hamstring stretch|hams|45|s|1|mat|1|Flat back, soft hinge
+Seated ankle circles|ankles|10|r|1|chair|1|Slow, both ways
+Foot rocking (heel to toe)|feet,ankles|20|r|0|none|1|Slow rock back and forth
+Gentle march in place|hips|60|s|0|none|1|Easy pace, breathe
+Spinal waves (standing)|tspine|8|r|0|none|1|Slow and loose
+Shoulder blade circles|tspine,shoulders|8|r|0|none|1|Slow circles with the blades
+Neck stretch with breath|neck|45|s|1|none|1|Exhale to soften further
+Head-to-knee pose|hams|60|s|1|mat|1|Relax forward
+Garland pose|hips|60|s|0|none|1|Deep squat, palms together
+Lizard pose (gentle)|hips|45|s|1|mat|2|Back knee down
+Low lunge twist|hips,tspine|45|s|1|mat|1|Back knee down, gentle rotation
+Puppy pose with breath|lats|60|s|0|mat|1|Breathe into the armpits
+Supine side stretch|lats|45|s|1|mat|1|Arms overhead, walk feet to one side
+Reclined hand-to-big-toe|hams|45|s|1|towel|1|Relaxed hold with a towel
+Seated forward fold with towel|hams|60|s|0|towel|1|Let the towel support you
+Lying arm overhead stretch|lats|60|s|0|mat|1|Ribs down
+Gentle hip rolls (prone)|hips,lowback|10|r|0|mat|1|Face down, roll the hips side to side
+Belly breathing in child's pose|lowback|90|s|0|mat|1|Belly presses into the thighs
+Supine knee circles|hips,lowback|6|r|0|mat|1|Hug knees, draw small circles
+Seated shoulder rolls|shoulders|10|r|0|chair|1|Slow backward rolls
+Hands-on-heart breathing|full|60|s|0|none|1|Feel the heartbeat slow down
+Floor sit with legs crossed|hips|90|s|0|mat|1|Sit tall, switch the front leg halfway
+Slow standing reach and fold|hams,lats|5|r|0|none|1|Reach up, fold down, slowly
+Kneeling side bend|lats|30|s|1|mat|1|Gentle reach over
+Gentle wrist flexion and extension|wrists|10|r|0|none|1|Slow up and down
+Supine ankle pumps|calves|20|r|0|mat|1|Point and flex, keep a rhythm
+Neck isometrics (gentle)|neck|5|s|0|none|1|Light pressure in each direction

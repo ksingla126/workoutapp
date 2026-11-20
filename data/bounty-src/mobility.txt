@@ -1,0 +1,202 @@
+# name|areas|dose|unit|side|equip|lvl|cue
+90/90 hip switches|hips|8|r|0|mat|1|Sit tall, rotate both knees side to side without using hands if you can
+Cat-cow|tspine,lowback|10|r|0|mat|1|Segment by segment, breathe with the movement
+World's greatest stretch|hips,tspine,hams|5|r|1|none|2|Lunge, elbow to instep, rotate and reach, straighten the front leg
+Hip CARs (quadruped)|hips|3|r|1|mat|2|Draw the biggest circle with the knee, spine stays still
+Shoulder CARs|shoulders|3|r|1|none|2|Slow full circle, keep the ribs down and the torso still
+Thoracic rotations (quadruped)|tspine|8|r|1|mat|1|Hand behind head, rotate open and closed
+Open books|tspine,chest|8|r|1|mat|1|Knees stacked, follow the hand with your eyes
+Deep squat hold|hips,ankles|60|s|0|none|1|Heels down, chest up, pry the knees out with the elbows
+Wall slides|shoulders,tspine|10|r|0|wall|1|Forearms on the wall, slide up without arching
+Ankle rocks (knee to wall)|ankles|10|r|1|wall|1|Heel stays down, knee drives over the toes
+Thread the needle|tspine,shoulders|8|r|1|mat|1|Slide under, then reach up to the ceiling
+Couch stretch|hips,quads|60|s|1|wall|2|Squeeze the back glute, stay tall
+Cossack squats|adductors,hips|5|r|1|none|2|Sit deep to one side, straight leg toes up
+Spine CARs (standing)|tspine,lowback|3|r|0|none|2|Roll down, side bend, extend, rotate; one segment at a time
+Neck CARs|neck|3|r|0|none|1|Slow half circles, chin to chest, ear to shoulder; avoid cranking back
+Wrist CARs|wrists|5|r|1|none|1|Fist closed, draw slow full circles
+Ankle CARs|ankles|5|r|1|none|1|Seated or standing, largest circle possible
+Pigeon pose|glutes,hips|60|s|1|mat|2|Square hips, breathe into the front hip
+Frog stretch rock-backs|adductors,hips|10|r|0|mat|2|Knees wide, rock the hips back and forward
+Hip airplanes|hips,glutes|5|r|1|none|3|Rotate the pelvis open and closed on one leg
+Scorpion (prone)|hips,lowback,tspine|6|r|1|mat|2|Face down, heel crosses toward the opposite hand
+Windshield wipers (supine)|hips,lowback|10|r|1|mat|1|Knees bent wide, drop both side to side
+Shinbox get-ups|hips,glutes|4|r|1|mat|3|From 90/90, rise to tall kneeling without hands
+Prone press-up|lowback|10|r|0|mat|1|Hips heavy, press the chest up
+Quadruped rock-backs|hips,lowback|10|r|0|mat|1|Flat back, sit hips toward heels
+Half-kneeling hip flexor rocks|hips,quads|10|r|1|mat|1|Tuck the pelvis, rock forward slowly
+Spiderman lunge with rotation|hips,tspine|5|r|1|none|2|Foot outside the hand, rotate and reach up
+Squat pry|hips,adductors|45|s|0|none|1|Shift side to side in the bottom of the squat
+Downward dog to cobra flow|lowback,shoulders,hams|8|r|0|mat|1|Slow flow, breathe in to cobra, out to down dog
+Inchworms|hams,shoulders|6|r|0|none|1|Legs as straight as you can, walk out and back
+Leg swings (front to back)|hips,hams|12|r|1|wall|1|Swing from the hip, controlled height
+Leg swings (side to side)|hips,adductors|12|r|1|wall|1|Swing across and out, hips square
+Hip circles (standing)|hips|10|r|1|none|1|Big slow circles each way
+Shoulder pass-throughs (towel)|shoulders,chest|10|r|0|towel|1|Straight arms, wide grip, over and back
+Sleeper stretch|shoulders|30|s|1|mat|2|Side-lying, gently rotate the forearm down
+Prone Y-T-W|shoulders,tspine|5|r|0|mat|1|Five reps of each letter, thumbs up, no shrugging
+Wall angels|shoulders,tspine|10|r|0|wall|2|Keep head, upper back and butt on the wall
+Thoracic extension over towel|tspine|10|r|0|towel|1|Towel roll under the upper back, extend over it gently
+Side-lying windmill|tspine,chest|8|r|1|mat|1|Big circle with the top arm, eyes follow
+Quadruped thoracic reach-through|tspine,lats|8|r|1|mat|1|Reach under, then open to the sky
+Lizard pose with rotation|hips,tspine|5|r|1|mat|2|Foot outside the hand, rotate the arm up
+Half-kneeling ankle mobilization|ankles|10|r|1|mat|1|Knee drives forward over the pinky toe
+Elevated pigeon (bench)|glutes,hips|45|s|1|chair|1|Front shin on the bench, hips square
+Seated hip internal rotation lifts|hips|8|r|1|mat|2|From 90/90, lift the back foot off the floor
+Seated hip external rotation lifts|hips|8|r|1|mat|2|From 90/90, lift the front knee off the floor
+Hip flexor marches (supine)|hips,core|10|r|1|mat|1|Low back flat, lift the knee past 90
+Active straight-leg raises|hams,hips|8|r|1|mat|1|Lift the straight leg as high as you can, slowly lower
+Standing hamstring scoops|hams|8|r|1|none|1|Heel forward, toes up, scoop low to high
+Jefferson curl (bodyweight)|hams,lowback|5|r|0|none|2|Roll down slowly from the head, then roll up
+Good mornings (bodyweight)|hams,glutes|10|r|0|none|1|Hips back, flat back, feel the stretch
+Kneeling lat stretch rock|lats|8|r|0|chair|1|Elbows on a bench, sink the hips back
+Puppy pose|lats,tspine|45|s|0|mat|1|Hips over knees, chest toward the floor
+Wrist rocks (quadruped)|wrists|10|r|0|mat|1|Shift over the hands forward and back
+Reverse wrist rocks|wrists|10|r|0|mat|1|Backs of hands down, gentle rocks
+Finger extensions|wrists|20|r|0|none|1|Open the hand wide from a fist
+Chin tucks|neck|10|r|0|none|1|Draw the head straight back
+Neck rotations|neck|6|r|1|none|1|Look over each shoulder slowly
+Scapular push-ups|shoulders,tspine|10|r|0|none|1|Arms straight, shoulder blades only
+Scapular pulls (doorframe)|shoulders,lats|10|r|0|wall|1|Hold the frame, pull the shoulder blades back
+Shoulder flexion lift-offs|shoulders|8|r|0|mat|2|Face down, arms overhead, lift the hands off the floor
+Lying external rotation (side-lying)|shoulders|12|r|1|mat|1|Elbow pinned to the side, rotate the forearm up
+Doorway chest opener|chest,shoulders|30|s|1|wall|1|Forearm on the frame, step through
+Behind-back reaches|shoulders|8|r|1|none|1|Reach up the back, switch hands
+Arm circles|shoulders|10|r|0|none|1|Small to big, both directions
+Reach-roll-lift|shoulders,tspine|6|r|1|mat|2|In child's pose, reach, rotate thumb up, lift the arm
+Bretzel stretch|tspine,quads,hips|45|s|1|mat|2|Side-lying, top knee down, hold the bottom foot, rotate back
+Hip switches with reach|hips,tspine|6|r|1|mat|2|In 90/90, reach forward over the front shin
+Supine figure-four rocks|glutes,hips|10|r|1|mat|1|Rock the knees side to side in figure-four
+Frog pose|adductors,hips|60|s|0|mat|2|Ankles in line with the knees, sink back
+Butterfly with fold|adductors|45|s|0|mat|1|Soles together, fold with a long spine
+Side lunge rocks|adductors|10|r|1|none|1|Shift side to side in a wide stance
+Adductor rock-backs|adductors,hips|10|r|1|mat|1|Kneeling with one leg out, rock back
+Low lunge to half splits|hips,hams|6|r|1|mat|1|Flow between the two, breathe
+Deep lunge hold|hips,quads|45|s|1|none|1|Back knee off the floor, sink the hips
+Squat to stand|hams,hips|8|r|0|none|1|Toes in hands, drop the hips, lift the chest, straighten
+Goblet squat hold (bodyweight)|hips,ankles|45|s|0|none|1|Hands together, elbows inside the knees
+Tibialis raises|shins,ankles|15|r|0|wall|1|Back to the wall, lift the toes high
+Calf raises with pause at bottom|calves,ankles|12|r|0|step|1|Heels below the step, pause in the stretch
+Toe yoga|feet|10|r|0|none|1|Lift the big toe alone, then the other four
+Short foot drill|feet,ankles|10|r|1|none|1|Pull the ball of the foot toward the heel, arch lifts
+Kneeling toe stretch|feet|45|s|0|mat|1|Toes tucked, sit back gently
+Single-leg balance with eyes closed|ankles|20|s|1|none|2|Stand tall, soft knee, steady
+Hip hinge with dowel (towel)|hams,lowback|10|r|0|towel|1|Towel along the spine, keep three points of contact
+Kneeling thoracic rotation|tspine|8|r|1|mat|1|Sit back on heels, hand behind head, rotate
+Seated thoracic rotation|tspine|8|r|1|chair|1|Arms crossed, rotate from the ribs
+Bench T-spine extension|tspine,lats|10|r|0|chair|1|Elbows on the bench, sink the chest
+Pec minor stretch (corner)|chest,shoulders|30|s|0|wall|1|Lean into the corner, shoulders down
+Lat flossing in child's pose|lats|8|r|1|mat|1|Walk the hands to one side, breathe
+Quadratus lumborum stretch|lowback|30|s|1|none|1|Cross the legs, reach up and over
+Standing side bends|lats,core|8|r|1|none|1|Reach up and over, hips centered
+Supine knee hugs|lowback,glutes|45|s|0|mat|1|Hug both knees, rock gently
+Pelvic tilts (supine)|lowback,core|12|r|0|mat|1|Flatten and arch the low back slowly
+Bird dog|core,lowback|8|r|1|mat|1|Reach long, pause, hips square
+Dead bug|core|8|r|1|mat|1|Exhale fully, back flat
+Glute bridge with hold|glutes,hips|10|r|0|mat|1|Squeeze 3 s at the top
+Hip extension from quadruped|glutes|10|r|1|mat|1|Kick the heel up, no low back arch
+Fire hydrants|hips,glutes|10|r|1|mat|1|Knee out to the side, back flat
+Clamshells|glutes,hips|15|r|1|mat|1|Heels together, open the top knee
+Lateral leg raises|glutes|12|r|1|mat|1|Side-lying, lift slightly behind
+Prone hip internal rotation|hips|10|r|0|mat|1|Face down, knees bent, let the feet fall out
+Supine hip internal rotation drops|hips|10|r|1|mat|1|Knees bent wide, drop one knee inward
+Kneeling hip internal rotation lift|hips|8|r|1|mat|2|On all fours, lift the foot out to the side
+Standing hip CARs|hips|3|r|1|wall|2|Knee up, out, around and back, pelvis still
+Hip openers and closers|hips,adductors|8|r|1|none|1|Knee circles out, then in
+Leg cradles|hips,glutes|8|r|1|none|1|Hug the shin to the chest standing tall
+Walking knee hugs|hips,glutes|8|r|1|none|1|Pull the knee in, rise onto the toes
+Frankenstein walks|hams|10|r|1|none|1|Straight-leg kick to the opposite hand
+Hamstring floss (supine)|hams|10|r|1|mat|1|Leg up, bend and straighten the knee
+Active pancake lifts|adductors,hams|8|r|0|mat|3|Seated straddle, lift the hands and lean forward
+Seated straddle reach|adductors,hams|45|s|0|mat|1|Legs wide, walk the hands forward
+Tall kneeling hip shifts|hips|10|r|1|mat|1|Shift the hips side to side, stay tall
+Standing quad stretch|quads,hips|30|s|1|wall|1|Heel to glute, knees together
+Kneeling quad rocks|quads|10|r|0|mat|2|Kneel, lean back slowly with a straight line
+Heel sits|quads,ankles|45|s|0|mat|1|Sit back on the heels, tops of feet flat
+Ankle circles|ankles|10|r|1|none|1|Big slow circles
+Calf stretch (wall)|calves|30|s|1|wall|1|Back heel down, lean in
+Down dog pedal|calves,hams|30|s|0|mat|1|Alternate bending the knees
+Plank to down dog|shoulders,hams|8|r|0|mat|1|Push the hips up and back
+Bear to squat|hips,ankles,shoulders|8|r|0|none|2|From bear stance, sit back into a deep squat
+Crab reach|chest,shoulders,hips|5|r|1|none|2|From crab, lift the hips and reach over
+Lateral lunge with reach|adductors,hams|6|r|1|none|1|Side lunge, reach to the foot
+Curtsy lunge rotation|glutes,tspine|6|r|1|none|2|Curtsy lunge and rotate over the front leg
+Overhead squat (arms up)|shoulders,hips,ankles|8|r|0|none|2|Arms up by the ears, sit deep, chest up
+Wall-facing squat|hips,tspine|8|r|0|wall|3|Toes near the wall, squat without touching it
+Pistol squat assisted|hips,ankles,quads|5|r|1|wall|3|Hold a doorframe, lower on one leg
+Tabletop bridge|chest,shoulders,hips|5|r|0|mat|1|Hands behind, lift the hips flat
+Glute bridge march|glutes,hips|8|r|1|mat|2|Hold the bridge, alternate knees
+Shoulder bridge with arms overhead|chest,tspine|5|r|0|mat|2|Bridge with the arms reaching overhead
+Cobra pulses|lowback|10|r|0|mat|1|Small gentle lifts, hips down
+Superman to child's pose|lowback,glutes|8|r|0|mat|1|Lift, then sit back
+Sphinx to cobra|lowback|8|r|0|mat|1|Forearms to hands, slow
+Cat-cow with side bend|tspine,lats|6|r|1|mat|1|Add a side curve looking toward the hip
+Quadruped circles|tspine,hips|6|r|1|mat|1|Circle the spine and hips together
+Kneeling rib rotation|tspine|8|r|1|mat|1|Hands on the floor, rotate the arm up
+Seated forward fold pulses|hams|10|r|0|mat|1|Gentle pulses, flat back
+Standing toe touch flow|hams,lowback|8|r|0|none|1|Reach up, then fold down slowly
+Hip flexor stretch with reach|hips,lats|30|s|1|mat|1|Reach up and over away from the back leg
+Prone scorpion with reach|hips,tspine|5|r|1|mat|2|Heel across, arm reaching wide
+Supine twist with reach|lowback,tspine|6|r|1|mat|1|Knees to the side, reach the top arm over
+Russian baby maker|hips,adductors|45|s|0|none|1|Deep squat, elbows press knees, sway side to side
+Lateral squat walk|adductors,hips|10|r|1|none|1|Low squat, step side to side
+Duck walk|hips,ankles,quads|20|s|0|none|2|Stay in a deep squat and walk forward
+Crawling (bear)|shoulders,core,hips|20|s|0|none|2|Knees hover, opposite limbs move
+Crab walk|shoulders,glutes|20|s|0|none|2|Hips up, walk on hands and feet
+Ape walk|hips,adductors,shoulders|20|s|0|none|2|Deep squat, hands down, hop sideways
+Lizard crawl|hips,shoulders,core|20|s|0|none|3|Low crawl, knee to elbow
+Spinal waves (standing)|tspine,lowback|8|r|0|none|1|Roll the spine forward and back
+Chest openers with rotation|chest,tspine|8|r|1|none|1|Arms wide, rotate the torso
+Halo (bodyweight)|shoulders,neck|6|r|1|none|1|Clasped hands circle the head
+Overhead reach with side lean|lats|8|r|1|none|1|Reach up and lean away
+Hug and open|chest,tspine|10|r|0|none|1|Hug, then open wide
+Prone arm circles|shoulders|10|r|0|mat|1|Face down, arms out, small circles
+Prone swimmers|shoulders,tspine|10|r|0|mat|2|Hands sweep from overhead to the low back, hovering
+Lying shoulder external rotation stretch|shoulders|30|s|0|mat|1|On your back, arms in a cactus, let the hands fall back
+Kneeling shoulder flexion stretch|shoulders,lats|30|s|0|chair|1|Hands on a bench, sink the chest
+Shoulder extension rock|shoulders,chest|8|r|0|chair|1|Hands on a bench behind you, dip the hips
+Skin the cat regression (floor)|shoulders,chest|5|r|0|mat|3|Sit, hands behind, walk them back slowly
+German hang regression (floor)|shoulders,chest|20|s|0|chair|3|Hands on a bench behind, sink the hips
+Elbow circles|arms|10|r|0|none|1|Small circles at the elbow
+Forearm rotations|wrists,arms|15|r|0|none|1|Palms up and down quickly
+Finger walks up the wall|shoulders|5|r|1|wall|1|Walk the fingers up the wall as high as you can
+Wall shoulder flexion lift-offs|shoulders|8|r|0|wall|2|Face the wall, lift the hands away
+Standing T-spine rotation with hip hinge|tspine,hams|6|r|1|none|1|Hinge, reach one hand down, other up
+Hip hinge with rotation|hams,tspine|6|r|1|none|2|Hinge, rotate the torso toward one leg
+Single-leg RDL reach|hams,ankles|6|r|1|none|2|Hinge and reach the floor on one leg
+Star excursion reach|ankles,hips|3|r|1|none|2|Balance on one leg, reach three directions
+Lunge matrix|hips,adductors|3|r|1|none|2|Forward, side, back on each leg
+Kneeling Adductor stretch with rotation|adductors,tspine|6|r|1|mat|2|One leg out, rotate the arm up
+Supine leg circles|hips|6|r|1|mat|1|Straight leg draws circles, pelvis still
+Bent-knee fallouts|hips,adductors|10|r|1|mat|1|Let one knee drop out slowly, pelvis still
+Seated knee hugs to twist|hips,tspine|6|r|1|mat|1|Hug one knee, twist toward it
+Wall hip flexor stretch|hips,quads|45|s|1|wall|2|Back shin up the wall, tuck the pelvis
+Hip lift-offs (seated 90/90)|hips|6|r|1|mat|3|Lift the back knee off the floor in 90/90
+Hip flexor lift-offs|hips|8|r|1|mat|3|Seated tall, lift a straight leg off the floor
+Compression lifts|hips,core|8|r|0|mat|3|Seated pike, lift both legs an inch
+Pike compressions|hams,core|10|r|0|mat|2|Seated pike, pull toward the legs
+Straddle compression lifts|adductors,core|8|r|1|mat|3|In straddle, lift one leg at a time
+Neck isometrics|neck|10|s|0|none|1|Press the head into the hand in 4 directions
+Eye-follow rotations|neck,tspine|6|r|1|none|1|Follow the hand with your eyes as it sweeps
+Seated spine twist|tspine|30|s|1|chair|1|Hold the chair back, rotate
+Child's pose side reach|lats|30|s|1|mat|1|Walk the hands to one side
+Kneeling hip circles|hips|6|r|1|mat|1|Tall kneeling, circle the hips
+Standing heel-toe walks|ankles,shins|20|s|0|none|1|Alternate walking on heels and toes
+Ankle dorsiflexion pulses|ankles|12|r|1|step|1|Toes on a step, pulse the knee forward
+Soleus raises (bent knee)|calves|15|r|0|none|1|Knees bent, rise slowly
+Shin box flow|hips|6|r|0|mat|2|Switch between 90/90 and shin box sitting
+Turkish get-up (bodyweight)|shoulders,hips,core|3|r|1|mat|2|Fist to the sky, follow the steps slowly
+Deep squat with T-spine rotation|hips,tspine|5|r|1|none|1|Squat low, rotate one arm up
+Prayer squat rocks|hips,ankles|10|r|0|none|1|Deep squat, rock forward over the toes
+Kneeling hip flexor CARs|hips|3|r|1|mat|2|Half-kneeling, circle the back hip slowly
+Elbow CARs|arms|5|r|1|none|1|Slow full circles at the elbow
+Scapular CARs|shoulders,tspine|5|r|1|none|1|Shrug, retract, depress, protract in a slow circle
+Toe CARs|feet|5|r|1|none|1|Circle each big toe slowly
+Knee CARs (seated)|knees|5|r|1|chair|2|Thigh still, circle the lower leg
+Pelvic CARs (standing)|hips,lowback|5|r|0|none|1|Circle the pelvis, upper body still
+Rib cage circles|tspine|6|r|0|none|2|Move the ribs in a circle, hips still
+Rib cage shifts|tspine,lats|10|r|0|none|1|Slide the ribs side to side over the hips
+Head turns in deep squat|hips,neck|6|r|1|none|1|Sit deep, look slowly over each shoulder
+Seated 90/90 with arm reach|hips,tspine|6|r|1|mat|1|Reach over the front shin, then rotate
+Lateral lunge with rotation|adductors,tspine|5|r|1|none|2|Side lunge, rotate toward the bent knee
+Cossack squat with pause|adductors,hips|4|r|1|none|3|Pause 3 s at the bottom
