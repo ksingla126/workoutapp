@@ -117,6 +117,8 @@ function lvtHtml(k, p, now, resting, justDone) {
     + (F.b === "m" ? stepper("lvM", v.m, cur.ex.lo, "METRES", "decimal", 50, "Metres") : "")
     + (F.b !== "m" || F.time ? (F.time ? `<label class="lvt-step"><span>TIME</span><span class="lvt-sbox"><input id="lvR" inputmode="decimal" value="${esc(v.r)}" placeholder="${esc(cur.t.time ? fmtDur(cur.t.time) : "min")}" aria-label="Time"></span></label>`
       : stepper("lvR", v.r, cur.ex.lo, F.b === "sec" ? "SECONDS" : "REPS", "numeric", F.b === "sec" ? 5 : 1, unit)) : "");
+  const ntN = typeof ntList === "function" ? ntList(cur.ex.id).length : 0;
+  const ntBtn = `<button type="button" class="lvt-nt" id="lvtNt" data-ntopen="${esc(cur.ex.id)}" aria-label="Notes for ${esc(cur.ex.name)}${ntN ? `, ${ntN} saved` : ""}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 2.5l2.5 2.5L6 12.5 3 13l.5-3z"/></svg>${ntN ? `<b>${ntN}</b>` : ""}</button>`;
   const doneHere = K.own.filter(s => s.done).length, left = K.own.length - doneHere;
   const sysT = boss ? "A Gate has opened on this floor." : !doneHere ? `Floor ${fi + 1}: ${cur.ex.name}. ${K.own.length} mob${K.own.length === 1 ? "" : "s"}${Object.keys(K.gate).length ? ", a Gate boss among them" : ""}.`
     : kind === "elite" ? `${doneHere === 1 ? "One" : doneHere === 2 ? "Two" : doneHere} down. The elite is next.` : `${doneHere} down, ${left} to go.`;
@@ -134,14 +136,14 @@ function lvtHtml(k, p, now, resting, justDone) {
     cardT = /<span class="lvt-sub">/.test(cardT) ? cardT.replace(/<span class="lvt-sub">[\s\S]*?<\/span>/, `<span class="lvt-sub" data-ht="sub">${run ? vw.sub : esc(sub)}</span>`) : cardT;
     cardT = cardT.replace(/<\/div>\s*$/, ctl + "</div>");
     let foot;
-    if (!run) foot = `<div class="lvt-ins">${ins}</div>${big(`▶ Start set ${cur.i + 1}`, "htGo", boss ? "blue" : "")}<button type="button" class="htlink" id="lvDone">Log it by hand instead</button>`;
+    if (!run) foot = `<div class="lvt-ins">${ins}${ntBtn}</div>${big(`▶ Start set ${cur.i + 1}`, "htGo", boss ? "blue" : "")}<button type="button" class="htlink" id="lvDone">Log it by hand instead</button>`;
     else if (HOLD.phase === "setup") foot = `<div class="htduo"><button type="button" id="htSkip">Skip set-up</button><button type="button" class="x" data-htcancel>✕ Stop</button></div>`;
     else if (HOLD.phase === "hold") foot = `<div class="htduo"><button type="button" id="htPz">${HOLD.pz ? "▶ Resume" : "❚❚ Pause"}</button><button type="button" data-htstop id="htEnd">${vw.end}</button></div><span class="htlink" style="text-decoration:none">Logs at 0:00. Keep holding past it and overkill counts.</span>`;
     else if (HOLD.phase === "watch") foot = `<button type="button" class="lvt-big" data-htstop id="htEnd">${vw.end}</button><span class="htlink" style="text-decoration:none">Counts up until you stop · target ${HOLD.target} s</span>`;
     else foot = `<button type="button" class="htgold" data-htstop id="htEnd">${vw.end}</button><span class="htlink" style="text-decoration:none">${HOLD.phase === "grace" ? "No tap in 3 s means you're still holding" : "Overkill counts from 0:00"}</span>`;
     return page(sysT + (cur.inSS && !cur.ssLast ? " Superset: no rest before the next one." : ""), boss, `${tag}${cardT}${queue}`, foot);
   }
-  return page(sysT + (cur.inSS && !cur.ssLast ? " Superset: no rest before the next one." : ""), boss, body, `<div class="lvt-ins">${ins}</div>${big(boss ? "Challenge the boss" : "Strike · log set", "lvDone", boss ? "blue" : "")}`);
+  return page(sysT + (cur.inSS && !cur.ssLast ? " Superset: no rest before the next one." : ""), boss, body, `<div class="lvt-ins">${ins}${ntBtn}</div>${big(boss ? "Challenge the boss" : "Strike · log set", "lvDone", boss ? "blue" : "")}`);
 }
 
 // rest ring: runes go dark as the rest runs out
@@ -154,6 +156,48 @@ function lvtRingPaint() {
   return true;
 }
 function lvtRingLoop() { lvtTick.raf = 0; if (!lvtRingPaint() || !TM.restEnd || TM.restEnd <= Date.now()) return; lvtTick.raf = requestAnimationFrame(lvtRingLoop) }
+/* ---------- Exercise notes: one timeline per exercise, across every workout it's in ---------- */
+let NT = null;  // {id, name}
+function ntList(id) { const m = (S.profile && S.profile.exNotes) || {}; return (m[id] || []).slice().sort((a, b) => (b.at || 0) - (a.at || 0)) }
+function ntSets(k, id) {  // that day's sets: logged, or done so far in today's live workout
+  const l = S.logs[k]; let sets = l && l.ex && l.ex[id];
+  if (!sets && typeof drafts !== "undefined" && typeof dkey === "function") { sets = [];
+    for (let i = 0; i < 30; i++) if (drafts[dkey(k, `c-${id}-${i}`)]) sets.push({ w: Number(drafts[dkey(k, `w-${id}-${i}`)]) || 0, r: drafts[dkey(k, `r-${id}-${i}`)] || "", u: 1 }) }
+  sets = (sets || []).filter(x => x && x.t !== "w"); if (!sets.length) return "";
+  const top = Math.max(...sets.map(x => Number(x.w) || 0)); let sec = false; try { const ex = (typeof ALLEX !== "undefined" && ALLEX.find(x => x.id === id)) || { id }; sec = FMT[fmtOf(ex)].b === "sec" } catch (_) {}
+  const w = top ? `${sets[0].u ? top : (typeof toU === "function" ? toU(top) : top)} × ` : "";
+  return w + sets.map(x => x.r).join(" · ") + (sec ? " s" : "") }
+function ntDay(k) { const d = parseYmd(k); return k === ymd(today) ? "TODAY" : `${DOW[(d.getDay() + 6) % 7].toUpperCase()} ${d.toLocaleDateString("en-US", { month: "short", day: "numeric" }).toUpperCase()}` }
+function ntHtml() {
+  const L = ntList(NT.id);
+  const items = L.map(n => `<div class="ntit"><i></i><div><div class="ntm"><span>${ntDay(n.k)}</span><em>${esc(ntSets(n.k, NT.id))}</em></div><p>${esc(n.t)}</p></div><button type="button" class="ntdel" data-ntdel="${n.at}" aria-label="Delete this note">✕</button></div>`).join("");
+  return `<div class="ntw" role="dialog" aria-modal="true" aria-label="Notes for ${esc(NT.name)}"><button type="button" class="ntbg" data-ntx aria-label="Close"></button><div class="ntcard"><div class="ntin">
+    <div class="nteb"><span>EXERCISE LOG</span><button type="button" class="ntxx" data-ntx aria-label="Close">✕</button></div>
+    <div class="ntt">${esc(NT.name)}</div>
+    <div class="ntadd"><textarea id="ntIn" rows="1" placeholder="Add a note for today…" aria-label="Note for today"></textarea><button type="button" class="ntgo" data-ntadd disabled>+ ADD</button></div>
+    <div class="nthd"><span>TIMELINE</span><span>${L.length ? `${L.length} NOTE${L.length === 1 ? "" : "S"}` : ""}</span></div>
+    <div class="ntlist">${items || `<p class="ntnone">No notes yet. Cues, setup, how it felt: anything you want to see next time you do this exercise.</p>`}</div></div></div></div>` }
+function ntPaint(focus) { document.querySelectorAll("body > .ntw").forEach(x => x.remove()); if (!NT) return;
+  document.body.insertAdjacentHTML("beforeend", ntHtml()); const b = document.getElementById("lvtNt");
+  if (b && b.dataset.ntopen === NT.id) { const n = ntList(NT.id).length; b.querySelector("b")?.remove(); if (n) b.insertAdjacentHTML("beforeend", `<b>${n}</b>`) }
+  if (focus) setTimeout(() => document.getElementById("ntIn")?.focus(), 60) }
+function ntOpen(id) { const c = typeof liveCtx === "function" && liveCtx(), e = c && c.p.ex && c.p.ex.find(x => x.id === id); NT = { id, name: e ? e.name : id, k: c ? c.k : ymd(today) }; ntPaint(false) }
+function ntClose() { NT = null; ntPaint() }
+function ntAdd() { const el = document.getElementById("ntIn"), t = el && el.value.trim(); if (!t || !NT) return;
+  S.profile.exNotes = S.profile.exNotes || {}; (S.profile.exNotes[NT.id] = S.profile.exNotes[NT.id] || []).push({ k: NT.k, t: t.slice(0, 600), at: Date.now() });
+  saveProfile(); ntPaint(); toast("Note saved") }
+function ntDel(at) { const m = S.profile.exNotes, a = m && m[NT.id]; if (!a) return; const i = a.findIndex(n => String(n.at) === String(at)); if (i < 0) return;
+  const [gone] = a.splice(i, 1); if (!a.length) delete m[NT.id]; saveProfile(); ntPaint();
+  toast("Note deleted") }
+document.addEventListener("click", e => {
+  const t = e.target.closest && e.target.closest("[data-ntopen],[data-ntx],[data-ntadd],[data-ntdel]"); if (!t) return;
+  if (t.dataset.ntopen) { ntOpen(t.dataset.ntopen); return }
+  if (t.hasAttribute("data-ntx")) { ntClose(); return }
+  if (t.hasAttribute("data-ntadd")) { ntAdd(); return }
+  if (t.dataset.ntdel) ntDel(t.dataset.ntdel);
+});
+document.addEventListener("input", e => { if (e.target && e.target.id === "ntIn") { const el = e.target, b = document.querySelector("[data-ntadd]"); if (b) b.disabled = !el.value.trim(); el.style.height = "auto"; el.style.height = Math.min(120, el.scrollHeight) + "px" } });
+document.addEventListener("keydown", e => { if (!NT) return; if (e.key === "Escape") ntClose(); else if (e.key === "Enter" && !e.shiftKey && e.target && e.target.id === "ntIn") { e.preventDefault(); ntAdd() } });
 // steppers, ±15 s, and the live numbers on the card
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest("#liveIn.lvt button"); if (!b) return;
@@ -207,7 +251,33 @@ html .live.lvt-on{background:radial-gradient(90% 50% at 50% 0%,color-mix(in srgb
 .lvt-hpl{display:flex;justify-content:space-between;width:100%;font:800 9px/1 var(--fnt);letter-spacing:.2em;color:var(--mut)}
 .lvt-queue{display:flex;justify-content:center;gap:12px;align-items:flex-end}
 .lvt-foot{flex-shrink:0;padding:4px 0 2px;display:flex;flex-direction:column;gap:12px}@media (max-height:780px){.lvt-rw{transform:scale(.84);margin:-12px 0}.lvt-name{font-size:22px}.lvt-floor{height:46px}#liveIn.lvt{gap:9px}}@media (max-height:680px){.lvt-rw{transform:scale(.72);margin:-24px 0}.lvt-sys{display:none}}
-.lvt-ins{display:flex;gap:10px}
+.lvt-ins{display:flex;gap:10px;position:relative}
+.lvt-nt{all:unset;cursor:pointer;position:absolute;right:0;top:-6px;width:28px;height:21px;border-radius:6px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--mt-m) 40%,transparent);background:#0B0B0E;color:var(--mt-l)}
+.lvt-nt svg{width:12px;height:12px}.lvt-nt b{position:absolute;top:-7px;right:-7px;min-width:15px;height:15px;padding:0 3px;box-sizing:border-box;border-radius:4px;background:var(--rk);color:var(--rk-ink);font:900 9.5px/15px "Barlow Semi Condensed",sans-serif;text-align:center}
+.lvt-nt:focus-visible{outline:2px solid var(--mt-l);outline-offset:2px}
+.ntw{position:fixed;inset:0;z-index:950;display:flex;flex-direction:column;justify-content:flex-end}
+.ntbg{all:unset;position:absolute;inset:0;background:rgba(2,4,8,.72);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.ntcard{position:relative;max-width:520px;width:100%;margin:0 auto;border-radius:22px 22px 0 0;padding:3px 3px 0;background:linear-gradient(90deg,var(--mt-d),var(--mt-m) 40%,var(--mt-l) 60%,var(--mt-d));animation:ntUp .2s ease-out}
+@keyframes ntUp{from{transform:translateY(30px);opacity:0}}
+.ntin{box-sizing:border-box;border-radius:19px 19px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));background:radial-gradient(70% 50% at 90% 0%,color-mix(in srgb,var(--rk) 16%,transparent),transparent 65%),#0A0A0D;color:#F5F1E6;font-family:Barlow,system-ui,sans-serif;display:flex;flex-direction:column;gap:12px;max-height:min(78vh,calc(var(--vvh,100dvh) - 60px))}
+.nteb{display:flex;justify-content:space-between;align-items:center;font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.3em;color:var(--mt-l)}
+.ntxx{all:unset;cursor:pointer;width:30px;height:30px;border-radius:50%;border:1px solid color-mix(in srgb,var(--mt-l) 35%,transparent);display:grid;place-items:center;font-size:12px;letter-spacing:0;color:var(--mt-l)}
+.ntt{font:900 24px/1.05 "Barlow Semi Condensed",sans-serif;text-transform:uppercase;background:linear-gradient(180deg,var(--rk-core),var(--rk-mid) 60%,var(--rk-dd));-webkit-background-clip:text;background-clip:text;color:transparent;margin-top:-4px}
+.ntadd{display:flex;gap:8px;align-items:stretch}
+.ntadd textarea{flex:1;min-width:0;box-sizing:border-box;min-height:46px;max-height:120px;resize:none;padding:12px;border-radius:12px;border:1px solid color-mix(in srgb,var(--rk) 50%,transparent);background:#0E0F12;color:#F5F1E6;font:500 16px/1.35 Barlow,sans-serif;outline:none}
+.ntadd textarea:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--rk) 18%,transparent)}
+.ntadd textarea::placeholder{color:#5E6470}
+.ntgo{all:unset;cursor:pointer;align-self:center;padding:12px 14px;border-radius:9px;background:linear-gradient(180deg,var(--rk),var(--rk-d));color:#F3FFF9;font:900 12px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.2em;white-space:nowrap}
+.ntgo[disabled]{opacity:.4;cursor:default}
+.nthd{display:flex;justify-content:space-between;font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.24em;color:var(--mt-l);border-top:1px solid color-mix(in srgb,var(--mt-m) 30%,transparent);padding-top:12px}
+.nthd span:last-child{color:#8F97A6}
+.ntlist{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;margin:0 -4px;padding:0 4px;min-height:60px}
+.ntit{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid rgba(245,241,230,.06)}
+.ntit>i{width:8px;height:8px;margin-top:5px;transform:rotate(45deg);border:1.5px solid var(--rk-mid);flex-shrink:0}.ntit:first-child>i{background:var(--rk-mid);box-shadow:0 0 8px var(--rk-mid)}
+.ntit>div{flex:1;min-width:0}.ntm{display:flex;justify-content:space-between;gap:8px;font:800 9.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;color:#8F97A6}.ntm em{font-style:normal;color:var(--mt-l);letter-spacing:.06em;white-space:nowrap}
+.ntit p{margin:5px 0 0;font:500 14px/1.4 Barlow,sans-serif;color:#E6E2D8;white-space:pre-wrap;overflow-wrap:anywhere}
+.ntdel{all:unset;cursor:pointer;flex-shrink:0;align-self:flex-start;width:26px;height:26px;display:grid;place-items:center;border-radius:6px;color:#5E6470;font-size:12px}
+.ntnone{padding:14px 0;font:500 13px/1.4 Barlow,sans-serif;color:#8F97A6}
 .lvt-step{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}.lvt-step>span:first-child{font:800 10px/1 var(--fnt);letter-spacing:.24em;color:var(--mut)}
 .lvt-sbox{display:flex;align-items:center;height:54px;padding:0 6px;border-radius:14px;background:#0B0B0E;border:1px solid rgba(245,241,230,.12)}
 .lvt-sbox button{width:36px;height:36px;flex-shrink:0;border-radius:10px;border:0;background:rgba(245,241,230,.07);color:var(--mut);font-size:20px;cursor:pointer}
