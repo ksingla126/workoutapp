@@ -1553,6 +1553,9 @@ function setTypeK(k,id,i){ const v=drafts[dkey(k,`st-${id}-${i}`)]; if(v!==undef
 // or a set you've entered is Gate level
 function setVals(ex,k,i,cur){ const c=cur&&cur[i], f=fmtOf(ex), w=drafts[dkey(k,`w-${ex.id}-${i}`)] ?? (c?toU(c.w):""), r=drafts[dkey(k,`r-${ex.id}-${i}`)] ?? (c?(f==="dt"?fmtDur(c.r):c.r):""), m=drafts[dkey(k,`m-${ex.id}-${i}`)] ?? (c?c.m:"");
   return {w:fromU(Number(w)||0),r:f==="dt"?parseDur(r):Number(r)||0,m:Number(m)||0} }
+// an empty box still shows a grey suggestion (target reps, last time, etc.): logging without typing uses it
+function phFill(el){ if(!el) return ""; const v=el.value.trim(), ph=(el.placeholder||"").trim();
+  if(v===""&&/^(\d+(\.\d+)?|\d+:\d{2})$/.test(ph)){ el.value=ph; return ph } return v }
 // read a set's boxes straight from the screen
 function setValsDom(ex,i){ const g=p=>{const el=document.getElementById(`${p}-${ex.id}-${i}`); return el?el.value:""}, f=fmtOf(ex);
   return {w:fromU(Number(g("w"))||0),r:f==="dt"?parseDur(g("r")):Number(g("r"))||0,m:Number(g("m"))||0} }
@@ -2305,7 +2308,7 @@ function bindLive(k,p){
   ["lvW","lvR","lvM"].forEach(id=>{ const inp=$$(id); if(!inp) return; inp.addEventListener("focus",()=>{const s=()=>{try{inp.setSelectionRange(0,inp.value.length)}catch(e){}}; s(); setTimeout(s,0); setTimeout(s,60)}) });
   if($$("lvDone")) $$("lvDone").onclick=()=>{
     const steps=gymSteps(k,p), idx=liveIdx(steps), cur=steps[idx]; if(!cur) return;
-    const f=fmtOf(cur.ex), w=$$("lvW")?$$("lvW").value.trim():"", r=$$("lvR")?$$("lvR").value.trim():"", m=$$("lvM")?$$("lvM").value.trim():"";
+    const f=fmtOf(cur.ex), w=phFill($$("lvW")), r=phFill($$("lvR")), m=phFill($$("lvM"));
     if(!setOk(f,{w:Number(w)||0,r:f==="dt"?parseDur(r):Number(r)||0,m:Number(m)||0})){ toast(FMT_NEED[f]); return }
     if($$("lvW")) drafts[dkey(k,`w-${cur.ex.id}-${cur.i}`)]=w;
     if($$("lvM")) drafts[dkey(k,`m-${cur.ex.id}-${cur.i}`)]=m;
@@ -3031,6 +3034,7 @@ function bind(){
   document.querySelectorAll("[data-db]").forEach(c=>c.addEventListener("change",()=>{const id=c.dataset.db; dbOverride[id]=c.checked; S.profile.dbPref={...(S.profile.dbPref||{}),[id]:c.checked}; saveProfile(); render()}));
   document.querySelectorAll("[data-chk]").forEach(b=>b.addEventListener("click",()=>{
     const [id,i]=b.dataset.chk.split("|"), dk=draftKey(`c-${id}-${i}`), on=!b.classList.contains("on");
+    if(on) ["w","r","m"].forEach(x=>{ const el=document.getElementById(`${x}-${id}-${i}`); if(el&&!el.value.trim()&&phFill(el)) drafts[draftKey(`${x}-${id}-${i}`)]=el.value });
     drafts[dk]=on; persistDrafts(); b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); $(`#set-${id}-${i}`)?.classList.toggle("done",on);
     if(on){
       const exo=p.ex&&p.ex.find(e=>e.id===id); if(exo&&FMT[fmtOf(exo)].b==="reps"){ const v=setValsDom(exo,i); if(setTypeK(k,id,i)!=="w") gateCheck(exo,k,v.w,v.r,i) }
