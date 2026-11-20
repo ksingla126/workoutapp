@@ -1,0 +1,160 @@
+# move name|stars  (hand corrections after reviewing the rule output)
+Deep squat hold|2
+Garland pose|2
+Pigeon pose|2
+Frog stretch|3
+Frog pose|3
+Frog pose (gentle)|2
+Lizard pose|2
+Couch stretch|3
+Hip flexor stretch on couch|3
+Hero pose|3
+Reclined hero|4
+Toe squat|2
+Duck walk|3
+Ape walk|3
+Cossack squats|3
+Cossack squat with pause|4
+Jefferson curl (bodyweight)|4
+Jefferson curl (slow)|4
+Nordic curl (assisted)|5
+Copenhagen plank (short lever)|4
+Burpees|3
+Squat jumps|3
+Jumping jacks|1
+Seal jacks|1
+Half jacks|1
+Cross jacks|2
+Pogo hops|2
+Jump rope (imaginary)|1
+High knees|2
+Skips (in place)|1
+A-skips|2
+B-skips|3
+Plank|2
+Side plank|3
+Kneeling side plank|2
+Wall plank|1
+Hollow body hold|3
+Hollow hold tucked|2
+Push-ups|2
+Knee push-ups|1
+Incline push-ups|1
+Wall push-ups|1
+Pike push-ups|3
+Diamond push-ups|3
+Bulgarian split squat|3
+Wall sit|2
+Single-leg glute bridge|2
+Glute bridge|1
+Glute bridges|1
+Bird dog|1
+Dead bug|1
+Bear crawl|3
+Crab walk|2
+Inchworms|2
+World's greatest stretch|2
+Half splits|2
+Butterfly stretch|1
+Seated forward fold|1
+Downward dog|2
+Child's pose|1
+Legs up the wall|1
+Turkish get-up (bodyweight)|4
+Foam roller plank|3
+Foam roller dead bugs|3
+Foam roller bridges|3
+Foam roller single-leg balance|5
+Banded single-leg bridge|3
+Band push-up plus|3
+Push-up plus|2
+Prone Y-T-W|2
+Hip CARs (quadruped)|2
+Standing hip CARs|3
+Shoulder CARs|2
+Spine CARs (standing)|2
+90/90 hip switches|1
+Shin box flow|3
+Hip lift-offs (seated 90/90)|4
+90/90 hip lift-offs|4
+Hip flexor lift-offs|4
+Seated hip internal rotation lifts|3
+Seated hip external rotation lifts|3
+Straddle compression lifts|4
+Pike compressions|3
+Pike stretch|3
+Seated straddle|2
+Seated straddle reach|2
+Pancake stretch|4
+Pancake with towel|3
+Band pancake|3
+Middle splits (supported)|5
+Front splits (supported)|5
+Wheel pose|5
+Bridge pose|2
+Camel pose|4
+Supported camel|3
+Sphinx pose|1
+Cobra stretch|1
+Cobra pulses|1
+Prone press-up|1
+Upward dog|3
+Plow pose|5
+Shoulder stand (supported)|5
+Pistol squat assisted|4
+Assisted pistol|4
+Squat thrusts|3
+Mountain climbers|2
+Lateral bounds|4
+Skater hops|3
+Single-leg pogo hops|3
+Single-leg calf raises|2
+Single-leg balance|1
+Single-leg balance with eyes closed|2
+Balance reach on toes|3
+Spanish squat hold (wall)|3
+Step-downs|3
+Reverse Nordic|5
+Single-leg wall sit|4
+Hamstring walkouts|3
+Slider leg curls (towel)|4
+Hamstring bridge (straight legs)|3
+Single-leg RDL (bodyweight)|3
+Single-leg toe touch|2
+Inverted row (table)|3
+Chair dips|3
+Decline push-ups|4
+Long-lever plank|4
+RKC plank|3
+Plank up-downs|3
+Side plank star|4
+Side plank with top leg lift|4
+Boat pose|3
+Tuck-ups|3
+Leg raises|3
+Hollow body to arch rolls|3
+Wheel|5
+Sleeping swan|2
+Dragon pose|3
+Saddle pose|4
+Shoelace pose|3
+Square pose|3
+Fire log pose|3
+Cow face pose (legs)|3
+Revolved triangle|3
+Standing figure-four|2
+Hip airplanes|4
+Gentle back bend over chair|2
+Easy jog|1
+Shoulder dislocates (towel)|2
+Wall angels|2
+Lunge pulses|2
+Pulse squats|2
+Carioca|2
+Plank jacks|2
+Wall-facing squat|5
+Straddle compression lifts|5
+Reclined bound angle|1
+Bound angle forward fold|1
+Banded Copenhagen (assisted)|4
+Hollow rocks|4

@@ -34,7 +34,7 @@ for key,label in CATS:
         m['categories'][key]={'rank':rank,'dose':int(dose),'unit':UNIT[unit],'perSide':side=='1','name':name,'cue':cue}
 def flags(m):
     n=m['name'].lower(); f=[]
-    if re.search(r'jump|hop|bound|burpee|skips|skip\b|jacks|pogo|broad',n): f.append('impact')
+    if re.search(r'jump|hop|bounds?\b(?! angle)|bound kicks|burpee|skips|skip\b|jacks|pogo|broad',n) and 'bound angle' not in n: f.append('impact')
     if re.search(r'hero|frog|saddle|pistol|deep squat|garland|toe squat|duck walk|reverse nordic|heel sits',n): f.append('deep-knee')
     if re.search(r'plow|shoulder stand|snail',n): f.append('neck-load')
     if re.search(r'wheel|camel|bow pose|seal stretch|king pigeon|back bend|upward dog|wall back bend',n): f.append('deep-backbend')
@@ -49,20 +49,25 @@ def kind(m):
     if re.search(r'plank|hold|wall sit|isometric|bear hold|hollow body|superman|boat|l-sit|squeeze',n): return 'isometric'
     if units=={'sec'} and not re.search(r'walk|jog|jacks|march|crawl|boxing|climbers|kicks|knees|hops|feet|skips|shuffles|carioca|grapevine|run|jump|shaking|sway|weight shifts|stance',n): return 'static'
     return 'dynamic'
+from stars import stars as _stars, load_overrides
+OV=load_overrides()
 out=[]
 for k in order:
-    m=moves[k]; m['kind']=kind(m); m['cautions']=flags(m); out.append(m)
-json.dump({'version':1,'about':'RankUp Bounties move library. Ranks 1-200 in each category are bodyweight (household items only: mat, wall, chair, step, towel); ranks after 200 use a foam roller or resistance band (gear: true; anchor: true means the band is tied to a door or post). Each move lists the categories it belongs to with that category\'s rank (1 = most common), dose, unit and per-side flag. cautions are screening tags for later filtering (impact, deep-knee, neck-load, deep-backbend, loaded-spinal-flexion, advanced, wrist-load).',
+    m=moves[k]; m['kind']=kind(m); m['cautions']=flags(m); m['stars']=OV.get(m['name'].lower(),_stars(m)); m.pop('level',None); out.append(m)
+json.dump({'version':1,'about':'RankUp Bounties move library. Ranks 1-200 in each category are bodyweight (household items only: mat, wall, chair, step, towel); ranks after 200 use a foam roller or resistance band (gear: true; anchor: true means the band is tied to a door or post). Each move lists the categories it belongs to with that category\'s rank (1 = most common), dose, unit and per-side flag. stars (1-5) rate how demanding a move is; a bounty\'s stars equal its highest-starred move. cautions are screening tags for later filtering (impact, deep-knee, neck-load, deep-backbend, loaded-spinal-flexion, advanced, wrist-load).',
   'categories':[{'id':k,'label':l} for k,l in CATS],'moves':out},open('../bounty-moves.json','w'),indent=1,ensure_ascii=False)
 with open('../bounty-moves.csv','w',newline='') as f:
-    w=csv.writer(f); w.writerow(['category','rank','move','dose','unit','per_side','areas','equipment','band_anchor','level','kind','cautions','cue','move_id'])
+    w=csv.writer(f); w.writerow(['category','rank','move','dose','unit','per_side','areas','equipment','band_anchor','stars','kind','cautions','cue','move_id'])
     for key,label in CATS:
         for m in sorted([m for m in out if key in m['categories']],key=lambda m:m['categories'][key]['rank']):
             c=m['categories'][key]
-            w.writerow([label,c['rank'],c['name'],c['dose'],c['unit'],'yes' if c['perSide'] else '','; '.join(m['areas']),m['equipment'],'yes' if m.get('anchor') else '',m['level'],m['kind'],'; '.join(m['cautions']),c['cue'],m['id']])
+            w.writerow([label,c['rank'],c['name'],c['dose'],c['unit'],'yes' if c['perSide'] else '','; '.join(m['areas']),m['equipment'],'yes' if m.get('anchor') else '',m['stars'],m['kind'],'; '.join(m['cautions']),c['cue'],m['id']])
 print('unique',len(out),{k:sum(1 for m in out if k in m['categories']) for k,_ in CATS})
 print(collections.Counter(m['kind'] for m in out)); print(collections.Counter(c for m in out for c in m['cautions']))
 print(collections.Counter(a for m in out for a in m['areas']))
 print('dup ids',[i for i,c in collections.Counter(m['id'] for m in out).items() if c>1])
 
+print('stars',sorted(collections.Counter(m['stars'] for m in out).items()))
+for key,_ in CATS: print(key,sorted(collections.Counter(m['stars'] for m in out if key in m['categories']).items()))
+missing=[n for n in OV if n not in {m['name'].lower() for m in out}]; print('override names not found',missing)
 print('gear placements',{k:sum(1 for m in out if k in m['categories'] and m.get('gear')) for k,_ in CATS}, 'gear moves',sum(1 for m in out if m.get('gear')))
