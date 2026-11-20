@@ -2140,7 +2140,7 @@ function setValsK(k,st){ const l=S.logs[k], cur=l&&l.ex&&l.ex[st.ex.id]&&l.ex[st
   let ww=w??""; if(ww===""&&st.i>0){ for(let j=st.i-1;j>=0;j--){ const pw=drafts[dkey(k,`w-${st.ex.id}-${j}`)]; if(pw){ww=pw;break} } }
   return {w:ww,r:r??"",m:m??""} }
 function openLive(){ if(!liveCtx()) return; liveOpen=true; unlockAudio(); renderLive(); tick() }
-function closeLive(){ liveOpen=false; renderLive(); tick(); lastRenderKey=""; render() }
+function closeLive(){ if(typeof NT!=="undefined"&&NT) ntClose(); liveOpen=false; renderLive(); tick(); lastRenderKey=""; render() }
 // Started by mistake: stop the timer, drop this session's entries and leave Live mode without saving anything
 let lvAsk=false;
 function cancelLive(k){ HOLD=null; lvAsk=false; stopWorkout(); if(typeof RL!=="undefined"&&RL&&RL.k===k){ RL=null; try{localStorage.removeItem("ru-runlive")}catch(e){} }
