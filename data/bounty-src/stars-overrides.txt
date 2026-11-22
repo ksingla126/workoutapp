@@ -158,3 +158,54 @@ Reclined bound angle|1
 Bound angle forward fold|1
 Banded Copenhagen (assisted)|4
 Hollow rocks|4
+Pike test|1
+Pancake test|1
+Front split test|1
+Side split test|1
+Bridge test|1
+Overhead test|1
+Deep squat test|1
+Front split hamstring curl press|4
+Front split back-knee lifts|5
+Side split slides (assisted)|5
+Side split isometric press|4
+Straddle leg lifts (seated)|4
+Seated pike leg lifts|4
+Chair-supported bridge|4
+Wall walk-down bridge prep|5
+Deep squat to stand (hands free)|4
+Walk it off|1
+Calm walk with long exhales|1
+Walking knee hugs|1
+Walking quad pulls|1
+Shoulder blade squeezes|1
+Femoral nerve floss|2
+Pancake good mornings|2
+Frog rock-backs|2
+Horse stance hold|2
+Thoracic bridge (prone)|2
+Bridge holds (arms overhead)|2
+Pike PNF (contract-relax)|2
+Hamstring PNF contract-relax|2
+Isometric calf hold|2
+Squat ankle pulses|1
+Squat hip pry with knee pushes|1
+Deep squat heel-elevated hold|1
+Scapular push-ups|1
+Prone Y raises|1
+Prone T raises|1
+Prone W raises|1
+Calf raises|1
+Tibialis raises|1
+Band pull-aparts|1
+Band face pulls|1
+Banded glute bridges|1
+Isometric external rotation (doorframe)|1
+Lat PNF on bench|2
+Seated straddle|1
+Seated straddle reach|1
+Half splits|1
+Active hamstring stretch (leg raise hold)|2
+Active straight-leg raises|1
+Elevated half split|1
+Pancake PNF (contract-relax)|3

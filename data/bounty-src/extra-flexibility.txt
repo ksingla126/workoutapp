@@ -1,0 +1,36 @@
+# Skill-path additions (tests, nerve flossing, active end-range work). name|areas|dose|unit|side|equip|lvl|cue
+Pike test|hams,lowback|20|s|0|mat|1|Legs straight and together, fold and note where your fingertips reach: knees, mid-shin, ankles, toes, floor
+Pancake test|adductors,hams|20|s|0|mat|1|Legs as wide as comfortable, fold forward and note what reaches the floor: hands, forearms, chest
+Front split test|hams,hips|20|s|1|towel|1|Slide into a split with hands on books, note the gap from your hips to the floor in hand-widths
+Side split test|adductors|20|s|0|towel|1|Slide the feet wide with hands down, note the gap from hips to floor in hand-widths
+Bridge test|tspine,chest,hips|10|s|0|mat|1|Glute bridge with arms overhead, note how high your chest lifts toward the wall behind you
+Overhead test|shoulders,lats|10|s|0|wall|1|Back flat on a wall, arms straight overhead, note how close your thumbs get to the wall
+Deep squat test|hips,ankles|20|s|0|none|1|Feet shoulder-width, heels down, sit as deep as you can; note if heels lift or hips stay above knees
+Sciatic nerve floss|hams,lowback|10|r|1|chair|1|Seated slump, straighten the knee as you look up, bend it as you look down; gentle, no zinging pain
+Femoral nerve floss|quads,hips|10|r|1|mat|2|Side-lying, pull the top heel back as you tuck the chin, release as you look up
+Slump stretch|hams,lowback|20|s|1|chair|1|Sit slumped, chin down, straighten one knee until you feel tension, breathe
+Seated pike leg lifts|hams,hips|8|r|0|mat|3|Hands beside the knees, lift both heels off the floor without leaning back
+Pike pulses|hams,lowback|10|r|0|mat|2|Fold into the pike and pulse deeper, hips stay planted
+Pike PNF (contract-relax)|hams|3|r|0|mat|2|In the pike, press the heels down 5 s, relax and fold deeper
+Pancake PNF (contract-relax)|adductors|3|r|0|mat|2|In the straddle, press the heels into the floor 5 s, relax and fold deeper
+Pancake good mornings|adductors,hams|8|r|0|none|2|Wide stance, hinge forward with a flat back, slow lower
+Straddle leg lifts (seated)|adductors,hips|8|r|1|mat|3|Seated straddle, hands beside one knee, lift that leg off the floor
+Horse stance hold|adductors,quads,glutes|30|s|0|none|2|Wide stance, sit low, knees push out over the toes
+Side split isometric press|adductors|20|s|0|towel|3|In your deepest straddle, squeeze the feet toward each other into the floor 10 s, relax
+Side split slides (assisted)|adductors|5|r|0|towel|3|Hands on books, slide the feet out slowly and back with control
+Frog rock-backs|adductors,hips|10|r|0|mat|2|Knees wide, rock the hips back toward the heels and forward
+Front split back-knee lifts|hips,quads|5|r|1|towel|3|In a supported split, lift the back knee an inch and hold 3 s
+Front split hamstring curl press|hams|3|r|1|towel|3|In a supported split, press the front heel into the floor 5 s, relax and sink
+Elevated half split|hams|30|s|1|chair|2|Front heel on a low step, hips square, fold
+Hip flexor lunge pulses|hips,quads|10|r|1|mat|1|Low lunge, small pulses forward, squeeze the back glute
+Bridge holds (arms overhead)|tspine,chest|10|s|0|mat|2|Glute bridge with the arms reaching overhead on the floor, hold
+Chair-supported bridge|tspine,chest|20|s|0|chair|3|Hands on a sturdy chair seat behind you, lift the hips and open the chest
+Wall walk-down bridge prep|tspine,chest|3|r|0|wall|3|Back to the wall, reach back and walk the hands a little down, then back up
+Thoracic bridge (prone)|tspine|8|r|0|mat|2|Face down, hands under shoulders, lift the chest leading with the sternum
+Overhead wall lift-offs|shoulders|8|r|0|wall|2|Face the wall, arms overhead, lift the hands off the wall and hold 2 s
+Lat stretch with active lift|lats,shoulders|6|r|1|chair|2|Elbows on a bench, sink, then lift the hands off and hold 2 s
+Deep squat breathing hold|hips,ankles|60|s|0|none|1|Heels down, hold something if you need to, breathe slowly
+Squat ankle pulses|ankles|10|r|0|none|1|In a deep squat, rock the knees forward over the toes
+Squat hip pry with knee pushes|hips,adductors|10|r|0|none|1|Elbows push the knees out, rock side to side
+Deep squat heel-elevated hold|hips,ankles|45|s|0|towel|1|Heels on a folded towel or plates, sit deep and tall
+Deep squat to stand (hands free)|hips,ankles,quads|5|r|0|none|3|Sit fully down and stand up without the hands or the heels lifting

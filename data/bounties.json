@@ -1,0 +1,6767 @@
+{
+ "version": 1,
+ "about": "RankUp starter bounties. stars = hardest move; minutes = estimate (holds, reps at 1.5-2.5 s, breaths 10 s, sides doubled, sets and rest, +10 s per move); tier = card time label.",
+ "bounties": [
+  {
+   "id": "ignition",
+   "title": "Ignition",
+   "plain": "A 5-minute full-body warm-up for any day",
+   "type": "warmup",
+   "areas": [
+    "full body"
+   ],
+   "phases": [
+    {
+     "name": "Raise",
+     "moves": [
+      {
+       "move": "jumping-jacks",
+       "name": "Jumping jacks",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Land soft on the balls of your feet, arms all the way overhead"
+      },
+      {
+       "move": "arm-circles",
+       "name": "Arm circles",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Small to big circles, then reverse; keep ribs down"
+      }
+     ]
+    },
+    {
+     "name": "Open",
+     "moves": [
+      {
+       "move": "hip-circles",
+       "name": "Hip circles",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hands on hips, draw big slow circles each way"
+      },
+      {
+       "move": "torso-twists",
+       "name": "Torso twists",
+       "dose": 16,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Arms loose, rotate through the upper back, pivot the back foot"
+      },
+      {
+       "move": "leg-swings-front-to-back",
+       "name": "Leg swings (front to back)",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hold a wall, swing from the hip, keep torso still"
+      }
+     ]
+    },
+    {
+     "name": "Switch on",
+     "moves": [
+      {
+       "move": "glute-bridges",
+       "name": "Glute bridges",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Ribs down, drive through heels, squeeze 1 s at the top"
+      },
+      {
+       "move": "walking-knee-hugs",
+       "name": "Walking knee hugs",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Pull knee to chest, rise onto the standing toes"
+      },
+      {
+       "move": "march-in-place",
+       "name": "March in place",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Knees up, arms swinging, tall posture"
+      }
+     ]
+    }
+   ],
+   "stars": 1,
+   "minutes": 6,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 304,
+   "moveCount": 8
+  },
+  {
+   "id": "press-prep",
+   "title": "Press Prep",
+   "plain": "Shoulders and upper back, before bench or overhead pressing",
+   "type": "warmup",
+   "areas": [
+    "shoulders",
+    "upper back"
+   ],
+   "phases": [
+    {
+     "name": "Raise",
+     "moves": [
+      {
+       "move": "jumping-jacks",
+       "name": "Jumping jacks",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Land soft on the balls of your feet, arms all the way overhead"
+      }
+     ]
+    },
+    {
+     "name": "Open",
+     "moves": [
+      {
+       "move": "thoracic-rotations-quadruped",
+       "name": "Thoracic rotations (quadruped)",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hand behind head, rotate elbow to the ceiling, hips still"
+      },
+      {
+       "move": "wall-slides",
+       "name": "Wall slides",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Back and forearms on the wall, slide up without the low back arching"
+      },
+      {
+       "move": "shoulder-cars",
+       "name": "Shoulder CARs",
+       "dose": 2,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Biggest slowest circle you can draw, rest of body still"
+      }
+     ]
+    },
+    {
+     "name": "Switch on",
+     "moves": [
+      {
+       "move": "prone-y-raises",
+       "name": "Prone Y raises",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Face down, thumbs up, lift arms in a Y without shrugging"
+      },
+      {
+       "move": "scapular-push-ups",
+       "name": "Scapular push-ups",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Arms straight, let the chest sink then push the floor away"
+      }
+     ]
+    },
+    {
+     "name": "Rehearse",
+     "moves": [
+      {
+       "move": "push-ups",
+       "name": "Push-ups",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Body in a straight line, elbows about 45 degrees"
+      }
+     ]
+    }
+   ],
+   "stars": 2,
+   "minutes": 4,
+   "tier": 5,
+   "gear": [],
+   "estSeconds": 230,
+   "moveCount": 7
+  },
+  {
+   "id": "hinge-prep",
+   "title": "Hinge Prep",
+   "plain": "Hips, hamstrings and bracing, before deadlifts and RDLs",
+   "type": "warmup",
+   "areas": [
+    "hamstrings",
+    "hips",
+    "lower back"
+   ],
+   "phases": [
+    {
+     "name": "Raise",
+     "moves": [
+      {
+       "move": "jog-in-place",
+       "name": "Jog in place",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Easy relaxed jog, breathe through the nose"
+      }
+     ]
+    },
+    {
+     "name": "Open",
+     "moves": [
+      {
+       "move": "cat-cow",
+       "name": "Cat-cow",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Move one vertebra at a time, breathe in to arch, out to round"
+      },
+      {
+       "move": "leg-swings-front-to-back",
+       "name": "Leg swings (front to back)",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hold a wall, swing from the hip, keep torso still"
+      },
+      {
+       "move": "worlds-greatest-stretch",
+       "name": "World's greatest stretch",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Lunge, elbow to instep, rotate and reach up, then straighten front leg"
+      }
+     ]
+    },
+    {
+     "name": "Switch on",
+     "moves": [
+      {
+       "move": "glute-bridges",
+       "name": "Glute bridges",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Ribs down, drive through heels, squeeze 1 s at the top"
+      },
+      {
+       "move": "dead-bug",
+       "name": "Dead bug",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Low back flat, exhale fully as you reach opposite arm and leg"
+      }
+     ]
+    },
+    {
+     "name": "Rehearse",
+     "moves": [
+      {
+       "move": "hip-hinge-drill",
+       "name": "Hip hinge drill",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Push hips back to touch the wall behind you, shins vertical"
+      },
+      {
+       "move": "good-mornings",
+       "name": "Good mornings (bodyweight)",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Hands behind head, hips back, flat back, feel the hamstrings"
+      }
+     ]
+    }
+   ],
+   "stars": 2,
+   "minutes": 5,
+   "tier": 5,
+   "gear": [],
+   "estSeconds": 300,
+   "moveCount": 8
+  },
+  {
+   "id": "squat-prep",
+   "title": "Squat Prep",
+   "plain": "Ankles, hips and quads, before squats and leg day",
+   "type": "warmup",
+   "areas": [
+    "quads",
+    "hips",
+    "ankles"
+   ],
+   "phases": [
+    {
+     "name": "Raise",
+     "moves": [
+      {
+       "move": "high-knees",
+       "name": "High knees",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Drive knees to hip height, quick light feet"
+      }
+     ]
+    },
+    {
+     "name": "Open",
+     "moves": [
+      {
+       "move": "ankle-rocks-knee-to-wall",
+       "name": "Ankle rocks (knee to wall)",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Foot a hand away from wall, drive the knee forward, heel down"
+      },
+      {
+       "move": "90-90-hip-switches",
+       "name": "90/90 hip switches",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Seated, knees bent 90, rotate both legs side to side"
+      },
+      {
+       "move": "lateral-lunges",
+       "name": "Lateral lunges",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Sit into one hip, other leg straight, feet flat"
+      }
+     ]
+    },
+    {
+     "name": "Switch on",
+     "moves": [
+      {
+       "move": "glute-bridges",
+       "name": "Glute bridges",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Ribs down, drive through heels, squeeze 1 s at the top"
+      },
+      {
+       "move": "bird-dog",
+       "name": "Bird dog",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Reach long, don't let the hips rotate, pause 2 s"
+      }
+     ]
+    },
+    {
+     "name": "Rehearse",
+     "moves": [
+      {
+       "move": "squat-to-stand",
+       "name": "Squat to stand",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Fold, grab toes, drop hips, lift chest, then straighten legs"
+      },
+      {
+       "move": "prisoner-squats",
+       "name": "Prisoner squats",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Hands behind head, elbows wide, chest proud"
+      }
+     ]
+    }
+   ],
+   "stars": 2,
+   "minutes": 6,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 310,
+   "moveCount": 8
+  },
+  {
+   "id": "stride-primer",
+   "title": "Stride Primer",
+   "plain": "A dynamic warm-up before an easy or long run",
+   "type": "warmup",
+   "areas": [
+    "calves",
+    "hips",
+    "hamstrings"
+   ],
+   "phases": [
+    {
+     "name": "Raise",
+     "moves": [
+      {
+       "move": "march-in-place",
+       "name": "March in place",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Knees up, arms swinging, tall posture"
+      },
+      {
+       "move": "jog-in-place",
+       "name": "Jog in place",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Easy relaxed jog, breathe through the nose"
+      }
+     ]
+    },
+    {
+     "name": "Open",
+     "moves": [
+      {
+       "move": "leg-swings-front-to-back",
+       "name": "Leg swings (front to back)",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hold a wall, swing from the hip, keep torso still"
+      },
+      {
+       "move": "leg-swings-side-to-side",
+       "name": "Leg swings (side to side)",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Face the wall, swing across the body, hips square"
+      },
+      {
+       "move": "walking-knee-hugs",
+       "name": "Walking knee hugs",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Pull knee to chest, rise onto the standing toes"
+      },
+      {
+       "move": "walking-quad-pulls",
+       "name": "Walking quad pulls",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Heel to glute, knee points down, squeeze the standing glute"
+      }
+     ]
+    },
+    {
+     "name": "Switch on",
+     "moves": [
+      {
+       "move": "calf-raises",
+       "name": "Calf raises",
+       "dose": 15,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Full rise, 1 s pause, slow lower"
+      },
+      {
+       "move": "glute-bridges",
+       "name": "Glute bridges",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Ribs down, drive through heels, squeeze 1 s at the top"
+      }
+     ]
+    },
+    {
+     "name": "Rehearse",
+     "moves": [
+      {
+       "move": "skips-in-place",
+       "name": "Skips (in place)",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Light rhythmic hops, opposite arm and knee rise"
+      }
+     ]
+    }
+   ],
+   "stars": 1,
+   "minutes": 7,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 408,
+   "moveCount": 9
+  },
+  {
+   "id": "speed-primer",
+   "title": "Speed Primer",
+   "plain": "Drills and hops before sprints, intervals or hills",
+   "type": "warmup",
+   "areas": [
+    "calves",
+    "hips",
+    "hamstrings"
+   ],
+   "phases": [
+    {
+     "name": "Raise",
+     "moves": [
+      {
+       "move": "jog-in-place",
+       "name": "Jog in place",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Easy relaxed jog, breathe through the nose"
+      },
+      {
+       "move": "high-knees",
+       "name": "High knees",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Drive knees to hip height, quick light feet"
+      }
+     ]
+    },
+    {
+     "name": "Open",
+     "moves": [
+      {
+       "move": "leg-swings-front-to-back",
+       "name": "Leg swings (front to back)",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hold a wall, swing from the hip, keep torso still"
+      },
+      {
+       "move": "leg-swings-side-to-side",
+       "name": "Leg swings (side to side)",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Face the wall, swing across the body, hips square"
+      },
+      {
+       "move": "walking-lunges",
+       "name": "Walking lunges",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Long step, back knee kisses the floor, front shin vertical"
+      }
+     ]
+    },
+    {
+     "name": "Switch on",
+     "moves": [
+      {
+       "move": "pogo-hops",
+       "name": "Pogo hops",
+       "dose": 20,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Stiff ankles, quick small bounces"
+      },
+      {
+       "move": "a-skips",
+       "name": "A-skips",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Skip with knee drive, strike the ground under the hip"
+      }
+     ]
+    },
+    {
+     "name": "Rehearse",
+     "moves": [
+      {
+       "move": "b-skips",
+       "name": "B-skips",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 3,
+       "cue": "A-skip plus a leg extension and paw back"
+      },
+      {
+       "move": "run-throughs-strides-in-place",
+       "name": "Run-throughs (strides in place)",
+       "dose": 15,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 30,
+       "stars": 3,
+       "cue": "Quick, tall running form at about 70%"
+      }
+     ]
+    }
+   ],
+   "stars": 3,
+   "minutes": 7,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 390,
+   "moveCount": 9
+  },
+  {
+   "id": "stand-down",
+   "title": "Stand Down",
+   "plain": "A 5-minute cool-down after anything",
+   "type": "cooldown",
+   "areas": [
+    "full body"
+   ],
+   "phases": [
+    {
+     "name": "Settle",
+     "moves": [
+      {
+       "move": "walk-it-off",
+       "name": "Walk it off",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Easy walk, slow nasal breathing, let the heart rate settle"
+      }
+     ]
+    },
+    {
+     "name": "Stretch",
+     "moves": [
+      {
+       "move": "standing-quad-stretch",
+       "name": "Standing quad stretch",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Heel to glute, knees together, tuck the pelvis"
+      },
+      {
+       "move": "standing-hamstring-stretch",
+       "name": "Standing hamstring stretch",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Heel forward, toes up, hinge with a flat back"
+      },
+      {
+       "move": "cross-body-shoulder-stretch",
+       "name": "Cross-body shoulder stretch",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Pull the arm across at chest height, shoulder down"
+      },
+      {
+       "move": "childs-pose",
+       "name": "Child's pose",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Knees wide, sit back on heels, arms long"
+      }
+     ]
+    },
+    {
+     "name": "Breathe",
+     "moves": [
+      {
+       "move": "box-breathing",
+       "name": "Box breathing",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "4 in, 4 hold, 4 out, 4 hold"
+      }
+     ]
+    }
+   ],
+   "stars": 1,
+   "minutes": 6,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 330,
+   "moveCount": 6
+  },
+  {
+   "id": "upper-release",
+   "title": "Upper Release",
+   "plain": "Chest, shoulders, lats and arms after a push or pull day",
+   "type": "cooldown",
+   "areas": [
+    "chest",
+    "shoulders",
+    "lats"
+   ],
+   "phases": [
+    {
+     "name": "Settle",
+     "moves": [
+      {
+       "move": "walk-it-off",
+       "name": "Walk it off",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Easy walk, slow nasal breathing, let the heart rate settle"
+      },
+      {
+       "move": "shoulder-rolls",
+       "name": "Shoulder rolls",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Big slow rolls backward"
+      }
+     ]
+    },
+    {
+     "name": "Stretch",
+     "moves": [
+      {
+       "move": "doorway-chest-stretch",
+       "name": "Doorway chest stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Forearm on the frame at shoulder height, step through"
+      },
+      {
+       "move": "cross-body-shoulder-stretch",
+       "name": "Cross-body shoulder stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Pull the arm across at chest height, shoulder down"
+      },
+      {
+       "move": "overhead-triceps-stretch",
+       "name": "Overhead triceps stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hand down the back, gently press the elbow"
+      },
+      {
+       "move": "wall-lat-stretch",
+       "name": "Wall lat stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hands on the wall, walk back, sink the chest"
+      },
+      {
+       "move": "thread-the-needle",
+       "name": "Thread the needle",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Shoulder and ear rest on the floor, breathe into the upper back"
+      }
+     ]
+    },
+    {
+     "name": "Breathe",
+     "moves": [
+      {
+       "move": "supine-chest-opener",
+       "name": "Supine chest opener",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Lie on a rolled towel along the spine, arms wide"
+      }
+     ]
+    }
+   ],
+   "stars": 1,
+   "minutes": 9,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 490,
+   "moveCount": 8
+  },
+  {
+   "id": "lower-release",
+   "title": "Lower Release",
+   "plain": "Quads, hamstrings, glutes and hips after leg day",
+   "type": "cooldown",
+   "areas": [
+    "quads",
+    "hamstrings",
+    "glutes",
+    "hips"
+   ],
+   "phases": [
+    {
+     "name": "Settle",
+     "moves": [
+      {
+       "move": "walk-it-off",
+       "name": "Walk it off",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Easy walk, slow nasal breathing, let the heart rate settle"
+      }
+     ]
+    },
+    {
+     "name": "Stretch",
+     "moves": [
+      {
+       "move": "standing-quad-stretch",
+       "name": "Standing quad stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Heel to glute, knees together, tuck the pelvis"
+      },
+      {
+       "move": "kneeling-hip-flexor-stretch",
+       "name": "Kneeling hip flexor stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Squeeze the back glute, tuck the pelvis, shift forward"
+      },
+      {
+       "move": "lying-hamstring-stretch",
+       "name": "Lying hamstring stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Towel around the foot, leg straight up, knee soft"
+      },
+      {
+       "move": "figure-four-stretch-lying",
+       "name": "Figure-four stretch (lying)",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Ankle over knee, pull the bottom thigh in"
+      },
+      {
+       "move": "butterfly-stretch",
+       "name": "Butterfly stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Soles together, sit tall, knees fall open"
+      }
+     ]
+    },
+    {
+     "name": "Breathe",
+     "moves": [
+      {
+       "move": "legs-up-the-wall",
+       "name": "Legs up the wall",
+       "dose": 90,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hips close to the wall, arms relaxed, slow breathing"
+      }
+     ]
+    }
+   ],
+   "stars": 1,
+   "minutes": 9,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 490,
+   "moveCount": 7
+  },
+  {
+   "id": "runners-release",
+   "title": "Runner's Release",
+   "plain": "Calves, hips and hamstrings after a run",
+   "type": "cooldown",
+   "areas": [
+    "calves",
+    "hips",
+    "hamstrings"
+   ],
+   "phases": [
+    {
+     "name": "Settle",
+     "moves": [
+      {
+       "move": "walk-it-off",
+       "name": "Walk it off",
+       "dose": 90,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Easy walk, slow nasal breathing, let the heart rate settle"
+      }
+     ]
+    },
+    {
+     "name": "Stretch",
+     "moves": [
+      {
+       "move": "wall-calf-stretch",
+       "name": "Wall calf stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Back leg straight, heel down, lean in"
+      },
+      {
+       "move": "bent-knee-calf-stretch",
+       "name": "Bent-knee calf stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Same as the calf stretch but bend the back knee"
+      },
+      {
+       "move": "standing-quad-stretch",
+       "name": "Standing quad stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Heel to glute, knees together, tuck the pelvis"
+      },
+      {
+       "move": "kneeling-hip-flexor-stretch",
+       "name": "Kneeling hip flexor stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Squeeze the back glute, tuck the pelvis, shift forward"
+      },
+      {
+       "move": "lying-hamstring-stretch",
+       "name": "Lying hamstring stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Towel around the foot, leg straight up, knee soft"
+      },
+      {
+       "move": "figure-four-stretch-lying",
+       "name": "Figure-four stretch (lying)",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Ankle over knee, pull the bottom thigh in"
+      }
+     ]
+    },
+    {
+     "name": "Breathe",
+     "moves": [
+      {
+       "move": "legs-up-the-wall",
+       "name": "Legs up the wall",
+       "dose": 90,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hips close to the wall, arms relaxed, slow breathing"
+      }
+     ]
+    }
+   ],
+   "stars": 1,
+   "minutes": 11,
+   "tier": 15,
+   "gear": [],
+   "estSeconds": 620,
+   "moveCount": 8
+  },
+  {
+   "id": "long-road-down",
+   "title": "Long Road Down",
+   "plain": "A longer, gentle cool-down after a long run",
+   "type": "cooldown",
+   "areas": [
+    "calves",
+    "hips",
+    "hamstrings",
+    "lower back"
+   ],
+   "phases": [
+    {
+     "name": "Settle",
+     "moves": [
+      {
+       "move": "calm-walk-with-long-exhales",
+       "name": "Calm walk with long exhales",
+       "dose": 120,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Inhale 3 steps, exhale 5 steps"
+      }
+     ]
+    },
+    {
+     "name": "Stretch",
+     "moves": [
+      {
+       "move": "wall-calf-stretch",
+       "name": "Wall calf stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Back leg straight, heel down, lean in"
+      },
+      {
+       "move": "soleus-stretch-on-step",
+       "name": "Soleus stretch on step",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Same as above with the knee bent"
+      },
+      {
+       "move": "low-lunge-anjaneyasana",
+       "name": "Low lunge (anjaneyasana)",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Back knee down, arms up, sink forward"
+      },
+      {
+       "move": "lying-hamstring-stretch",
+       "name": "Lying hamstring stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Towel around the foot, leg straight up, knee soft"
+      },
+      {
+       "move": "pigeon-pose",
+       "name": "Pigeon pose",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Front shin angled, hips square, fold forward if comfortable"
+      },
+      {
+       "move": "supine-spinal-twist",
+       "name": "Supine spinal twist",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Knee across the body, shoulders stay down"
+      },
+      {
+       "move": "happy-baby",
+       "name": "Happy baby",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hold the feet, knees toward armpits, rock gently"
+      }
+     ]
+    },
+    {
+     "name": "Breathe",
+     "moves": [
+      {
+       "move": "legs-up-the-wall",
+       "name": "Legs up the wall",
+       "dose": 120,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hips close to the wall, arms relaxed, slow breathing"
+      },
+      {
+       "move": "physiological-sigh",
+       "name": "Physiological sigh",
+       "dose": 5,
+       "unit": "breaths",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Two inhales through the nose, one long exhale"
+      }
+     ]
+    }
+   ],
+   "stars": 2,
+   "minutes": 14,
+   "tier": 15,
+   "gear": [],
+   "estSeconds": 825,
+   "moveCount": 10
+  },
+  {
+   "id": "deep-release",
+   "title": "Deep Release",
+   "plain": "A full-body cool-down with deeper hip and chest stretches",
+   "type": "cooldown",
+   "areas": [
+    "full body"
+   ],
+   "phases": [
+    {
+     "name": "Settle",
+     "moves": [
+      {
+       "move": "walk-it-off",
+       "name": "Walk it off",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Easy walk, slow nasal breathing, let the heart rate settle"
+      }
+     ]
+    },
+    {
+     "name": "Stretch",
+     "moves": [
+      {
+       "move": "couch-stretch",
+       "name": "Couch stretch",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 3,
+       "cue": "Back knee in the corner, shin up the wall, tall torso"
+      },
+      {
+       "move": "lizard-pose",
+       "name": "Lizard pose",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Foot outside the hand, lower the hips, back knee down"
+      },
+      {
+       "move": "frog-stretch",
+       "name": "Frog stretch",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 3,
+       "cue": "Knees wide, ankles in line with knees, rock back"
+      },
+      {
+       "move": "doorway-chest-stretch",
+       "name": "Doorway chest stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Forearm on the frame at shoulder height, step through"
+      },
+      {
+       "move": "puppy-pose",
+       "name": "Puppy pose",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hips over knees, chest melts to the floor"
+      },
+      {
+       "move": "reclined-spinal-twist-with-arms-wide",
+       "name": "Reclined spinal twist with arms wide",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Knees stacked to one side, look the other way"
+      }
+     ]
+    },
+    {
+     "name": "Breathe",
+     "moves": [
+      {
+       "move": "crocodile-breathing",
+       "name": "Crocodile breathing",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Face down, breathe into the lower back"
+      }
+     ]
+    }
+   ],
+   "stars": 3,
+   "minutes": 10,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 560,
+   "moveCount": 8
+  },
+  {
+   "id": "still-water",
+   "title": "Still Water",
+   "plain": "Breathing and gentle movement for a rest day",
+   "type": "recovery",
+   "areas": [
+    "full body"
+   ],
+   "phases": [
+    {
+     "name": "Release",
+     "moves": [
+      {
+       "move": "cat-cow",
+       "name": "Cat-cow",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Long breaths, slow motion"
+      },
+      {
+       "move": "knees-to-chest-rocking",
+       "name": "Knees to chest rocking",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hug the knees, rock side to side"
+      }
+     ]
+    },
+    {
+     "name": "Easy movement",
+     "moves": [
+      {
+       "move": "windshield-wipers-supine",
+       "name": "Windshield wipers (supine)",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Knees sway side to side slowly"
+      },
+      {
+       "move": "supine-marching",
+       "name": "Supine marching",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Exhale as each knee lifts"
+      },
+      {
+       "move": "open-books",
+       "name": "Open books",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slow, follow the hand with the eyes"
+      }
+     ]
+    },
+    {
+     "name": "Breathe",
+     "moves": [
+      {
+       "move": "diaphragmatic-breathing",
+       "name": "Diaphragmatic breathing",
+       "dose": 120,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hand on belly, belly rises before the chest"
+      },
+      {
+       "move": "corpse-pose",
+       "name": "Corpse pose",
+       "dose": 120,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Body heavy, scan from the toes to the head"
+      }
+     ]
+    }
+   ],
+   "stars": 1,
+   "minutes": 8,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 469,
+   "moveCount": 7
+  },
+  {
+   "id": "sleep-ritual",
+   "title": "Sleep Ritual",
+   "plain": "A wind-down before bed",
+   "type": "recovery",
+   "areas": [
+    "full body"
+   ],
+   "phases": [
+    {
+     "name": "Release",
+     "moves": [
+      {
+       "move": "neck-side-stretch",
+       "name": "Neck side stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Ear to shoulder, breathe"
+      },
+      {
+       "move": "shoulder-rolls",
+       "name": "Shoulder rolls",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Big slow backward rolls"
+      }
+     ]
+    },
+    {
+     "name": "Easy movement",
+     "moves": [
+      {
+       "move": "childs-pose",
+       "name": "Child's pose",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Breathe into the back of the ribs"
+      },
+      {
+       "move": "supine-spinal-twist",
+       "name": "Supine spinal twist",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Let gravity do the work"
+      },
+      {
+       "move": "reclined-bound-angle",
+       "name": "Reclined bound angle",
+       "dose": 90,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Soles together, arms relaxed"
+      }
+     ]
+    },
+    {
+     "name": "Breathe",
+     "moves": [
+      {
+       "move": "legs-up-the-wall",
+       "name": "Legs up the wall",
+       "dose": 120,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hips near the wall, let the legs drain"
+      },
+      {
+       "move": "4-7-8-breathing",
+       "name": "4-7-8 breathing",
+       "dose": 4,
+       "unit": "breaths",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "In 4, hold 7, out 8"
+      }
+     ]
+    }
+   ],
+   "stars": 1,
+   "minutes": 10,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 550,
+   "moveCount": 7
+  },
+  {
+   "id": "desk-reset",
+   "title": "Desk Reset",
+   "plain": "Neck, back and hips after a long time sitting",
+   "type": "recovery",
+   "areas": [
+    "neck",
+    "upper back",
+    "hips"
+   ],
+   "phases": [
+    {
+     "name": "Release",
+     "moves": [
+      {
+       "move": "chin-tucks",
+       "name": "Chin tucks",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Lengthen the back of the neck"
+      },
+      {
+       "move": "neck-side-stretch",
+       "name": "Neck side stretch",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Ear to shoulder, breathe"
+      }
+     ]
+    },
+    {
+     "name": "Easy movement",
+     "moves": [
+      {
+       "move": "standing-cat-cow",
+       "name": "Standing cat-cow",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hands on knees, slow"
+      },
+      {
+       "move": "shoulder-blade-squeezes",
+       "name": "Shoulder blade squeezes",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Squeeze 3 s, release"
+      },
+      {
+       "move": "gentle-side-bends",
+       "name": "Gentle side bends",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slow reaches over"
+      },
+      {
+       "move": "standing-hip-sway",
+       "name": "Standing hip sway",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Shift the hips side to side gently"
+      }
+     ]
+    },
+    {
+     "name": "Breathe",
+     "moves": [
+      {
+       "move": "box-breathing",
+       "name": "Box breathing",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "4 in, 4 hold, 4 out, 4 hold"
+      }
+     ]
+    }
+   ],
+   "stars": 1,
+   "minutes": 5,
+   "tier": 5,
+   "gear": [],
+   "estSeconds": 300,
+   "moveCount": 7
+  },
+  {
+   "id": "sore-day",
+   "title": "Sore Day",
+   "plain": "Gentle movement when everything is sore",
+   "type": "recovery",
+   "areas": [
+    "full body"
+   ],
+   "phases": [
+    {
+     "name": "Release",
+     "moves": [
+      {
+       "move": "calf-self-massage",
+       "name": "Calf self-massage",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Knead from the ankle up toward the knee"
+      },
+      {
+       "move": "quad-self-massage",
+       "name": "Quad self-massage",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Palm pressure, long strokes toward the hip"
+      },
+      {
+       "move": "glute-self-massage-ball",
+       "name": "Glute self-massage (ball)",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Ball under the glute, cross the ankle over the knee"
+      },
+      {
+       "move": "upper-back-ball-massage-wall",
+       "name": "Upper back ball massage (wall)",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Ball between the back and the wall, roll slowly"
+      }
+     ]
+    },
+    {
+     "name": "Easy movement",
+     "moves": [
+      {
+       "move": "easy-walk",
+       "name": "Easy walk",
+       "dose": 180,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Conversational pace, relaxed shoulders, nasal breathing"
+      },
+      {
+       "move": "pelvic-tilts-supine",
+       "name": "Pelvic tilts (supine)",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slow rocking of the pelvis"
+      },
+      {
+       "move": "windshield-wipers-supine",
+       "name": "Windshield wipers (supine)",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Knees sway side to side slowly"
+      },
+      {
+       "move": "hug-and-rock",
+       "name": "Hug and rock",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hug yourself, sway gently"
+      }
+     ]
+    },
+    {
+     "name": "Breathe",
+     "moves": [
+      {
+       "move": "constructive-rest",
+       "name": "Constructive rest",
+       "dose": 120,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "On your back, knees bent and touching, feet wide"
+      },
+      {
+       "move": "extended-exhale-breathing",
+       "name": "Extended exhale breathing",
+       "dose": 90,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Exhale twice as long as the inhale"
+      }
+     ]
+    }
+   ],
+   "stars": 1,
+   "minutes": 16,
+   "tier": 20,
+   "gear": [],
+   "estSeconds": 905,
+   "moveCount": 10
+  },
+  {
+   "id": "restoration",
+   "title": "Restoration",
+   "plain": "A longer recovery flow for a full rest day",
+   "type": "recovery",
+   "areas": [
+    "full body"
+   ],
+   "phases": [
+    {
+     "name": "Release",
+     "moves": [
+      {
+       "move": "foot-rolling-ball-or-bottle",
+       "name": "Foot rolling (ball or bottle)",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slow pressure along the arch"
+      },
+      {
+       "move": "hamstring-self-massage-ball",
+       "name": "Hamstring self-massage (ball)",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Sit on a ball under the thigh, slowly roll"
+      },
+      {
+       "move": "glute-self-massage-ball",
+       "name": "Glute self-massage (ball)",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Ball under the glute, cross the ankle over the knee"
+      },
+      {
+       "move": "upper-back-ball-massage-wall",
+       "name": "Upper back ball massage (wall)",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Ball between the back and the wall, roll slowly"
+      }
+     ]
+    },
+    {
+     "name": "Easy movement",
+     "moves": [
+      {
+       "move": "easy-walk",
+       "name": "Easy walk",
+       "dose": 240,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Conversational pace, relaxed shoulders, nasal breathing"
+      },
+      {
+       "move": "cat-cow",
+       "name": "Cat-cow",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Long breaths, slow motion"
+      },
+      {
+       "move": "quadruped-rock-backs",
+       "name": "Quadruped rock backs",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Flat back, sit to the heels"
+      },
+      {
+       "move": "supine-leg-circles",
+       "name": "Supine leg circles",
+       "dose": 5,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Straight leg, pelvis still"
+      },
+      {
+       "move": "gentle-bear-rocks",
+       "name": "Gentle bear rocks",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "On all fours, rock back and forward"
+      },
+      {
+       "move": "sphinx-pose",
+       "name": "Sphinx pose",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Belly soft, just rest"
+      },
+      {
+       "move": "supine-twist-with-breathing",
+       "name": "Supine twist with breathing",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Breathe into the stretched side"
+      }
+     ]
+    },
+    {
+     "name": "Breathe",
+     "moves": [
+      {
+       "move": "supported-bridge",
+       "name": "Supported bridge",
+       "dose": 120,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Towel under the sacrum, relax"
+      },
+      {
+       "move": "coherent-breathing-5-5",
+       "name": "Coherent breathing (5-5)",
+       "dose": 180,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "5 s in, 5 s out"
+      }
+     ]
+    }
+   ],
+   "stars": 1,
+   "minutes": 23,
+   "tier": 25,
+   "gear": [],
+   "estSeconds": 1325,
+   "moveCount": 13
+  },
+  {
+   "id": "hip-gate",
+   "title": "Hip Gate",
+   "plain": "10 minutes of hip mobility for squats, lunges and long runs",
+   "type": "mobility",
+   "areas": [
+    "hips"
+   ],
+   "phases": [
+    {
+     "name": "Loosen",
+     "moves": [
+      {
+       "move": "hip-circles-standing",
+       "name": "Hip circles (standing)",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Big slow circles each way"
+      },
+      {
+       "move": "quadruped-rock-backs",
+       "name": "Quadruped rock backs",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Flat back, sit hips toward heels"
+      }
+     ]
+    },
+    {
+     "name": "Main work",
+     "moves": [
+      {
+       "move": "90-90-hip-switches",
+       "name": "90/90 hip switches",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Sit tall, rotate both knees side to side without using hands if you can"
+      },
+      {
+       "move": "hip-cars-quadruped",
+       "name": "Hip CARs (quadruped)",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 15,
+       "stars": 2,
+       "cue": "Draw the biggest circle with the knee, spine stays still"
+      },
+      {
+       "move": "half-kneeling-hip-flexor-rocks",
+       "name": "Half-kneeling hip flexor rocks",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Tuck the pelvis, rock forward slowly"
+      },
+      {
+       "move": "frog-stretch-rock-backs",
+       "name": "Frog stretch rock-backs",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 15,
+       "stars": 3,
+       "cue": "Knees wide, rock the hips back and forward"
+      },
+      {
+       "move": "pigeon-pose",
+       "name": "Pigeon pose",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Square hips, breathe into the front hip"
+      }
+     ]
+    },
+    {
+     "name": "Control",
+     "moves": [
+      {
+       "move": "seated-hip-internal-rotation-lifts",
+       "name": "Seated hip internal rotation lifts",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 3,
+       "cue": "From 90/90, lift the back foot off the floor"
+      },
+      {
+       "move": "seated-hip-external-rotation-lifts",
+       "name": "Seated hip external rotation lifts",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 3,
+       "cue": "From 90/90, lift the front knee off the floor"
+      }
+     ]
+    }
+   ],
+   "stars": 3,
+   "minutes": 13,
+   "tier": 15,
+   "gear": [],
+   "estSeconds": 729,
+   "moveCount": 9
+  },
+  {
+   "id": "spine-unlock",
+   "title": "Spine Unlock",
+   "plain": "Upper-back rotation and extension for posture and pressing",
+   "type": "mobility",
+   "areas": [
+    "upper back"
+   ],
+   "phases": [
+    {
+     "name": "Loosen",
+     "moves": [
+      {
+       "move": "cat-cow",
+       "name": "Cat-cow",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Segment by segment, breathe with the movement"
+      },
+      {
+       "move": "spine-cars-standing",
+       "name": "Spine CARs (standing)",
+       "dose": 2,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Roll down, side bend, extend, rotate; one segment at a time"
+      }
+     ]
+    },
+    {
+     "name": "Main work",
+     "moves": [
+      {
+       "move": "thoracic-rotations-quadruped",
+       "name": "Thoracic rotations (quadruped)",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Hand behind head, rotate open and closed"
+      },
+      {
+       "move": "open-books",
+       "name": "Open books",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Knees stacked, follow the hand with your eyes"
+      },
+      {
+       "move": "thread-the-needle",
+       "name": "Thread the needle",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slide under, then reach up to the ceiling"
+      },
+      {
+       "move": "thoracic-extension-over-towel",
+       "name": "Thoracic extension over towel",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Towel roll under the upper back, extend over it gently"
+      }
+     ]
+    },
+    {
+     "name": "Control",
+     "moves": [
+      {
+       "move": "prone-y-t-w",
+       "name": "Prone Y-T-W",
+       "dose": 5,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 2,
+       "cue": "Five reps of each letter, thumbs up, no shrugging"
+      }
+     ]
+    }
+   ],
+   "stars": 2,
+   "minutes": 8,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 445,
+   "moveCount": 7
+  },
+  {
+   "id": "shoulder-gate",
+   "title": "Shoulder Gate",
+   "plain": "Shoulder range for overhead pressing and pull-ups",
+   "type": "mobility",
+   "areas": [
+    "shoulders",
+    "lats"
+   ],
+   "phases": [
+    {
+     "name": "Loosen",
+     "moves": [
+      {
+       "move": "arm-circles",
+       "name": "Arm circles",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Small to big, both directions"
+      },
+      {
+       "move": "shoulder-pass-throughs-towel",
+       "name": "Shoulder pass-throughs (towel)",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Straight arms, wide grip, over and back"
+      }
+     ]
+    },
+    {
+     "name": "Main work",
+     "moves": [
+      {
+       "move": "wall-slides",
+       "name": "Wall slides",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Forearms on the wall, slide up without arching"
+      },
+      {
+       "move": "puppy-pose",
+       "name": "Puppy pose",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Hips over knees, chest toward the floor"
+      },
+      {
+       "move": "sleeper-stretch",
+       "name": "Sleeper stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Side-lying, gently rotate the forearm down"
+      },
+      {
+       "move": "behind-back-reaches",
+       "name": "Behind-back reaches",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Reach up the back, switch hands"
+      },
+      {
+       "move": "doorway-chest-opener",
+       "name": "Doorway chest opener",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Forearm on the frame, step through"
+      }
+     ]
+    },
+    {
+     "name": "Control",
+     "moves": [
+      {
+       "move": "shoulder-flexion-lift-offs",
+       "name": "Shoulder flexion lift-offs",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 3,
+       "cue": "Face down, arms overhead, lift the hands off the floor"
+      },
+      {
+       "move": "lying-external-rotation-side-lying",
+       "name": "Lying external rotation (side-lying)",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 1,
+       "cue": "Elbow pinned to the side, rotate the forearm up"
+      }
+     ]
+    }
+   ],
+   "stars": 3,
+   "minutes": 11,
+   "tier": 15,
+   "gear": [],
+   "estSeconds": 655,
+   "moveCount": 9
+  },
+  {
+   "id": "ankle-key",
+   "title": "Ankle Key",
+   "plain": "Ankle range for squats and running",
+   "type": "mobility",
+   "areas": [
+    "ankles",
+    "calves"
+   ],
+   "phases": [
+    {
+     "name": "Loosen",
+     "moves": [
+      {
+       "move": "ankle-cars",
+       "name": "Ankle CARs",
+       "dose": 5,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Seated or standing, largest circle possible"
+      },
+      {
+       "move": "ankle-circles",
+       "name": "Ankle circles",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Big slow circles"
+      }
+     ]
+    },
+    {
+     "name": "Main work",
+     "moves": [
+      {
+       "move": "ankle-rocks-knee-to-wall",
+       "name": "Ankle rocks (knee to wall)",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Heel stays down, knee drives over the toes"
+      },
+      {
+       "move": "calf-raises-with-pause-at-bottom",
+       "name": "Calf raises with pause at bottom",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Heels below the step, pause in the stretch"
+      }
+     ]
+    },
+    {
+     "name": "Control",
+     "moves": [
+      {
+       "move": "tibialis-raises",
+       "name": "Tibialis raises",
+       "dose": 15,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Back to the wall, lift the toes high"
+      },
+      {
+       "move": "single-leg-balance",
+       "name": "Single-leg balance",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Stand on one foot, soft knee, steady breath"
+      }
+     ]
+    }
+   ],
+   "stars": 2,
+   "minutes": 7,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 368,
+   "moveCount": 6
+  },
+  {
+   "id": "wrist-key",
+   "title": "Wrist Key",
+   "plain": "Wrists and forearms for push-ups, pressing and planks",
+   "type": "mobility",
+   "areas": [
+    "wrists"
+   ],
+   "phases": [
+    {
+     "name": "Loosen",
+     "moves": [
+      {
+       "move": "wrist-cars",
+       "name": "Wrist CARs",
+       "dose": 5,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Fist closed, draw slow full circles"
+      },
+      {
+       "move": "finger-extensions",
+       "name": "Finger extensions",
+       "dose": 20,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Open the hand wide from a fist"
+      }
+     ]
+    },
+    {
+     "name": "Main work",
+     "moves": [
+      {
+       "move": "wrist-rocks-quadruped",
+       "name": "Wrist rocks (quadruped)",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Shift over the hands forward and back"
+      },
+      {
+       "move": "reverse-wrist-rocks",
+       "name": "Reverse wrist rocks",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Backs of hands down, gentle rocks"
+      },
+      {
+       "move": "forearm-rotations",
+       "name": "Forearm rotations",
+       "dose": 15,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Palms up and down quickly"
+      }
+     ]
+    },
+    {
+     "name": "Control",
+     "moves": [
+      {
+       "move": "scapular-push-ups",
+       "name": "Scapular push-ups",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Arms straight, shoulder blades only"
+      }
+     ]
+    }
+   ],
+   "stars": 1,
+   "minutes": 6,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 328,
+   "moveCount": 6
+  },
+  {
+   "id": "full-body-flow",
+   "title": "Full Body Flow",
+   "plain": "Head-to-toe mobility in 20 minutes",
+   "type": "mobility",
+   "areas": [
+    "full body"
+   ],
+   "phases": [
+    {
+     "name": "Loosen",
+     "moves": [
+      {
+       "move": "neck-cars",
+       "name": "Neck CARs",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slow half circles, chin to chest, ear to shoulder; avoid cranking back"
+      },
+      {
+       "move": "arm-circles",
+       "name": "Arm circles",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Small to big, both directions"
+      },
+      {
+       "move": "cat-cow",
+       "name": "Cat-cow",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Segment by segment, breathe with the movement"
+      },
+      {
+       "move": "hip-circles-standing",
+       "name": "Hip circles (standing)",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Big slow circles each way"
+      }
+     ]
+    },
+    {
+     "name": "Main work",
+     "moves": [
+      {
+       "move": "worlds-greatest-stretch",
+       "name": "World's greatest stretch",
+       "dose": 4,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 15,
+       "stars": 2,
+       "cue": "Lunge, elbow to instep, rotate and reach, straighten the front leg"
+      },
+      {
+       "move": "spiderman-lunge-with-rotation",
+       "name": "Spiderman lunge with rotation",
+       "dose": 4,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 15,
+       "stars": 3,
+       "cue": "Foot outside the hand, rotate and reach up"
+      },
+      {
+       "move": "cossack-squats",
+       "name": "Cossack squats",
+       "dose": 5,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 3,
+       "cue": "Sit deep to one side, straight leg toes up"
+      },
+      {
+       "move": "90-90-hip-switches",
+       "name": "90/90 hip switches",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Sit tall, rotate both knees side to side without using hands if you can"
+      },
+      {
+       "move": "thoracic-rotations-quadruped",
+       "name": "Thoracic rotations (quadruped)",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Hand behind head, rotate open and closed"
+      },
+      {
+       "move": "downward-dog-to-cobra-flow",
+       "name": "Downward dog to cobra flow",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Slow flow, breathe in to cobra, out to down dog"
+      },
+      {
+       "move": "squat-pry",
+       "name": "Squat pry",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Shift side to side in the bottom of the squat"
+      },
+      {
+       "move": "wall-slides",
+       "name": "Wall slides",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Forearms on the wall, slide up without arching"
+      }
+     ]
+    },
+    {
+     "name": "Control",
+     "moves": [
+      {
+       "move": "bear-to-squat",
+       "name": "Bear to squat",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 3,
+       "cue": "From bear stance, sit back into a deep squat"
+      },
+      {
+       "move": "ankle-cars",
+       "name": "Ankle CARs",
+       "dose": 5,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Seated or standing, largest circle possible"
+      },
+      {
+       "move": "shoulder-cars",
+       "name": "Shoulder CARs",
+       "dose": 2,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Slow full circle, keep the ribs down and the torso still"
+      },
+      {
+       "move": "hip-cars-quadruped",
+       "name": "Hip CARs (quadruped)",
+       "dose": 2,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Draw the biggest circle with the knee, spine stays still"
+      }
+     ]
+    }
+   ],
+   "stars": 3,
+   "minutes": 15,
+   "tier": 15,
+   "gear": [],
+   "estSeconds": 872,
+   "moveCount": 16
+  },
+  {
+   "id": "controlled-range",
+   "title": "Controlled Range",
+   "plain": "End-range strength for hips and shoulders, no props",
+   "type": "mobility",
+   "areas": [
+    "hips",
+    "shoulders"
+   ],
+   "phases": [
+    {
+     "name": "Loosen",
+     "moves": [
+      {
+       "move": "hip-cars-quadruped",
+       "name": "Hip CARs (quadruped)",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Draw the biggest circle with the knee, spine stays still"
+      },
+      {
+       "move": "shoulder-cars",
+       "name": "Shoulder CARs",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Slow full circle, keep the ribs down and the torso still"
+      }
+     ]
+    },
+    {
+     "name": "Main work",
+     "moves": [
+      {
+       "move": "hip-airplanes",
+       "name": "Hip airplanes",
+       "dose": 4,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 30,
+       "stars": 4,
+       "cue": "Rotate the pelvis open and closed on one leg"
+      },
+      {
+       "move": "shinbox-get-ups",
+       "name": "Shinbox get-ups",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 30,
+       "stars": 4,
+       "cue": "From 90/90, rise to tall kneeling without hands"
+      },
+      {
+       "move": "active-pancake-lifts",
+       "name": "Active pancake lifts",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 30,
+       "stars": 4,
+       "cue": "Seated straddle, lift the hands and lean forward"
+      },
+      {
+       "move": "puppy-pose",
+       "name": "Puppy pose",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hips over knees, chest toward the floor"
+      }
+     ]
+    },
+    {
+     "name": "Control",
+     "moves": [
+      {
+       "move": "hip-lift-offs-seated-90-90",
+       "name": "Hip lift-offs (seated 90/90)",
+       "dose": 5,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 4,
+       "cue": "Lift the back knee off the floor in 90/90"
+      },
+      {
+       "move": "hip-flexor-lift-offs",
+       "name": "Hip flexor lift-offs",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 4,
+       "cue": "Seated tall, lift a straight leg off the floor"
+      },
+      {
+       "move": "shoulder-flexion-lift-offs",
+       "name": "Shoulder flexion lift-offs",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 3,
+       "cue": "Face down, arms overhead, lift the hands off the floor"
+      }
+     ]
+    }
+   ],
+   "stars": 4,
+   "minutes": 12,
+   "tier": 15,
+   "gear": [],
+   "estSeconds": 665,
+   "moveCount": 9
+  },
+  {
+   "id": "iron-joints",
+   "title": "Iron Joints",
+   "plain": "The hardest mobility bounty: deep squat and shoulder strength at end range",
+   "type": "mobility",
+   "areas": [
+    "hips",
+    "ankles",
+    "shoulders"
+   ],
+   "phases": [
+    {
+     "name": "Loosen",
+     "moves": [
+      {
+       "move": "hip-cars-quadruped",
+       "name": "Hip CARs (quadruped)",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Draw the biggest circle with the knee, spine stays still"
+      },
+      {
+       "move": "ankle-cars",
+       "name": "Ankle CARs",
+       "dose": 5,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Seated or standing, largest circle possible"
+      },
+      {
+       "move": "shoulder-cars",
+       "name": "Shoulder CARs",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Slow full circle, keep the ribs down and the torso still"
+      }
+     ]
+    },
+    {
+     "name": "Main work",
+     "moves": [
+      {
+       "move": "deep-squat-hold",
+       "name": "Deep squat hold",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 2,
+       "cue": "Heels down, chest up, pry the knees out with the elbows"
+      },
+      {
+       "move": "cossack-squats",
+       "name": "Cossack squats",
+       "dose": 5,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 30,
+       "stars": 3,
+       "cue": "Sit deep to one side, straight leg toes up"
+      },
+      {
+       "move": "wall-facing-squat",
+       "name": "Wall-facing squat",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 3,
+       "rest": 45,
+       "stars": 5,
+       "cue": "Toes near the wall, squat without touching it"
+      },
+      {
+       "move": "compression-lifts",
+       "name": "Compression lifts",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 3,
+       "rest": 30,
+       "stars": 4,
+       "cue": "Seated pike, lift both legs an inch"
+      },
+      {
+       "move": "pike-compressions",
+       "name": "Pike compressions",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 3,
+       "cue": "Seated pike, pull toward the legs"
+      }
+     ]
+    },
+    {
+     "name": "Control",
+     "moves": [
+      {
+       "move": "straddle-compression-lifts",
+       "name": "Straddle compression lifts",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 30,
+       "stars": 5,
+       "cue": "In straddle, lift one leg at a time"
+      },
+      {
+       "move": "skin-the-cat-regression-floor",
+       "name": "Skin the cat regression (floor)",
+       "dose": 5,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 45,
+       "stars": 5,
+       "cue": "Sit, hands behind, walk them back slowly"
+      },
+      {
+       "move": "shoulder-flexion-lift-offs",
+       "name": "Shoulder flexion lift-offs",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 3,
+       "cue": "Face down, arms overhead, lift the hands off the floor"
+      }
+     ]
+    }
+   ],
+   "stars": 5,
+   "minutes": 17,
+   "tier": 20,
+   "gear": [],
+   "estSeconds": 990,
+   "moveCount": 11
+  },
+  {
+   "id": "pike-1",
+   "title": "Pike Path I",
+   "plain": "Toward touching your toes with straight legs",
+   "type": "flexibility",
+   "areas": [
+    "hamstrings"
+   ],
+   "phases": [
+    {
+     "name": "Test",
+     "moves": [
+      {
+       "move": "pike-test",
+       "name": "Pike test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Legs straight and together, fold and note where your fingertips reach: knees, mid-shin, ankles, toes, floor"
+      }
+     ]
+    },
+    {
+     "name": "Stack",
+     "moves": [
+      {
+       "move": "sciatic-nerve-floss",
+       "name": "Sciatic nerve floss",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Seated slump, straighten the knee as you look up, bend it as you look down; gentle, no zinging pain"
+      },
+      {
+       "move": "lying-hamstring-stretch",
+       "name": "Lying hamstring stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 3,
+       "rest": 10,
+       "stars": 1,
+       "cue": "Towel around the foot, leg straight up"
+      },
+      {
+       "move": "half-splits",
+       "name": "Half splits",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Hips over the back knee, front leg straight, flat back"
+      },
+      {
+       "move": "seated-forward-fold",
+       "name": "Seated forward fold",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Hinge from the hips, long spine, relax the neck"
+      },
+      {
+       "move": "active-straight-leg-raises",
+       "name": "Active straight-leg raises",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 3,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Lift the straight leg as high as you can, slowly lower"
+      }
+     ]
+    },
+    {
+     "name": "Retest",
+     "moves": [
+      {
+       "move": "pike-test",
+       "name": "Pike test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Legs straight and together, fold and note where your fingertips reach: knees, mid-shin, ankles, toes, floor"
+      }
+     ]
+    }
+   ],
+   "stars": 1,
+   "minutes": 14,
+   "tier": 15,
+   "gear": [],
+   "estSeconds": 815,
+   "moveCount": 7
+  },
+  {
+   "id": "pike-2",
+   "title": "Pike Path II",
+   "plain": "Toward folding flat over straight legs",
+   "type": "flexibility",
+   "areas": [
+    "hamstrings",
+    "lower back"
+   ],
+   "phases": [
+    {
+     "name": "Test",
+     "moves": [
+      {
+       "move": "pike-test",
+       "name": "Pike test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Legs straight and together, fold and note where your fingertips reach: knees, mid-shin, ankles, toes, floor"
+      }
+     ]
+    },
+    {
+     "name": "Stack",
+     "moves": [
+      {
+       "move": "sciatic-nerve-floss",
+       "name": "Sciatic nerve floss",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Seated slump, straighten the knee as you look up, bend it as you look down; gentle, no zinging pain"
+      },
+      {
+       "move": "lying-hamstring-stretch",
+       "name": "Lying hamstring stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 2,
+       "rest": 10,
+       "stars": 1,
+       "cue": "Towel around the foot, leg straight up"
+      },
+      {
+       "move": "jefferson-curl",
+       "name": "Jefferson curl (bodyweight)",
+       "dose": 5,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 30,
+       "stars": 4,
+       "cue": "Roll down one vertebra at a time"
+      },
+      {
+       "move": "hamstring-pnf-contract-relax",
+       "name": "Hamstring PNF contract-relax",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Press into the towel 5 s, relax, go deeper"
+      },
+      {
+       "move": "pike-pnf-contract-relax",
+       "name": "Pike PNF (contract-relax)",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 2,
+       "cue": "In the pike, press the heels down 5 s, relax and fold deeper"
+      },
+      {
+       "move": "pike-pulses",
+       "name": "Pike pulses",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 3,
+       "cue": "Fold into the pike and pulse deeper, hips stay planted"
+      },
+      {
+       "move": "pike-compressions",
+       "name": "Pike compressions",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 3,
+       "rest": 20,
+       "stars": 3,
+       "cue": "Seated pike, pull toward the legs"
+      }
+     ]
+    },
+    {
+     "name": "Retest",
+     "moves": [
+      {
+       "move": "pike-test",
+       "name": "Pike test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Legs straight and together, fold and note where your fingertips reach: knees, mid-shin, ankles, toes, floor"
+      }
+     ]
+    }
+   ],
+   "stars": 4,
+   "minutes": 11,
+   "tier": 15,
+   "gear": [],
+   "estSeconds": 610,
+   "moveCount": 9
+  },
+  {
+   "id": "pancake-1",
+   "title": "Pancake Path I",
+   "plain": "Toward folding forward with your legs wide",
+   "type": "flexibility",
+   "areas": [
+    "adductors",
+    "hamstrings"
+   ],
+   "phases": [
+    {
+     "name": "Test",
+     "moves": [
+      {
+       "move": "pancake-test",
+       "name": "Pancake test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Legs as wide as comfortable, fold forward and note what reaches the floor: hands, forearms, chest"
+      }
+     ]
+    },
+    {
+     "name": "Stack",
+     "moves": [
+      {
+       "move": "butterfly-stretch",
+       "name": "Butterfly stretch",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Sit tall, let the knees fall open"
+      },
+      {
+       "move": "frog-rock-backs",
+       "name": "Frog rock-backs",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 15,
+       "stars": 2,
+       "cue": "Knees wide, rock the hips back toward the heels and forward"
+      },
+      {
+       "move": "pancake-good-mornings",
+       "name": "Pancake good mornings",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 3,
+       "rest": 20,
+       "stars": 2,
+       "cue": "Wide stance, hinge forward with a flat back, slow lower"
+      },
+      {
+       "move": "seated-straddle",
+       "name": "Seated straddle",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Walk the hands forward"
+      },
+      {
+       "move": "seated-straddle-reach",
+       "name": "Seated straddle reach",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Legs wide, walk the hands forward"
+      },
+      {
+       "move": "side-lying-adduction-lifts",
+       "name": "Side-lying adduction lifts",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 1,
+       "cue": "Lift the bottom leg"
+      }
+     ]
+    },
+    {
+     "name": "Retest",
+     "moves": [
+      {
+       "move": "pancake-test",
+       "name": "Pancake test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Legs as wide as comfortable, fold forward and note what reaches the floor: hands, forearms, chest"
+      }
+     ]
+    }
+   ],
+   "stars": 2,
+   "minutes": 11,
+   "tier": 15,
+   "gear": [],
+   "estSeconds": 625,
+   "moveCount": 8
+  },
+  {
+   "id": "pancake-2",
+   "title": "Pancake Path II",
+   "plain": "Toward chest-to-floor in a wide straddle",
+   "type": "flexibility",
+   "areas": [
+    "adductors",
+    "hamstrings"
+   ],
+   "phases": [
+    {
+     "name": "Test",
+     "moves": [
+      {
+       "move": "pancake-test",
+       "name": "Pancake test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Legs as wide as comfortable, fold forward and note what reaches the floor: hands, forearms, chest"
+      }
+     ]
+    },
+    {
+     "name": "Stack",
+     "moves": [
+      {
+       "move": "frog-pose",
+       "name": "Frog pose",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 3,
+       "cue": "Knees wide, ankles in line with knees"
+      },
+      {
+       "move": "horse-stance-hold",
+       "name": "Horse stance hold",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 2,
+       "cue": "Wide stance, sit low, knees push out over the toes"
+      },
+      {
+       "move": "pancake-good-mornings",
+       "name": "Pancake good mornings",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 2,
+       "cue": "Wide stance, hinge forward with a flat back, slow lower"
+      },
+      {
+       "move": "pancake-pnf-contract-relax",
+       "name": "Pancake PNF (contract-relax)",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 3,
+       "cue": "In the straddle, press the heels into the floor 5 s, relax and fold deeper"
+      },
+      {
+       "move": "pancake-stretch",
+       "name": "Pancake stretch",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 3,
+       "rest": 20,
+       "stars": 4,
+       "cue": "Legs wide, fold from the hips, chest forward"
+      },
+      {
+       "move": "straddle-leg-lifts-seated",
+       "name": "Straddle leg lifts (seated)",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 4,
+       "cue": "Seated straddle, hands beside one knee, lift that leg off the floor"
+      }
+     ]
+    },
+    {
+     "name": "Retest",
+     "moves": [
+      {
+       "move": "pancake-test",
+       "name": "Pancake test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Legs as wide as comfortable, fold forward and note what reaches the floor: hands, forearms, chest"
+      }
+     ]
+    }
+   ],
+   "stars": 4,
+   "minutes": 11,
+   "tier": 15,
+   "gear": [],
+   "estSeconds": 630,
+   "moveCount": 8
+  },
+  {
+   "id": "front-split-1",
+   "title": "Front Split Path I",
+   "plain": "Hip flexors and hamstrings for the front split",
+   "type": "flexibility",
+   "areas": [
+    "hips",
+    "hamstrings"
+   ],
+   "phases": [
+    {
+     "name": "Test",
+     "moves": [
+      {
+       "move": "front-split-test",
+       "name": "Front split test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slide into a split with hands on books, note the gap from your hips to the floor in hand-widths"
+      }
+     ]
+    },
+    {
+     "name": "Stack",
+     "moves": [
+      {
+       "move": "femoral-nerve-floss",
+       "name": "Femoral nerve floss",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Side-lying, pull the top heel back as you tuck the chin, release as you look up"
+      },
+      {
+       "move": "hip-flexor-lunge-pulses",
+       "name": "Hip flexor lunge pulses",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Low lunge, small pulses forward, squeeze the back glute"
+      },
+      {
+       "move": "low-lunge",
+       "name": "Low lunge",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Back knee down, tuck the pelvis, sink forward"
+      },
+      {
+       "move": "elevated-half-split",
+       "name": "Elevated half split",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Front heel on a low step, hips square, fold"
+      },
+      {
+       "move": "lizard-pose",
+       "name": "Lizard pose",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Foot outside the hand, sink the hips"
+      },
+      {
+       "move": "couch-stretch",
+       "name": "Couch stretch",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 3,
+       "cue": "Back knee in the corner, tall torso"
+      }
+     ]
+    },
+    {
+     "name": "Retest",
+     "moves": [
+      {
+       "move": "front-split-test",
+       "name": "Front split test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slide into a split with hands on books, note the gap from your hips to the floor in hand-widths"
+      }
+     ]
+    }
+   ],
+   "stars": 3,
+   "minutes": 14,
+   "tier": 15,
+   "gear": [],
+   "estSeconds": 790,
+   "moveCount": 8
+  },
+  {
+   "id": "front-split-2",
+   "title": "Front Split Path II",
+   "plain": "Working into the full front split",
+   "type": "flexibility",
+   "areas": [
+    "hips",
+    "hamstrings",
+    "quads"
+   ],
+   "phases": [
+    {
+     "name": "Test",
+     "moves": [
+      {
+       "move": "front-split-test",
+       "name": "Front split test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slide into a split with hands on books, note the gap from your hips to the floor in hand-widths"
+      }
+     ]
+    },
+    {
+     "name": "Stack",
+     "moves": [
+      {
+       "move": "hip-flexor-lunge-pulses",
+       "name": "Hip flexor lunge pulses",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Low lunge, small pulses forward, squeeze the back glute"
+      },
+      {
+       "move": "couch-stretch",
+       "name": "Couch stretch",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 3,
+       "cue": "Back knee in the corner, tall torso"
+      },
+      {
+       "move": "hip-flexor-pnf",
+       "name": "Hip flexor PNF",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 3,
+       "cue": "Press the back knee down 5 s, relax, sink deeper"
+      },
+      {
+       "move": "front-split-hamstring-curl-press",
+       "name": "Front split hamstring curl press",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 4,
+       "cue": "In a supported split, press the front heel into the floor 5 s, relax and sink"
+      },
+      {
+       "move": "front-split-slides",
+       "name": "Front split slides",
+       "dose": 4,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 30,
+       "stars": 5,
+       "cue": "Slide into split range slowly, back out"
+      },
+      {
+       "move": "front-splits-supported",
+       "name": "Front splits (supported)",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 2,
+       "rest": 30,
+       "stars": 5,
+       "cue": "Blocks or books under the hands, hips square"
+      },
+      {
+       "move": "front-split-back-knee-lifts",
+       "name": "Front split back-knee lifts",
+       "dose": 4,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 30,
+       "stars": 5,
+       "cue": "In a supported split, lift the back knee an inch and hold 3 s"
+      }
+     ]
+    },
+    {
+     "name": "Retest",
+     "moves": [
+      {
+       "move": "front-split-test",
+       "name": "Front split test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slide into a split with hands on books, note the gap from your hips to the floor in hand-widths"
+      }
+     ]
+    }
+   ],
+   "stars": 5,
+   "minutes": 15,
+   "tier": 15,
+   "gear": [],
+   "estSeconds": 865,
+   "moveCount": 9
+  },
+  {
+   "id": "side-split",
+   "title": "Side Split Path",
+   "plain": "Toward the side (middle) split",
+   "type": "flexibility",
+   "areas": [
+    "adductors",
+    "hips"
+   ],
+   "phases": [
+    {
+     "name": "Test",
+     "moves": [
+      {
+       "move": "side-split-test",
+       "name": "Side split test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slide the feet wide with hands down, note the gap from hips to floor in hand-widths"
+      }
+     ]
+    },
+    {
+     "name": "Stack",
+     "moves": [
+      {
+       "move": "frog-rock-backs",
+       "name": "Frog rock-backs",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Knees wide, rock the hips back toward the heels and forward"
+      },
+      {
+       "move": "horse-stance-hold",
+       "name": "Horse stance hold",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 2,
+       "cue": "Wide stance, sit low, knees push out over the toes"
+      },
+      {
+       "move": "butterfly-stretch",
+       "name": "Butterfly stretch",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Sit tall, let the knees fall open"
+      },
+      {
+       "move": "adductor-pnf-butterfly",
+       "name": "Adductor PNF (butterfly)",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 3,
+       "cue": "Press the knees up into the hands 5 s, relax"
+      },
+      {
+       "move": "cossack-squats",
+       "name": "Cossack squats",
+       "dose": 5,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 30,
+       "stars": 3,
+       "cue": "Sit deep to one side, other leg straight with toes up"
+      },
+      {
+       "move": "seated-straddle",
+       "name": "Seated straddle",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Walk the hands forward"
+      },
+      {
+       "move": "side-lying-adduction-lifts",
+       "name": "Side-lying adduction lifts",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 1,
+       "cue": "Lift the bottom leg"
+      }
+     ]
+    },
+    {
+     "name": "Retest",
+     "moves": [
+      {
+       "move": "side-split-test",
+       "name": "Side split test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slide the feet wide with hands down, note the gap from hips to floor in hand-widths"
+      }
+     ]
+    }
+   ],
+   "stars": 3,
+   "minutes": 12,
+   "tier": 15,
+   "gear": [],
+   "estSeconds": 690,
+   "moveCount": 9
+  },
+  {
+   "id": "bridge-1",
+   "title": "Bridge Path I",
+   "plain": "Upper back and front of the hips toward a back bridge",
+   "type": "flexibility",
+   "areas": [
+    "upper back",
+    "chest",
+    "hips"
+   ],
+   "phases": [
+    {
+     "name": "Test",
+     "moves": [
+      {
+       "move": "bridge-test",
+       "name": "Bridge test",
+       "dose": 10,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Glute bridge with arms overhead, note how high your chest lifts toward the wall behind you"
+      }
+     ]
+    },
+    {
+     "name": "Stack",
+     "moves": [
+      {
+       "move": "thoracic-extension-over-towel",
+       "name": "Thoracic extension over towel",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Arms overhead, breathe deep"
+      },
+      {
+       "move": "kneeling-hip-flexor-stretch",
+       "name": "Kneeling hip flexor stretch",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Squeeze the back glute"
+      },
+      {
+       "move": "puppy-pose",
+       "name": "Puppy pose",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hips over knees, chest melts down"
+      },
+      {
+       "move": "thoracic-bridge-prone",
+       "name": "Thoracic bridge (prone)",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 2,
+       "cue": "Face down, hands under shoulders, lift the chest leading with the sternum"
+      },
+      {
+       "move": "bridge-pose",
+       "name": "Bridge pose",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 3,
+       "rest": 15,
+       "stars": 2,
+       "cue": "Shoulders under, lift the chest toward the chin"
+      },
+      {
+       "move": "bridge-holds-arms-overhead",
+       "name": "Bridge holds (arms overhead)",
+       "dose": 10,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 3,
+       "rest": 15,
+       "stars": 2,
+       "cue": "Glute bridge with the arms reaching overhead on the floor, hold"
+      }
+     ]
+    },
+    {
+     "name": "Retest",
+     "moves": [
+      {
+       "move": "bridge-test",
+       "name": "Bridge test",
+       "dose": 10,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Glute bridge with arms overhead, note how high your chest lifts toward the wall behind you"
+      }
+     ]
+    }
+   ],
+   "stars": 2,
+   "minutes": 9,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 505,
+   "moveCount": 8
+  },
+  {
+   "id": "bridge-2",
+   "title": "Bridge Path II",
+   "plain": "Toward a full back bridge",
+   "type": "flexibility",
+   "areas": [
+    "upper back",
+    "chest",
+    "shoulders",
+    "hips"
+   ],
+   "phases": [
+    {
+     "name": "Test",
+     "moves": [
+      {
+       "move": "bridge-test",
+       "name": "Bridge test",
+       "dose": 10,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Glute bridge with arms overhead, note how high your chest lifts toward the wall behind you"
+      }
+     ]
+    },
+    {
+     "name": "Stack",
+     "moves": [
+      {
+       "move": "supported-fish-pose",
+       "name": "Supported fish pose",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Towel under the shoulder blades"
+      },
+      {
+       "move": "couch-stretch",
+       "name": "Couch stretch",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 3,
+       "cue": "Back knee in the corner, tall torso"
+      },
+      {
+       "move": "thoracic-bridge-prone",
+       "name": "Thoracic bridge (prone)",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 2,
+       "cue": "Face down, hands under shoulders, lift the chest leading with the sternum"
+      },
+      {
+       "move": "camel-pose",
+       "name": "Camel pose",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 4,
+       "cue": "Hands on the low back or heels, hips forward"
+      },
+      {
+       "move": "chair-supported-bridge",
+       "name": "Chair-supported bridge",
+       "dose": 15,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 3,
+       "rest": 30,
+       "stars": 4,
+       "cue": "Hands on a sturdy chair seat behind you, lift the hips and open the chest"
+      },
+      {
+       "move": "wall-walk-down-bridge-prep",
+       "name": "Wall walk-down bridge prep",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 45,
+       "stars": 5,
+       "cue": "Back to the wall, reach back and walk the hands a little down, then back up"
+      }
+     ]
+    },
+    {
+     "name": "Retest",
+     "moves": [
+      {
+       "move": "bridge-test",
+       "name": "Bridge test",
+       "dose": 10,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Glute bridge with arms overhead, note how high your chest lifts toward the wall behind you"
+      }
+     ]
+    }
+   ],
+   "stars": 5,
+   "minutes": 9,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 535,
+   "moveCount": 8
+  },
+  {
+   "id": "overhead",
+   "title": "Overhead Path",
+   "plain": "Arms straight overhead without arching, for presses and pull-ups",
+   "type": "flexibility",
+   "areas": [
+    "shoulders",
+    "lats",
+    "chest"
+   ],
+   "phases": [
+    {
+     "name": "Test",
+     "moves": [
+      {
+       "move": "overhead-test",
+       "name": "Overhead test",
+       "dose": 10,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Back flat on a wall, arms straight overhead, note how close your thumbs get to the wall"
+      }
+     ]
+    },
+    {
+     "name": "Stack",
+     "moves": [
+      {
+       "move": "puppy-pose",
+       "name": "Puppy pose",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hips over knees, chest melts down"
+      },
+      {
+       "move": "wall-lat-stretch",
+       "name": "Wall lat stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Walk back, sink the chest"
+      },
+      {
+       "move": "lat-pnf-on-bench",
+       "name": "Lat PNF on bench",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 2,
+       "cue": "Press the elbows down 5 s, relax, sink"
+      },
+      {
+       "move": "doorway-chest-stretch",
+       "name": "Doorway chest stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Forearm on the frame, step through"
+      },
+      {
+       "move": "lat-stretch-with-active-lift",
+       "name": "Lat stretch with active lift",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 3,
+       "cue": "Elbows on a bench, sink, then lift the hands off and hold 2 s"
+      },
+      {
+       "move": "overhead-wall-lift-offs",
+       "name": "Overhead wall lift-offs",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 3,
+       "cue": "Face the wall, arms overhead, lift the hands off the wall and hold 2 s"
+      }
+     ]
+    },
+    {
+     "name": "Retest",
+     "moves": [
+      {
+       "move": "overhead-test",
+       "name": "Overhead test",
+       "dose": 10,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Back flat on a wall, arms straight overhead, note how close your thumbs get to the wall"
+      }
+     ]
+    }
+   ],
+   "stars": 3,
+   "minutes": 10,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 565,
+   "moveCount": 8
+  },
+  {
+   "id": "deep-squat",
+   "title": "Deep Squat Path",
+   "plain": "Toward sitting flat-footed in a full squat",
+   "type": "flexibility",
+   "areas": [
+    "hips",
+    "ankles"
+   ],
+   "phases": [
+    {
+     "name": "Test",
+     "moves": [
+      {
+       "move": "deep-squat-test",
+       "name": "Deep squat test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Feet shoulder-width, heels down, sit as deep as you can; note if heels lift or hips stay above knees"
+      }
+     ]
+    },
+    {
+     "name": "Stack",
+     "moves": [
+      {
+       "move": "ankle-dorsiflexion-stretch",
+       "name": "Ankle dorsiflexion stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Toes up the wall, lean in"
+      },
+      {
+       "move": "squat-ankle-pulses",
+       "name": "Squat ankle pulses",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "In a deep squat, rock the knees forward over the toes"
+      },
+      {
+       "move": "squat-hip-pry-with-knee-pushes",
+       "name": "Squat hip pry with knee pushes",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Elbows push the knees out, rock side to side"
+      },
+      {
+       "move": "deep-squat-heel-elevated-hold",
+       "name": "Deep squat heel-elevated hold",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 1,
+       "cue": "Heels on a folded towel or plates, sit deep and tall"
+      },
+      {
+       "move": "deep-squat-breathing-hold",
+       "name": "Deep squat breathing hold",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 1,
+       "cue": "Heels down, hold something if you need to, breathe slowly"
+      },
+      {
+       "move": "squat-to-stand",
+       "name": "Squat to stand",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 2,
+       "cue": "Fold, grab toes, drop hips, lift chest, then straighten legs"
+      }
+     ]
+    },
+    {
+     "name": "Retest",
+     "moves": [
+      {
+       "move": "deep-squat-test",
+       "name": "Deep squat test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Feet shoulder-width, heels down, sit as deep as you can; note if heels lift or hips stay above knees"
+      }
+     ]
+    }
+   ],
+   "stars": 2,
+   "minutes": 9,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 530,
+   "moveCount": 8
+  },
+  {
+   "id": "cuff-guard",
+   "title": "Cuff Guard",
+   "plain": "Rotator cuff and shoulder blades, for healthy pressing",
+   "type": "prehab",
+   "areas": [
+    "shoulders",
+    "upper back"
+   ],
+   "phases": [
+    {
+     "name": "Activate",
+     "moves": [
+      {
+       "move": "scapular-push-ups",
+       "name": "Scapular push-ups",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Arms straight, shoulder blades move only"
+      },
+      {
+       "move": "wall-slides",
+       "name": "Wall slides",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Forearms on the wall, ribs down"
+      }
+     ]
+    },
+    {
+     "name": "Strength rounds",
+     "moves": [
+      {
+       "move": "side-lying-external-rotation",
+       "name": "Side-lying external rotation",
+       "dose": 15,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 30,
+       "stars": 1,
+       "cue": "Elbow pinned at the side, rotate up slowly"
+      },
+      {
+       "move": "prone-y-raises",
+       "name": "Prone Y raises",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 30,
+       "stars": 1,
+       "cue": "Thumbs up, no shrug"
+      },
+      {
+       "move": "prone-t-raises",
+       "name": "Prone T raises",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 30,
+       "stars": 1,
+       "cue": "Squeeze the shoulder blades"
+      }
+     ]
+    },
+    {
+     "name": "Hold",
+     "moves": [
+      {
+       "move": "isometric-external-rotation-doorframe",
+       "name": "Isometric external rotation (doorframe)",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 1,
+       "cue": "Back of the wrist presses into the frame"
+      }
+     ]
+    }
+   ],
+   "stars": 1,
+   "minutes": 11,
+   "tier": 15,
+   "gear": [],
+   "estSeconds": 625,
+   "moveCount": 6
+  },
+  {
+   "id": "knee-guard",
+   "title": "Knee Guard",
+   "plain": "Quads and knees, for squats, stairs and running",
+   "type": "prehab",
+   "areas": [
+    "quads",
+    "knees"
+   ],
+   "phases": [
+    {
+     "name": "Activate",
+     "moves": [
+      {
+       "move": "glute-bridge",
+       "name": "Glute bridge (easy)",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Ribs down, squeeze 1 s at the top"
+      },
+      {
+       "move": "wall-sit",
+       "name": "Wall sit",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Thighs parallel, back flat"
+      }
+     ]
+    },
+    {
+     "name": "Strength rounds",
+     "moves": [
+      {
+       "move": "spanish-squat-hold-wall",
+       "name": "Spanish squat hold (wall)",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 30,
+       "stars": 3,
+       "cue": "Wall sit with the shins vertical"
+      },
+      {
+       "move": "step-downs",
+       "name": "Step-downs",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 30,
+       "stars": 3,
+       "cue": "Lower slowly, knee tracks over the toes"
+      },
+      {
+       "move": "tibialis-raises",
+       "name": "Tibialis raises",
+       "dose": 15,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 1,
+       "cue": "Back on the wall, toes up high"
+      }
+     ]
+    },
+    {
+     "name": "Hold",
+     "moves": [
+      {
+       "move": "split-squat-isometric",
+       "name": "Split squat isometric",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 3,
+       "cue": "Hold just above the floor"
+      }
+     ]
+    }
+   ],
+   "stars": 3,
+   "minutes": 9,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 505,
+   "moveCount": 6
+  },
+  {
+   "id": "ankle-guard",
+   "title": "Ankle Guard",
+   "plain": "Ankles and feet, for runners",
+   "type": "prehab",
+   "areas": [
+    "ankles",
+    "feet",
+    "calves"
+   ],
+   "phases": [
+    {
+     "name": "Activate",
+     "moves": [
+      {
+       "move": "short-foot-drill",
+       "name": "Short foot drill",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Arch lifts, toes stay relaxed"
+      },
+      {
+       "move": "toe-yoga",
+       "name": "Toe yoga",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Big toe alone, then the other four"
+      }
+     ]
+    },
+    {
+     "name": "Strength rounds",
+     "moves": [
+      {
+       "move": "single-leg-calf-raises",
+       "name": "Single-leg calf raises",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 30,
+       "stars": 2,
+       "cue": "Heel below the step, slow up and down"
+      },
+      {
+       "move": "tibialis-raises",
+       "name": "Tibialis raises",
+       "dose": 20,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 1,
+       "cue": "Back on the wall, toes up high"
+      },
+      {
+       "move": "single-leg-balance-with-eyes-closed",
+       "name": "Single-leg balance with eyes closed",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 2,
+       "rest": 15,
+       "stars": 2,
+       "cue": "Stand tall, quiet ankle"
+      }
+     ]
+    },
+    {
+     "name": "Hold",
+     "moves": [
+      {
+       "move": "isometric-calf-hold",
+       "name": "Isometric calf hold",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Hold halfway up on one leg"
+      }
+     ]
+    }
+   ],
+   "stars": 2,
+   "minutes": 11,
+   "tier": 15,
+   "gear": [],
+   "estSeconds": 605,
+   "moveCount": 6
+  },
+  {
+   "id": "core-seal",
+   "title": "Core Seal",
+   "plain": "A 10-minute core stability finisher",
+   "type": "prehab",
+   "areas": [
+    "core"
+   ],
+   "phases": [
+    {
+     "name": "Activate",
+     "moves": [
+      {
+       "move": "breathing-brace-holds",
+       "name": "Breathing brace holds",
+       "dose": 5,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Brace 360 degrees, hold 10 s"
+      },
+      {
+       "move": "dead-bug",
+       "name": "Dead bug",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Low back flat, exhale fully on each reach"
+      }
+     ]
+    },
+    {
+     "name": "Strength rounds",
+     "moves": [
+      {
+       "move": "plank",
+       "name": "Plank",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 2,
+       "cue": "Glutes tight, push the floor away, ribs down"
+      },
+      {
+       "move": "kneeling-side-plank",
+       "name": "Kneeling side plank",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 2,
+       "cue": "Bottom knee down"
+      },
+      {
+       "move": "bird-dog",
+       "name": "Bird dog",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Reach long, pause 2 s, hips square"
+      },
+      {
+       "move": "reverse-crunch",
+       "name": "Reverse crunch",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Curl the hips up, lower slowly"
+      }
+     ]
+    },
+    {
+     "name": "Hold",
+     "moves": [
+      {
+       "move": "hollow-hold-tucked",
+       "name": "Hollow hold tucked",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 2,
+       "cue": "Knees bent, low back down"
+      }
+     ]
+    }
+   ],
+   "stars": 2,
+   "minutes": 8,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 438,
+   "moveCount": 7
+  },
+  {
+   "id": "glute-forge",
+   "title": "Glute Forge",
+   "plain": "A glute strength finisher",
+   "type": "prehab",
+   "areas": [
+    "glutes",
+    "hips"
+   ],
+   "phases": [
+    {
+     "name": "Activate",
+     "moves": [
+      {
+       "move": "clamshells",
+       "name": "Clamshells",
+       "dose": 15,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Heels together, open the knee, pelvis still"
+      },
+      {
+       "move": "fire-hydrants",
+       "name": "Fire hydrants",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Back flat, knee out to the side"
+      }
+     ]
+    },
+    {
+     "name": "Strength rounds",
+     "moves": [
+      {
+       "move": "single-leg-glute-bridge",
+       "name": "Single-leg glute bridge",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 3,
+       "rest": 30,
+       "stars": 2,
+       "cue": "Hips level the whole time"
+      },
+      {
+       "move": "side-plank-hip-dips",
+       "name": "Side plank hip dips",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 3,
+       "cue": "Lower an inch, drive back up"
+      },
+      {
+       "move": "bulgarian-split-squat",
+       "name": "Bulgarian split squat",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 45,
+       "stars": 3,
+       "cue": "Back foot on a bench, drop straight down"
+      }
+     ]
+    },
+    {
+     "name": "Hold",
+     "moves": [
+      {
+       "move": "glute-bridge-isometric",
+       "name": "Glute bridge isometric",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Hold the top, squeeze hard"
+      }
+     ]
+    }
+   ],
+   "stars": 3,
+   "minutes": 14,
+   "tier": 15,
+   "gear": [],
+   "estSeconds": 785,
+   "moveCount": 6
+  },
+  {
+   "id": "back-guard",
+   "title": "Back Guard",
+   "plain": "Lower back and hip strength for lifting and sitting",
+   "type": "prehab",
+   "areas": [
+    "lower back",
+    "glutes",
+    "core"
+   ],
+   "phases": [
+    {
+     "name": "Activate",
+     "moves": [
+      {
+       "move": "cat-cow",
+       "name": "Cat-cow",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Move one vertebra at a time, breathe in to arch, out to round"
+      },
+      {
+       "move": "bird-dog",
+       "name": "Bird dog",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Reach long, pause 2 s, hips square"
+      }
+     ]
+    },
+    {
+     "name": "Strength rounds",
+     "moves": [
+      {
+       "move": "back-extensions-floor",
+       "name": "Back extensions (floor)",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 30,
+       "stars": 1,
+       "cue": "Face down, lift the chest"
+      },
+      {
+       "move": "single-leg-rdl",
+       "name": "Single-leg RDL (bodyweight)",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 30,
+       "stars": 3,
+       "cue": "Hips square, hinge with control"
+      },
+      {
+       "move": "side-plank",
+       "name": "Side plank",
+       "dose": 25,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 3,
+       "cue": "Stack the hips, straight line"
+      }
+     ]
+    },
+    {
+     "name": "Hold",
+     "moves": [
+      {
+       "move": "superman-hold",
+       "name": "Superman hold",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 2,
+       "cue": "Lift a few inches, long neck"
+      }
+     ]
+    }
+   ],
+   "stars": 3,
+   "minutes": 10,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 550,
+   "moveCount": 6
+  },
+  {
+   "id": "hamstring-armor",
+   "title": "Hamstring Armor",
+   "plain": "Hamstring strength for sprinting and deadlifts",
+   "type": "prehab",
+   "areas": [
+    "hamstrings"
+   ],
+   "phases": [
+    {
+     "name": "Activate",
+     "moves": [
+      {
+       "move": "glute-bridges",
+       "name": "Glute bridges",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Ribs down, drive through heels, squeeze 1 s at the top"
+      },
+      {
+       "move": "isometric-hamstring-heel-dig",
+       "name": "Isometric hamstring heel dig",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "On your back, dig the heel into the floor"
+      }
+     ]
+    },
+    {
+     "name": "Strength rounds",
+     "moves": [
+      {
+       "move": "hamstring-walkouts",
+       "name": "Hamstring walkouts",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 30,
+       "stars": 3,
+       "cue": "From a bridge, walk the heels out and back"
+      },
+      {
+       "move": "single-leg-rdl",
+       "name": "Single-leg RDL (bodyweight)",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 30,
+       "stars": 3,
+       "cue": "Hips square, hinge with control"
+      },
+      {
+       "move": "slider-leg-curls-towel",
+       "name": "Slider leg curls (towel)",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 45,
+       "stars": 4,
+       "cue": "Heels on a towel, bridge and curl in"
+      }
+     ]
+    },
+    {
+     "name": "Hold",
+     "moves": [
+      {
+       "move": "nordic-curl-assisted",
+       "name": "Nordic curl (assisted)",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 60,
+       "stars": 5,
+       "cue": "Anchor the heels under a couch, lower as slow as you can"
+      }
+     ]
+    }
+   ],
+   "stars": 5,
+   "minutes": 8,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 480,
+   "moveCount": 6
+  },
+  {
+   "id": "trial-of-iron",
+   "title": "Trial of Iron",
+   "plain": "The hardest finisher: groin, hamstrings and core",
+   "type": "prehab",
+   "areas": [
+    "adductors",
+    "hamstrings",
+    "core"
+   ],
+   "phases": [
+    {
+     "name": "Activate",
+     "moves": [
+      {
+       "move": "dead-bug",
+       "name": "Dead bug",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Low back flat, exhale fully on each reach"
+      },
+      {
+       "move": "lateral-lunges",
+       "name": "Lateral lunges",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Sit into one hip"
+      }
+     ]
+    },
+    {
+     "name": "Strength rounds",
+     "moves": [
+      {
+       "move": "copenhagen-plank-short-lever",
+       "name": "Copenhagen plank (short lever)",
+       "dose": 15,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 2,
+       "rest": 30,
+       "stars": 4,
+       "cue": "Top knee on the bench, lift the hips"
+      },
+      {
+       "move": "copenhagen-plank-long-lever",
+       "name": "Copenhagen plank (long lever)",
+       "dose": 10,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 2,
+       "rest": 45,
+       "stars": 5,
+       "cue": "Top ankle on the bench, straight body"
+      },
+      {
+       "move": "nordic-curl-assisted",
+       "name": "Nordic curl (assisted)",
+       "dose": 4,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 60,
+       "stars": 5,
+       "cue": "Anchor the heels under a couch, lower as slow as you can"
+      },
+      {
+       "move": "hollow-rocks",
+       "name": "Hollow rocks",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 30,
+       "stars": 4,
+       "cue": "Hold the hollow shape and rock"
+      }
+     ]
+    },
+    {
+     "name": "Hold",
+     "moves": [
+      {
+       "move": "long-lever-plank",
+       "name": "Long-lever plank",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 4,
+       "cue": "Elbows further forward than the shoulders"
+      }
+     ]
+    }
+   ],
+   "stars": 5,
+   "minutes": 10,
+   "tier": 10,
+   "gear": [],
+   "estSeconds": 570,
+   "moveCount": 7
+  },
+  {
+   "id": "press-prep-band",
+   "title": "Press Prep · Band",
+   "plain": "Shoulder warm-up with a band, before pressing",
+   "type": "warmup",
+   "areas": [
+    "shoulders",
+    "upper back"
+   ],
+   "phases": [
+    {
+     "name": "Raise",
+     "moves": [
+      {
+       "move": "jumping-jacks",
+       "name": "Jumping jacks",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Land soft on the balls of your feet, arms all the way overhead"
+      }
+     ]
+    },
+    {
+     "name": "Open",
+     "moves": [
+      {
+       "move": "band-dislocates",
+       "name": "Band dislocates",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Wide grip, straight arms over and behind, narrow the grip over time"
+      },
+      {
+       "move": "thoracic-rotations-quadruped",
+       "name": "Thoracic rotations (quadruped)",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hand behind head, rotate elbow to the ceiling, hips still"
+      }
+     ]
+    },
+    {
+     "name": "Switch on",
+     "moves": [
+      {
+       "move": "band-pull-aparts",
+       "name": "Band pull-aparts",
+       "dose": 15,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Straight arms at chest height, pull to the chest, no shrug"
+      },
+      {
+       "move": "band-face-pulls",
+       "name": "Band face pulls",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Anchor at eye level, pull to the forehead, elbows high, thumbs back"
+      },
+      {
+       "move": "band-external-rotation",
+       "name": "Band external rotation",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Elbow pinned to the side with a towel, rotate out slowly"
+      }
+     ]
+    },
+    {
+     "name": "Rehearse",
+     "moves": [
+      {
+       "move": "band-chest-press",
+       "name": "Band chest press",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Anchor behind, press forward without arching"
+      }
+     ]
+    }
+   ],
+   "stars": 2,
+   "minutes": 6,
+   "tier": 10,
+   "gear": [
+    "resistance band"
+   ],
+   "estSeconds": 308,
+   "moveCount": 7
+  },
+  {
+   "id": "hinge-prep-band",
+   "title": "Hinge Prep · Band",
+   "plain": "Glute and hinge warm-up with a mini band",
+   "type": "warmup",
+   "areas": [
+    "glutes",
+    "hamstrings",
+    "hips"
+   ],
+   "phases": [
+    {
+     "name": "Raise",
+     "moves": [
+      {
+       "move": "jog-in-place",
+       "name": "Jog in place",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Easy relaxed jog, breathe through the nose"
+      }
+     ]
+    },
+    {
+     "name": "Open",
+     "moves": [
+      {
+       "move": "cat-cow",
+       "name": "Cat-cow",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Move one vertebra at a time, breathe in to arch, out to round"
+      },
+      {
+       "move": "leg-swings-front-to-back",
+       "name": "Leg swings (front to back)",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hold a wall, swing from the hip, keep torso still"
+      }
+     ]
+    },
+    {
+     "name": "Switch on",
+     "moves": [
+      {
+       "move": "banded-glute-bridges",
+       "name": "Banded glute bridges",
+       "dose": 15,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Mini band above the knees, push the knees out at the top"
+      },
+      {
+       "move": "banded-lateral-walks",
+       "name": "Banded lateral walks",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Mini band above the knees, half squat, toes forward"
+      },
+      {
+       "move": "banded-monster-walks",
+       "name": "Banded monster walks",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Mini band above the knees, step forward on the diagonal"
+      }
+     ]
+    },
+    {
+     "name": "Rehearse",
+     "moves": [
+      {
+       "move": "banded-hip-hinge-pull-through",
+       "name": "Banded hip hinge (pull-through)",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Anchor low behind you, hinge and snap the hips forward"
+      }
+     ]
+    }
+   ],
+   "stars": 2,
+   "minutes": 6,
+   "tier": 10,
+   "gear": [
+    "resistance band"
+   ],
+   "estSeconds": 308,
+   "moveCount": 7
+  },
+  {
+   "id": "runners-release-roller",
+   "title": "Runner's Release · Roller",
+   "plain": "Foam rolling and stretching after a run",
+   "type": "cooldown",
+   "areas": [
+    "calves",
+    "quads",
+    "hamstrings",
+    "hips"
+   ],
+   "phases": [
+    {
+     "name": "Settle",
+     "moves": [
+      {
+       "move": "walk-it-off",
+       "name": "Walk it off",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Easy walk, slow nasal breathing, let the heart rate settle"
+      }
+     ]
+    },
+    {
+     "name": "Release",
+     "moves": [
+      {
+       "move": "foam-roll-calves",
+       "name": "Foam roll calves",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slow passes, rotate the foot in and out"
+      },
+      {
+       "move": "foam-roll-quads",
+       "name": "Foam roll quads",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slow passes, pause 10 s on tender spots"
+      },
+      {
+       "move": "foam-roll-it-band-area-outer-thigh",
+       "name": "Foam roll IT band area (outer thigh)",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Top foot down, go slow"
+      },
+      {
+       "move": "foam-roll-glutes",
+       "name": "Foam roll glutes",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Ankle over the knee, lean toward the crossed side"
+      }
+     ]
+    },
+    {
+     "name": "Stretch",
+     "moves": [
+      {
+       "move": "wall-calf-stretch",
+       "name": "Wall calf stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Back leg straight, heel down, lean in"
+      },
+      {
+       "move": "kneeling-hip-flexor-stretch",
+       "name": "Kneeling hip flexor stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Squeeze the back glute, tuck the pelvis, shift forward"
+      },
+      {
+       "move": "band-hamstring-stretch",
+       "name": "Band hamstring stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Band around the foot, leg straight up"
+      }
+     ]
+    },
+    {
+     "name": "Breathe",
+     "moves": [
+      {
+       "move": "foam-roller-supported-bridge",
+       "name": "Foam roller supported bridge",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Roller under the sacrum, relax the legs"
+      }
+     ]
+    }
+   ],
+   "stars": 2,
+   "minutes": 12,
+   "tier": 15,
+   "gear": [
+    "foam roller",
+    "resistance band"
+   ],
+   "estSeconds": 720,
+   "moveCount": 9
+  },
+  {
+   "id": "upper-release-roller",
+   "title": "Upper Release · Roller",
+   "plain": "Rolling and stretching after a push or pull day",
+   "type": "cooldown",
+   "areas": [
+    "upper back",
+    "lats",
+    "chest"
+   ],
+   "phases": [
+    {
+     "name": "Release",
+     "moves": [
+      {
+       "move": "foam-roll-upper-back",
+       "name": "Foam roll upper back",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hands behind the head, slow rolls"
+      },
+      {
+       "move": "foam-roll-lats",
+       "name": "Foam roll lats",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Arm overhead, roll from armpit to mid ribs"
+      },
+      {
+       "move": "foam-roll-pecs",
+       "name": "Foam roll pecs",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Face down, roller angled under the chest"
+      }
+     ]
+    },
+    {
+     "name": "Stretch",
+     "moves": [
+      {
+       "move": "foam-roller-snow-angels",
+       "name": "Foam roller snow angels",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Lie along the roller, slide the arms like a snow angel"
+      },
+      {
+       "move": "doorway-chest-stretch",
+       "name": "Doorway chest stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Forearm on the frame at shoulder height, step through"
+      },
+      {
+       "move": "band-overhead-lat-stretch",
+       "name": "Band overhead lat stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hold the anchored band, sit the hips back"
+      }
+     ]
+    },
+    {
+     "name": "Breathe",
+     "moves": [
+      {
+       "move": "foam-roller-chest-opener",
+       "name": "Foam roller chest opener",
+       "dose": 90,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Lie along the roller, arms wide, palms up"
+      }
+     ]
+    }
+   ],
+   "stars": 2,
+   "minutes": 9,
+   "tier": 10,
+   "gear": [
+    "foam roller",
+    "resistance band"
+   ],
+   "estSeconds": 510,
+   "moveCount": 7
+  },
+  {
+   "id": "sore-day-roller",
+   "title": "Sore Day · Roller",
+   "plain": "Full-body foam rolling for a sore day",
+   "type": "recovery",
+   "areas": [
+    "full body"
+   ],
+   "phases": [
+    {
+     "name": "Release",
+     "moves": [
+      {
+       "move": "foam-roll-calves",
+       "name": "Foam roll calves",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slow, rotate the foot in and out"
+      },
+      {
+       "move": "foam-roll-quads",
+       "name": "Foam roll quads",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slow passes, stop and breathe on tender spots"
+      },
+      {
+       "move": "foam-roll-hamstrings",
+       "name": "Foam roll hamstrings",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Cross the other leg on top for more pressure"
+      },
+      {
+       "move": "foam-roll-glutes",
+       "name": "Foam roll glutes",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Ankle over the knee, lean into the hip"
+      },
+      {
+       "move": "foam-roll-upper-back",
+       "name": "Foam roll upper back",
+       "dose": 60,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Hug yourself to spread the shoulder blades"
+      },
+      {
+       "move": "foam-roll-lats",
+       "name": "Foam roll lats",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Arm overhead, small rolls"
+      }
+     ]
+    },
+    {
+     "name": "Easy movement",
+     "moves": [
+      {
+       "move": "easy-walk",
+       "name": "Easy walk",
+       "dose": 120,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Conversational pace, relaxed shoulders, nasal breathing"
+      },
+      {
+       "move": "foam-roller-thoracic-extensions",
+       "name": "Foam roller thoracic extensions",
+       "dose": 6,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Gentle extension at three levels"
+      }
+     ]
+    },
+    {
+     "name": "Breathe",
+     "moves": [
+      {
+       "move": "foam-roller-breathing-lengthwise",
+       "name": "Foam roller breathing (lengthwise)",
+       "dose": 120,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Lie along the roller, slow belly breaths"
+      }
+     ]
+    }
+   ],
+   "stars": 1,
+   "minutes": 17,
+   "tier": 20,
+   "gear": [
+    "foam roller"
+   ],
+   "estSeconds": 975,
+   "moveCount": 9
+  },
+  {
+   "id": "spine-unlock-roller",
+   "title": "Spine Unlock · Roller",
+   "plain": "Upper-back mobility on a foam roller",
+   "type": "mobility",
+   "areas": [
+    "upper back"
+   ],
+   "phases": [
+    {
+     "name": "Loosen",
+     "moves": [
+      {
+       "move": "cat-cow",
+       "name": "Cat-cow",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Segment by segment, breathe with the movement"
+      },
+      {
+       "move": "foam-roll-upper-back",
+       "name": "Foam roll upper back",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Slow rolls"
+      }
+     ]
+    },
+    {
+     "name": "Main work",
+     "moves": [
+      {
+       "move": "foam-roller-thoracic-extensions",
+       "name": "Foam roller thoracic extensions",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Three levels of the upper back"
+      },
+      {
+       "move": "foam-roller-t-spine-rotations",
+       "name": "Foam roller T-spine rotations",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Knees on the roller, open the arm"
+      },
+      {
+       "move": "foam-roller-lat-flossing",
+       "name": "Foam roller lat flossing",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Arm on the roller, roll forward and back"
+      }
+     ]
+    },
+    {
+     "name": "Control",
+     "moves": [
+      {
+       "move": "foam-roller-wall-slides",
+       "name": "Foam roller wall slides",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Forearms on a roller against the wall, roll up"
+      },
+      {
+       "move": "band-face-pulls",
+       "name": "Band face pulls",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Pull high, thumbs back"
+      }
+     ]
+    }
+   ],
+   "stars": 1,
+   "minutes": 5,
+   "tier": 5,
+   "gear": [
+    "foam roller",
+    "resistance band"
+   ],
+   "estSeconds": 295,
+   "moveCount": 7
+  },
+  {
+   "id": "hip-gate-band",
+   "title": "Hip Gate · Band",
+   "plain": "Hip mobility with a band for extra stretch",
+   "type": "mobility",
+   "areas": [
+    "hips"
+   ],
+   "phases": [
+    {
+     "name": "Loosen",
+     "moves": [
+      {
+       "move": "hip-circles-standing",
+       "name": "Hip circles (standing)",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Big slow circles each way"
+      },
+      {
+       "move": "quadruped-rock-backs",
+       "name": "Quadruped rock backs",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Flat back, sit hips toward heels"
+      }
+     ]
+    },
+    {
+     "name": "Main work",
+     "moves": [
+      {
+       "move": "banded-hip-distraction-lunge",
+       "name": "Banded hip distraction (lunge)",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Band high on the front thigh pulling back, sink into the lunge"
+      },
+      {
+       "move": "banded-hip-distraction-90-90",
+       "name": "Banded hip distraction (90/90)",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Band around the hip crease pulling out"
+      },
+      {
+       "move": "banded-hip-internal-rotation",
+       "name": "Banded hip internal rotation",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 3,
+       "cue": "Band pulls the knee out, rotate inward against it"
+      }
+     ]
+    },
+    {
+     "name": "Control",
+     "moves": [
+      {
+       "move": "banded-clamshells",
+       "name": "Banded clamshells",
+       "dose": 15,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Mini band above the knees, open the top knee"
+      },
+      {
+       "move": "banded-glute-bridges",
+       "name": "Banded glute bridges",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Mini band above the knees, push the knees out at the top"
+      }
+     ]
+    }
+   ],
+   "stars": 3,
+   "minutes": 8,
+   "tier": 10,
+   "gear": [
+    "resistance band"
+   ],
+   "estSeconds": 444,
+   "moveCount": 7
+  },
+  {
+   "id": "pike-1-band",
+   "title": "Pike Path I · Band",
+   "plain": "Toward touching your toes, using a band",
+   "type": "flexibility",
+   "areas": [
+    "hamstrings"
+   ],
+   "phases": [
+    {
+     "name": "Test",
+     "moves": [
+      {
+       "move": "pike-test",
+       "name": "Pike test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Legs straight and together, fold and note where your fingertips reach: knees, mid-shin, ankles, toes, floor"
+      }
+     ]
+    },
+    {
+     "name": "Stack",
+     "moves": [
+      {
+       "move": "banded-hamstring-floss",
+       "name": "Banded hamstring floss",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Band around the foot, bend and straighten the knee"
+      },
+      {
+       "move": "band-hamstring-stretch",
+       "name": "Band hamstring stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 3,
+       "rest": 10,
+       "stars": 1,
+       "cue": "Leg straight up, pull gently, opposite leg long"
+      },
+      {
+       "move": "band-pnf-hamstring-contract-relax",
+       "name": "Band PNF hamstring (contract-relax)",
+       "dose": 3,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 3,
+       "cue": "Press into the band 5 s, relax, go deeper"
+      },
+      {
+       "move": "band-seated-forward-fold",
+       "name": "Band seated forward fold",
+       "dose": 45,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Band around the feet, pull the chest forward"
+      },
+      {
+       "move": "active-hamstring-stretch-leg-raise-hold",
+       "name": "Active hamstring stretch (leg raise hold)",
+       "dose": 10,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 3,
+       "rest": 10,
+       "stars": 2,
+       "cue": "Lift and hold the straight leg without hands"
+      }
+     ]
+    },
+    {
+     "name": "Retest",
+     "moves": [
+      {
+       "move": "pike-test",
+       "name": "Pike test",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Legs straight and together, fold and note where your fingertips reach: knees, mid-shin, ankles, toes, floor"
+      }
+     ]
+    }
+   ],
+   "stars": 3,
+   "minutes": 10,
+   "tier": 10,
+   "gear": [
+    "resistance band"
+   ],
+   "estSeconds": 600,
+   "moveCount": 7
+  },
+  {
+   "id": "overhead-band",
+   "title": "Overhead Path · Band",
+   "plain": "Shoulders overhead, using a band",
+   "type": "flexibility",
+   "areas": [
+    "shoulders",
+    "lats"
+   ],
+   "phases": [
+    {
+     "name": "Test",
+     "moves": [
+      {
+       "move": "overhead-test",
+       "name": "Overhead test",
+       "dose": 10,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Back flat on a wall, arms straight overhead, note how close your thumbs get to the wall"
+      }
+     ]
+    },
+    {
+     "name": "Stack",
+     "moves": [
+      {
+       "move": "band-shoulder-dislocates-narrow",
+       "name": "Band shoulder dislocates (narrow)",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 3,
+       "cue": "Narrow the grip a little each set"
+      },
+      {
+       "move": "band-overhead-lat-stretch",
+       "name": "Band overhead lat stretch",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 2,
+       "rest": 15,
+       "stars": 1,
+       "cue": "Sit back away from a high anchor"
+      },
+      {
+       "move": "band-lat-traction",
+       "name": "Band lat traction",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Let the band pull you long"
+      },
+      {
+       "move": "band-chest-stretch-anchored",
+       "name": "Band chest stretch (anchored)",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Turn away from a shoulder-height anchor"
+      },
+      {
+       "move": "overhead-wall-lift-offs",
+       "name": "Overhead wall lift-offs",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 3,
+       "cue": "Face the wall, arms overhead, lift the hands off the wall and hold 2 s"
+      }
+     ]
+    },
+    {
+     "name": "Retest",
+     "moves": [
+      {
+       "move": "overhead-test",
+       "name": "Overhead test",
+       "dose": 10,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Back flat on a wall, arms straight overhead, note how close your thumbs get to the wall"
+      }
+     ]
+    }
+   ],
+   "stars": 3,
+   "minutes": 7,
+   "tier": 10,
+   "gear": [
+    "resistance band"
+   ],
+   "estSeconds": 400,
+   "moveCount": 7
+  },
+  {
+   "id": "cuff-guard-band",
+   "title": "Cuff Guard · Band",
+   "plain": "Rotator cuff and shoulder blades with a band",
+   "type": "prehab",
+   "areas": [
+    "shoulders",
+    "upper back"
+   ],
+   "phases": [
+    {
+     "name": "Activate",
+     "moves": [
+      {
+       "move": "band-pull-aparts",
+       "name": "Band pull-aparts",
+       "dose": 15,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Straight arms, squeeze the back"
+      },
+      {
+       "move": "band-no-moneys",
+       "name": "Band no-moneys",
+       "dose": 15,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Elbows at the sides, rotate the hands out"
+      }
+     ]
+    },
+    {
+     "name": "Strength rounds",
+     "moves": [
+      {
+       "move": "band-external-rotation",
+       "name": "Band external rotation",
+       "dose": 15,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 30,
+       "stars": 1,
+       "cue": "Elbow pinned with a towel, rotate out slowly"
+      },
+      {
+       "move": "band-face-pulls",
+       "name": "Band face pulls",
+       "dose": 15,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 30,
+       "stars": 1,
+       "cue": "Pull to the forehead, thumbs back"
+      },
+      {
+       "move": "band-y-raises",
+       "name": "Band Y raises",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 30,
+       "stars": 2,
+       "cue": "Stand on the band, arms into a Y"
+      },
+      {
+       "move": "band-serratus-punches",
+       "name": "Band serratus punches",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 1,
+       "cue": "Punch forward and reach long"
+      }
+     ]
+    },
+    {
+     "name": "Hold",
+     "moves": [
+      {
+       "move": "isometric-external-rotation-doorframe",
+       "name": "Isometric external rotation (doorframe)",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Back of the wrist presses into the frame"
+      }
+     ]
+    }
+   ],
+   "stars": 2,
+   "minutes": 13,
+   "tier": 15,
+   "gear": [
+    "resistance band"
+   ],
+   "estSeconds": 750,
+   "moveCount": 7
+  },
+  {
+   "id": "glute-forge-band",
+   "title": "Glute Forge · Band",
+   "plain": "Glute strength finisher with a mini band",
+   "type": "prehab",
+   "areas": [
+    "glutes",
+    "hips"
+   ],
+   "phases": [
+    {
+     "name": "Activate",
+     "moves": [
+      {
+       "move": "banded-clamshells",
+       "name": "Banded clamshells",
+       "dose": 15,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Open the knee against the band"
+      },
+      {
+       "move": "banded-fire-hydrants",
+       "name": "Banded fire hydrants",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Mini band above the knees"
+      }
+     ]
+    },
+    {
+     "name": "Strength rounds",
+     "moves": [
+      {
+       "move": "banded-glute-bridges",
+       "name": "Banded glute bridges",
+       "dose": 15,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 30,
+       "stars": 1,
+       "cue": "Push the knees out at the top"
+      },
+      {
+       "move": "banded-lateral-walks",
+       "name": "Banded lateral walks",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 2,
+       "cue": "Mini band above the knees"
+      },
+      {
+       "move": "banded-single-leg-bridge",
+       "name": "Banded single-leg bridge",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 30,
+       "stars": 3,
+       "cue": "Mini band, hips level"
+      },
+      {
+       "move": "banded-squats",
+       "name": "Banded squats",
+       "dose": 12,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 30,
+       "stars": 2,
+       "cue": "Knees out against the band"
+      }
+     ]
+    },
+    {
+     "name": "Hold",
+     "moves": [
+      {
+       "move": "banded-glute-bridge-hold",
+       "name": "Banded glute bridge hold",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 2,
+       "cue": "Hold the top, knees out"
+      }
+     ]
+    }
+   ],
+   "stars": 3,
+   "minutes": 13,
+   "tier": 15,
+   "gear": [
+    "resistance band"
+   ],
+   "estSeconds": 750,
+   "moveCount": 7
+  },
+  {
+   "id": "core-seal-roller",
+   "title": "Core Seal · Roller",
+   "plain": "Core stability on a foam roller",
+   "type": "prehab",
+   "areas": [
+    "core"
+   ],
+   "phases": [
+    {
+     "name": "Activate",
+     "moves": [
+      {
+       "move": "breathing-brace-holds",
+       "name": "Breathing brace holds",
+       "dose": 5,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 1,
+       "rest": 0,
+       "stars": 1,
+       "cue": "Brace 360 degrees, hold 10 s"
+      },
+      {
+       "move": "foam-roller-dead-bugs",
+       "name": "Foam roller dead bugs",
+       "dose": 8,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 3,
+       "cue": "Lie along the roller, alternate reaches"
+      }
+     ]
+    },
+    {
+     "name": "Strength rounds",
+     "moves": [
+      {
+       "move": "foam-roller-plank",
+       "name": "Foam roller plank",
+       "dose": 30,
+       "unit": "sec",
+       "perSide": false,
+       "sets": 2,
+       "rest": 20,
+       "stars": 3,
+       "cue": "Forearms on the roller, stay steady"
+      },
+      {
+       "move": "foam-roller-knee-tucks",
+       "name": "Foam roller knee tucks",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": false,
+       "sets": 2,
+       "rest": 30,
+       "stars": 3,
+       "cue": "Shins on the roller, tuck the knees in"
+      },
+      {
+       "move": "band-pallof-press",
+       "name": "Band Pallof press",
+       "dose": 10,
+       "unit": "reps",
+       "perSide": true,
+       "sets": 2,
+       "rest": 20,
+       "stars": 2,
+       "cue": "Press out, hold 2 s, resist the twist"
+      }
+     ]
+    },
+    {
+     "name": "Hold",
+     "moves": [
+      {
+       "move": "side-plank",
+       "name": "Side plank",
+       "dose": 20,
+       "unit": "sec",
+       "perSide": true,
+       "sets": 1,
+       "rest": 0,
+       "stars": 3,
+       "cue": "Stack the hips, straight line"
+      }
+     ]
+    }
+   ],
+   "stars": 3,
+   "minutes": 8,
+   "tier": 10,
+   "gear": [
+    "foam roller",
+    "resistance band"
+   ],
+   "estSeconds": 452,
+   "moveCount": 6
+  }
+ ]
+}

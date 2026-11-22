@@ -1,0 +1,441 @@
+bounty,title,type,stars,minutes,gear,phase,move,dose,unit,per_side,sets,rest_s,move_stars,plain
+ignition,Ignition,warmup,1,6,,Raise,Jumping jacks,30,sec,,1,0,1,A 5-minute full-body warm-up for any day
+ignition,Ignition,warmup,1,6,,Raise,Arm circles,10,reps,,1,0,1,A 5-minute full-body warm-up for any day
+ignition,Ignition,warmup,1,6,,Open,Hip circles,8,reps,yes,1,0,1,A 5-minute full-body warm-up for any day
+ignition,Ignition,warmup,1,6,,Open,Torso twists,16,reps,,1,0,1,A 5-minute full-body warm-up for any day
+ignition,Ignition,warmup,1,6,,Open,Leg swings (front to back),10,reps,yes,1,0,1,A 5-minute full-body warm-up for any day
+ignition,Ignition,warmup,1,6,,Switch on,Glute bridges,10,reps,,1,0,1,A 5-minute full-body warm-up for any day
+ignition,Ignition,warmup,1,6,,Switch on,Walking knee hugs,6,reps,yes,1,0,1,A 5-minute full-body warm-up for any day
+ignition,Ignition,warmup,1,6,,Switch on,March in place,30,sec,,1,0,1,A 5-minute full-body warm-up for any day
+press-prep,Press Prep,warmup,2,4,,Raise,Jumping jacks,30,sec,,1,0,1,"Shoulders and upper back, before bench or overhead pressing"
+press-prep,Press Prep,warmup,2,4,,Open,Thoracic rotations (quadruped),6,reps,yes,1,0,1,"Shoulders and upper back, before bench or overhead pressing"
+press-prep,Press Prep,warmup,2,4,,Open,Wall slides,10,reps,,1,0,1,"Shoulders and upper back, before bench or overhead pressing"
+press-prep,Press Prep,warmup,2,4,,Open,Shoulder CARs,2,reps,yes,1,0,2,"Shoulders and upper back, before bench or overhead pressing"
+press-prep,Press Prep,warmup,2,4,,Switch on,Prone Y raises,10,reps,,1,0,1,"Shoulders and upper back, before bench or overhead pressing"
+press-prep,Press Prep,warmup,2,4,,Switch on,Scapular push-ups,10,reps,,1,0,1,"Shoulders and upper back, before bench or overhead pressing"
+press-prep,Press Prep,warmup,2,4,,Rehearse,Push-ups,6,reps,,1,0,2,"Shoulders and upper back, before bench or overhead pressing"
+hinge-prep,Hinge Prep,warmup,2,5,,Raise,Jog in place,45,sec,,1,0,1,"Hips, hamstrings and bracing, before deadlifts and RDLs"
+hinge-prep,Hinge Prep,warmup,2,5,,Open,Cat-cow,8,reps,,1,0,1,"Hips, hamstrings and bracing, before deadlifts and RDLs"
+hinge-prep,Hinge Prep,warmup,2,5,,Open,Leg swings (front to back),10,reps,yes,1,0,1,"Hips, hamstrings and bracing, before deadlifts and RDLs"
+hinge-prep,Hinge Prep,warmup,2,5,,Open,World's greatest stretch,3,reps,yes,1,0,2,"Hips, hamstrings and bracing, before deadlifts and RDLs"
+hinge-prep,Hinge Prep,warmup,2,5,,Switch on,Glute bridges,12,reps,,1,0,1,"Hips, hamstrings and bracing, before deadlifts and RDLs"
+hinge-prep,Hinge Prep,warmup,2,5,,Switch on,Dead bug,6,reps,yes,1,0,1,"Hips, hamstrings and bracing, before deadlifts and RDLs"
+hinge-prep,Hinge Prep,warmup,2,5,,Rehearse,Hip hinge drill,10,reps,,1,0,1,"Hips, hamstrings and bracing, before deadlifts and RDLs"
+hinge-prep,Hinge Prep,warmup,2,5,,Rehearse,Good mornings (bodyweight),10,reps,,1,0,2,"Hips, hamstrings and bracing, before deadlifts and RDLs"
+squat-prep,Squat Prep,warmup,2,6,,Raise,High knees,30,sec,,1,0,2,"Ankles, hips and quads, before squats and leg day"
+squat-prep,Squat Prep,warmup,2,6,,Open,Ankle rocks (knee to wall),10,reps,yes,1,0,1,"Ankles, hips and quads, before squats and leg day"
+squat-prep,Squat Prep,warmup,2,6,,Open,90/90 hip switches,8,reps,,1,0,1,"Ankles, hips and quads, before squats and leg day"
+squat-prep,Squat Prep,warmup,2,6,,Open,Lateral lunges,6,reps,yes,1,0,2,"Ankles, hips and quads, before squats and leg day"
+squat-prep,Squat Prep,warmup,2,6,,Switch on,Glute bridges,12,reps,,1,0,1,"Ankles, hips and quads, before squats and leg day"
+squat-prep,Squat Prep,warmup,2,6,,Switch on,Bird dog,6,reps,yes,1,0,1,"Ankles, hips and quads, before squats and leg day"
+squat-prep,Squat Prep,warmup,2,6,,Rehearse,Squat to stand,6,reps,,1,0,2,"Ankles, hips and quads, before squats and leg day"
+squat-prep,Squat Prep,warmup,2,6,,Rehearse,Prisoner squats,10,reps,,1,0,2,"Ankles, hips and quads, before squats and leg day"
+stride-primer,Stride Primer,warmup,1,7,,Raise,March in place,45,sec,,1,0,1,A dynamic warm-up before an easy or long run
+stride-primer,Stride Primer,warmup,1,7,,Raise,Jog in place,60,sec,,1,0,1,A dynamic warm-up before an easy or long run
+stride-primer,Stride Primer,warmup,1,7,,Open,Leg swings (front to back),10,reps,yes,1,0,1,A dynamic warm-up before an easy or long run
+stride-primer,Stride Primer,warmup,1,7,,Open,Leg swings (side to side),10,reps,yes,1,0,1,A dynamic warm-up before an easy or long run
+stride-primer,Stride Primer,warmup,1,7,,Open,Walking knee hugs,6,reps,yes,1,0,1,A dynamic warm-up before an easy or long run
+stride-primer,Stride Primer,warmup,1,7,,Open,Walking quad pulls,6,reps,yes,1,0,1,A dynamic warm-up before an easy or long run
+stride-primer,Stride Primer,warmup,1,7,,Switch on,Calf raises,15,reps,,1,0,1,A dynamic warm-up before an easy or long run
+stride-primer,Stride Primer,warmup,1,7,,Switch on,Glute bridges,10,reps,,1,0,1,A dynamic warm-up before an easy or long run
+stride-primer,Stride Primer,warmup,1,7,,Rehearse,Skips (in place),30,sec,,1,0,1,A dynamic warm-up before an easy or long run
+speed-primer,Speed Primer,warmup,3,7,,Raise,Jog in place,60,sec,,1,0,1,"Drills and hops before sprints, intervals or hills"
+speed-primer,Speed Primer,warmup,3,7,,Raise,High knees,20,sec,,1,0,2,"Drills and hops before sprints, intervals or hills"
+speed-primer,Speed Primer,warmup,3,7,,Open,Leg swings (front to back),10,reps,yes,1,0,1,"Drills and hops before sprints, intervals or hills"
+speed-primer,Speed Primer,warmup,3,7,,Open,Leg swings (side to side),10,reps,yes,1,0,1,"Drills and hops before sprints, intervals or hills"
+speed-primer,Speed Primer,warmup,3,7,,Open,Walking lunges,6,reps,yes,1,0,2,"Drills and hops before sprints, intervals or hills"
+speed-primer,Speed Primer,warmup,3,7,,Switch on,Pogo hops,20,reps,,1,0,2,"Drills and hops before sprints, intervals or hills"
+speed-primer,Speed Primer,warmup,3,7,,Switch on,A-skips,20,sec,,1,0,2,"Drills and hops before sprints, intervals or hills"
+speed-primer,Speed Primer,warmup,3,7,,Rehearse,B-skips,20,sec,,1,0,3,"Drills and hops before sprints, intervals or hills"
+speed-primer,Speed Primer,warmup,3,7,,Rehearse,Run-throughs (strides in place),15,sec,,2,30,3,"Drills and hops before sprints, intervals or hills"
+stand-down,Stand Down,cooldown,1,6,,Settle,Walk it off,60,sec,,1,0,1,A 5-minute cool-down after anything
+stand-down,Stand Down,cooldown,1,6,,Stretch,Standing quad stretch,20,sec,yes,1,0,1,A 5-minute cool-down after anything
+stand-down,Stand Down,cooldown,1,6,,Stretch,Standing hamstring stretch,20,sec,yes,1,0,1,A 5-minute cool-down after anything
+stand-down,Stand Down,cooldown,1,6,,Stretch,Cross-body shoulder stretch,20,sec,yes,1,0,1,A 5-minute cool-down after anything
+stand-down,Stand Down,cooldown,1,6,,Stretch,Child's pose,45,sec,,1,0,1,A 5-minute cool-down after anything
+stand-down,Stand Down,cooldown,1,6,,Breathe,Box breathing,45,sec,,1,0,1,A 5-minute cool-down after anything
+upper-release,Upper Release,cooldown,1,9,,Settle,Walk it off,60,sec,,1,0,1,"Chest, shoulders, lats and arms after a push or pull day"
+upper-release,Upper Release,cooldown,1,9,,Settle,Shoulder rolls,8,reps,,1,0,1,"Chest, shoulders, lats and arms after a push or pull day"
+upper-release,Upper Release,cooldown,1,9,,Stretch,Doorway chest stretch,30,sec,yes,1,0,1,"Chest, shoulders, lats and arms after a push or pull day"
+upper-release,Upper Release,cooldown,1,9,,Stretch,Cross-body shoulder stretch,30,sec,yes,1,0,1,"Chest, shoulders, lats and arms after a push or pull day"
+upper-release,Upper Release,cooldown,1,9,,Stretch,Overhead triceps stretch,30,sec,yes,1,0,1,"Chest, shoulders, lats and arms after a push or pull day"
+upper-release,Upper Release,cooldown,1,9,,Stretch,Wall lat stretch,30,sec,,1,0,1,"Chest, shoulders, lats and arms after a push or pull day"
+upper-release,Upper Release,cooldown,1,9,,Stretch,Thread the needle,30,sec,yes,1,0,1,"Chest, shoulders, lats and arms after a push or pull day"
+upper-release,Upper Release,cooldown,1,9,,Breathe,Supine chest opener,60,sec,,1,0,1,"Chest, shoulders, lats and arms after a push or pull day"
+lower-release,Lower Release,cooldown,1,9,,Settle,Walk it off,60,sec,,1,0,1,"Quads, hamstrings, glutes and hips after leg day"
+lower-release,Lower Release,cooldown,1,9,,Stretch,Standing quad stretch,30,sec,yes,1,0,1,"Quads, hamstrings, glutes and hips after leg day"
+lower-release,Lower Release,cooldown,1,9,,Stretch,Kneeling hip flexor stretch,30,sec,yes,1,0,1,"Quads, hamstrings, glutes and hips after leg day"
+lower-release,Lower Release,cooldown,1,9,,Stretch,Lying hamstring stretch,30,sec,yes,1,0,1,"Quads, hamstrings, glutes and hips after leg day"
+lower-release,Lower Release,cooldown,1,9,,Stretch,Figure-four stretch (lying),30,sec,yes,1,0,1,"Quads, hamstrings, glutes and hips after leg day"
+lower-release,Lower Release,cooldown,1,9,,Stretch,Butterfly stretch,30,sec,,1,0,1,"Quads, hamstrings, glutes and hips after leg day"
+lower-release,Lower Release,cooldown,1,9,,Breathe,Legs up the wall,90,sec,,1,0,1,"Quads, hamstrings, glutes and hips after leg day"
+runners-release,Runner's Release,cooldown,1,11,,Settle,Walk it off,90,sec,,1,0,1,"Calves, hips and hamstrings after a run"
+runners-release,Runner's Release,cooldown,1,11,,Stretch,Wall calf stretch,30,sec,yes,1,0,1,"Calves, hips and hamstrings after a run"
+runners-release,Runner's Release,cooldown,1,11,,Stretch,Bent-knee calf stretch,30,sec,yes,1,0,1,"Calves, hips and hamstrings after a run"
+runners-release,Runner's Release,cooldown,1,11,,Stretch,Standing quad stretch,30,sec,yes,1,0,1,"Calves, hips and hamstrings after a run"
+runners-release,Runner's Release,cooldown,1,11,,Stretch,Kneeling hip flexor stretch,30,sec,yes,1,0,1,"Calves, hips and hamstrings after a run"
+runners-release,Runner's Release,cooldown,1,11,,Stretch,Lying hamstring stretch,30,sec,yes,1,0,1,"Calves, hips and hamstrings after a run"
+runners-release,Runner's Release,cooldown,1,11,,Stretch,Figure-four stretch (lying),30,sec,yes,1,0,1,"Calves, hips and hamstrings after a run"
+runners-release,Runner's Release,cooldown,1,11,,Breathe,Legs up the wall,90,sec,,1,0,1,"Calves, hips and hamstrings after a run"
+long-road-down,Long Road Down,cooldown,2,14,,Settle,Calm walk with long exhales,120,sec,,1,0,1,"A longer, gentle cool-down after a long run"
+long-road-down,Long Road Down,cooldown,2,14,,Stretch,Wall calf stretch,30,sec,yes,1,0,1,"A longer, gentle cool-down after a long run"
+long-road-down,Long Road Down,cooldown,2,14,,Stretch,Soleus stretch on step,30,sec,yes,1,0,1,"A longer, gentle cool-down after a long run"
+long-road-down,Long Road Down,cooldown,2,14,,Stretch,Low lunge (anjaneyasana),30,sec,yes,1,0,1,"A longer, gentle cool-down after a long run"
+long-road-down,Long Road Down,cooldown,2,14,,Stretch,Lying hamstring stretch,30,sec,yes,1,0,1,"A longer, gentle cool-down after a long run"
+long-road-down,Long Road Down,cooldown,2,14,,Stretch,Pigeon pose,45,sec,yes,1,0,2,"A longer, gentle cool-down after a long run"
+long-road-down,Long Road Down,cooldown,2,14,,Stretch,Supine spinal twist,30,sec,yes,1,0,1,"A longer, gentle cool-down after a long run"
+long-road-down,Long Road Down,cooldown,2,14,,Stretch,Happy baby,45,sec,,1,0,1,"A longer, gentle cool-down after a long run"
+long-road-down,Long Road Down,cooldown,2,14,,Breathe,Legs up the wall,120,sec,,1,0,1,"A longer, gentle cool-down after a long run"
+long-road-down,Long Road Down,cooldown,2,14,,Breathe,Physiological sigh,5,breaths,,1,0,1,"A longer, gentle cool-down after a long run"
+deep-release,Deep Release,cooldown,3,10,,Settle,Walk it off,60,sec,,1,0,1,A full-body cool-down with deeper hip and chest stretches
+deep-release,Deep Release,cooldown,3,10,,Stretch,Couch stretch,45,sec,yes,1,0,3,A full-body cool-down with deeper hip and chest stretches
+deep-release,Deep Release,cooldown,3,10,,Stretch,Lizard pose,30,sec,yes,1,0,2,A full-body cool-down with deeper hip and chest stretches
+deep-release,Deep Release,cooldown,3,10,,Stretch,Frog stretch,45,sec,,1,0,3,A full-body cool-down with deeper hip and chest stretches
+deep-release,Deep Release,cooldown,3,10,,Stretch,Doorway chest stretch,30,sec,yes,1,0,1,A full-body cool-down with deeper hip and chest stretches
+deep-release,Deep Release,cooldown,3,10,,Stretch,Puppy pose,45,sec,,1,0,1,A full-body cool-down with deeper hip and chest stretches
+deep-release,Deep Release,cooldown,3,10,,Stretch,Reclined spinal twist with arms wide,30,sec,yes,1,0,1,A full-body cool-down with deeper hip and chest stretches
+deep-release,Deep Release,cooldown,3,10,,Breathe,Crocodile breathing,60,sec,,1,0,1,A full-body cool-down with deeper hip and chest stretches
+still-water,Still Water,recovery,1,8,,Release,Cat-cow,8,reps,,1,0,1,Breathing and gentle movement for a rest day
+still-water,Still Water,recovery,1,8,,Release,Knees to chest rocking,45,sec,,1,0,1,Breathing and gentle movement for a rest day
+still-water,Still Water,recovery,1,8,,Easy movement,Windshield wipers (supine),8,reps,yes,1,0,1,Breathing and gentle movement for a rest day
+still-water,Still Water,recovery,1,8,,Easy movement,Supine marching,8,reps,yes,1,0,1,Breathing and gentle movement for a rest day
+still-water,Still Water,recovery,1,8,,Easy movement,Open books,6,reps,yes,1,0,1,Breathing and gentle movement for a rest day
+still-water,Still Water,recovery,1,8,,Breathe,Diaphragmatic breathing,120,sec,,1,0,1,Breathing and gentle movement for a rest day
+still-water,Still Water,recovery,1,8,,Breathe,Corpse pose,120,sec,,1,0,1,Breathing and gentle movement for a rest day
+sleep-ritual,Sleep Ritual,recovery,1,10,,Release,Neck side stretch,30,sec,yes,1,0,1,A wind-down before bed
+sleep-ritual,Sleep Ritual,recovery,1,10,,Release,Shoulder rolls,8,reps,,1,0,1,A wind-down before bed
+sleep-ritual,Sleep Ritual,recovery,1,10,,Easy movement,Child's pose,60,sec,,1,0,1,A wind-down before bed
+sleep-ritual,Sleep Ritual,recovery,1,10,,Easy movement,Supine spinal twist,45,sec,yes,1,0,1,A wind-down before bed
+sleep-ritual,Sleep Ritual,recovery,1,10,,Easy movement,Reclined bound angle,90,sec,,1,0,1,A wind-down before bed
+sleep-ritual,Sleep Ritual,recovery,1,10,,Breathe,Legs up the wall,120,sec,,1,0,1,A wind-down before bed
+sleep-ritual,Sleep Ritual,recovery,1,10,,Breathe,4-7-8 breathing,4,breaths,,1,0,1,A wind-down before bed
+desk-reset,Desk Reset,recovery,1,5,,Release,Chin tucks,10,reps,,1,0,1,"Neck, back and hips after a long time sitting"
+desk-reset,Desk Reset,recovery,1,5,,Release,Neck side stretch,20,sec,yes,1,0,1,"Neck, back and hips after a long time sitting"
+desk-reset,Desk Reset,recovery,1,5,,Easy movement,Standing cat-cow,8,reps,,1,0,1,"Neck, back and hips after a long time sitting"
+desk-reset,Desk Reset,recovery,1,5,,Easy movement,Shoulder blade squeezes,10,reps,,1,0,1,"Neck, back and hips after a long time sitting"
+desk-reset,Desk Reset,recovery,1,5,,Easy movement,Gentle side bends,6,reps,yes,1,0,1,"Neck, back and hips after a long time sitting"
+desk-reset,Desk Reset,recovery,1,5,,Easy movement,Standing hip sway,30,sec,,1,0,1,"Neck, back and hips after a long time sitting"
+desk-reset,Desk Reset,recovery,1,5,,Breathe,Box breathing,60,sec,,1,0,1,"Neck, back and hips after a long time sitting"
+sore-day,Sore Day,recovery,1,16,,Release,Calf self-massage,45,sec,yes,1,0,1,Gentle movement when everything is sore
+sore-day,Sore Day,recovery,1,16,,Release,Quad self-massage,45,sec,yes,1,0,1,Gentle movement when everything is sore
+sore-day,Sore Day,recovery,1,16,,Release,Glute self-massage (ball),45,sec,yes,1,0,1,Gentle movement when everything is sore
+sore-day,Sore Day,recovery,1,16,,Release,Upper back ball massage (wall),45,sec,,1,0,1,Gentle movement when everything is sore
+sore-day,Sore Day,recovery,1,16,,Easy movement,Easy walk,180,sec,,1,0,1,Gentle movement when everything is sore
+sore-day,Sore Day,recovery,1,16,,Easy movement,Pelvic tilts (supine),12,reps,,1,0,1,Gentle movement when everything is sore
+sore-day,Sore Day,recovery,1,16,,Easy movement,Windshield wipers (supine),8,reps,yes,1,0,1,Gentle movement when everything is sore
+sore-day,Sore Day,recovery,1,16,,Easy movement,Hug and rock,30,sec,,1,0,1,Gentle movement when everything is sore
+sore-day,Sore Day,recovery,1,16,,Breathe,Constructive rest,120,sec,,1,0,1,Gentle movement when everything is sore
+sore-day,Sore Day,recovery,1,16,,Breathe,Extended exhale breathing,90,sec,,1,0,1,Gentle movement when everything is sore
+restoration,Restoration,recovery,1,23,,Release,Foot rolling (ball or bottle),60,sec,yes,1,0,1,A longer recovery flow for a full rest day
+restoration,Restoration,recovery,1,23,,Release,Hamstring self-massage (ball),60,sec,yes,1,0,1,A longer recovery flow for a full rest day
+restoration,Restoration,recovery,1,23,,Release,Glute self-massage (ball),60,sec,yes,1,0,1,A longer recovery flow for a full rest day
+restoration,Restoration,recovery,1,23,,Release,Upper back ball massage (wall),60,sec,,1,0,1,A longer recovery flow for a full rest day
+restoration,Restoration,recovery,1,23,,Easy movement,Easy walk,240,sec,,1,0,1,A longer recovery flow for a full rest day
+restoration,Restoration,recovery,1,23,,Easy movement,Cat-cow,8,reps,,1,0,1,A longer recovery flow for a full rest day
+restoration,Restoration,recovery,1,23,,Easy movement,Quadruped rock backs,10,reps,,1,0,1,A longer recovery flow for a full rest day
+restoration,Restoration,recovery,1,23,,Easy movement,Supine leg circles,5,reps,yes,1,0,1,A longer recovery flow for a full rest day
+restoration,Restoration,recovery,1,23,,Easy movement,Gentle bear rocks,10,reps,,1,0,1,A longer recovery flow for a full rest day
+restoration,Restoration,recovery,1,23,,Easy movement,Sphinx pose,60,sec,,1,0,1,A longer recovery flow for a full rest day
+restoration,Restoration,recovery,1,23,,Easy movement,Supine twist with breathing,45,sec,yes,1,0,1,A longer recovery flow for a full rest day
+restoration,Restoration,recovery,1,23,,Breathe,Supported bridge,120,sec,,1,0,1,A longer recovery flow for a full rest day
+restoration,Restoration,recovery,1,23,,Breathe,Coherent breathing (5-5),180,sec,,1,0,1,A longer recovery flow for a full rest day
+hip-gate,Hip Gate,mobility,3,13,,Loosen,Hip circles (standing),8,reps,yes,1,0,1,"10 minutes of hip mobility for squats, lunges and long runs"
+hip-gate,Hip Gate,mobility,3,13,,Loosen,Quadruped rock backs,10,reps,,1,0,1,"10 minutes of hip mobility for squats, lunges and long runs"
+hip-gate,Hip Gate,mobility,3,13,,Main work,90/90 hip switches,8,reps,,2,15,1,"10 minutes of hip mobility for squats, lunges and long runs"
+hip-gate,Hip Gate,mobility,3,13,,Main work,Hip CARs (quadruped),3,reps,yes,2,15,2,"10 minutes of hip mobility for squats, lunges and long runs"
+hip-gate,Hip Gate,mobility,3,13,,Main work,Half-kneeling hip flexor rocks,10,reps,yes,2,15,1,"10 minutes of hip mobility for squats, lunges and long runs"
+hip-gate,Hip Gate,mobility,3,13,,Main work,Frog stretch rock-backs,8,reps,,2,15,3,"10 minutes of hip mobility for squats, lunges and long runs"
+hip-gate,Hip Gate,mobility,3,13,,Main work,Pigeon pose,45,sec,yes,1,0,2,"10 minutes of hip mobility for squats, lunges and long runs"
+hip-gate,Hip Gate,mobility,3,13,,Control,Seated hip internal rotation lifts,6,reps,yes,2,20,3,"10 minutes of hip mobility for squats, lunges and long runs"
+hip-gate,Hip Gate,mobility,3,13,,Control,Seated hip external rotation lifts,6,reps,yes,2,20,3,"10 minutes of hip mobility for squats, lunges and long runs"
+spine-unlock,Spine Unlock,mobility,2,8,,Loosen,Cat-cow,8,reps,,1,0,1,Upper-back rotation and extension for posture and pressing
+spine-unlock,Spine Unlock,mobility,2,8,,Loosen,Spine CARs (standing),2,reps,,1,0,2,Upper-back rotation and extension for posture and pressing
+spine-unlock,Spine Unlock,mobility,2,8,,Main work,Thoracic rotations (quadruped),8,reps,yes,2,15,1,Upper-back rotation and extension for posture and pressing
+spine-unlock,Spine Unlock,mobility,2,8,,Main work,Open books,8,reps,yes,2,15,1,Upper-back rotation and extension for posture and pressing
+spine-unlock,Spine Unlock,mobility,2,8,,Main work,Thread the needle,6,reps,yes,1,0,1,Upper-back rotation and extension for posture and pressing
+spine-unlock,Spine Unlock,mobility,2,8,,Main work,Thoracic extension over towel,8,reps,,2,15,1,Upper-back rotation and extension for posture and pressing
+spine-unlock,Spine Unlock,mobility,2,8,,Control,Prone Y-T-W,5,reps,,2,20,2,Upper-back rotation and extension for posture and pressing
+shoulder-gate,Shoulder Gate,mobility,3,11,,Loosen,Arm circles,10,reps,,1,0,1,Shoulder range for overhead pressing and pull-ups
+shoulder-gate,Shoulder Gate,mobility,3,11,,Loosen,Shoulder pass-throughs (towel),8,reps,,1,0,1,Shoulder range for overhead pressing and pull-ups
+shoulder-gate,Shoulder Gate,mobility,3,11,,Main work,Wall slides,10,reps,,2,15,1,Shoulder range for overhead pressing and pull-ups
+shoulder-gate,Shoulder Gate,mobility,3,11,,Main work,Puppy pose,45,sec,,2,15,1,Shoulder range for overhead pressing and pull-ups
+shoulder-gate,Shoulder Gate,mobility,3,11,,Main work,Sleeper stretch,30,sec,yes,1,0,2,Shoulder range for overhead pressing and pull-ups
+shoulder-gate,Shoulder Gate,mobility,3,11,,Main work,Behind-back reaches,6,reps,yes,1,0,1,Shoulder range for overhead pressing and pull-ups
+shoulder-gate,Shoulder Gate,mobility,3,11,,Main work,Doorway chest opener,30,sec,yes,1,0,1,Shoulder range for overhead pressing and pull-ups
+shoulder-gate,Shoulder Gate,mobility,3,11,,Control,Shoulder flexion lift-offs,6,reps,,2,20,3,Shoulder range for overhead pressing and pull-ups
+shoulder-gate,Shoulder Gate,mobility,3,11,,Control,Lying external rotation (side-lying),12,reps,yes,2,20,1,Shoulder range for overhead pressing and pull-ups
+ankle-key,Ankle Key,mobility,2,7,,Loosen,Ankle CARs,5,reps,yes,1,0,1,Ankle range for squats and running
+ankle-key,Ankle Key,mobility,2,7,,Loosen,Ankle circles,10,reps,yes,1,0,1,Ankle range for squats and running
+ankle-key,Ankle Key,mobility,2,7,,Main work,Ankle rocks (knee to wall),10,reps,yes,2,15,1,Ankle range for squats and running
+ankle-key,Ankle Key,mobility,2,7,,Main work,Calf raises with pause at bottom,10,reps,,1,0,2,Ankle range for squats and running
+ankle-key,Ankle Key,mobility,2,7,,Control,Tibialis raises,15,reps,,1,0,1,Ankle range for squats and running
+ankle-key,Ankle Key,mobility,2,7,,Control,Single-leg balance,30,sec,yes,1,0,1,Ankle range for squats and running
+wrist-key,Wrist Key,mobility,1,6,,Loosen,Wrist CARs,5,reps,yes,1,0,1,"Wrists and forearms for push-ups, pressing and planks"
+wrist-key,Wrist Key,mobility,1,6,,Loosen,Finger extensions,20,reps,,1,0,1,"Wrists and forearms for push-ups, pressing and planks"
+wrist-key,Wrist Key,mobility,1,6,,Main work,Wrist rocks (quadruped),10,reps,,2,15,1,"Wrists and forearms for push-ups, pressing and planks"
+wrist-key,Wrist Key,mobility,1,6,,Main work,Reverse wrist rocks,10,reps,,2,15,1,"Wrists and forearms for push-ups, pressing and planks"
+wrist-key,Wrist Key,mobility,1,6,,Main work,Forearm rotations,15,reps,,1,0,1,"Wrists and forearms for push-ups, pressing and planks"
+wrist-key,Wrist Key,mobility,1,6,,Control,Scapular push-ups,10,reps,,1,0,1,"Wrists and forearms for push-ups, pressing and planks"
+full-body-flow,Full Body Flow,mobility,3,15,,Loosen,Neck CARs,3,reps,,1,0,1,Head-to-toe mobility in 20 minutes
+full-body-flow,Full Body Flow,mobility,3,15,,Loosen,Arm circles,10,reps,,1,0,1,Head-to-toe mobility in 20 minutes
+full-body-flow,Full Body Flow,mobility,3,15,,Loosen,Cat-cow,8,reps,,1,0,1,Head-to-toe mobility in 20 minutes
+full-body-flow,Full Body Flow,mobility,3,15,,Loosen,Hip circles (standing),8,reps,yes,1,0,1,Head-to-toe mobility in 20 minutes
+full-body-flow,Full Body Flow,mobility,3,15,,Main work,World's greatest stretch,4,reps,yes,2,15,2,Head-to-toe mobility in 20 minutes
+full-body-flow,Full Body Flow,mobility,3,15,,Main work,Spiderman lunge with rotation,4,reps,yes,2,15,3,Head-to-toe mobility in 20 minutes
+full-body-flow,Full Body Flow,mobility,3,15,,Main work,Cossack squats,5,reps,yes,2,20,3,Head-to-toe mobility in 20 minutes
+full-body-flow,Full Body Flow,mobility,3,15,,Main work,90/90 hip switches,8,reps,,2,15,1,Head-to-toe mobility in 20 minutes
+full-body-flow,Full Body Flow,mobility,3,15,,Main work,Thoracic rotations (quadruped),6,reps,yes,2,15,1,Head-to-toe mobility in 20 minutes
+full-body-flow,Full Body Flow,mobility,3,15,,Main work,Downward dog to cobra flow,6,reps,,2,15,1,Head-to-toe mobility in 20 minutes
+full-body-flow,Full Body Flow,mobility,3,15,,Main work,Squat pry,45,sec,,2,15,1,Head-to-toe mobility in 20 minutes
+full-body-flow,Full Body Flow,mobility,3,15,,Main work,Wall slides,10,reps,,1,0,1,Head-to-toe mobility in 20 minutes
+full-body-flow,Full Body Flow,mobility,3,15,,Control,Bear to squat,6,reps,,2,20,3,Head-to-toe mobility in 20 minutes
+full-body-flow,Full Body Flow,mobility,3,15,,Control,Ankle CARs,5,reps,yes,1,0,1,Head-to-toe mobility in 20 minutes
+full-body-flow,Full Body Flow,mobility,3,15,,Control,Shoulder CARs,2,reps,yes,1,0,2,Head-to-toe mobility in 20 minutes
+full-body-flow,Full Body Flow,mobility,3,15,,Control,Hip CARs (quadruped),2,reps,yes,1,0,2,Head-to-toe mobility in 20 minutes
+controlled-range,Controlled Range,mobility,4,12,,Loosen,Hip CARs (quadruped),3,reps,yes,1,0,2,"End-range strength for hips and shoulders, no props"
+controlled-range,Controlled Range,mobility,4,12,,Loosen,Shoulder CARs,3,reps,yes,1,0,2,"End-range strength for hips and shoulders, no props"
+controlled-range,Controlled Range,mobility,4,12,,Main work,Hip airplanes,4,reps,yes,2,30,4,"End-range strength for hips and shoulders, no props"
+controlled-range,Controlled Range,mobility,4,12,,Main work,Shinbox get-ups,3,reps,yes,2,30,4,"End-range strength for hips and shoulders, no props"
+controlled-range,Controlled Range,mobility,4,12,,Main work,Active pancake lifts,6,reps,,2,30,4,"End-range strength for hips and shoulders, no props"
+controlled-range,Controlled Range,mobility,4,12,,Main work,Puppy pose,45,sec,,1,0,1,"End-range strength for hips and shoulders, no props"
+controlled-range,Controlled Range,mobility,4,12,,Control,Hip lift-offs (seated 90/90),5,reps,yes,2,20,4,"End-range strength for hips and shoulders, no props"
+controlled-range,Controlled Range,mobility,4,12,,Control,Hip flexor lift-offs,6,reps,yes,2,20,4,"End-range strength for hips and shoulders, no props"
+controlled-range,Controlled Range,mobility,4,12,,Control,Shoulder flexion lift-offs,8,reps,,2,20,3,"End-range strength for hips and shoulders, no props"
+iron-joints,Iron Joints,mobility,5,17,,Loosen,Hip CARs (quadruped),3,reps,yes,1,0,2,The hardest mobility bounty: deep squat and shoulder strength at end range
+iron-joints,Iron Joints,mobility,5,17,,Loosen,Ankle CARs,5,reps,yes,1,0,1,The hardest mobility bounty: deep squat and shoulder strength at end range
+iron-joints,Iron Joints,mobility,5,17,,Loosen,Shoulder CARs,3,reps,yes,1,0,2,The hardest mobility bounty: deep squat and shoulder strength at end range
+iron-joints,Iron Joints,mobility,5,17,,Main work,Deep squat hold,60,sec,,2,20,2,The hardest mobility bounty: deep squat and shoulder strength at end range
+iron-joints,Iron Joints,mobility,5,17,,Main work,Cossack squats,5,reps,yes,2,30,3,The hardest mobility bounty: deep squat and shoulder strength at end range
+iron-joints,Iron Joints,mobility,5,17,,Main work,Wall-facing squat,6,reps,,3,45,5,The hardest mobility bounty: deep squat and shoulder strength at end range
+iron-joints,Iron Joints,mobility,5,17,,Main work,Compression lifts,8,reps,,3,30,4,The hardest mobility bounty: deep squat and shoulder strength at end range
+iron-joints,Iron Joints,mobility,5,17,,Main work,Pike compressions,10,reps,,2,20,3,The hardest mobility bounty: deep squat and shoulder strength at end range
+iron-joints,Iron Joints,mobility,5,17,,Control,Straddle compression lifts,6,reps,yes,2,30,5,The hardest mobility bounty: deep squat and shoulder strength at end range
+iron-joints,Iron Joints,mobility,5,17,,Control,Skin the cat regression (floor),5,reps,,2,45,5,The hardest mobility bounty: deep squat and shoulder strength at end range
+iron-joints,Iron Joints,mobility,5,17,,Control,Shoulder flexion lift-offs,8,reps,,2,20,3,The hardest mobility bounty: deep squat and shoulder strength at end range
+pike-1,Pike Path I,flexibility,1,14,,Test,Pike test,20,sec,,1,0,1,Toward touching your toes with straight legs
+pike-1,Pike Path I,flexibility,1,14,,Stack,Sciatic nerve floss,10,reps,yes,1,0,1,Toward touching your toes with straight legs
+pike-1,Pike Path I,flexibility,1,14,,Stack,Lying hamstring stretch,30,sec,yes,3,10,1,Toward touching your toes with straight legs
+pike-1,Pike Path I,flexibility,1,14,,Stack,Half splits,30,sec,yes,2,15,1,Toward touching your toes with straight legs
+pike-1,Pike Path I,flexibility,1,14,,Stack,Seated forward fold,45,sec,,2,15,1,Toward touching your toes with straight legs
+pike-1,Pike Path I,flexibility,1,14,,Stack,Active straight-leg raises,8,reps,yes,3,15,1,Toward touching your toes with straight legs
+pike-1,Pike Path I,flexibility,1,14,,Retest,Pike test,20,sec,,1,0,1,Toward touching your toes with straight legs
+pike-2,Pike Path II,flexibility,4,11,,Test,Pike test,20,sec,,1,0,1,Toward folding flat over straight legs
+pike-2,Pike Path II,flexibility,4,11,,Stack,Sciatic nerve floss,10,reps,yes,1,0,1,Toward folding flat over straight legs
+pike-2,Pike Path II,flexibility,4,11,,Stack,Lying hamstring stretch,30,sec,yes,2,10,1,Toward folding flat over straight legs
+pike-2,Pike Path II,flexibility,4,11,,Stack,Jefferson curl (bodyweight),5,reps,,2,30,4,Toward folding flat over straight legs
+pike-2,Pike Path II,flexibility,4,11,,Stack,Hamstring PNF contract-relax,3,reps,yes,1,0,2,Toward folding flat over straight legs
+pike-2,Pike Path II,flexibility,4,11,,Stack,Pike PNF (contract-relax),3,reps,,2,20,2,Toward folding flat over straight legs
+pike-2,Pike Path II,flexibility,4,11,,Stack,Pike pulses,10,reps,,2,20,3,Toward folding flat over straight legs
+pike-2,Pike Path II,flexibility,4,11,,Stack,Pike compressions,10,reps,,3,20,3,Toward folding flat over straight legs
+pike-2,Pike Path II,flexibility,4,11,,Retest,Pike test,20,sec,,1,0,1,Toward folding flat over straight legs
+pancake-1,Pancake Path I,flexibility,2,11,,Test,Pancake test,20,sec,,1,0,1,Toward folding forward with your legs wide
+pancake-1,Pancake Path I,flexibility,2,11,,Stack,Butterfly stretch,45,sec,,1,0,1,Toward folding forward with your legs wide
+pancake-1,Pancake Path I,flexibility,2,11,,Stack,Frog rock-backs,10,reps,,2,15,2,Toward folding forward with your legs wide
+pancake-1,Pancake Path I,flexibility,2,11,,Stack,Pancake good mornings,8,reps,,3,20,2,Toward folding forward with your legs wide
+pancake-1,Pancake Path I,flexibility,2,11,,Stack,Seated straddle,45,sec,,2,15,1,Toward folding forward with your legs wide
+pancake-1,Pancake Path I,flexibility,2,11,,Stack,Seated straddle reach,30,sec,,1,0,1,Toward folding forward with your legs wide
+pancake-1,Pancake Path I,flexibility,2,11,,Stack,Side-lying adduction lifts,12,reps,yes,2,20,1,Toward folding forward with your legs wide
+pancake-1,Pancake Path I,flexibility,2,11,,Retest,Pancake test,20,sec,,1,0,1,Toward folding forward with your legs wide
+pancake-2,Pancake Path II,flexibility,4,11,,Test,Pancake test,20,sec,,1,0,1,Toward chest-to-floor in a wide straddle
+pancake-2,Pancake Path II,flexibility,4,11,,Stack,Frog pose,60,sec,,1,0,3,Toward chest-to-floor in a wide straddle
+pancake-2,Pancake Path II,flexibility,4,11,,Stack,Horse stance hold,30,sec,,2,20,2,Toward chest-to-floor in a wide straddle
+pancake-2,Pancake Path II,flexibility,4,11,,Stack,Pancake good mornings,8,reps,,2,20,2,Toward chest-to-floor in a wide straddle
+pancake-2,Pancake Path II,flexibility,4,11,,Stack,Pancake PNF (contract-relax),3,reps,,2,20,3,Toward chest-to-floor in a wide straddle
+pancake-2,Pancake Path II,flexibility,4,11,,Stack,Pancake stretch,45,sec,,3,20,4,Toward chest-to-floor in a wide straddle
+pancake-2,Pancake Path II,flexibility,4,11,,Stack,Straddle leg lifts (seated),6,reps,yes,2,20,4,Toward chest-to-floor in a wide straddle
+pancake-2,Pancake Path II,flexibility,4,11,,Retest,Pancake test,20,sec,,1,0,1,Toward chest-to-floor in a wide straddle
+front-split-1,Front Split Path I,flexibility,3,14,,Test,Front split test,20,sec,yes,1,0,1,Hip flexors and hamstrings for the front split
+front-split-1,Front Split Path I,flexibility,3,14,,Stack,Femoral nerve floss,8,reps,yes,1,0,2,Hip flexors and hamstrings for the front split
+front-split-1,Front Split Path I,flexibility,3,14,,Stack,Hip flexor lunge pulses,10,reps,yes,1,0,2,Hip flexors and hamstrings for the front split
+front-split-1,Front Split Path I,flexibility,3,14,,Stack,Low lunge,45,sec,yes,2,15,1,Hip flexors and hamstrings for the front split
+front-split-1,Front Split Path I,flexibility,3,14,,Stack,Elevated half split,30,sec,yes,2,15,1,Hip flexors and hamstrings for the front split
+front-split-1,Front Split Path I,flexibility,3,14,,Stack,Lizard pose,45,sec,yes,1,0,2,Hip flexors and hamstrings for the front split
+front-split-1,Front Split Path I,flexibility,3,14,,Stack,Couch stretch,45,sec,yes,1,0,3,Hip flexors and hamstrings for the front split
+front-split-1,Front Split Path I,flexibility,3,14,,Retest,Front split test,20,sec,yes,1,0,1,Hip flexors and hamstrings for the front split
+front-split-2,Front Split Path II,flexibility,5,15,,Test,Front split test,20,sec,yes,1,0,1,Working into the full front split
+front-split-2,Front Split Path II,flexibility,5,15,,Stack,Hip flexor lunge pulses,10,reps,yes,1,0,2,Working into the full front split
+front-split-2,Front Split Path II,flexibility,5,15,,Stack,Couch stretch,60,sec,yes,1,0,3,Working into the full front split
+front-split-2,Front Split Path II,flexibility,5,15,,Stack,Hip flexor PNF,3,reps,yes,1,0,3,Working into the full front split
+front-split-2,Front Split Path II,flexibility,5,15,,Stack,Front split hamstring curl press,3,reps,yes,2,20,4,Working into the full front split
+front-split-2,Front Split Path II,flexibility,5,15,,Stack,Front split slides,4,reps,yes,2,30,5,Working into the full front split
+front-split-2,Front Split Path II,flexibility,5,15,,Stack,Front splits (supported),45,sec,yes,2,30,5,Working into the full front split
+front-split-2,Front Split Path II,flexibility,5,15,,Stack,Front split back-knee lifts,4,reps,yes,2,30,5,Working into the full front split
+front-split-2,Front Split Path II,flexibility,5,15,,Retest,Front split test,20,sec,yes,1,0,1,Working into the full front split
+side-split,Side Split Path,flexibility,3,12,,Test,Side split test,20,sec,,1,0,1,Toward the side (middle) split
+side-split,Side Split Path,flexibility,3,12,,Stack,Frog rock-backs,10,reps,,1,0,2,Toward the side (middle) split
+side-split,Side Split Path,flexibility,3,12,,Stack,Horse stance hold,30,sec,,2,20,2,Toward the side (middle) split
+side-split,Side Split Path,flexibility,3,12,,Stack,Butterfly stretch,45,sec,,1,0,1,Toward the side (middle) split
+side-split,Side Split Path,flexibility,3,12,,Stack,Adductor PNF (butterfly),3,reps,,2,20,3,Toward the side (middle) split
+side-split,Side Split Path,flexibility,3,12,,Stack,Cossack squats,5,reps,yes,2,30,3,Toward the side (middle) split
+side-split,Side Split Path,flexibility,3,12,,Stack,Seated straddle,45,sec,,2,15,1,Toward the side (middle) split
+side-split,Side Split Path,flexibility,3,12,,Stack,Side-lying adduction lifts,12,reps,yes,2,20,1,Toward the side (middle) split
+side-split,Side Split Path,flexibility,3,12,,Retest,Side split test,20,sec,,1,0,1,Toward the side (middle) split
+bridge-1,Bridge Path I,flexibility,2,9,,Test,Bridge test,10,sec,,1,0,1,Upper back and front of the hips toward a back bridge
+bridge-1,Bridge Path I,flexibility,2,9,,Stack,Thoracic extension over towel,60,sec,,1,0,1,Upper back and front of the hips toward a back bridge
+bridge-1,Bridge Path I,flexibility,2,9,,Stack,Kneeling hip flexor stretch,45,sec,yes,1,0,1,Upper back and front of the hips toward a back bridge
+bridge-1,Bridge Path I,flexibility,2,9,,Stack,Puppy pose,45,sec,,1,0,1,Upper back and front of the hips toward a back bridge
+bridge-1,Bridge Path I,flexibility,2,9,,Stack,Thoracic bridge (prone),8,reps,,2,20,2,Upper back and front of the hips toward a back bridge
+bridge-1,Bridge Path I,flexibility,2,9,,Stack,Bridge pose,20,sec,,3,15,2,Upper back and front of the hips toward a back bridge
+bridge-1,Bridge Path I,flexibility,2,9,,Stack,Bridge holds (arms overhead),10,sec,,3,15,2,Upper back and front of the hips toward a back bridge
+bridge-1,Bridge Path I,flexibility,2,9,,Retest,Bridge test,10,sec,,1,0,1,Upper back and front of the hips toward a back bridge
+bridge-2,Bridge Path II,flexibility,5,9,,Test,Bridge test,10,sec,,1,0,1,Toward a full back bridge
+bridge-2,Bridge Path II,flexibility,5,9,,Stack,Supported fish pose,60,sec,,1,0,1,Toward a full back bridge
+bridge-2,Bridge Path II,flexibility,5,9,,Stack,Couch stretch,45,sec,yes,1,0,3,Toward a full back bridge
+bridge-2,Bridge Path II,flexibility,5,9,,Stack,Thoracic bridge (prone),8,reps,,2,20,2,Toward a full back bridge
+bridge-2,Bridge Path II,flexibility,5,9,,Stack,Camel pose,20,sec,,2,20,4,Toward a full back bridge
+bridge-2,Bridge Path II,flexibility,5,9,,Stack,Chair-supported bridge,15,sec,,3,30,4,Toward a full back bridge
+bridge-2,Bridge Path II,flexibility,5,9,,Stack,Wall walk-down bridge prep,3,reps,,2,45,5,Toward a full back bridge
+bridge-2,Bridge Path II,flexibility,5,9,,Retest,Bridge test,10,sec,,1,0,1,Toward a full back bridge
+overhead,Overhead Path,flexibility,3,10,,Test,Overhead test,10,sec,,1,0,1,"Arms straight overhead without arching, for presses and pull-ups"
+overhead,Overhead Path,flexibility,3,10,,Stack,Puppy pose,45,sec,,1,0,1,"Arms straight overhead without arching, for presses and pull-ups"
+overhead,Overhead Path,flexibility,3,10,,Stack,Wall lat stretch,30,sec,,2,15,1,"Arms straight overhead without arching, for presses and pull-ups"
+overhead,Overhead Path,flexibility,3,10,,Stack,Lat PNF on bench,3,reps,,2,20,2,"Arms straight overhead without arching, for presses and pull-ups"
+overhead,Overhead Path,flexibility,3,10,,Stack,Doorway chest stretch,30,sec,yes,2,15,1,"Arms straight overhead without arching, for presses and pull-ups"
+overhead,Overhead Path,flexibility,3,10,,Stack,Lat stretch with active lift,6,reps,yes,2,20,3,"Arms straight overhead without arching, for presses and pull-ups"
+overhead,Overhead Path,flexibility,3,10,,Stack,Overhead wall lift-offs,8,reps,,2,20,3,"Arms straight overhead without arching, for presses and pull-ups"
+overhead,Overhead Path,flexibility,3,10,,Retest,Overhead test,10,sec,,1,0,1,"Arms straight overhead without arching, for presses and pull-ups"
+deep-squat,Deep Squat Path,flexibility,2,9,,Test,Deep squat test,20,sec,,1,0,1,Toward sitting flat-footed in a full squat
+deep-squat,Deep Squat Path,flexibility,2,9,,Stack,Ankle dorsiflexion stretch,30,sec,yes,1,0,1,Toward sitting flat-footed in a full squat
+deep-squat,Deep Squat Path,flexibility,2,9,,Stack,Squat ankle pulses,10,reps,,1,0,1,Toward sitting flat-footed in a full squat
+deep-squat,Deep Squat Path,flexibility,2,9,,Stack,Squat hip pry with knee pushes,10,reps,,1,0,1,Toward sitting flat-footed in a full squat
+deep-squat,Deep Squat Path,flexibility,2,9,,Stack,Deep squat heel-elevated hold,45,sec,,2,20,1,Toward sitting flat-footed in a full squat
+deep-squat,Deep Squat Path,flexibility,2,9,,Stack,Deep squat breathing hold,60,sec,,2,20,1,Toward sitting flat-footed in a full squat
+deep-squat,Deep Squat Path,flexibility,2,9,,Stack,Squat to stand,6,reps,,2,20,2,Toward sitting flat-footed in a full squat
+deep-squat,Deep Squat Path,flexibility,2,9,,Retest,Deep squat test,20,sec,,1,0,1,Toward sitting flat-footed in a full squat
+cuff-guard,Cuff Guard,prehab,1,11,,Activate,Scapular push-ups,12,reps,,1,0,1,"Rotator cuff and shoulder blades, for healthy pressing"
+cuff-guard,Cuff Guard,prehab,1,11,,Activate,Wall slides,10,reps,,1,0,1,"Rotator cuff and shoulder blades, for healthy pressing"
+cuff-guard,Cuff Guard,prehab,1,11,,Strength rounds,Side-lying external rotation,15,reps,yes,2,30,1,"Rotator cuff and shoulder blades, for healthy pressing"
+cuff-guard,Cuff Guard,prehab,1,11,,Strength rounds,Prone Y raises,12,reps,,2,30,1,"Rotator cuff and shoulder blades, for healthy pressing"
+cuff-guard,Cuff Guard,prehab,1,11,,Strength rounds,Prone T raises,12,reps,,2,30,1,"Rotator cuff and shoulder blades, for healthy pressing"
+cuff-guard,Cuff Guard,prehab,1,11,,Hold,Isometric external rotation (doorframe),20,sec,yes,2,20,1,"Rotator cuff and shoulder blades, for healthy pressing"
+knee-guard,Knee Guard,prehab,3,9,,Activate,Glute bridge (easy),12,reps,,1,0,1,"Quads and knees, for squats, stairs and running"
+knee-guard,Knee Guard,prehab,3,9,,Activate,Wall sit,30,sec,,1,0,2,"Quads and knees, for squats, stairs and running"
+knee-guard,Knee Guard,prehab,3,9,,Strength rounds,Spanish squat hold (wall),30,sec,,2,30,3,"Quads and knees, for squats, stairs and running"
+knee-guard,Knee Guard,prehab,3,9,,Strength rounds,Step-downs,8,reps,yes,2,30,3,"Quads and knees, for squats, stairs and running"
+knee-guard,Knee Guard,prehab,3,9,,Strength rounds,Tibialis raises,15,reps,,2,20,1,"Quads and knees, for squats, stairs and running"
+knee-guard,Knee Guard,prehab,3,9,,Hold,Split squat isometric,30,sec,yes,1,0,3,"Quads and knees, for squats, stairs and running"
+ankle-guard,Ankle Guard,prehab,2,11,,Activate,Short foot drill,10,reps,yes,1,0,1,"Ankles and feet, for runners"
+ankle-guard,Ankle Guard,prehab,2,11,,Activate,Toe yoga,10,reps,,1,0,1,"Ankles and feet, for runners"
+ankle-guard,Ankle Guard,prehab,2,11,,Strength rounds,Single-leg calf raises,12,reps,yes,2,30,2,"Ankles and feet, for runners"
+ankle-guard,Ankle Guard,prehab,2,11,,Strength rounds,Tibialis raises,20,reps,,2,20,1,"Ankles and feet, for runners"
+ankle-guard,Ankle Guard,prehab,2,11,,Strength rounds,Single-leg balance with eyes closed,20,sec,yes,2,15,2,"Ankles and feet, for runners"
+ankle-guard,Ankle Guard,prehab,2,11,,Hold,Isometric calf hold,30,sec,yes,1,0,2,"Ankles and feet, for runners"
+core-seal,Core Seal,prehab,2,8,,Activate,Breathing brace holds,5,reps,,1,0,1,A 10-minute core stability finisher
+core-seal,Core Seal,prehab,2,8,,Activate,Dead bug,8,reps,yes,1,0,1,A 10-minute core stability finisher
+core-seal,Core Seal,prehab,2,8,,Strength rounds,Plank,30,sec,,2,20,2,A 10-minute core stability finisher
+core-seal,Core Seal,prehab,2,8,,Strength rounds,Kneeling side plank,20,sec,yes,2,20,2,A 10-minute core stability finisher
+core-seal,Core Seal,prehab,2,8,,Strength rounds,Bird dog,8,reps,yes,1,0,1,A 10-minute core stability finisher
+core-seal,Core Seal,prehab,2,8,,Strength rounds,Reverse crunch,10,reps,,1,0,2,A 10-minute core stability finisher
+core-seal,Core Seal,prehab,2,8,,Hold,Hollow hold tucked,20,sec,,2,20,2,A 10-minute core stability finisher
+glute-forge,Glute Forge,prehab,3,14,,Activate,Clamshells,15,reps,yes,1,0,1,A glute strength finisher
+glute-forge,Glute Forge,prehab,3,14,,Activate,Fire hydrants,12,reps,yes,1,0,1,A glute strength finisher
+glute-forge,Glute Forge,prehab,3,14,,Strength rounds,Single-leg glute bridge,10,reps,yes,3,30,2,A glute strength finisher
+glute-forge,Glute Forge,prehab,3,14,,Strength rounds,Side plank hip dips,8,reps,yes,2,20,3,A glute strength finisher
+glute-forge,Glute Forge,prehab,3,14,,Strength rounds,Bulgarian split squat,8,reps,yes,2,45,3,A glute strength finisher
+glute-forge,Glute Forge,prehab,3,14,,Hold,Glute bridge isometric,30,sec,,1,0,2,A glute strength finisher
+back-guard,Back Guard,prehab,3,10,,Activate,Cat-cow,8,reps,,1,0,1,Lower back and hip strength for lifting and sitting
+back-guard,Back Guard,prehab,3,10,,Activate,Bird dog,8,reps,yes,1,0,1,Lower back and hip strength for lifting and sitting
+back-guard,Back Guard,prehab,3,10,,Strength rounds,Back extensions (floor),12,reps,,2,30,1,Lower back and hip strength for lifting and sitting
+back-guard,Back Guard,prehab,3,10,,Strength rounds,Single-leg RDL (bodyweight),8,reps,yes,2,30,3,Lower back and hip strength for lifting and sitting
+back-guard,Back Guard,prehab,3,10,,Strength rounds,Side plank,25,sec,yes,2,20,3,Lower back and hip strength for lifting and sitting
+back-guard,Back Guard,prehab,3,10,,Hold,Superman hold,20,sec,,2,20,2,Lower back and hip strength for lifting and sitting
+hamstring-armor,Hamstring Armor,prehab,5,8,,Activate,Glute bridges,12,reps,,1,0,1,Hamstring strength for sprinting and deadlifts
+hamstring-armor,Hamstring Armor,prehab,5,8,,Activate,Isometric hamstring heel dig,20,sec,yes,1,0,2,Hamstring strength for sprinting and deadlifts
+hamstring-armor,Hamstring Armor,prehab,5,8,,Strength rounds,Hamstring walkouts,6,reps,,2,30,3,Hamstring strength for sprinting and deadlifts
+hamstring-armor,Hamstring Armor,prehab,5,8,,Strength rounds,Single-leg RDL (bodyweight),8,reps,yes,2,30,3,Hamstring strength for sprinting and deadlifts
+hamstring-armor,Hamstring Armor,prehab,5,8,,Strength rounds,Slider leg curls (towel),6,reps,,2,45,4,Hamstring strength for sprinting and deadlifts
+hamstring-armor,Hamstring Armor,prehab,5,8,,Hold,Nordic curl (assisted),3,reps,,2,60,5,Hamstring strength for sprinting and deadlifts
+trial-of-iron,Trial of Iron,prehab,5,10,,Activate,Dead bug,8,reps,yes,1,0,1,"The hardest finisher: groin, hamstrings and core"
+trial-of-iron,Trial of Iron,prehab,5,10,,Activate,Lateral lunges,6,reps,yes,1,0,2,"The hardest finisher: groin, hamstrings and core"
+trial-of-iron,Trial of Iron,prehab,5,10,,Strength rounds,Copenhagen plank (short lever),15,sec,yes,2,30,4,"The hardest finisher: groin, hamstrings and core"
+trial-of-iron,Trial of Iron,prehab,5,10,,Strength rounds,Copenhagen plank (long lever),10,sec,yes,2,45,5,"The hardest finisher: groin, hamstrings and core"
+trial-of-iron,Trial of Iron,prehab,5,10,,Strength rounds,Nordic curl (assisted),4,reps,,2,60,5,"The hardest finisher: groin, hamstrings and core"
+trial-of-iron,Trial of Iron,prehab,5,10,,Strength rounds,Hollow rocks,10,reps,,2,30,4,"The hardest finisher: groin, hamstrings and core"
+trial-of-iron,Trial of Iron,prehab,5,10,,Hold,Long-lever plank,20,sec,,1,0,4,"The hardest finisher: groin, hamstrings and core"
+press-prep-band,Press Prep · Band,warmup,2,6,resistance band,Raise,Jumping jacks,30,sec,,1,0,1,"Shoulder warm-up with a band, before pressing"
+press-prep-band,Press Prep · Band,warmup,2,6,resistance band,Open,Band dislocates,10,reps,,1,0,1,"Shoulder warm-up with a band, before pressing"
+press-prep-band,Press Prep · Band,warmup,2,6,resistance band,Open,Thoracic rotations (quadruped),6,reps,yes,1,0,1,"Shoulder warm-up with a band, before pressing"
+press-prep-band,Press Prep · Band,warmup,2,6,resistance band,Switch on,Band pull-aparts,15,reps,,1,0,1,"Shoulder warm-up with a band, before pressing"
+press-prep-band,Press Prep · Band,warmup,2,6,resistance band,Switch on,Band face pulls,12,reps,,1,0,1,"Shoulder warm-up with a band, before pressing"
+press-prep-band,Press Prep · Band,warmup,2,6,resistance band,Switch on,Band external rotation,12,reps,yes,1,0,1,"Shoulder warm-up with a band, before pressing"
+press-prep-band,Press Prep · Band,warmup,2,6,resistance band,Rehearse,Band chest press,10,reps,,1,0,2,"Shoulder warm-up with a band, before pressing"
+hinge-prep-band,Hinge Prep · Band,warmup,2,6,resistance band,Raise,Jog in place,45,sec,,1,0,1,Glute and hinge warm-up with a mini band
+hinge-prep-band,Hinge Prep · Band,warmup,2,6,resistance band,Open,Cat-cow,8,reps,,1,0,1,Glute and hinge warm-up with a mini band
+hinge-prep-band,Hinge Prep · Band,warmup,2,6,resistance band,Open,Leg swings (front to back),10,reps,yes,1,0,1,Glute and hinge warm-up with a mini band
+hinge-prep-band,Hinge Prep · Band,warmup,2,6,resistance band,Switch on,Banded glute bridges,15,reps,,1,0,1,Glute and hinge warm-up with a mini band
+hinge-prep-band,Hinge Prep · Band,warmup,2,6,resistance band,Switch on,Banded lateral walks,10,reps,yes,1,0,2,Glute and hinge warm-up with a mini band
+hinge-prep-band,Hinge Prep · Band,warmup,2,6,resistance band,Switch on,Banded monster walks,10,reps,,1,0,2,Glute and hinge warm-up with a mini band
+hinge-prep-band,Hinge Prep · Band,warmup,2,6,resistance band,Rehearse,Banded hip hinge (pull-through),12,reps,,1,0,2,Glute and hinge warm-up with a mini band
+runners-release-roller,Runner's Release · Roller,cooldown,2,12,foam roller / resistance band,Settle,Walk it off,60,sec,,1,0,1,Foam rolling and stretching after a run
+runners-release-roller,Runner's Release · Roller,cooldown,2,12,foam roller / resistance band,Release,Foam roll calves,45,sec,yes,1,0,1,Foam rolling and stretching after a run
+runners-release-roller,Runner's Release · Roller,cooldown,2,12,foam roller / resistance band,Release,Foam roll quads,45,sec,yes,1,0,1,Foam rolling and stretching after a run
+runners-release-roller,Runner's Release · Roller,cooldown,2,12,foam roller / resistance band,Release,Foam roll IT band area (outer thigh),30,sec,yes,1,0,2,Foam rolling and stretching after a run
+runners-release-roller,Runner's Release · Roller,cooldown,2,12,foam roller / resistance band,Release,Foam roll glutes,45,sec,yes,1,0,1,Foam rolling and stretching after a run
+runners-release-roller,Runner's Release · Roller,cooldown,2,12,foam roller / resistance band,Stretch,Wall calf stretch,30,sec,yes,1,0,1,Foam rolling and stretching after a run
+runners-release-roller,Runner's Release · Roller,cooldown,2,12,foam roller / resistance band,Stretch,Kneeling hip flexor stretch,30,sec,yes,1,0,1,Foam rolling and stretching after a run
+runners-release-roller,Runner's Release · Roller,cooldown,2,12,foam roller / resistance band,Stretch,Band hamstring stretch,30,sec,yes,1,0,1,Foam rolling and stretching after a run
+runners-release-roller,Runner's Release · Roller,cooldown,2,12,foam roller / resistance band,Breathe,Foam roller supported bridge,60,sec,,1,0,1,Foam rolling and stretching after a run
+upper-release-roller,Upper Release · Roller,cooldown,2,9,foam roller / resistance band,Release,Foam roll upper back,60,sec,,1,0,1,Rolling and stretching after a push or pull day
+upper-release-roller,Upper Release · Roller,cooldown,2,9,foam roller / resistance band,Release,Foam roll lats,45,sec,yes,1,0,1,Rolling and stretching after a push or pull day
+upper-release-roller,Upper Release · Roller,cooldown,2,9,foam roller / resistance band,Release,Foam roll pecs,30,sec,yes,1,0,2,Rolling and stretching after a push or pull day
+upper-release-roller,Upper Release · Roller,cooldown,2,9,foam roller / resistance band,Stretch,Foam roller snow angels,8,reps,,1,0,1,Rolling and stretching after a push or pull day
+upper-release-roller,Upper Release · Roller,cooldown,2,9,foam roller / resistance band,Stretch,Doorway chest stretch,30,sec,yes,1,0,1,Rolling and stretching after a push or pull day
+upper-release-roller,Upper Release · Roller,cooldown,2,9,foam roller / resistance band,Stretch,Band overhead lat stretch,30,sec,yes,1,0,1,Rolling and stretching after a push or pull day
+upper-release-roller,Upper Release · Roller,cooldown,2,9,foam roller / resistance band,Breathe,Foam roller chest opener,90,sec,,1,0,1,Rolling and stretching after a push or pull day
+sore-day-roller,Sore Day · Roller,recovery,1,17,foam roller,Release,Foam roll calves,60,sec,yes,1,0,1,Full-body foam rolling for a sore day
+sore-day-roller,Sore Day · Roller,recovery,1,17,foam roller,Release,Foam roll quads,60,sec,yes,1,0,1,Full-body foam rolling for a sore day
+sore-day-roller,Sore Day · Roller,recovery,1,17,foam roller,Release,Foam roll hamstrings,60,sec,yes,1,0,1,Full-body foam rolling for a sore day
+sore-day-roller,Sore Day · Roller,recovery,1,17,foam roller,Release,Foam roll glutes,60,sec,yes,1,0,1,Full-body foam rolling for a sore day
+sore-day-roller,Sore Day · Roller,recovery,1,17,foam roller,Release,Foam roll upper back,60,sec,,1,0,1,Full-body foam rolling for a sore day
+sore-day-roller,Sore Day · Roller,recovery,1,17,foam roller,Release,Foam roll lats,45,sec,yes,1,0,1,Full-body foam rolling for a sore day
+sore-day-roller,Sore Day · Roller,recovery,1,17,foam roller,Easy movement,Easy walk,120,sec,,1,0,1,Full-body foam rolling for a sore day
+sore-day-roller,Sore Day · Roller,recovery,1,17,foam roller,Easy movement,Foam roller thoracic extensions,6,reps,,1,0,1,Full-body foam rolling for a sore day
+sore-day-roller,Sore Day · Roller,recovery,1,17,foam roller,Breathe,Foam roller breathing (lengthwise),120,sec,,1,0,1,Full-body foam rolling for a sore day
+spine-unlock-roller,Spine Unlock · Roller,mobility,1,5,foam roller / resistance band,Loosen,Cat-cow,8,reps,,1,0,1,Upper-back mobility on a foam roller
+spine-unlock-roller,Spine Unlock · Roller,mobility,1,5,foam roller / resistance band,Loosen,Foam roll upper back,45,sec,,1,0,1,Upper-back mobility on a foam roller
+spine-unlock-roller,Spine Unlock · Roller,mobility,1,5,foam roller / resistance band,Main work,Foam roller thoracic extensions,10,reps,,1,0,1,Upper-back mobility on a foam roller
+spine-unlock-roller,Spine Unlock · Roller,mobility,1,5,foam roller / resistance band,Main work,Foam roller T-spine rotations,8,reps,yes,1,0,1,Upper-back mobility on a foam roller
+spine-unlock-roller,Spine Unlock · Roller,mobility,1,5,foam roller / resistance band,Main work,Foam roller lat flossing,8,reps,yes,1,0,1,Upper-back mobility on a foam roller
+spine-unlock-roller,Spine Unlock · Roller,mobility,1,5,foam roller / resistance band,Control,Foam roller wall slides,10,reps,,1,0,1,Upper-back mobility on a foam roller
+spine-unlock-roller,Spine Unlock · Roller,mobility,1,5,foam roller / resistance band,Control,Band face pulls,12,reps,,1,0,1,Upper-back mobility on a foam roller
+hip-gate-band,Hip Gate · Band,mobility,3,8,resistance band,Loosen,Hip circles (standing),8,reps,yes,1,0,1,Hip mobility with a band for extra stretch
+hip-gate-band,Hip Gate · Band,mobility,3,8,resistance band,Loosen,Quadruped rock backs,10,reps,,1,0,1,Hip mobility with a band for extra stretch
+hip-gate-band,Hip Gate · Band,mobility,3,8,resistance band,Main work,Banded hip distraction (lunge),45,sec,yes,1,0,2,Hip mobility with a band for extra stretch
+hip-gate-band,Hip Gate · Band,mobility,3,8,resistance band,Main work,Banded hip distraction (90/90),45,sec,yes,1,0,2,Hip mobility with a band for extra stretch
+hip-gate-band,Hip Gate · Band,mobility,3,8,resistance band,Main work,Banded hip internal rotation,8,reps,yes,1,0,3,Hip mobility with a band for extra stretch
+hip-gate-band,Hip Gate · Band,mobility,3,8,resistance band,Control,Banded clamshells,15,reps,yes,1,0,1,Hip mobility with a band for extra stretch
+hip-gate-band,Hip Gate · Band,mobility,3,8,resistance band,Control,Banded glute bridges,12,reps,,1,0,1,Hip mobility with a band for extra stretch
+pike-1-band,Pike Path I · Band,flexibility,3,10,resistance band,Test,Pike test,20,sec,,1,0,1,"Toward touching your toes, using a band"
+pike-1-band,Pike Path I · Band,flexibility,3,10,resistance band,Stack,Banded hamstring floss,10,reps,yes,1,0,1,"Toward touching your toes, using a band"
+pike-1-band,Pike Path I · Band,flexibility,3,10,resistance band,Stack,Band hamstring stretch,30,sec,yes,3,10,1,"Toward touching your toes, using a band"
+pike-1-band,Pike Path I · Band,flexibility,3,10,resistance band,Stack,Band PNF hamstring (contract-relax),3,reps,yes,1,0,3,"Toward touching your toes, using a band"
+pike-1-band,Pike Path I · Band,flexibility,3,10,resistance band,Stack,Band seated forward fold,45,sec,,2,15,1,"Toward touching your toes, using a band"
+pike-1-band,Pike Path I · Band,flexibility,3,10,resistance band,Stack,Active hamstring stretch (leg raise hold),10,sec,yes,3,10,2,"Toward touching your toes, using a band"
+pike-1-band,Pike Path I · Band,flexibility,3,10,resistance band,Retest,Pike test,20,sec,,1,0,1,"Toward touching your toes, using a band"
+overhead-band,Overhead Path · Band,flexibility,3,7,resistance band,Test,Overhead test,10,sec,,1,0,1,"Shoulders overhead, using a band"
+overhead-band,Overhead Path · Band,flexibility,3,7,resistance band,Stack,Band shoulder dislocates (narrow),8,reps,,1,0,3,"Shoulders overhead, using a band"
+overhead-band,Overhead Path · Band,flexibility,3,7,resistance band,Stack,Band overhead lat stretch,30,sec,yes,2,15,1,"Shoulders overhead, using a band"
+overhead-band,Overhead Path · Band,flexibility,3,7,resistance band,Stack,Band lat traction,30,sec,yes,1,0,1,"Shoulders overhead, using a band"
+overhead-band,Overhead Path · Band,flexibility,3,7,resistance band,Stack,Band chest stretch (anchored),30,sec,yes,1,0,1,"Shoulders overhead, using a band"
+overhead-band,Overhead Path · Band,flexibility,3,7,resistance band,Stack,Overhead wall lift-offs,8,reps,,1,0,3,"Shoulders overhead, using a band"
+overhead-band,Overhead Path · Band,flexibility,3,7,resistance band,Retest,Overhead test,10,sec,,1,0,1,"Shoulders overhead, using a band"
+cuff-guard-band,Cuff Guard · Band,prehab,2,13,resistance band,Activate,Band pull-aparts,15,reps,,1,0,1,Rotator cuff and shoulder blades with a band
+cuff-guard-band,Cuff Guard · Band,prehab,2,13,resistance band,Activate,Band no-moneys,15,reps,,1,0,1,Rotator cuff and shoulder blades with a band
+cuff-guard-band,Cuff Guard · Band,prehab,2,13,resistance band,Strength rounds,Band external rotation,15,reps,yes,2,30,1,Rotator cuff and shoulder blades with a band
+cuff-guard-band,Cuff Guard · Band,prehab,2,13,resistance band,Strength rounds,Band face pulls,15,reps,,2,30,1,Rotator cuff and shoulder blades with a band
+cuff-guard-band,Cuff Guard · Band,prehab,2,13,resistance band,Strength rounds,Band Y raises,12,reps,,2,30,2,Rotator cuff and shoulder blades with a band
+cuff-guard-band,Cuff Guard · Band,prehab,2,13,resistance band,Strength rounds,Band serratus punches,12,reps,yes,2,20,1,Rotator cuff and shoulder blades with a band
+cuff-guard-band,Cuff Guard · Band,prehab,2,13,resistance band,Hold,Isometric external rotation (doorframe),20,sec,yes,1,0,1,Rotator cuff and shoulder blades with a band
+glute-forge-band,Glute Forge · Band,prehab,3,13,resistance band,Activate,Banded clamshells,15,reps,yes,1,0,1,Glute strength finisher with a mini band
+glute-forge-band,Glute Forge · Band,prehab,3,13,resistance band,Activate,Banded fire hydrants,12,reps,yes,1,0,1,Glute strength finisher with a mini band
+glute-forge-band,Glute Forge · Band,prehab,3,13,resistance band,Strength rounds,Banded glute bridges,15,reps,,2,30,1,Glute strength finisher with a mini band
+glute-forge-band,Glute Forge · Band,prehab,3,13,resistance band,Strength rounds,Banded lateral walks,12,reps,yes,2,20,2,Glute strength finisher with a mini band
+glute-forge-band,Glute Forge · Band,prehab,3,13,resistance band,Strength rounds,Banded single-leg bridge,10,reps,yes,2,30,3,Glute strength finisher with a mini band
+glute-forge-band,Glute Forge · Band,prehab,3,13,resistance band,Strength rounds,Banded squats,12,reps,,2,30,2,Glute strength finisher with a mini band
+glute-forge-band,Glute Forge · Band,prehab,3,13,resistance band,Hold,Banded glute bridge hold,30,sec,,1,0,2,Glute strength finisher with a mini band
+core-seal-roller,Core Seal · Roller,prehab,3,8,foam roller / resistance band,Activate,Breathing brace holds,5,reps,,1,0,1,Core stability on a foam roller
+core-seal-roller,Core Seal · Roller,prehab,3,8,foam roller / resistance band,Activate,Foam roller dead bugs,8,reps,yes,1,0,3,Core stability on a foam roller
+core-seal-roller,Core Seal · Roller,prehab,3,8,foam roller / resistance band,Strength rounds,Foam roller plank,30,sec,,2,20,3,Core stability on a foam roller
+core-seal-roller,Core Seal · Roller,prehab,3,8,foam roller / resistance band,Strength rounds,Foam roller knee tucks,10,reps,,2,30,3,Core stability on a foam roller
+core-seal-roller,Core Seal · Roller,prehab,3,8,foam roller / resistance band,Strength rounds,Band Pallof press,10,reps,yes,2,20,2,Core stability on a foam roller
+core-seal-roller,Core Seal · Roller,prehab,3,8,foam roller / resistance band,Hold,Side plank,20,sec,yes,1,0,3,Core stability on a foam roller

@@ -15,8 +15,10 @@ for key,label in CATS:
         if r[0].lower() in REMOVE or k in seen: continue
         seen.add(k); keep.append(r)
     keep=keep[:200]
-    try: gear=[l.rstrip('\n').split('|') for l in open('gear-'+key+'.txt') if l.strip() and not l.startswith('#')]
-    except FileNotFoundError: gear=[]
+    gear=[]
+    for pre in ('extra-','gear-'):
+        try: gear+=[l.rstrip('\n').split('|') for l in open(pre+key+'.txt') if l.strip() and not l.startswith('#')]
+        except FileNotFoundError: pass
     for r in gear:
         k=norm(r[0])
         if k in seen: continue

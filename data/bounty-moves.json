@@ -665,7 +665,7 @@
    },
    "kind": "dynamic",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "walking-quad-pulls",
@@ -688,7 +688,7 @@
    },
    "kind": "dynamic",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "frankenstein-walks",
@@ -863,7 +863,7 @@
    },
    "kind": "dynamic",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "wrist-circles",
@@ -1454,7 +1454,7 @@
    "cautions": [
     "wrist-load"
    ],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "prone-y-raises",
@@ -1485,7 +1485,7 @@
    },
    "kind": "dynamic",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "prone-t-raises",
@@ -1516,7 +1516,7 @@
    },
    "kind": "dynamic",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "wall-slides",
@@ -3324,7 +3324,7 @@
    },
    "kind": "dynamic",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "ankle-rocks-knee-to-wall",
@@ -4060,7 +4060,7 @@
    },
    "kind": "dynamic",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "chin-tucks",
@@ -5892,7 +5892,7 @@
    "gear": true,
    "kind": "dynamic",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "band-dislocates",
@@ -5957,7 +5957,7 @@
    "anchor": true,
    "kind": "dynamic",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "band-external-rotation",
@@ -6465,7 +6465,7 @@
    "gear": true,
    "kind": "dynamic",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "banded-clamshells",
@@ -7684,7 +7684,7 @@
    },
    "kind": "dynamic",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "childs-pose",
@@ -8942,7 +8942,7 @@
    },
    "kind": "static",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "wide-leg-forward-fold",
@@ -12815,7 +12815,7 @@
    },
    "kind": "dynamic",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "kneeling-hip-flexor-stretch-with-arm-reach",
@@ -13837,7 +13837,7 @@
      "cue": "Lie along the roller, arms wide, palms up"
     },
     "flexibility": {
-     "rank": 226,
+     "rank": 261,
      "dose": 120,
      "unit": "sec",
      "perSide": false,
@@ -13908,7 +13908,7 @@
      "cue": "Arm on the roller, roll it forward, sink the chest"
     },
     "flexibility": {
-     "rank": 229,
+     "rank": 264,
      "dose": 45,
      "unit": "sec",
      "perSide": true,
@@ -13940,7 +13940,7 @@
      "cue": "Roller under the sacrum, relax the legs"
     },
     "flexibility": {
-     "rank": 225,
+     "rank": 260,
      "dose": 90,
      "unit": "sec",
      "perSide": false,
@@ -13987,7 +13987,7 @@
      "cue": "Roller under the sacrum, one knee hugged"
     },
     "flexibility": {
-     "rank": 227,
+     "rank": 262,
      "dose": 60,
      "unit": "sec",
      "perSide": true,
@@ -14018,7 +14018,7 @@
      "cue": "Toes on the roller, heel down, lean in"
     },
     "flexibility": {
-     "rank": 230,
+     "rank": 265,
      "dose": 45,
      "unit": "sec",
      "perSide": true,
@@ -14049,7 +14049,7 @@
      "cue": "Band around the foot, leg straight up"
     },
     "flexibility": {
-     "rank": 201,
+     "rank": 236,
      "dose": 60,
      "unit": "sec",
      "perSide": true,
@@ -14089,7 +14089,7 @@
      "cue": "Open the banded leg out to the side"
     },
     "flexibility": {
-     "rank": 202,
+     "rank": 237,
      "dose": 60,
      "unit": "sec",
      "perSide": true,
@@ -14129,7 +14129,7 @@
      "cue": "Bring the banded leg across, shoulders down"
     },
     "flexibility": {
-     "rank": 203,
+     "rank": 238,
      "dose": 60,
      "unit": "sec",
      "perSide": true,
@@ -14169,7 +14169,7 @@
      "cue": "Band around the foot, pull the heel to the glute"
     },
     "flexibility": {
-     "rank": 204,
+     "rank": 239,
      "dose": 60,
      "unit": "sec",
      "perSide": true,
@@ -14208,7 +14208,7 @@
      "cue": "Leg straight, pull the toes back with the band"
     },
     "flexibility": {
-     "rank": 206,
+     "rank": 241,
      "dose": 60,
      "unit": "sec",
      "perSide": true,
@@ -14247,7 +14247,7 @@
      "cue": "Hold the anchored band, sit the hips back"
     },
     "flexibility": {
-     "rank": 213,
+     "rank": 248,
      "dose": 45,
      "unit": "sec",
      "perSide": true,
@@ -14280,7 +14280,7 @@
      "cue": "Anchor at shoulder height, turn away"
     },
     "flexibility": {
-     "rank": 214,
+     "rank": 249,
      "dose": 45,
      "unit": "sec",
      "perSide": true,
@@ -14337,7 +14337,7 @@
      "cue": "Hold the band behind the back, pull the top hand down"
     },
     "flexibility": {
-     "rank": 216,
+     "rank": 251,
      "dose": 45,
      "unit": "sec",
      "perSide": true,
@@ -14417,7 +14417,7 @@
      "cue": "Band pulls the hip forward in a half-kneel"
     },
     "flexibility": {
-     "rank": 220,
+     "rank": 255,
      "dose": 60,
      "unit": "sec",
      "perSide": true,
@@ -14449,7 +14449,7 @@
      "cue": "Anchor high, sit back and let it pull"
     },
     "flexibility": {
-     "rank": 221,
+     "rank": 256,
      "dose": 45,
      "unit": "sec",
      "perSide": true,
@@ -14489,7 +14489,7 @@
      "cue": "Loop around the lower thigh, pull in"
     },
     "flexibility": {
-     "rank": 218,
+     "rank": 253,
      "dose": 60,
      "unit": "sec",
      "perSide": true,
@@ -14521,7 +14521,7 @@
      "cue": "Leg across with a band around the foot"
     },
     "flexibility": {
-     "rank": 219,
+     "rank": 254,
      "dose": 60,
      "unit": "sec",
      "perSide": true,
@@ -15052,7 +15052,7 @@
    },
    "kind": "dynamic",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "standing-hamstring-scoops",
@@ -16077,7 +16077,7 @@
    },
    "kind": "static",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "tall-kneeling-hip-shifts",
@@ -18987,7 +18987,7 @@
    },
    "kind": "static",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "seated-side-straddle",
@@ -20139,7 +20139,7 @@
    },
    "kind": "dynamic",
    "cautions": [],
-   "stars": 3
+   "stars": 2
   },
   {
    "id": "hip-flexor-pnf",
@@ -20249,7 +20249,7 @@
    },
    "kind": "dynamic",
    "cautions": [],
-   "stars": 3
+   "stars": 2
   },
   {
    "id": "quad-pnf-couch",
@@ -20315,7 +20315,7 @@
    },
    "kind": "isometric",
    "cautions": [],
-   "stars": 3
+   "stars": 2
   },
   {
    "id": "active-pigeon-lift",
@@ -21056,6 +21056,814 @@
    "stars": 2
   },
   {
+   "id": "pike-test",
+   "name": "Pike test",
+   "areas": [
+    "hamstrings",
+    "lower back"
+   ],
+   "equipment": "mat",
+   "cue": "Legs straight and together, fold and note where your fingertips reach: knees, mid-shin, ankles, toes, floor",
+   "categories": {
+    "flexibility": {
+     "rank": 201,
+     "dose": 20,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Pike test",
+     "cue": "Legs straight and together, fold and note where your fingertips reach: knees, mid-shin, ankles, toes, floor"
+    }
+   },
+   "kind": "static",
+   "cautions": [],
+   "stars": 1
+  },
+  {
+   "id": "pancake-test",
+   "name": "Pancake test",
+   "areas": [
+    "adductors",
+    "hamstrings"
+   ],
+   "equipment": "mat",
+   "cue": "Legs as wide as comfortable, fold forward and note what reaches the floor: hands, forearms, chest",
+   "categories": {
+    "flexibility": {
+     "rank": 202,
+     "dose": 20,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Pancake test",
+     "cue": "Legs as wide as comfortable, fold forward and note what reaches the floor: hands, forearms, chest"
+    }
+   },
+   "kind": "static",
+   "cautions": [],
+   "stars": 1
+  },
+  {
+   "id": "front-split-test",
+   "name": "Front split test",
+   "areas": [
+    "hamstrings",
+    "hips"
+   ],
+   "equipment": "towel",
+   "cue": "Slide into a split with hands on books, note the gap from your hips to the floor in hand-widths",
+   "categories": {
+    "flexibility": {
+     "rank": 203,
+     "dose": 20,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Front split test",
+     "cue": "Slide into a split with hands on books, note the gap from your hips to the floor in hand-widths"
+    }
+   },
+   "kind": "static",
+   "cautions": [],
+   "stars": 1
+  },
+  {
+   "id": "side-split-test",
+   "name": "Side split test",
+   "areas": [
+    "adductors"
+   ],
+   "equipment": "towel",
+   "cue": "Slide the feet wide with hands down, note the gap from hips to floor in hand-widths",
+   "categories": {
+    "flexibility": {
+     "rank": 204,
+     "dose": 20,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Side split test",
+     "cue": "Slide the feet wide with hands down, note the gap from hips to floor in hand-widths"
+    }
+   },
+   "kind": "static",
+   "cautions": [],
+   "stars": 1
+  },
+  {
+   "id": "bridge-test",
+   "name": "Bridge test",
+   "areas": [
+    "upper back",
+    "chest",
+    "hips"
+   ],
+   "equipment": "mat",
+   "cue": "Glute bridge with arms overhead, note how high your chest lifts toward the wall behind you",
+   "categories": {
+    "flexibility": {
+     "rank": 205,
+     "dose": 10,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Bridge test",
+     "cue": "Glute bridge with arms overhead, note how high your chest lifts toward the wall behind you"
+    }
+   },
+   "kind": "static",
+   "cautions": [],
+   "stars": 1
+  },
+  {
+   "id": "overhead-test",
+   "name": "Overhead test",
+   "areas": [
+    "shoulders",
+    "lats"
+   ],
+   "equipment": "wall",
+   "cue": "Back flat on a wall, arms straight overhead, note how close your thumbs get to the wall",
+   "categories": {
+    "flexibility": {
+     "rank": 206,
+     "dose": 10,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Overhead test",
+     "cue": "Back flat on a wall, arms straight overhead, note how close your thumbs get to the wall"
+    }
+   },
+   "kind": "static",
+   "cautions": [],
+   "stars": 1
+  },
+  {
+   "id": "deep-squat-test",
+   "name": "Deep squat test",
+   "areas": [
+    "hips",
+    "ankles"
+   ],
+   "equipment": "none",
+   "cue": "Feet shoulder-width, heels down, sit as deep as you can; note if heels lift or hips stay above knees",
+   "categories": {
+    "flexibility": {
+     "rank": 207,
+     "dose": 20,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Deep squat test",
+     "cue": "Feet shoulder-width, heels down, sit as deep as you can; note if heels lift or hips stay above knees"
+    }
+   },
+   "kind": "static",
+   "cautions": [
+    "deep-knee"
+   ],
+   "stars": 1
+  },
+  {
+   "id": "sciatic-nerve-floss",
+   "name": "Sciatic nerve floss",
+   "areas": [
+    "hamstrings",
+    "lower back"
+   ],
+   "equipment": "chair",
+   "cue": "Seated slump, straighten the knee as you look up, bend it as you look down; gentle, no zinging pain",
+   "categories": {
+    "flexibility": {
+     "rank": 208,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Sciatic nerve floss",
+     "cue": "Seated slump, straighten the knee as you look up, bend it as you look down; gentle, no zinging pain"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 1
+  },
+  {
+   "id": "femoral-nerve-floss",
+   "name": "Femoral nerve floss",
+   "areas": [
+    "quads",
+    "hips"
+   ],
+   "equipment": "mat",
+   "cue": "Side-lying, pull the top heel back as you tuck the chin, release as you look up",
+   "categories": {
+    "flexibility": {
+     "rank": 209,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Femoral nerve floss",
+     "cue": "Side-lying, pull the top heel back as you tuck the chin, release as you look up"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 2
+  },
+  {
+   "id": "slump-stretch",
+   "name": "Slump stretch",
+   "areas": [
+    "hamstrings",
+    "lower back"
+   ],
+   "equipment": "chair",
+   "cue": "Sit slumped, chin down, straighten one knee until you feel tension, breathe",
+   "categories": {
+    "flexibility": {
+     "rank": 210,
+     "dose": 20,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Slump stretch",
+     "cue": "Sit slumped, chin down, straighten one knee until you feel tension, breathe"
+    }
+   },
+   "kind": "static",
+   "cautions": [],
+   "stars": 1
+  },
+  {
+   "id": "seated-pike-leg-lifts",
+   "name": "Seated pike leg lifts",
+   "areas": [
+    "hamstrings",
+    "hips"
+   ],
+   "equipment": "mat",
+   "cue": "Hands beside the knees, lift both heels off the floor without leaning back",
+   "categories": {
+    "flexibility": {
+     "rank": 211,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Seated pike leg lifts",
+     "cue": "Hands beside the knees, lift both heels off the floor without leaning back"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 4
+  },
+  {
+   "id": "pike-pulses",
+   "name": "Pike pulses",
+   "areas": [
+    "hamstrings",
+    "lower back"
+   ],
+   "equipment": "mat",
+   "cue": "Fold into the pike and pulse deeper, hips stay planted",
+   "categories": {
+    "flexibility": {
+     "rank": 212,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Pike pulses",
+     "cue": "Fold into the pike and pulse deeper, hips stay planted"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 3
+  },
+  {
+   "id": "pike-pnf-contract-relax",
+   "name": "Pike PNF (contract-relax)",
+   "areas": [
+    "hamstrings"
+   ],
+   "equipment": "mat",
+   "cue": "In the pike, press the heels down 5 s, relax and fold deeper",
+   "categories": {
+    "flexibility": {
+     "rank": 213,
+     "dose": 3,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Pike PNF (contract-relax)",
+     "cue": "In the pike, press the heels down 5 s, relax and fold deeper"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 2
+  },
+  {
+   "id": "pancake-pnf-contract-relax",
+   "name": "Pancake PNF (contract-relax)",
+   "areas": [
+    "adductors"
+   ],
+   "equipment": "mat",
+   "cue": "In the straddle, press the heels into the floor 5 s, relax and fold deeper",
+   "categories": {
+    "flexibility": {
+     "rank": 214,
+     "dose": 3,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Pancake PNF (contract-relax)",
+     "cue": "In the straddle, press the heels into the floor 5 s, relax and fold deeper"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 3
+  },
+  {
+   "id": "pancake-good-mornings",
+   "name": "Pancake good mornings",
+   "areas": [
+    "adductors",
+    "hamstrings"
+   ],
+   "equipment": "none",
+   "cue": "Wide stance, hinge forward with a flat back, slow lower",
+   "categories": {
+    "flexibility": {
+     "rank": 215,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Pancake good mornings",
+     "cue": "Wide stance, hinge forward with a flat back, slow lower"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 2
+  },
+  {
+   "id": "straddle-leg-lifts-seated",
+   "name": "Straddle leg lifts (seated)",
+   "areas": [
+    "adductors",
+    "hips"
+   ],
+   "equipment": "mat",
+   "cue": "Seated straddle, hands beside one knee, lift that leg off the floor",
+   "categories": {
+    "flexibility": {
+     "rank": 216,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Straddle leg lifts (seated)",
+     "cue": "Seated straddle, hands beside one knee, lift that leg off the floor"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 4
+  },
+  {
+   "id": "horse-stance-hold",
+   "name": "Horse stance hold",
+   "areas": [
+    "adductors",
+    "quads",
+    "glutes"
+   ],
+   "equipment": "none",
+   "cue": "Wide stance, sit low, knees push out over the toes",
+   "categories": {
+    "flexibility": {
+     "rank": 217,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Horse stance hold",
+     "cue": "Wide stance, sit low, knees push out over the toes"
+    }
+   },
+   "kind": "isometric",
+   "cautions": [],
+   "stars": 2
+  },
+  {
+   "id": "side-split-isometric-press",
+   "name": "Side split isometric press",
+   "areas": [
+    "adductors"
+   ],
+   "equipment": "towel",
+   "cue": "In your deepest straddle, squeeze the feet toward each other into the floor 10 s, relax",
+   "categories": {
+    "flexibility": {
+     "rank": 218,
+     "dose": 20,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Side split isometric press",
+     "cue": "In your deepest straddle, squeeze the feet toward each other into the floor 10 s, relax"
+    }
+   },
+   "kind": "isometric",
+   "cautions": [],
+   "stars": 4
+  },
+  {
+   "id": "side-split-slides-assisted",
+   "name": "Side split slides (assisted)",
+   "areas": [
+    "adductors"
+   ],
+   "equipment": "towel",
+   "cue": "Hands on books, slide the feet out slowly and back with control",
+   "categories": {
+    "flexibility": {
+     "rank": 219,
+     "dose": 5,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Side split slides (assisted)",
+     "cue": "Hands on books, slide the feet out slowly and back with control"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 5
+  },
+  {
+   "id": "frog-rock-backs",
+   "name": "Frog rock-backs",
+   "areas": [
+    "adductors",
+    "hips"
+   ],
+   "equipment": "mat",
+   "cue": "Knees wide, rock the hips back toward the heels and forward",
+   "categories": {
+    "flexibility": {
+     "rank": 220,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Frog rock-backs",
+     "cue": "Knees wide, rock the hips back toward the heels and forward"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [
+    "deep-knee"
+   ],
+   "stars": 2
+  },
+  {
+   "id": "front-split-back-knee-lifts",
+   "name": "Front split back-knee lifts",
+   "areas": [
+    "hips",
+    "quads"
+   ],
+   "equipment": "towel",
+   "cue": "In a supported split, lift the back knee an inch and hold 3 s",
+   "categories": {
+    "flexibility": {
+     "rank": 221,
+     "dose": 5,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Front split back-knee lifts",
+     "cue": "In a supported split, lift the back knee an inch and hold 3 s"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 5
+  },
+  {
+   "id": "front-split-hamstring-curl-press",
+   "name": "Front split hamstring curl press",
+   "areas": [
+    "hamstrings"
+   ],
+   "equipment": "towel",
+   "cue": "In a supported split, press the front heel into the floor 5 s, relax and sink",
+   "categories": {
+    "flexibility": {
+     "rank": 222,
+     "dose": 3,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Front split hamstring curl press",
+     "cue": "In a supported split, press the front heel into the floor 5 s, relax and sink"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 4
+  },
+  {
+   "id": "elevated-half-split",
+   "name": "Elevated half split",
+   "areas": [
+    "hamstrings"
+   ],
+   "equipment": "chair",
+   "cue": "Front heel on a low step, hips square, fold",
+   "categories": {
+    "flexibility": {
+     "rank": 223,
+     "dose": 30,
+     "unit": "sec",
+     "perSide": true,
+     "name": "Elevated half split",
+     "cue": "Front heel on a low step, hips square, fold"
+    }
+   },
+   "kind": "static",
+   "cautions": [],
+   "stars": 1
+  },
+  {
+   "id": "hip-flexor-lunge-pulses",
+   "name": "Hip flexor lunge pulses",
+   "areas": [
+    "hips",
+    "quads"
+   ],
+   "equipment": "mat",
+   "cue": "Low lunge, small pulses forward, squeeze the back glute",
+   "categories": {
+    "flexibility": {
+     "rank": 224,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Hip flexor lunge pulses",
+     "cue": "Low lunge, small pulses forward, squeeze the back glute"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 2
+  },
+  {
+   "id": "bridge-holds-arms-overhead",
+   "name": "Bridge holds (arms overhead)",
+   "areas": [
+    "upper back",
+    "chest"
+   ],
+   "equipment": "mat",
+   "cue": "Glute bridge with the arms reaching overhead on the floor, hold",
+   "categories": {
+    "flexibility": {
+     "rank": 225,
+     "dose": 10,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Bridge holds (arms overhead)",
+     "cue": "Glute bridge with the arms reaching overhead on the floor, hold"
+    }
+   },
+   "kind": "isometric",
+   "cautions": [],
+   "stars": 2
+  },
+  {
+   "id": "chair-supported-bridge",
+   "name": "Chair-supported bridge",
+   "areas": [
+    "upper back",
+    "chest"
+   ],
+   "equipment": "chair",
+   "cue": "Hands on a sturdy chair seat behind you, lift the hips and open the chest",
+   "categories": {
+    "flexibility": {
+     "rank": 226,
+     "dose": 20,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Chair-supported bridge",
+     "cue": "Hands on a sturdy chair seat behind you, lift the hips and open the chest"
+    }
+   },
+   "kind": "static",
+   "cautions": [],
+   "stars": 4
+  },
+  {
+   "id": "wall-walk-down-bridge-prep",
+   "name": "Wall walk-down bridge prep",
+   "areas": [
+    "upper back",
+    "chest"
+   ],
+   "equipment": "wall",
+   "cue": "Back to the wall, reach back and walk the hands a little down, then back up",
+   "categories": {
+    "flexibility": {
+     "rank": 227,
+     "dose": 3,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Wall walk-down bridge prep",
+     "cue": "Back to the wall, reach back and walk the hands a little down, then back up"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 5
+  },
+  {
+   "id": "thoracic-bridge-prone",
+   "name": "Thoracic bridge (prone)",
+   "areas": [
+    "upper back"
+   ],
+   "equipment": "mat",
+   "cue": "Face down, hands under shoulders, lift the chest leading with the sternum",
+   "categories": {
+    "flexibility": {
+     "rank": 228,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Thoracic bridge (prone)",
+     "cue": "Face down, hands under shoulders, lift the chest leading with the sternum"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 2
+  },
+  {
+   "id": "overhead-wall-lift-offs",
+   "name": "Overhead wall lift-offs",
+   "areas": [
+    "shoulders"
+   ],
+   "equipment": "wall",
+   "cue": "Face the wall, arms overhead, lift the hands off the wall and hold 2 s",
+   "categories": {
+    "flexibility": {
+     "rank": 229,
+     "dose": 8,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Overhead wall lift-offs",
+     "cue": "Face the wall, arms overhead, lift the hands off the wall and hold 2 s"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 3
+  },
+  {
+   "id": "lat-stretch-with-active-lift",
+   "name": "Lat stretch with active lift",
+   "areas": [
+    "lats",
+    "shoulders"
+   ],
+   "equipment": "chair",
+   "cue": "Elbows on a bench, sink, then lift the hands off and hold 2 s",
+   "categories": {
+    "flexibility": {
+     "rank": 230,
+     "dose": 6,
+     "unit": "reps",
+     "perSide": true,
+     "name": "Lat stretch with active lift",
+     "cue": "Elbows on a bench, sink, then lift the hands off and hold 2 s"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 3
+  },
+  {
+   "id": "deep-squat-breathing-hold",
+   "name": "Deep squat breathing hold",
+   "areas": [
+    "hips",
+    "ankles"
+   ],
+   "equipment": "none",
+   "cue": "Heels down, hold something if you need to, breathe slowly",
+   "categories": {
+    "flexibility": {
+     "rank": 231,
+     "dose": 60,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Deep squat breathing hold",
+     "cue": "Heels down, hold something if you need to, breathe slowly"
+    }
+   },
+   "kind": "breathing",
+   "cautions": [
+    "deep-knee"
+   ],
+   "stars": 1
+  },
+  {
+   "id": "squat-ankle-pulses",
+   "name": "Squat ankle pulses",
+   "areas": [
+    "ankles"
+   ],
+   "equipment": "none",
+   "cue": "In a deep squat, rock the knees forward over the toes",
+   "categories": {
+    "flexibility": {
+     "rank": 232,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Squat ankle pulses",
+     "cue": "In a deep squat, rock the knees forward over the toes"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 1
+  },
+  {
+   "id": "squat-hip-pry-with-knee-pushes",
+   "name": "Squat hip pry with knee pushes",
+   "areas": [
+    "hips",
+    "adductors"
+   ],
+   "equipment": "none",
+   "cue": "Elbows push the knees out, rock side to side",
+   "categories": {
+    "flexibility": {
+     "rank": 233,
+     "dose": 10,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Squat hip pry with knee pushes",
+     "cue": "Elbows push the knees out, rock side to side"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [],
+   "stars": 1
+  },
+  {
+   "id": "deep-squat-heel-elevated-hold",
+   "name": "Deep squat heel-elevated hold",
+   "areas": [
+    "hips",
+    "ankles"
+   ],
+   "equipment": "towel",
+   "cue": "Heels on a folded towel or plates, sit deep and tall",
+   "categories": {
+    "flexibility": {
+     "rank": 234,
+     "dose": 45,
+     "unit": "sec",
+     "perSide": false,
+     "name": "Deep squat heel-elevated hold",
+     "cue": "Heels on a folded towel or plates, sit deep and tall"
+    }
+   },
+   "kind": "isometric",
+   "cautions": [
+    "deep-knee"
+   ],
+   "stars": 1
+  },
+  {
+   "id": "deep-squat-to-stand-hands-free",
+   "name": "Deep squat to stand (hands free)",
+   "areas": [
+    "hips",
+    "ankles",
+    "quads"
+   ],
+   "equipment": "none",
+   "cue": "Sit fully down and stand up without the hands or the heels lifting",
+   "categories": {
+    "flexibility": {
+     "rank": 235,
+     "dose": 5,
+     "unit": "reps",
+     "perSide": false,
+     "name": "Deep squat to stand (hands free)",
+     "cue": "Sit fully down and stand up without the hands or the heels lifting"
+    }
+   },
+   "kind": "dynamic",
+   "cautions": [
+    "deep-knee"
+   ],
+   "stars": 4
+  },
+  {
    "id": "band-quad-stretch-prone",
    "name": "Band quad stretch (prone)",
    "areas": [
@@ -21065,7 +21873,7 @@
    "cue": "Face down, band around the foot over the shoulder",
    "categories": {
     "flexibility": {
-     "rank": 205,
+     "rank": 240,
      "dose": 60,
      "unit": "sec",
      "perSide": true,
@@ -21089,7 +21897,7 @@
    "cue": "From pigeon, band around the back foot over the shoulder",
    "categories": {
     "flexibility": {
-     "rank": 207,
+     "rank": 242,
      "dose": 30,
      "unit": "sec",
      "perSide": true,
@@ -21115,7 +21923,7 @@
    "cue": "Standing, kick the banded foot back and up",
    "categories": {
     "flexibility": {
-     "rank": 208,
+     "rank": 243,
      "dose": 30,
      "unit": "sec",
      "perSide": true,
@@ -21138,7 +21946,7 @@
    "cue": "Band around the lifted foot, pull up gently",
    "categories": {
     "flexibility": {
-     "rank": 209,
+     "rank": 244,
      "dose": 30,
      "unit": "sec",
      "perSide": true,
@@ -21161,7 +21969,7 @@
    "cue": "Band around the feet, pull the chest forward",
    "categories": {
     "flexibility": {
-     "rank": 210,
+     "rank": 245,
      "dose": 60,
      "unit": "sec",
      "perSide": false,
@@ -21185,7 +21993,7 @@
    "cue": "Anchor in front, pull the chest forward in straddle",
    "categories": {
     "flexibility": {
-     "rank": 211,
+     "rank": 246,
      "dose": 60,
      "unit": "sec",
      "perSide": false,
@@ -21210,7 +22018,7 @@
    "cue": "Band around the front foot, ease into the split",
    "categories": {
     "flexibility": {
-     "rank": 212,
+     "rank": 247,
      "dose": 60,
      "unit": "sec",
      "perSide": true,
@@ -21234,7 +22042,7 @@
    "cue": "Narrow the grip a little each set",
    "categories": {
     "flexibility": {
-     "rank": 215,
+     "rank": 250,
      "dose": 8,
      "unit": "reps",
      "perSide": false,
@@ -21257,7 +22065,7 @@
    "cue": "Bridge the hands with the band behind the back",
    "categories": {
     "flexibility": {
-     "rank": 217,
+     "rank": 252,
      "dose": 45,
      "unit": "sec",
      "perSide": true,
@@ -21280,7 +22088,7 @@
    "cue": "Press into the band 5 s, relax, go deeper",
    "categories": {
     "flexibility": {
-     "rank": 222,
+     "rank": 257,
      "dose": 3,
      "unit": "reps",
      "perSide": true,
@@ -21303,7 +22111,7 @@
    "cue": "Press the foot into the band 5 s, relax",
    "categories": {
     "flexibility": {
-     "rank": 223,
+     "rank": 258,
      "dose": 3,
      "unit": "reps",
      "perSide": true,
@@ -21326,7 +22134,7 @@
    "cue": "Kick into the band 5 s, relax, pull deeper",
    "categories": {
     "flexibility": {
-     "rank": 224,
+     "rank": 259,
      "dose": 3,
      "unit": "reps",
      "perSide": true,
@@ -21350,7 +22158,7 @@
    "cue": "Roller across the shoulder blades, arms overhead",
    "categories": {
     "flexibility": {
-     "rank": 228,
+     "rank": 263,
      "dose": 60,
      "unit": "sec",
      "perSide": false,
@@ -21373,7 +22181,7 @@
    "cue": "Heel on the roller, hinge forward",
    "categories": {
     "flexibility": {
-     "rank": 231,
+     "rank": 266,
      "dose": 45,
      "unit": "sec",
      "perSide": true,
@@ -22736,7 +23544,7 @@
    },
    "kind": "isometric",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "hug-and-rock",
@@ -23667,7 +24475,7 @@
    },
    "kind": "isometric",
    "cautions": [],
-   "stars": 3
+   "stars": 2
   },
   {
    "id": "ankle-alphabet",
@@ -24575,7 +25383,7 @@
    },
    "kind": "isometric",
    "cautions": [],
-   "stars": 2
+   "stars": 1
   },
   {
    "id": "isometric-internal-rotation-doorframe",

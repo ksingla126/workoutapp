@@ -1,0 +1,740 @@
+# RankUp starter bounties.
+# @id | Title (System voice) | plain line | type | target areas
+# #Phase name
+# Move name | dose (blank = the type's dose from the library) | sets (blank = 1) | rest s between sets
+# Stars and minutes are computed by build_bounties.py (stars = hardest move).
+
+######## WARM-UP (1-3★, max 10 min) ########
+@ignition|Ignition|A 5-minute full-body warm-up for any day|warmup|full body
+#Raise
+Jumping jacks|30
+Arm circles|10
+#Open
+Hip circles|8
+Torso twists|16
+Leg swings (front to back)|10
+#Switch on
+Glute bridges|10
+Walking knee hugs|6
+March in place|30
+
+@press-prep|Press Prep|Shoulders and upper back, before bench or overhead pressing|warmup|shoulders,upper back
+#Raise
+Jumping jacks|30
+#Open
+Thoracic rotations (quadruped)|6
+Wall slides|10
+Shoulder CARs|2
+#Switch on
+Prone Y raises|10
+Scapular push-ups|10
+#Rehearse
+Push-ups|6
+
+@hinge-prep|Hinge Prep|Hips, hamstrings and bracing, before deadlifts and RDLs|warmup|hamstrings,hips,lower back
+#Raise
+Jog in place|45
+#Open
+Cat-cow|8
+Leg swings (front to back)|10
+World's greatest stretch|3
+#Switch on
+Glute bridges|12
+Dead bug|6
+#Rehearse
+Hip hinge drill|10
+Good mornings (bodyweight)|10
+
+@squat-prep|Squat Prep|Ankles, hips and quads, before squats and leg day|warmup|quads,hips,ankles
+#Raise
+High knees|30
+#Open
+Ankle rocks (knee to wall)|10
+90/90 hip switches|8
+Lateral lunges|6
+#Switch on
+Glute bridges|12
+Bird dog|6
+#Rehearse
+Squat to stand|6
+Prisoner squats|10
+
+@stride-primer|Stride Primer|A dynamic warm-up before an easy or long run|warmup|calves,hips,hamstrings
+#Raise
+March in place|45
+Jog in place|60
+#Open
+Leg swings (front to back)|10
+Leg swings (side to side)|10
+Walking knee hugs|6
+Walking quad pulls|6
+#Switch on
+Calf raises|15
+Glute bridges|10
+#Rehearse
+Skips (in place)|30
+
+@speed-primer|Speed Primer|Drills and hops before sprints, intervals or hills|warmup|calves,hips,hamstrings
+#Raise
+Jog in place|60
+High knees|20
+#Open
+Leg swings (front to back)|10
+Leg swings (side to side)|10
+Walking lunges|6
+#Switch on
+Pogo hops|20
+A-skips|20
+#Rehearse
+B-skips|20
+Run-throughs (strides in place)|15|2|30
+
+######## COOL-DOWN (1-3★) ########
+@stand-down|Stand Down|A 5-minute cool-down after anything|cooldown|full body
+#Settle
+Walk it off|60
+#Stretch
+Standing quad stretch|20
+Standing hamstring stretch|20
+Cross-body shoulder stretch|20
+Child's pose|45
+#Breathe
+Box breathing|45
+
+@upper-release|Upper Release|Chest, shoulders, lats and arms after a push or pull day|cooldown|chest,shoulders,lats
+#Settle
+Walk it off|60
+Shoulder rolls (slow)|8
+#Stretch
+Doorway chest stretch|30
+Cross-body shoulder stretch|30
+Overhead triceps stretch|30
+Wall lat stretch|30
+Thread the needle (hold)|30
+#Breathe
+Supine chest opener|60
+
+@lower-release|Lower Release|Quads, hamstrings, glutes and hips after leg day|cooldown|quads,hamstrings,glutes,hips
+#Settle
+Walk it off|60
+#Stretch
+Standing quad stretch|30
+Kneeling hip flexor stretch|30
+Lying hamstring stretch|30
+Figure-four stretch (lying)|30
+Butterfly stretch|30
+#Breathe
+Legs up the wall|90
+
+@runners-release|Runner's Release|Calves, hips and hamstrings after a run|cooldown|calves,hips,hamstrings
+#Settle
+Walk it off|90
+#Stretch
+Wall calf stretch|30
+Bent-knee calf stretch|30
+Standing quad stretch|30
+Kneeling hip flexor stretch|30
+Lying hamstring stretch|30
+Figure-four stretch (lying)|30
+#Breathe
+Legs up the wall|90
+
+@long-road-down|Long Road Down|A longer, gentle cool-down after a long run|cooldown|calves,hips,hamstrings,lower back
+#Settle
+Calm walk with long exhales|120
+#Stretch
+Wall calf stretch|30
+Soleus stretch on step|30
+Low lunge (anjaneyasana)|30
+Lying hamstring stretch|30
+Pigeon pose|45
+Supine spinal twist|30
+Happy baby|45
+#Breathe
+Legs up the wall|120
+Physiological sigh|5
+
+@deep-release|Deep Release|A full-body cool-down with deeper hip and chest stretches|cooldown|full body
+#Settle
+Walk it off|60
+#Stretch
+Couch stretch|45
+Lizard pose|30
+Frog stretch|45
+Doorway chest stretch|30
+Puppy pose|45
+Reclined spinal twist with arms wide|30
+#Breathe
+Crocodile breathing|60
+
+######## RECOVERY (1-2★) ########
+@still-water|Still Water|Breathing and gentle movement for a rest day|recovery|full body
+#Release
+Cat-cow (slow)|8
+Knees to chest rocking|45
+#Easy movement
+Windshield wipers (supine)|8
+Supine marching|8
+Open books|6
+#Breathe
+Diaphragmatic breathing|120
+Corpse pose|120
+
+@sleep-ritual|Sleep Ritual|A wind-down before bed|recovery|full body
+#Release
+Neck side stretch|30
+Shoulder rolls (slow)|8
+#Easy movement
+Child's pose|60
+Supine spinal twist|45
+Reclined bound angle|90
+#Breathe
+Legs up the wall|120
+4-7-8 breathing|4
+
+@desk-reset|Desk Reset|Neck, back and hips after a long time sitting|recovery|neck,upper back,hips
+#Release
+Chin tucks|10
+Neck side stretch|20
+#Easy movement
+Standing cat-cow|8
+Shoulder blade squeezes|10
+Gentle side bends|6
+Standing hip sway|30
+#Breathe
+Box breathing|60
+
+@sore-day|Sore Day|Gentle movement when everything is sore|recovery|full body
+#Release
+Calf self-massage|45
+Quad self-massage|45
+Glute self-massage (ball)|45
+Upper back ball massage (wall)|45
+#Easy movement
+Easy walk|180
+Pelvic tilts (supine)|12
+Windshield wipers (supine)|8
+Hug and rock|30
+#Breathe
+Constructive rest|120
+Extended exhale breathing|90
+
+@restoration|Restoration|A longer recovery flow for a full rest day|recovery|full body
+#Release
+Foot rolling (ball or bottle)|60
+Hamstring self-massage (ball)|60
+Glute self-massage (ball)|60
+Upper back ball massage (wall)|60
+#Easy movement
+Easy walk|240
+Cat-cow (slow)|8
+Quadruped rock-backs|10
+Supine leg circles|5
+Gentle bear rocks|10
+Sphinx pose|60
+Supine twist with breathing|45
+#Breathe
+Supported bridge|120
+Coherent breathing (5-5)|180
+
+######## MOBILITY (1-5★; every one ends with active control) ########
+@hip-gate|Hip Gate|10 minutes of hip mobility for squats, lunges and long runs|mobility|hips
+#Loosen
+Hip circles (standing)|8
+Quadruped rock-backs|10
+#Main work
+90/90 hip switches|8|2|15
+Hip CARs (quadruped)|3|2|15
+Half-kneeling hip flexor rocks|10|2|15
+Frog stretch rock-backs|8|2|15
+Pigeon pose|45
+#Control
+Seated hip internal rotation lifts|6|2|20
+Seated hip external rotation lifts|6|2|20
+
+@spine-unlock|Spine Unlock|Upper-back rotation and extension for posture and pressing|mobility|upper back
+#Loosen
+Cat-cow|8
+Spine CARs (standing)|2
+#Main work
+Thoracic rotations (quadruped)|8|2|15
+Open books|8|2|15
+Thread the needle|6
+Thoracic extension over towel|8|2|15
+#Control
+Prone Y-T-W|5|2|20
+
+@shoulder-gate|Shoulder Gate|Shoulder range for overhead pressing and pull-ups|mobility|shoulders,lats
+#Loosen
+Arm circles|10
+Shoulder pass-throughs (towel)|8
+#Main work
+Wall slides|10|2|15
+Puppy pose|45|2|15
+Sleeper stretch|30
+Behind-back reaches|6
+Doorway chest opener|30
+#Control
+Shoulder flexion lift-offs|6|2|20
+Lying external rotation (side-lying)|12|2|20
+
+@ankle-key|Ankle Key|Ankle range for squats and running|mobility|ankles,calves
+#Loosen
+Ankle CARs|5
+Ankle circles|10
+#Main work
+Ankle rocks (knee to wall)|10|2|15
+Calf raises with pause at bottom|10
+#Control
+Tibialis raises|15
+Single-leg balance|30
+
+@wrist-key|Wrist Key|Wrists and forearms for push-ups, pressing and planks|mobility|wrists
+#Loosen
+Wrist CARs|5
+Finger extensions|20
+#Main work
+Wrist rocks (quadruped)|10|2|15
+Reverse wrist rocks|10|2|15
+Forearm rotations|15
+#Control
+Scapular push-ups|10
+
+@full-body-flow|Full Body Flow|Head-to-toe mobility in 20 minutes|mobility|full body
+#Loosen
+Neck CARs|3
+Arm circles|10
+Cat-cow|8
+Hip circles (standing)|8
+#Main work
+World's greatest stretch|4|2|15
+Spiderman lunge with rotation|4|2|15
+Cossack squats|5|2|20
+90/90 hip switches|8|2|15
+Thoracic rotations (quadruped)|6|2|15
+Downward dog to cobra flow|6|2|15
+Squat pry|45|2|15
+Wall slides|10
+#Control
+Bear to squat|6|2|20
+Ankle CARs|5
+Shoulder CARs|2
+Hip CARs (quadruped)|2
+
+@controlled-range|Controlled Range|End-range strength for hips and shoulders, no props|mobility|hips,shoulders
+#Loosen
+Hip CARs (quadruped)|3
+Shoulder CARs|3
+#Main work
+Hip airplanes|4|2|30
+Shinbox get-ups|3|2|30
+Active pancake lifts|6|2|30
+Puppy pose|45
+#Control
+Hip lift-offs (seated 90/90)|5|2|20
+Hip flexor lift-offs|6|2|20
+Shoulder flexion lift-offs|8|2|20
+
+@iron-joints|Iron Joints|The hardest mobility bounty: deep squat and shoulder strength at end range|mobility|hips,ankles,shoulders
+#Loosen
+Hip CARs (quadruped)|3
+Ankle CARs|5
+Shoulder CARs|3
+#Main work
+Deep squat hold|60|2|20
+Cossack squats|5|2|30
+Wall-facing squat|6|3|45
+Compression lifts|8|3|30
+Pike compressions|10|2|20
+#Control
+Straddle compression lifts|6|2|30
+Skin the cat regression (floor)|5|2|45
+Shoulder flexion lift-offs|8|2|20
+
+######## FLEXIBILITY (skill paths: test → stack → retest) ########
+@pike-1|Pike Path I|Toward touching your toes with straight legs|flexibility|hamstrings
+#Test
+Pike test|20
+#Stack
+Sciatic nerve floss|10
+Lying hamstring stretch|30|3|10
+Half splits|30|2|15
+Seated forward fold|45|2|15
+Active straight-leg raises|8|3|15
+#Retest
+Pike test|20
+
+@pike-2|Pike Path II|Toward folding flat over straight legs|flexibility|hamstrings,lower back
+#Test
+Pike test|20
+#Stack
+Sciatic nerve floss|10
+Lying hamstring stretch|30|2|10
+Jefferson curl (slow)|5|2|30
+Hamstring PNF contract-relax|3
+Pike PNF (contract-relax)|3|2|20
+Pike pulses|10|2|20
+Pike compressions|10|3|20
+#Retest
+Pike test|20
+
+@pancake-1|Pancake Path I|Toward folding forward with your legs wide|flexibility|adductors,hamstrings
+#Test
+Pancake test|20
+#Stack
+Butterfly stretch|45
+Frog rock-backs|10|2|15
+Pancake good mornings|8|3|20
+Seated straddle|45|2|15
+Seated straddle reach|30
+Side-lying adduction lifts|12|2|20
+#Retest
+Pancake test|20
+
+@pancake-2|Pancake Path II|Toward chest-to-floor in a wide straddle|flexibility|adductors,hamstrings
+#Test
+Pancake test|20
+#Stack
+Frog pose|60
+Horse stance hold|30|2|20
+Pancake good mornings|8|2|20
+Pancake PNF (contract-relax)|3|2|20
+Pancake stretch|45|3|20
+Straddle leg lifts (seated)|6|2|20
+#Retest
+Pancake test|20
+
+@front-split-1|Front Split Path I|Hip flexors and hamstrings for the front split|flexibility|hips,hamstrings
+#Test
+Front split test|20
+#Stack
+Femoral nerve floss|8
+Hip flexor lunge pulses|10
+Low lunge|45|2|15
+Elevated half split|30|2|15
+Lizard pose|45
+Couch stretch|45
+#Retest
+Front split test|20
+
+@front-split-2|Front Split Path II|Working into the full front split|flexibility|hips,hamstrings,quads
+#Test
+Front split test|20
+#Stack
+Hip flexor lunge pulses|10
+Couch stretch|60
+Hip flexor PNF|3
+Front split hamstring curl press|3|2|20
+Front split slides|4|2|30
+Front splits (supported)|45|2|30
+Front split back-knee lifts|4|2|30
+#Retest
+Front split test|20
+
+@side-split|Side Split Path|Toward the side (middle) split|flexibility|adductors,hips
+#Test
+Side split test|20
+#Stack
+Frog rock-backs|10
+Horse stance hold|30|2|20
+Butterfly stretch|45
+Adductor PNF (butterfly)|3|2|20
+Cossack squats|5|2|30
+Seated straddle|45|2|15
+Side-lying adduction lifts|12|2|20
+#Retest
+Side split test|20
+
+@bridge-1|Bridge Path I|Upper back and front of the hips toward a back bridge|flexibility|upper back,chest,hips
+#Test
+Bridge test|10
+#Stack
+Thoracic extension over towel|60
+Kneeling hip flexor stretch|45
+Puppy pose|45
+Thoracic bridge (prone)|8|2|20
+Bridge pose|20|3|15
+Bridge holds (arms overhead)|10|3|15
+#Retest
+Bridge test|10
+
+@bridge-2|Bridge Path II|Toward a full back bridge|flexibility|upper back,chest,shoulders,hips
+#Test
+Bridge test|10
+#Stack
+Supported fish pose|60
+Couch stretch|45
+Thoracic bridge (prone)|8|2|20
+Camel pose|20|2|20
+Chair-supported bridge|15|3|30
+Wall walk-down bridge prep|3|2|45
+#Retest
+Bridge test|10
+
+@overhead|Overhead Path|Arms straight overhead without arching, for presses and pull-ups|flexibility|shoulders,lats,chest
+#Test
+Overhead test|10
+#Stack
+Puppy pose|45
+Wall lat stretch|30|2|15
+Lat PNF on bench|3|2|20
+Doorway chest stretch|30|2|15
+Lat stretch with active lift|6|2|20
+Overhead wall lift-offs|8|2|20
+#Retest
+Overhead test|10
+
+@deep-squat|Deep Squat Path|Toward sitting flat-footed in a full squat|flexibility|hips,ankles
+#Test
+Deep squat test|20
+#Stack
+Ankle dorsiflexion stretch|30
+Squat ankle pulses|10
+Squat hip pry with knee pushes|10
+Deep squat heel-elevated hold|45|2|20
+Deep squat breathing hold|60|2|20
+Squat to stand|6|2|20
+#Retest
+Deep squat test|20
+
+######## PREHAB / FINISHER (1-5★) ########
+@cuff-guard|Cuff Guard|Rotator cuff and shoulder blades, for healthy pressing|prehab|shoulders,upper back
+#Activate
+Scapular push-ups|12
+Wall slides|10
+#Strength rounds
+Side-lying external rotation|15|2|30
+Prone Y raises|12|2|30
+Prone T raises|12|2|30
+#Hold
+Isometric external rotation (doorframe)|20|2|20
+
+@knee-guard|Knee Guard|Quads and knees, for squats, stairs and running|prehab|quads,knees
+#Activate
+Glute bridge|12
+Wall sit|30
+#Strength rounds
+Spanish squat hold (wall)|30|2|30
+Step-downs|8|2|30
+Tibialis raises|15|2|20
+#Hold
+Split squat isometric|30
+
+@ankle-guard|Ankle Guard|Ankles and feet, for runners|prehab|ankles,feet,calves
+#Activate
+Short foot drill|10
+Toe yoga|10
+#Strength rounds
+Single-leg calf raises|12|2|30
+Tibialis raises|20|2|20
+Single-leg balance with eyes closed|20|2|15
+#Hold
+Isometric calf hold|30
+
+@core-seal|Core Seal|A 10-minute core stability finisher|prehab|core
+#Activate
+Breathing brace holds|5
+Dead bug|8
+#Strength rounds
+Plank|30|2|20
+Kneeling side plank|20|2|20
+Bird dog|8
+Reverse crunch|10
+#Hold
+Hollow hold tucked|20|2|20
+
+@glute-forge|Glute Forge|A glute strength finisher|prehab|glutes,hips
+#Activate
+Clamshells|15
+Fire hydrants|12
+#Strength rounds
+Single-leg glute bridge|10|3|30
+Side plank hip dips|8|2|20
+Bulgarian split squat|8|2|45
+#Hold
+Glute bridge isometric|30
+
+@back-guard|Back Guard|Lower back and hip strength for lifting and sitting|prehab|lower back,glutes,core
+#Activate
+Cat-cow|8
+Bird dog|8
+#Strength rounds
+Back extensions (floor)|12|2|30
+Single-leg RDL (bodyweight)|8|2|30
+Side plank|25|2|20
+#Hold
+Superman hold|20|2|20
+
+@hamstring-armor|Hamstring Armor|Hamstring strength for sprinting and deadlifts|prehab|hamstrings
+#Activate
+Glute bridges|12
+Isometric hamstring heel dig|20
+#Strength rounds
+Hamstring walkouts|6|2|30
+Single-leg RDL (bodyweight)|8|2|30
+Slider leg curls (towel)|6|2|45
+#Hold
+Nordic curl (assisted)|3|2|60
+
+@trial-of-iron|Trial of Iron|The hardest finisher: groin, hamstrings and core|prehab|adductors,hamstrings,core
+#Activate
+Dead bug|8
+Lateral lunges|6
+#Strength rounds
+Copenhagen plank (short lever)|15|2|30
+Copenhagen plank (long lever)|10|2|45
+Nordic curl (assisted)|4|2|60
+Hollow rocks|10|2|30
+#Hold
+Long-lever plank|20
+
+######## GEAR VERSIONS ########
+@press-prep-band|Press Prep · Band|Shoulder warm-up with a band, before pressing|warmup|shoulders,upper back
+#Raise
+Jumping jacks|30
+#Open
+Band dislocates|10
+Thoracic rotations (quadruped)|6
+#Switch on
+Band pull-aparts|15
+Band face pulls|12
+Band external rotation|12
+#Rehearse
+Band chest press|10
+
+@hinge-prep-band|Hinge Prep · Band|Glute and hinge warm-up with a mini band|warmup|glutes,hamstrings,hips
+#Raise
+Jog in place|45
+#Open
+Cat-cow|8
+Leg swings (front to back)|10
+#Switch on
+Banded glute bridges|15
+Banded lateral walks|10
+Banded monster walks|10
+#Rehearse
+Banded hip hinge (pull-through)|12
+
+@runners-release-roller|Runner's Release · Roller|Foam rolling and stretching after a run|cooldown|calves,quads,hamstrings,hips
+#Settle
+Walk it off|60
+#Release
+Foam roll calves|45
+Foam roll quads|45
+Foam roll IT band area (outer thigh)|30
+Foam roll glutes|45
+#Stretch
+Wall calf stretch|30
+Kneeling hip flexor stretch|30
+Band hamstring stretch|30
+#Breathe
+Foam roller supported bridge|60
+
+@upper-release-roller|Upper Release · Roller|Rolling and stretching after a push or pull day|cooldown|upper back,lats,chest
+#Release
+Foam roll upper back|60
+Foam roll lats|45
+Foam roll pecs|30
+#Stretch
+Foam roller snow angels|8
+Doorway chest stretch|30
+Band overhead lat stretch|30
+#Breathe
+Foam roller chest opener|90
+
+@sore-day-roller|Sore Day · Roller|Full-body foam rolling for a sore day|recovery|full body
+#Release
+Foam roll calves|60
+Foam roll quads|60
+Foam roll hamstrings|60
+Foam roll glutes|60
+Foam roll upper back|60
+Foam roll lats|45
+#Easy movement
+Easy walk|120
+Foam roller thoracic extensions|6
+#Breathe
+Foam roller breathing (lengthwise)|120
+
+@spine-unlock-roller|Spine Unlock · Roller|Upper-back mobility on a foam roller|mobility|upper back
+#Loosen
+Cat-cow|8
+Foam roll upper back|45
+#Main work
+Foam roller thoracic extensions|10
+Foam roller T-spine rotations|8
+Foam roller lat flossing|8
+#Control
+Foam roller wall slides|10
+Band face pulls|12
+
+@hip-gate-band|Hip Gate · Band|Hip mobility with a band for extra stretch|mobility|hips
+#Loosen
+Hip circles (standing)|8
+Quadruped rock-backs|10
+#Main work
+Banded hip distraction (lunge)|45
+Banded hip distraction (90/90)|45
+Banded hip internal rotation|8
+#Control
+Banded clamshells|15
+Banded glute bridges|12
+
+@pike-1-band|Pike Path I · Band|Toward touching your toes, using a band|flexibility|hamstrings
+#Test
+Pike test|20
+#Stack
+Banded hamstring floss|10
+Band hamstring stretch|30|3|10
+Band PNF hamstring (contract-relax)|3
+Band seated forward fold|45|2|15
+Active hamstring stretch (leg raise hold)|10|3|10
+#Retest
+Pike test|20
+
+@overhead-band|Overhead Path · Band|Shoulders overhead, using a band|flexibility|shoulders,lats
+#Test
+Overhead test|10
+#Stack
+Band shoulder dislocates (narrow)|8
+Band overhead lat stretch|30|2|15
+Band lat traction|30
+Band chest stretch (anchored)|30
+Overhead wall lift-offs|8
+#Retest
+Overhead test|10
+
+@cuff-guard-band|Cuff Guard · Band|Rotator cuff and shoulder blades with a band|prehab|shoulders,upper back
+#Activate
+Band pull-aparts|15
+Band no-moneys|15
+#Strength rounds
+Band external rotation|15|2|30
+Band face pulls|15|2|30
+Band Y raises|12|2|30
+Band serratus punches|12|2|20
+#Hold
+Isometric external rotation (doorframe)|20
+
+@glute-forge-band|Glute Forge · Band|Glute strength finisher with a mini band|prehab|glutes,hips
+#Activate
+Banded clamshells|15
+Banded fire hydrants|12
+#Strength rounds
+Banded glute bridges|15|2|30
+Banded lateral walks|12|2|20
+Banded single-leg bridge|10|2|30
+Banded squats|12|2|30
+#Hold
+Banded glute bridge hold|30
+
+@core-seal-roller|Core Seal · Roller|Core stability on a foam roller|prehab|core
+#Activate
+Breathing brace holds|5
+Foam roller dead bugs|8
+#Strength rounds
+Foam roller plank|30|2|20
+Foam roller knee tucks|10|2|30
+Band Pallof press|10|2|20
+#Hold
+Side plank|20
