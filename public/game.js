@@ -63,9 +63,10 @@ function gameAfterRender() {
 const gLiveSeen = {};
 function gameLive(box, info) {
   if (!box || info.type !== "gym") return;
-  if (String(info.state || "").startsWith("-1|") && !gLiveSeen[info.k]) { gLiveSeen[info.k] = 1; gFanfare(); gBuzz([40, 30, 80]); setTimeout(() => { const m = box.querySelector(".lv-main"); if (m) gBurst(m, { n: 26, spread: 110, text: "WORKOUT CLEAR" }) }, 120) }
+  if (String(info.state || "").startsWith("-1|") && !gLiveSeen[info.k]) { gLiveSeen[info.k] = 1; gFanfare(); gBuzz([40, 30, 80]); setTimeout(() => { const m = box.querySelector(".lv-main"); if (m) gBurst(m, { n: 26, spread: 110, text: box.classList.contains("lvt") ? "" : "WORKOUT CLEAR" }) }, 120) }
 }
-document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("#lvDone"); if (!b) return; const r = b.getBoundingClientRect(), ghost = document.createElement("div");
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("#lvDone"); if (!b) return;
+  if (b.closest("#liveIn.lvt")) { if (!b.dataset.need) { gBlip(); gBuzz(20) } return }   // the tower has its own strike feedback; the old floating label landed on its headings const r = b.getBoundingClientRect(), ghost = document.createElement("div");
   ghost.style.cssText = `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;pointer-events:none`; document.body.appendChild(ghost);
   // after the tap the live view redraws as the rest card, so burst over that card's top edge, clear of "Up next"
   setTimeout(() => { const m = document.querySelector(".lv-main"); if (m) { const q = m.getBoundingClientRect(); ghost.style.cssText = `position:fixed;left:${q.left}px;top:${q.top - 6}px;width:${q.width}px;height:24px;pointer-events:none`; gBurst(ghost, { n: 14, spread: 50, text: "SET CLEAR" }); gBlip(); gBuzz(20) } ghost.remove() }, 20) }, true);
