@@ -283,10 +283,12 @@ function fpkShow(b) {
   const tag = st === "c" ? "Cleared" : st === "o" ? "You're here" : st === "n" ? "Up next" : `${d} of ${tot} sets`;
   el.innerHTML = `<small>FLOOR ${n}</small><b>${esc(name)}</b><span>${st === "c" || st === "o" || st === "n" ? `${d} of ${tot} sets · ${tag}` : tag}</span>`;
   const r = b.getBoundingClientRect(); el.style.left = `${r.right + 10}px`; el.style.maxWidth = `${Math.max(140, innerWidth - r.right - 26)}px`;
-  el.hidden = false; el.style.top = `${Math.max(8, Math.min(innerHeight - el.offsetHeight - 8, r.top + r.height / 2 - el.offsetHeight / 2))}px`;
+  clearTimeout(FPK.ot); el.classList.remove("out"); el.hidden = false; el.style.top = `${Math.max(8, Math.min(innerHeight - el.offsetHeight - 8, r.top + r.height / 2 - el.offsetHeight / 2))}px`;
   document.querySelectorAll(".lvt-floor.peek").forEach(x => x.classList.remove("peek")); b.classList.add("peek"); FPK.on = true;
 }
-function fpkHide() { clearTimeout(FPK.t); FPK.t = 0; if (FPK.el) FPK.el.hidden = true; document.querySelectorAll(".lvt-floor.peek").forEach(x => x.classList.remove("peek"));
+function fpkHide() { clearTimeout(FPK.t); FPK.t = 0; const el = FPK.el;
+  // fades out the way it came in (same 0.14 s, reversed), then hides
+  if (el && !el.hidden && !el.classList.contains("out")) { el.classList.add("out"); clearTimeout(FPK.ot); FPK.ot = setTimeout(() => { el.hidden = true; el.classList.remove("out") }, 150) } document.querySelectorAll(".lvt-floor.peek").forEach(x => x.classList.remove("peek"));
   if (FPK.on) { FPK.eat = true; setTimeout(() => FPK.eat = false, 400) } FPK.on = false }
 document.addEventListener("pointerdown", e => { const b = e.target.closest && e.target.closest(".lvt-floor[data-fpk]"); if (FPK.on || FPK.t) fpkHide(); if (!b) return; FPK.eat = false;
   FPK.x = e.clientX; FPK.y = e.clientY; FPK.down = true;
@@ -323,7 +325,7 @@ html .live.lvt-on{background:radial-gradient(90% 50% at 50% 0%,color-mix(in srgb
 .lvt-floor.done{border-color:var(--lvt-r);background:linear-gradient(180deg,color-mix(in srgb,var(--lvt-r) 30%,transparent),color-mix(in srgb,var(--lvt-r) 12%,transparent));color:var(--lvt-rmid);cursor:default}
 .lvt-floor.on{border-color:var(--lvt-rmid);background:linear-gradient(180deg,color-mix(in srgb,var(--lvt-r) 45%,transparent),color-mix(in srgb,var(--lvt-r) 18%,transparent));box-shadow:0 0 16px -2px var(--lvt-r);color:var(--lvt-rcore)}
 .lvt-floor{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}.lvt-floor.peek{transform:scale(1.06);border-color:var(--lvt-rmid);transition:transform .12s}
-.lvt-fpk[hidden]{display:none!important}
+.lvt-fpk[hidden]{display:none!important}.lvt-fpk.out{animation:lvtFpkOut .14s ease-in forwards}@keyframes lvtFpkOut{from{opacity:1;transform:none}to{opacity:0;transform:translateX(-4px)}}
 .lvt-fpk{position:fixed;z-index:13;display:flex;flex-direction:column;gap:3px;padding:9px 12px 10px;border-radius:8px;border:1px solid color-mix(in srgb,var(--lvt-r,var(--rk)) 55%,transparent);background:#14151A;box-shadow:0 10px 28px -8px rgba(0,0,0,.7),0 0 18px -6px var(--lvt-r,var(--rk));color:#F5F1E6;pointer-events:none;animation:lvtFpk .14s ease-out}
 .lvt-fpk::before{content:"";position:absolute;left:-6px;top:50%;width:10px;height:10px;margin-top:-5px;background:#14151A;border-left:1px solid color-mix(in srgb,var(--lvt-r,var(--rk)) 55%,transparent);border-bottom:1px solid color-mix(in srgb,var(--lvt-r,var(--rk)) 55%,transparent);transform:rotate(45deg)}
 .lvt-fpk small{font:800 9.5px/1 var(--fnt);letter-spacing:.24em;color:var(--lvt-rmid,var(--rk))}.lvt-fpk b{font:800 16px/1.15 var(--fnt)}.lvt-fpk span{font:600 12px/1.2 var(--fnt);color:#A8A397}
