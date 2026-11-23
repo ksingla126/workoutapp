@@ -1,53 +1,34 @@
 bounty,title,type,stars,minutes,gear,phase,move,dose,unit,per_side,sets,rest_s,move_stars,plain
-ignition,Ignition,warmup,1,6,,Raise,Jumping jacks,30,sec,,1,0,1,A 5-minute full-body warm-up for any day
-ignition,Ignition,warmup,1,6,,Raise,Arm circles,10,reps,,1,0,1,A 5-minute full-body warm-up for any day
-ignition,Ignition,warmup,1,6,,Open,Hip circles,8,reps,yes,1,0,1,A 5-minute full-body warm-up for any day
-ignition,Ignition,warmup,1,6,,Open,Torso twists,16,reps,,1,0,1,A 5-minute full-body warm-up for any day
-ignition,Ignition,warmup,1,6,,Open,Leg swings (front to back),10,reps,yes,1,0,1,A 5-minute full-body warm-up for any day
-ignition,Ignition,warmup,1,6,,Switch on,Glute bridges,10,reps,,1,0,1,A 5-minute full-body warm-up for any day
-ignition,Ignition,warmup,1,6,,Switch on,Walking knee hugs,6,reps,yes,1,0,1,A 5-minute full-body warm-up for any day
-ignition,Ignition,warmup,1,6,,Switch on,March in place,30,sec,,1,0,1,A 5-minute full-body warm-up for any day
-press-prep,Press Prep,warmup,2,4,,Raise,Jumping jacks,30,sec,,1,0,1,"Shoulders and upper back, before bench or overhead pressing"
-press-prep,Press Prep,warmup,2,4,,Open,Thoracic rotations (quadruped),6,reps,yes,1,0,1,"Shoulders and upper back, before bench or overhead pressing"
-press-prep,Press Prep,warmup,2,4,,Open,Wall slides,10,reps,,1,0,1,"Shoulders and upper back, before bench or overhead pressing"
-press-prep,Press Prep,warmup,2,4,,Open,Shoulder CARs,2,reps,yes,1,0,2,"Shoulders and upper back, before bench or overhead pressing"
-press-prep,Press Prep,warmup,2,4,,Switch on,Prone Y raises,10,reps,,1,0,1,"Shoulders and upper back, before bench or overhead pressing"
-press-prep,Press Prep,warmup,2,4,,Switch on,Scapular push-ups,10,reps,,1,0,1,"Shoulders and upper back, before bench or overhead pressing"
-press-prep,Press Prep,warmup,2,4,,Rehearse,Push-ups,6,reps,,1,0,2,"Shoulders and upper back, before bench or overhead pressing"
+ignition,Ignition,warmup,1,5,,Raise,Jumping jacks,45,sec,,1,0,1,A 5-minute full-body warm-up for any day
+ignition,Ignition,warmup,1,5,,Open,Arm circles,10,reps,,2,15,1,A 5-minute full-body warm-up for any day
+ignition,Ignition,warmup,1,5,,Open,Leg swings (front to back),10,reps,yes,1,0,1,A 5-minute full-body warm-up for any day
+ignition,Ignition,warmup,1,5,,Switch on,Glute bridges,12,reps,,2,15,1,A 5-minute full-body warm-up for any day
+ignition,Ignition,warmup,1,5,,Rehearse,Walking knee hugs,8,reps,yes,1,0,1,A 5-minute full-body warm-up for any day
+press-prep,Press Prep,warmup,2,5,,Raise,Jumping jacks,30,sec,,1,0,1,"Shoulders and upper back, before bench or overhead pressing"
+press-prep,Press Prep,warmup,2,5,,Open,Thoracic rotations (quadruped),6,reps,yes,1,0,1,"Shoulders and upper back, before bench or overhead pressing"
+press-prep,Press Prep,warmup,2,5,,Open,Wall slides,10,reps,,2,15,1,"Shoulders and upper back, before bench or overhead pressing"
+press-prep,Press Prep,warmup,2,5,,Switch on,Scapular push-ups,10,reps,,2,15,1,"Shoulders and upper back, before bench or overhead pressing"
+press-prep,Press Prep,warmup,2,5,,Rehearse,Push-ups,8,reps,,1,0,2,"Shoulders and upper back, before bench or overhead pressing"
 hinge-prep,Hinge Prep,warmup,2,5,,Raise,Jog in place,45,sec,,1,0,1,"Hips, hamstrings and bracing, before deadlifts and RDLs"
 hinge-prep,Hinge Prep,warmup,2,5,,Open,Cat-cow,8,reps,,1,0,1,"Hips, hamstrings and bracing, before deadlifts and RDLs"
-hinge-prep,Hinge Prep,warmup,2,5,,Open,Leg swings (front to back),10,reps,yes,1,0,1,"Hips, hamstrings and bracing, before deadlifts and RDLs"
 hinge-prep,Hinge Prep,warmup,2,5,,Open,World's greatest stretch,3,reps,yes,1,0,2,"Hips, hamstrings and bracing, before deadlifts and RDLs"
-hinge-prep,Hinge Prep,warmup,2,5,,Switch on,Glute bridges,12,reps,,1,0,1,"Hips, hamstrings and bracing, before deadlifts and RDLs"
-hinge-prep,Hinge Prep,warmup,2,5,,Switch on,Dead bug,6,reps,yes,1,0,1,"Hips, hamstrings and bracing, before deadlifts and RDLs"
-hinge-prep,Hinge Prep,warmup,2,5,,Rehearse,Hip hinge drill,10,reps,,1,0,1,"Hips, hamstrings and bracing, before deadlifts and RDLs"
-hinge-prep,Hinge Prep,warmup,2,5,,Rehearse,Good mornings (bodyweight),10,reps,,1,0,2,"Hips, hamstrings and bracing, before deadlifts and RDLs"
-squat-prep,Squat Prep,warmup,2,6,,Raise,High knees,30,sec,,1,0,2,"Ankles, hips and quads, before squats and leg day"
-squat-prep,Squat Prep,warmup,2,6,,Open,Ankle rocks (knee to wall),10,reps,yes,1,0,1,"Ankles, hips and quads, before squats and leg day"
-squat-prep,Squat Prep,warmup,2,6,,Open,90/90 hip switches,8,reps,,1,0,1,"Ankles, hips and quads, before squats and leg day"
-squat-prep,Squat Prep,warmup,2,6,,Open,Lateral lunges,6,reps,yes,1,0,2,"Ankles, hips and quads, before squats and leg day"
-squat-prep,Squat Prep,warmup,2,6,,Switch on,Glute bridges,12,reps,,1,0,1,"Ankles, hips and quads, before squats and leg day"
-squat-prep,Squat Prep,warmup,2,6,,Switch on,Bird dog,6,reps,yes,1,0,1,"Ankles, hips and quads, before squats and leg day"
-squat-prep,Squat Prep,warmup,2,6,,Rehearse,Squat to stand,6,reps,,1,0,2,"Ankles, hips and quads, before squats and leg day"
-squat-prep,Squat Prep,warmup,2,6,,Rehearse,Prisoner squats,10,reps,,1,0,2,"Ankles, hips and quads, before squats and leg day"
-stride-primer,Stride Primer,warmup,1,7,,Raise,March in place,45,sec,,1,0,1,A dynamic warm-up before an easy or long run
-stride-primer,Stride Primer,warmup,1,7,,Raise,Jog in place,60,sec,,1,0,1,A dynamic warm-up before an easy or long run
-stride-primer,Stride Primer,warmup,1,7,,Open,Leg swings (front to back),10,reps,yes,1,0,1,A dynamic warm-up before an easy or long run
-stride-primer,Stride Primer,warmup,1,7,,Open,Leg swings (side to side),10,reps,yes,1,0,1,A dynamic warm-up before an easy or long run
-stride-primer,Stride Primer,warmup,1,7,,Open,Walking knee hugs,6,reps,yes,1,0,1,A dynamic warm-up before an easy or long run
-stride-primer,Stride Primer,warmup,1,7,,Open,Walking quad pulls,6,reps,yes,1,0,1,A dynamic warm-up before an easy or long run
-stride-primer,Stride Primer,warmup,1,7,,Switch on,Calf raises,15,reps,,1,0,1,A dynamic warm-up before an easy or long run
-stride-primer,Stride Primer,warmup,1,7,,Switch on,Glute bridges,10,reps,,1,0,1,A dynamic warm-up before an easy or long run
-stride-primer,Stride Primer,warmup,1,7,,Rehearse,Skips (in place),30,sec,,1,0,1,A dynamic warm-up before an easy or long run
-speed-primer,Speed Primer,warmup,3,7,,Raise,Jog in place,60,sec,,1,0,1,"Drills and hops before sprints, intervals or hills"
-speed-primer,Speed Primer,warmup,3,7,,Raise,High knees,20,sec,,1,0,2,"Drills and hops before sprints, intervals or hills"
-speed-primer,Speed Primer,warmup,3,7,,Open,Leg swings (front to back),10,reps,yes,1,0,1,"Drills and hops before sprints, intervals or hills"
-speed-primer,Speed Primer,warmup,3,7,,Open,Leg swings (side to side),10,reps,yes,1,0,1,"Drills and hops before sprints, intervals or hills"
-speed-primer,Speed Primer,warmup,3,7,,Open,Walking lunges,6,reps,yes,1,0,2,"Drills and hops before sprints, intervals or hills"
-speed-primer,Speed Primer,warmup,3,7,,Switch on,Pogo hops,20,reps,,1,0,2,"Drills and hops before sprints, intervals or hills"
-speed-primer,Speed Primer,warmup,3,7,,Switch on,A-skips,20,sec,,1,0,2,"Drills and hops before sprints, intervals or hills"
-speed-primer,Speed Primer,warmup,3,7,,Rehearse,B-skips,20,sec,,1,0,3,"Drills and hops before sprints, intervals or hills"
-speed-primer,Speed Primer,warmup,3,7,,Rehearse,Run-throughs (strides in place),15,sec,,2,30,3,"Drills and hops before sprints, intervals or hills"
+hinge-prep,Hinge Prep,warmup,2,5,,Switch on,Glute bridges,12,reps,,2,15,1,"Hips, hamstrings and bracing, before deadlifts and RDLs"
+hinge-prep,Hinge Prep,warmup,2,5,,Rehearse,Hip hinge drill,10,reps,,2,15,1,"Hips, hamstrings and bracing, before deadlifts and RDLs"
+squat-prep,Squat Prep,warmup,2,5,,Raise,High knees,30,sec,,1,0,2,"Ankles, hips and quads, before squats and leg day"
+squat-prep,Squat Prep,warmup,2,5,,Open,Ankle rocks (knee to wall),10,reps,yes,1,0,1,"Ankles, hips and quads, before squats and leg day"
+squat-prep,Squat Prep,warmup,2,5,,Open,90/90 hip switches,8,reps,,1,0,1,"Ankles, hips and quads, before squats and leg day"
+squat-prep,Squat Prep,warmup,2,5,,Switch on,Glute bridges,12,reps,,1,0,1,"Ankles, hips and quads, before squats and leg day"
+squat-prep,Squat Prep,warmup,2,5,,Rehearse,Prisoner squats,10,reps,,2,15,2,"Ankles, hips and quads, before squats and leg day"
+stride-primer,Stride Primer,warmup,1,6,,Raise,Jog in place,90,sec,,1,0,1,A dynamic warm-up before an easy or long run
+stride-primer,Stride Primer,warmup,1,6,,Open,Leg swings (front to back),10,reps,yes,1,0,1,A dynamic warm-up before an easy or long run
+stride-primer,Stride Primer,warmup,1,6,,Open,Walking knee hugs,6,reps,yes,1,0,1,A dynamic warm-up before an easy or long run
+stride-primer,Stride Primer,warmup,1,6,,Switch on,Calf raises,15,reps,,2,15,1,A dynamic warm-up before an easy or long run
+stride-primer,Stride Primer,warmup,1,6,,Rehearse,Skips (in place),30,sec,,1,0,1,A dynamic warm-up before an easy or long run
+speed-primer,Speed Primer,warmup,3,6,,Raise,Jog in place,60,sec,,1,0,1,"Drills and hops before sprints, intervals or hills"
+speed-primer,Speed Primer,warmup,3,6,,Open,Leg swings (side to side),10,reps,yes,1,0,1,"Drills and hops before sprints, intervals or hills"
+speed-primer,Speed Primer,warmup,3,6,,Switch on,Pogo hops,20,reps,,2,15,2,"Drills and hops before sprints, intervals or hills"
+speed-primer,Speed Primer,warmup,3,6,,Switch on,A-skips,20,sec,,2,15,2,"Drills and hops before sprints, intervals or hills"
+speed-primer,Speed Primer,warmup,3,6,,Rehearse,Run-throughs (strides in place),15,sec,,2,30,3,"Drills and hops before sprints, intervals or hills"
 stand-down,Stand Down,cooldown,1,6,,Settle,Walk it off,60,sec,,1,0,1,A 5-minute cool-down after anything
 stand-down,Stand Down,cooldown,1,6,,Stretch,Standing quad stretch,20,sec,yes,1,0,1,A 5-minute cool-down after anything
 stand-down,Stand Down,cooldown,1,6,,Stretch,Standing hamstring stretch,20,sec,yes,1,0,1,A 5-minute cool-down after anything
@@ -352,20 +333,16 @@ trial-of-iron,Trial of Iron,prehab,5,10,,Strength rounds,Copenhagen plank (long 
 trial-of-iron,Trial of Iron,prehab,5,10,,Strength rounds,Nordic curl (assisted),4,reps,,2,60,5,"The hardest finisher: groin, hamstrings and core"
 trial-of-iron,Trial of Iron,prehab,5,10,,Strength rounds,Hollow rocks,10,reps,,2,30,4,"The hardest finisher: groin, hamstrings and core"
 trial-of-iron,Trial of Iron,prehab,5,10,,Hold,Long-lever plank,20,sec,,1,0,4,"The hardest finisher: groin, hamstrings and core"
-press-prep-band,Press Prep · Band,warmup,2,6,resistance band,Raise,Jumping jacks,30,sec,,1,0,1,"Shoulder warm-up with a band, before pressing"
-press-prep-band,Press Prep · Band,warmup,2,6,resistance band,Open,Band dislocates,10,reps,,1,0,1,"Shoulder warm-up with a band, before pressing"
-press-prep-band,Press Prep · Band,warmup,2,6,resistance band,Open,Thoracic rotations (quadruped),6,reps,yes,1,0,1,"Shoulder warm-up with a band, before pressing"
-press-prep-band,Press Prep · Band,warmup,2,6,resistance band,Switch on,Band pull-aparts,15,reps,,1,0,1,"Shoulder warm-up with a band, before pressing"
-press-prep-band,Press Prep · Band,warmup,2,6,resistance band,Switch on,Band face pulls,12,reps,,1,0,1,"Shoulder warm-up with a band, before pressing"
-press-prep-band,Press Prep · Band,warmup,2,6,resistance band,Switch on,Band external rotation,12,reps,yes,1,0,1,"Shoulder warm-up with a band, before pressing"
-press-prep-band,Press Prep · Band,warmup,2,6,resistance band,Rehearse,Band chest press,10,reps,,1,0,2,"Shoulder warm-up with a band, before pressing"
-hinge-prep-band,Hinge Prep · Band,warmup,2,6,resistance band,Raise,Jog in place,45,sec,,1,0,1,Glute and hinge warm-up with a mini band
-hinge-prep-band,Hinge Prep · Band,warmup,2,6,resistance band,Open,Cat-cow,8,reps,,1,0,1,Glute and hinge warm-up with a mini band
-hinge-prep-band,Hinge Prep · Band,warmup,2,6,resistance band,Open,Leg swings (front to back),10,reps,yes,1,0,1,Glute and hinge warm-up with a mini band
-hinge-prep-band,Hinge Prep · Band,warmup,2,6,resistance band,Switch on,Banded glute bridges,15,reps,,1,0,1,Glute and hinge warm-up with a mini band
-hinge-prep-band,Hinge Prep · Band,warmup,2,6,resistance band,Switch on,Banded lateral walks,10,reps,yes,1,0,2,Glute and hinge warm-up with a mini band
-hinge-prep-band,Hinge Prep · Band,warmup,2,6,resistance band,Switch on,Banded monster walks,10,reps,,1,0,2,Glute and hinge warm-up with a mini band
-hinge-prep-band,Hinge Prep · Band,warmup,2,6,resistance band,Rehearse,Banded hip hinge (pull-through),12,reps,,1,0,2,Glute and hinge warm-up with a mini band
+press-prep-band,Press Prep · Band,warmup,2,7,resistance band,Raise,Jumping jacks,30,sec,,1,0,1,"Shoulder warm-up with a band, before pressing"
+press-prep-band,Press Prep · Band,warmup,2,7,resistance band,Open,Band dislocates,10,reps,,1,0,1,"Shoulder warm-up with a band, before pressing"
+press-prep-band,Press Prep · Band,warmup,2,7,resistance band,Switch on,Band pull-aparts,15,reps,,2,15,1,"Shoulder warm-up with a band, before pressing"
+press-prep-band,Press Prep · Band,warmup,2,7,resistance band,Switch on,Band external rotation,12,reps,yes,2,15,1,"Shoulder warm-up with a band, before pressing"
+press-prep-band,Press Prep · Band,warmup,2,7,resistance band,Rehearse,Band chest press,10,reps,,1,0,2,"Shoulder warm-up with a band, before pressing"
+hinge-prep-band,Hinge Prep · Band,warmup,2,7,resistance band,Raise,Jog in place,45,sec,,1,0,1,Glute and hinge warm-up with a mini band
+hinge-prep-band,Hinge Prep · Band,warmup,2,7,resistance band,Open,Cat-cow,8,reps,,1,0,1,Glute and hinge warm-up with a mini band
+hinge-prep-band,Hinge Prep · Band,warmup,2,7,resistance band,Switch on,Banded glute bridges,15,reps,,2,15,1,Glute and hinge warm-up with a mini band
+hinge-prep-band,Hinge Prep · Band,warmup,2,7,resistance band,Switch on,Banded lateral walks,10,reps,yes,2,15,2,Glute and hinge warm-up with a mini band
+hinge-prep-band,Hinge Prep · Band,warmup,2,7,resistance band,Rehearse,Banded hip hinge (pull-through),12,reps,,2,15,2,Glute and hinge warm-up with a mini band
 runners-release-roller,Runner's Release · Roller,cooldown,2,12,foam roller / resistance band,Settle,Walk it off,60,sec,,1,0,1,Foam rolling and stretching after a run
 runners-release-roller,Runner's Release · Roller,cooldown,2,12,foam roller / resistance band,Release,Foam roll calves,45,sec,yes,1,0,1,Foam rolling and stretching after a run
 runners-release-roller,Runner's Release · Roller,cooldown,2,12,foam roller / resistance band,Release,Foam roll quads,45,sec,yes,1,0,1,Foam rolling and stretching after a run

@@ -4,46 +4,39 @@
 # Move name | dose (blank = the type's dose from the library) | sets (blank = 1) | rest s between sets
 # Stars and minutes are computed by build_bounties.py (stars = hardest move).
 
-######## WARM-UP (1-3★, max 10 min) ########
+######## WARM-UP (1-3★, 3-5 moves, max 10 min) ########
 @ignition|Ignition|A 5-minute full-body warm-up for any day|warmup|full body
 #Raise
-Jumping jacks|30
-Arm circles|10
+Jumping jacks|45
 #Open
-Hip circles|8
-Torso twists|16
+Arm circles|10|2
 Leg swings (front to back)|10
 #Switch on
-Glute bridges|10
-Walking knee hugs|6
-March in place|30
+Glute bridges|12|2
+#Rehearse
+Walking knee hugs|8
 
 @press-prep|Press Prep|Shoulders and upper back, before bench or overhead pressing|warmup|shoulders,upper back
 #Raise
 Jumping jacks|30
 #Open
 Thoracic rotations (quadruped)|6
-Wall slides|10
-Shoulder CARs|2
+Wall slides|10|2
 #Switch on
-Prone Y raises|10
-Scapular push-ups|10
+Scapular push-ups|10|2
 #Rehearse
-Push-ups|6
+Push-ups|8
 
 @hinge-prep|Hinge Prep|Hips, hamstrings and bracing, before deadlifts and RDLs|warmup|hamstrings,hips,lower back
 #Raise
 Jog in place|45
 #Open
 Cat-cow|8
-Leg swings (front to back)|10
 World's greatest stretch|3
 #Switch on
-Glute bridges|12
-Dead bug|6
+Glute bridges|12|2
 #Rehearse
-Hip hinge drill|10
-Good mornings (bodyweight)|10
+Hip hinge drill|10|2
 
 @squat-prep|Squat Prep|Ankles, hips and quads, before squats and leg day|warmup|quads,hips,ankles
 #Raise
@@ -51,42 +44,31 @@ High knees|30
 #Open
 Ankle rocks (knee to wall)|10
 90/90 hip switches|8
-Lateral lunges|6
 #Switch on
 Glute bridges|12
-Bird dog|6
 #Rehearse
-Squat to stand|6
-Prisoner squats|10
+Prisoner squats|10|2
 
 @stride-primer|Stride Primer|A dynamic warm-up before an easy or long run|warmup|calves,hips,hamstrings
 #Raise
-March in place|45
-Jog in place|60
+Jog in place|90
 #Open
 Leg swings (front to back)|10
-Leg swings (side to side)|10
 Walking knee hugs|6
-Walking quad pulls|6
 #Switch on
-Calf raises|15
-Glute bridges|10
+Calf raises|15|2
 #Rehearse
 Skips (in place)|30
 
 @speed-primer|Speed Primer|Drills and hops before sprints, intervals or hills|warmup|calves,hips,hamstrings
 #Raise
 Jog in place|60
-High knees|20
 #Open
-Leg swings (front to back)|10
 Leg swings (side to side)|10
-Walking lunges|6
 #Switch on
-Pogo hops|20
-A-skips|20
+Pogo hops|20|2
+A-skips|20|2
 #Rehearse
-B-skips|20
 Run-throughs (strides in place)|15|2|30
 
 ######## COOL-DOWN (1-3★) ########
@@ -594,11 +576,9 @@ Long-lever plank|20
 Jumping jacks|30
 #Open
 Band dislocates|10
-Thoracic rotations (quadruped)|6
 #Switch on
-Band pull-aparts|15
-Band face pulls|12
-Band external rotation|12
+Band pull-aparts|15|2
+Band external rotation|12|2
 #Rehearse
 Band chest press|10
 
@@ -607,13 +587,11 @@ Band chest press|10
 Jog in place|45
 #Open
 Cat-cow|8
-Leg swings (front to back)|10
 #Switch on
-Banded glute bridges|15
-Banded lateral walks|10
-Banded monster walks|10
+Banded glute bridges|15|2
+Banded lateral walks|10|2
 #Rehearse
-Banded hip hinge (pull-through)|12
+Banded hip hinge (pull-through)|12|2
 
 @runners-release-roller|Runner's Release · Roller|Foam rolling and stretching after a run|cooldown|calves,quads,hamstrings,hips
 #Settle
