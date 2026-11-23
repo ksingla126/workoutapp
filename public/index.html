@@ -1122,8 +1122,13 @@ function curPhase(){ if(CUSTOM){ const out={}; Object.entries(CUSTOM.gym).forEac
 const TILTCALF_FROM="2026-10-21";
 function migrateTiltCalf(){ if(CUSTOM) return; Object.entries(S.logs).forEach(([k,l])=>{ if(k>=TILTCALF_FROM&&l&&l.type==="gym"&&l.day==="B"&&l.ex&&l.ex.calfraise&&!l.ex.tiltcalf){
   const ex={...l.ex,tiltcalf:l.ex.calfraise}; delete ex.calfraise; const db={...(l.db||{})}; delete db.calfraise; saveLog(k,{...l,ex,db}) } }) }
-function gymDay(s,d){ if(CUSTOM&&CUSTOM.su.fromLegacy&&ymd(d)<V2_FROM&&/^r[ABC]$/.test(s)) return applySwaps(gymDay0(s.slice(1),d),s.slice(1),d); if(CUSTOM){ const g=applySwaps(CUSTOM.gym[s]||{name:"Workout",ex:[]},s,d); return CUSTOM.su.rope&&ymd(d)>=V2_FROM&&g.ex.length? {...g,ex:[...g.ex,ropeFor(d)]} : g } let g=applySwaps(gymDay0(s,d),s,d);
-  return ymd(d)>=V2_FROM? {...g, ex:[...g.ex, ropeFor(d)]} : g }
+// Jump rope is off for now (Nov 23, 2026): the rope finisher and the Jump Rope exercise are left out of every
+// workout. Days that already logged rope keep it, so their history still shows. Set ROPE_OFF=false to bring it back.
+const ROPE_OFF=true;
+function noRope(g,d){ if(!ROPE_OFF||!g||!g.ex) return g; const l=S.logs[ymd(d)], had=id=>!!(l&&l.ex&&l.ex[id]&&l.ex[id].length);
+  const ex=g.ex.filter(e=>!((e.id==="rope"||e.id==="jumprope")&&!had(e.id))); return ex.length===g.ex.length? g : {...g,ex} }
+function gymDay(s,d){ if(CUSTOM&&CUSTOM.su.fromLegacy&&ymd(d)<V2_FROM&&/^r[ABC]$/.test(s)) return applySwaps(gymDay0(s.slice(1),d),s.slice(1),d); if(CUSTOM){ const g=applySwaps(CUSTOM.gym[s]||{name:"Workout",ex:[]},s,d); return noRope(CUSTOM.su.rope&&ymd(d)>=V2_FROM&&g.ex.length? {...g,ex:[...g.ex,ropeFor(d)]} : g, d) } let g=applySwaps(gymDay0(s,d),s,d);
+  return noRope(ymd(d)>=V2_FROM? {...g, ex:[...g.ex, ropeFor(d)]} : g, d) }
 function gymDay0(s,d){ const k=ymd(d); if(k>=V2_FROM) return GYM2[k<=CORE_SWAP.to?"block":"post"][s];
   const g=GYM[s]; if(!inCoreSwap(d)) return g; const ex=g.ex.map(e=>SWAP_EX[e.id]||e); return {...g, ex, name: s==="B"?"Day B · Press & Core":g.name, swapped:true} }
 const ALLEX = (()=>{const m={}; [...Object.values(GYM).flatMap(d=>d.ex), ...Object.values(SWAP_EX), ...Object.values(X)].forEach(e=>{ if(!e.bw) m[e.id]=m[e.id]&&Object.values(X).includes(e)?m[e.id]:(Object.values(X).find(x=>x.id===e.id)||e) }); return Object.values(m)})();
