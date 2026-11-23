@@ -352,6 +352,7 @@ function wsbLast(ex, k) {
 function wsbDia(c, fill) { return `<i class="wsb-dia" style="--c:${c}"${fill ? ' data-fill="1"' : ""}></i>` }
 const WSB_HOLDS = ["plank", "sideplank", "deadhang", "wallsit", "hollow", "farmerhold", "lsit"];
 function wsbStep(lab, attr, val) { return `<div class="wsb-st"><span>${lab}</span><div><button type="button" data-wsbstep="${attr}|-1" aria-label="Less ${lab.toLowerCase()}">−</button><b>${val}</b><button type="button" data-wsbstep="${attr}|1" aria-label="More ${lab.toLowerCase()}">+</button></div></div>` }
+const WSB_HIST_ICON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 13.5h12"/><path d="M3.5 10.5l3-3 2.5 2 4-5"/><path d="M10.5 4.5H13V7"/></svg>';
 function wsbHtml(p, k, pick) {
   const d = parseYmd(k), when = k === ymd(today) ? "TODAY" : wsDayTxt(d), log = S.logs[k];
   let title, plain, boxes, rows = [];
@@ -368,7 +369,8 @@ function wsbHtml(p, k, pick) {
       const rest = typeof restFor === "function" ? restFor(e.id) : e.rest || 90;
       let h = `<button type="button" class="wsb-row${open ? " open" : ""}" data-wsbrow="${esc(key)}" aria-expanded="${open}">${wsbDia(b ? "#6EA8FF" : RKT.mm, b)}<span class="wsb-rt"><span class="wsb-l1"><b>${esc(e.name)}</b><em>${e.sets} × ${rr}<i class="wsb-chev">▾</i></em></span>
         <span class="wsb-l2"><span>${esc(e.equip || "")}${e.equip ? " · " : ""}rest ${fmtClock(rest * 1000)}</span>${last ? `<span>last ${esc(last)}</span>` : ""}</span>${b && !open ? `<span class="wsb-boss">♛ GATE BOSS</span>` : ""}${e.once ? `<span class="wsb-swd">⇄ SWAPPED · TODAY ONLY</span>` : ""}</span></button>`;
-      if (!log && !e.fixed && !e.travel) h = `<div class="wsb-hrow">${h}<button type="button" class="wsb-sw" data-swap="${esc(e.id)}" aria-label="Swap ${esc(e.name)}">${typeof SWAP_ICON !== "undefined" ? SWAP_ICON : "⇄"}<span>SWAP</span></button></div>`;
+      const hb = `<button type="button" class="wsb-sw" data-exhist="${esc(e.id)}" aria-label="${esc(e.name)} history">${WSB_HIST_ICON}<span>HISTORY</span></button>`;
+      h = `<div class="wsb-hrow">${h}${hb}${!log && !e.fixed && !e.travel ? `<button type="button" class="wsb-sw" data-swap="${esc(e.id)}" aria-label="Swap ${esc(e.name)}">${typeof SWAP_ICON !== "undefined" ? SWAP_ICON : "⇄"}<span>SWAP</span></button>` : ""}</div>`;
       if (open) {
         let pan = "";
         if (log) {
@@ -579,7 +581,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && wsPop && !
 .wsb .exhead{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px}
 .wsb .exname{all:unset;cursor:pointer;font-size:0;padding:8px 10px;border-radius:8px;border:1px solid color-mix(in srgb,var(--mt-m) 28%,transparent)}
 .wsb .exname::after{content:"HISTORY";font:800 10.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;color:var(--m2)}
-.wsb-hrow{display:flex;align-items:flex-start;gap:8px}.wsb-hrow>.wsb-row{flex:1;min-width:0}
+.wsb-hrow{display:flex;align-items:flex-start;gap:6px}.wsb-sw[data-exhist]{width:48px}.wsb-hrow>.wsb-row{flex:1;min-width:0}
 .wsb-sw{all:unset;cursor:pointer;flex-shrink:0;margin-top:9px;display:flex;flex-direction:column;align-items:center;gap:3px;width:40px;padding:6px 0 5px;border-radius:9px;border:1px solid color-mix(in srgb,var(--mt-m) 30%,transparent);background:linear-gradient(180deg,#16120D,#0B0907);color:var(--m2)}
 .wsb-sw svg{width:15px;height:15px}.wsb-sw span{font:800 8px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em}
 .wsb-sw:active{transform:scale(.95)}.wsb-sw:focus-visible{outline:2px solid var(--m2);outline-offset:2px}

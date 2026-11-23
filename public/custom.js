@@ -1160,21 +1160,78 @@ function sessBest(id,l){ const sets=WS(l&&l.ex&&l.ex[id]); if(!sets.length) retu
 function priorBest(id,k,f){ let b=0; Object.entries(S.logs).forEach(([kk,l])=>{ if(kk<k&&l.type==="gym"&&(!f||logFmt(id,l)===f)) b=Math.max(b,sessBest(id,l)) }); return b }
 function findPRs(k,log){ return Object.keys(log.ex||{}).filter(id=>{ const now=sessBest(id,log), before=priorBest(id,k,logFmt(id,log)); return before>0&&now>before+0.0001 }) }
 const typeTag=x=>x.t&&SET_TYPES[x.t]? SET_TYPES[x.t].l+" " : "";
+// Exercise history sheet ("Lift record"): rank this lift counts toward, last time vs best, top set over the last
+// 8 sessions (gold = PR), then every session with its sets, top set outlined, PR tag and that day's note.
+const hxDay=k=>{ const d=parseYmd(k); return `${DOW[dowOf(d)].toUpperCase()} ${d.toLocaleString("en-US",{month:"short"}).toUpperCase()} ${d.getDate()}` };
+function hxRank(id){ try{ if(typeof rankState!=="function") return null; const R=rankState(), n={};
+  (R.E||[]).forEach(e=>{ if((e.ex===id||e.eid===id)&&!e.flag&&R.part[e.p]) n[e.p]=(n[e.p]||0)+1 });
+  const p=Object.keys(n).sort((a,b)=>n[b]-n[a])[0]; if(!p) return null; const P=R.part[p]; return {p,name:rkPartName(p),rank:P.rank,prog:P.prog} }catch(e){ return null } }
 function historyHtml(){ const id=SH.id, L=libEx(id)||(typeof X!=="undefined"&&X[id])||{name:SH.name||id};
   const rows=Object.entries(S.logs).filter(([k,l])=>l.type==="gym"&&l.ex&&l.ex[id]&&l.ex[id].length).sort((a,b)=>a[0]<b[0]?1:-1);
-  const f=fmtPref(id)||baseFmtId(id), same=rows.filter(([k,l])=>logFmt(id,l)===f);
-  let h=`<div class="xs-head"><h2>${esc(L.name)}</h2><button type="button" class="btn ghost sm" data-xs="close">Close</button></div>`;
-  if(!rows.length) return h+`<p class="small muted">No sessions logged yet. Your history, best sets and PRs show up here.</p>`;
-  let best=null, heavy=null; same.forEach(([k,l])=>WS(l.ex[id]).forEach(x=>{ const v=setScore(f,id,l,x), w=loadW(id,l,x.w); if(!best||v>best.v) best={v,x,db:logDb(id,l)};
-    if(FMT[f].w==="req"&&(!heavy||w>heavy.w||(w===heavy.w&&valOf(f,x)>valOf(f,heavy.x)))) heavy={w,x,db:logDb(id,l)} }));
-  const series=f==="wr"? liftSeries(id) : [];
-  h+=`<div class="small muted">Logged as <b>${esc(FMT[f].name)}</b>${rows.length>same.length?` · ${rows.length-same.length} session${rows.length-same.length>1?"s":""} in other formats`:""}</div>`;
-  h+=`<div class="statrow">${best? f==="wr"? `<div><b class="num">${fmtN(toUd(best.v))} ${uL()}</b><span>Best est. 1-rep max</span></div>` : `<div><b class="num">${esc(setTxt(f,best.x,best.db))}</b><span>${f==="bt"?"Longest hold":f==="abt"?"Best hold":f==="wt"?"Best hold":f==="dt"?"Fastest pace":f==="br"?"Most reps":"Best set"}</span></div>` : ""}${heavy&&f!=="wt"?`<div><b class="num">${esc(setTxt(f,heavy.x,heavy.db))}</b><span>Heaviest set</span></div>`:""}<div><b class="num">${same.length||rows.length}</b><span>Sessions</span></div></div>`;
-  if(series.length>1) h+=`<div class="eyebrow">Estimated 1-rep max</div>${lineChart(series.map(x=>({...x,y:toUd(x.y)})),"var(--gym)",v=>Math.round(v),false)}`;
-  h+=`<div class="eyebrow" style="margin-top:6px">History</div><div class="xs-list">${rows.map(([k,l])=>{ const pr=(l.prs||[]).includes(id), db=logDb(id,l), lf=logFmt(id,l);
-    return `<div class="histrow"><div class="row between"><b>${fmtDate(parseYmd(k))}</b>${pr?`<span class="prbadge">PR</span>`:""}</div><div class="small num muted">${l.ex[id].map(x=>`${typeTag(x)}${esc(setTxt(lf,x,db))}`).join(" · ")}${lf!==f?` <span class="fmt-tag">${esc(FMT[lf].short)}</span>`:""}</div></div>` }).join("")}</div>`;
+  let h=`<div class="xs-head"><h2>${esc(SH.name||L.name)}</h2><button type="button" class="btn ghost sm" data-xs="close">Done</button></div>`;
+  if(!rows.length) return h+`<div class="hx"><div class="hx-sys">[SYSTEM] LIFT RECORD · 0 CLEARS</div><p class="hx-sub" style="margin:0">No sessions logged yet. Your last time, your best and your PRs show up here after your first session.</p></div>`;
+  const f=fmtPref(id)||baseFmtId(id), wt=FMT[f].w==="req";
+  // one entry per session: working sets, top set (best score in its format), PR flag, volume
+  const S2=rows.map(([k,l])=>{ const lf=logFmt(id,l), db=logDb(id,l), ws=WS(l.ex[id]), all=l.ex[id];
+    const sc=x=>setScore(lf,id,l,x), top=(ws.length?ws:all).reduce((a,x)=>sc(x)>sc(a)?x:a);
+    return {k,l,lf,db,all,top,v:sc(top),pr:(l.prs||[]).includes(id),vol:ws.reduce((t,x)=>t+loadW(id,l,x.w)*(Number(x.r)||0),0),n:ws.length} });
+  const same=S2.filter(r=>r.lf===f), last=S2[0], best=(same.length?same:S2).reduce((a,r)=>r.v>a.v?r:a);
+  const rk=hxRank(id), C=typeof RKC==="function"?RKC():null;
+  h+=`<div class="hx"><div class="hx-sys">[SYSTEM] LIFT RECORD · ${rows.length} CLEAR${rows.length===1?"":"S"}</div>`;
+  if(rk&&C){ const pct=Math.round(rk.prog*100), top=rk.rank>=5;
+    h+=`<div class="hx-rk"><span class="L">${rkLetter(rk.rank)}</span><div style="flex:1;min-width:0"><b class="hx-rkn">${esc(rk.name)} · ${rkLetter(rk.rank)} rank</b><div class="hx-rks">${top?`This lift counts toward this rank. Top rank reached.`:`This lift counts toward this rank. ${pct}% of the way to ${rkLetter(rk.rank+1)}.`}</div><div class="bar"><i style="width:${top?100:pct}%"></i></div></div></div>` }
+  const tt=r=>setTxt(r.lf,r.top,r.db);
+  h+=`<div class="hx-vs"><div><span class="hx-cap">Last time · ${hxDay(last.k)}</span><b>${esc(tt(last))}</b><em>${last.n} set${last.n===1?"":"s"}${FMT[last.lf].w==="req"&&last.vol?` · ${fmtN(Math.round(toUd(last.vol)))} ${uL()} moved`:""}</em></div>
+    <div class="best"><span class="hx-cap" style="color:#E8C27A">♛ Your best</span><b>${esc(tt(best))}</b><em>${best.lf==="wr"?`${fmtN(Math.round(toUd(best.v)))} ${uL()} est. 1RM · `:""}${hxDay(best.k)}</em></div></div>`;
+  // top set, last 8 sessions in this format
+  const R8=same.slice(0,8).reverse();
+  if(R8.length>1){ const val=r=>wt?loadW(id,r.l,r.top.w):r.v, vs=R8.map(val), mx=Math.max(...vs), mn=Math.min(...vs), span=mx-mn;
+    const lab=r=>wt?String(toU(loadW(id,r.l,r.top.w))):String(valOf(f,r.top));
+    h+=`<div class="hx-chart"><div class="t"><span class="hx-cap">Top set, last ${R8.length} sessions</span><b class="hx-key"><i></i>PR</b></div><div class="hx-bars">${R8.map(r=>{ const ht=span>0?22+(val(r)-mn)/span*68:60, d=parseYmd(r.k);
+      return `<div><b>${esc(lab(r))}</b><i class="${r.pr?"pr":""}" style="height:${ht.toFixed(0)}px"></i><small>${d.getMonth()+1}/${d.getDate()}</small></div>` }).join("")}</div></div>` }
+  if(rows.length>same.length) h+=`<div class="hx-sub" style="margin:0">Logged as ${esc(FMT[f].name)} · ${rows.length-same.length} session${rows.length-same.length>1?"s":""} in other formats</div>`;
+  const notes=(S.profile.exNotes&&S.profile.exNotes[id])||[];
+  h+=`<div><div class="hx-cap" style="margin-bottom:2px">Every clear</div><div class="hx-ses">${S2.map(r=>{ const n=notes.filter(x=>x.k===r.k);
+    return `<div class="hx-s"><div class="h"><b>${hxDay(r.k)}</b><span style="display:flex;gap:8px;align-items:center">${r.lf!==f?`<em>${esc(FMT[r.lf].short)}</em>`:""}${r.pr?`<span class="hx-pr">PR</span>`:""}</span></div>
+      <div class="hx-chips">${r.all.map(x=>`<span class="${x===r.top?"top":""}${x.t==="w"?" wu":""}">${typeTag(x)}${esc(setTxt(r.lf,x,r.db))}</span>`).join("")}</div>${n.map(x=>`<div class="hx-note">${esc(x.t)}</div>`).join("")}</div>` }).join("")}</div></div></div>`;
   return h;
 }
+(function(){ if(document.getElementById("hxCss")) return; const st=document.createElement("style"); st.id="hxCss"; st.textContent=`
+#xsheet .hx{display:flex;flex-direction:column;gap:14px;font-family:Barlow,sans-serif}
+#xsheet .hx-cap{font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.24em;color:#8F97A6;text-transform:uppercase}
+#xsheet .hx-sys{font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.24em;color:var(--rk-mid)}
+#xsheet .hx-sub{font:600 12.5px/1.35 Barlow,sans-serif;color:#8F97A6;margin-top:-8px}
+#xsheet .hx-chart{padding:12px 12px 6px;border-radius:12px;background:#0E0D10;border:1px solid rgba(245,241,230,.07)}
+#xsheet .hx-chart .t{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+#xsheet .hx-chart .t b{font:900 15px/1 "Barlow Semi Condensed",sans-serif;color:var(--rk-core)}
+#xsheet .hx-ses{display:flex;flex-direction:column}
+#xsheet .hx-s{padding:11px 0;border-top:1px solid rgba(245,241,230,.07);display:flex;flex-direction:column;gap:7px}
+#xsheet .hx-s .h{display:flex;justify-content:space-between;align-items:center}
+#xsheet .hx-s .h b{font:800 11px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.16em;color:#C9C4B8}
+#xsheet .hx-s .h em{font:800 10px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.12em;color:#8F97A6;font-style:normal}
+#xsheet .hx-chips{display:flex;gap:6px;flex-wrap:wrap}
+#xsheet .hx-chips span{padding:6px 8px;border-radius:7px;background:#141216;border:1px solid rgba(245,241,230,.08);font:700 12.5px/1 "Barlow Semi Condensed",sans-serif;color:#E6E2D8}
+#xsheet .hx-chips span.top{border-color:color-mix(in srgb,var(--rk) 55%,transparent);color:var(--rk-core)}
+#xsheet .hx-pr{padding:3px 6px;border-radius:4px;background:#E8C27A;color:#140F05;font:900 9px/1 "Barlow Semi Condensed";letter-spacing:.14em}
+#xsheet .hx-note{font:500 12px/1.35 Barlow;color:#A8A397;padding-left:10px;border-left:2px solid rgba(245,241,230,.12)}
+#xsheet .hx-vs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#xsheet .hx-vs>div{padding:12px;border-radius:12px;background:linear-gradient(180deg,#141216,#0C0B0E);border:1px solid rgba(245,241,230,.09);display:flex;flex-direction:column;gap:6px}
+#xsheet .hx-vs>div.best{border-color:#E8C27A66;background:linear-gradient(180deg,rgba(232,194,122,.1),#0C0B0E)}
+#xsheet .hx-vs b{font:900 24px/1 "Barlow Semi Condensed";color:#F5F1E6}#xsheet .hx-vs .best b{color:#E8C27A}
+#xsheet .hx-vs em{font:600 11.5px/1.3 Barlow;color:#8F97A6;font-style:normal}
+#xsheet .hx-bars{display:flex;align-items:flex-end;gap:6px;height:118px;padding:0 2px}
+#xsheet .hx-bars div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+#xsheet .hx-bars i{width:100%;border-radius:4px 4px 2px 2px;background:linear-gradient(180deg,var(--rk-mid),color-mix(in srgb,var(--rk) 35%,transparent))}
+#xsheet .hx-bars i.pr{background:linear-gradient(180deg,#F2D79B,#9C7A3A)}
+#xsheet .hx-bars small{font:800 9px/1 "Barlow Semi Condensed";color:#8F97A6}#xsheet .hx-bars b{font:800 10px/1 "Barlow Semi Condensed";color:#E6E2D8}
+#xsheet .hx-rk{display:flex;gap:12px;align-items:center;padding:12px;border-radius:12px;border:1px solid color-mix(in srgb,var(--rk) 40%,transparent);background:linear-gradient(90deg,color-mix(in srgb,var(--rk) 14%,transparent),transparent)}
+#xsheet .hx-rk .L{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;font:900 24px/1 "Barlow Semi Condensed";color:#0A0A0D;background:linear-gradient(180deg,var(--rk-core),var(--rk-mid))}
+#xsheet .hx-rk .bar{height:6px;border-radius:3px;background:rgba(245,241,230,.08);margin-top:7px;overflow:hidden}#xsheet .hx-rk .bar i{display:block;height:100%;width:62%;background:var(--rk-mid)}
+#xsheet .hx-rkn{font:800 14px/1.2 "Barlow Semi Condensed",sans-serif;color:#F5F1E6;display:block}
+#xsheet .hx-rks{font:600 11.5px/1.3 Barlow,sans-serif;color:#8F97A6}
+#xsheet .hx-key{display:flex;align-items:center;gap:5px;font:800 10px/1 "Barlow Semi Condensed",sans-serif!important;letter-spacing:.16em;color:#E8C27A!important}
+#xsheet .hx-key i{width:7px;height:7px;transform:rotate(45deg);background:#E8C27A}
+#xsheet .hx-chips span.wu{opacity:.55}`; document.head.appendChild(st) })();
 
 /* ======================= Units (data is always stored in lb) ======================= */
 const KG=2.20462;
@@ -1286,7 +1343,7 @@ document.addEventListener("click",e=>{
   if(d.resetweek){ const mv=S.profile.moves||{}; weekDays(d.resetweek).forEach(x=>{ if(!S.logs[x]) delete mv[x] }); saveProfile(); lastRenderKey=""; render(); toast("Week reset to the plan"); return }
   if(d.daymove){ const [k,m]=d.daymove.split("|"); openSheet({kind:"move",k,mode:m||"move"}); return }
   if(d.dayskip){ if(t.dataset.armed){ const lab=sessLabel(srcOf(d.dayskip)); setSrc(d.dayskip,null); saveProfile(); lastRenderKey=""; render(); toast(`${lab} skipped. ${dayName(d.dayskip)} is a rest day`) } else { const was=t.textContent; t.dataset.armed="1"; t.textContent="Tap again to confirm"; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.armed; t.textContent=was } },3000) } return }
-  if(d.exhist){ const p=planFor(sel), ex=p&&p.ex&&p.ex.find(e=>e.id===d.exhist); openSheet({kind:"hist",id:d.exhist,name:ex&&ex.name}); return }
+  if(d.exhist){ const p=planFor(sel), ex=p&&p.ex&&p.ex.find(e=>e.id===d.exhist); openSheet({kind:"hist",id:d.exhist,name:ex&&ex.name,ws:true}); return }
   // --- account
   if(d.acct){ openSheet({kind:"account"}); return }
   if(d.settab){ const t=d.settab; if(t==="acct"){ if(!(SH&&SH.kind==="account")) openSheet({kind:"account"}); return } xsClose(); tab=t; if(t==="plan"&&typeof planView!=="undefined") planView="training"; try{localStorage.setItem("rd25-tab",tab)}catch(_){} lastRenderKey=""; render(); window.scrollTo(0,0); return }
