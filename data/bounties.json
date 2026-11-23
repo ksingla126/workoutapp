@@ -17,24 +17,13 @@
       {
        "move": "jumping-jacks",
        "name": "Jumping jacks",
-       "dose": 30,
+       "dose": 45,
        "unit": "sec",
        "perSide": false,
        "sets": 1,
        "rest": 0,
        "stars": 1,
        "cue": "Land soft on the balls of your feet, arms all the way overhead"
-      },
-      {
-       "move": "arm-circles",
-       "name": "Arm circles",
-       "dose": 10,
-       "unit": "reps",
-       "perSide": false,
-       "sets": 1,
-       "rest": 0,
-       "stars": 1,
-       "cue": "Small to big circles, then reverse; keep ribs down"
       }
      ]
     },
@@ -42,26 +31,15 @@
      "name": "Open",
      "moves": [
       {
-       "move": "hip-circles",
-       "name": "Hip circles",
-       "dose": 8,
-       "unit": "reps",
-       "perSide": true,
-       "sets": 1,
-       "rest": 0,
-       "stars": 1,
-       "cue": "Hands on hips, draw big slow circles each way"
-      },
-      {
-       "move": "torso-twists",
-       "name": "Torso twists",
-       "dose": 16,
+       "move": "arm-circles",
+       "name": "Arm circles",
+       "dose": 10,
        "unit": "reps",
        "perSide": false,
-       "sets": 1,
-       "rest": 0,
+       "sets": 2,
+       "rest": 15,
        "stars": 1,
-       "cue": "Arms loose, rotate through the upper back, pivot the back foot"
+       "cue": "Small to big circles, then reverse; keep ribs down"
       },
       {
        "move": "leg-swings-front-to-back",
@@ -82,45 +60,39 @@
       {
        "move": "glute-bridges",
        "name": "Glute bridges",
-       "dose": 10,
+       "dose": 12,
        "unit": "reps",
        "perSide": false,
-       "sets": 1,
-       "rest": 0,
+       "sets": 2,
+       "rest": 15,
        "stars": 1,
        "cue": "Ribs down, drive through heels, squeeze 1 s at the top"
-      },
+      }
+     ]
+    },
+    {
+     "name": "Rehearse",
+     "moves": [
       {
        "move": "walking-knee-hugs",
        "name": "Walking knee hugs",
-       "dose": 6,
+       "dose": 8,
        "unit": "reps",
        "perSide": true,
        "sets": 1,
        "rest": 0,
        "stars": 1,
        "cue": "Pull knee to chest, rise onto the standing toes"
-      },
-      {
-       "move": "march-in-place",
-       "name": "March in place",
-       "dose": 30,
-       "unit": "sec",
-       "perSide": false,
-       "sets": 1,
-       "rest": 0,
-       "stars": 1,
-       "cue": "Knees up, arms swinging, tall posture"
       }
      ]
     }
    ],
    "stars": 1,
-   "minutes": 6,
-   "tier": 10,
+   "minutes": 5,
+   "tier": 5,
    "gear": [],
-   "estSeconds": 304,
-   "moveCount": 8
+   "estSeconds": 285,
+   "moveCount": 5
   },
   {
    "id": "press-prep",
@@ -168,21 +140,10 @@
        "dose": 10,
        "unit": "reps",
        "perSide": false,
-       "sets": 1,
-       "rest": 0,
+       "sets": 2,
+       "rest": 15,
        "stars": 1,
        "cue": "Back and forearms on the wall, slide up without the low back arching"
-      },
-      {
-       "move": "shoulder-cars",
-       "name": "Shoulder CARs",
-       "dose": 2,
-       "unit": "reps",
-       "perSide": true,
-       "sets": 1,
-       "rest": 0,
-       "stars": 2,
-       "cue": "Biggest slowest circle you can draw, rest of body still"
       }
      ]
     },
@@ -190,24 +151,13 @@
      "name": "Switch on",
      "moves": [
       {
-       "move": "prone-y-raises",
-       "name": "Prone Y raises",
-       "dose": 10,
-       "unit": "reps",
-       "perSide": false,
-       "sets": 1,
-       "rest": 0,
-       "stars": 1,
-       "cue": "Face down, thumbs up, lift arms in a Y without shrugging"
-      },
-      {
        "move": "scapular-push-ups",
        "name": "Scapular push-ups",
        "dose": 10,
        "unit": "reps",
        "perSide": false,
-       "sets": 1,
-       "rest": 0,
+       "sets": 2,
+       "rest": 15,
        "stars": 1,
        "cue": "Arms straight, let the chest sink then push the floor away"
       }
@@ -219,7 +169,7 @@
       {
        "move": "push-ups",
        "name": "Push-ups",
-       "dose": 6,
+       "dose": 8,
        "unit": "reps",
        "perSide": false,
        "sets": 1,
@@ -231,11 +181,11 @@
     }
    ],
    "stars": 2,
-   "minutes": 4,
+   "minutes": 5,
    "tier": 5,
    "gear": [],
-   "estSeconds": 230,
-   "moveCount": 7
+   "estSeconds": 260,
+   "moveCount": 5
   },
   {
    "id": "hinge-prep",
@@ -279,17 +229,6 @@
        "cue": "Move one vertebra at a time, breathe in to arch, out to round"
       },
       {
-       "move": "leg-swings-front-to-back",
-       "name": "Leg swings (front to back)",
-       "dose": 10,
-       "unit": "reps",
-       "perSide": true,
-       "sets": 1,
-       "rest": 0,
-       "stars": 1,
-       "cue": "Hold a wall, swing from the hip, keep torso still"
-      },
-      {
        "move": "worlds-greatest-stretch",
        "name": "World's greatest stretch",
        "dose": 3,
@@ -311,21 +250,10 @@
        "dose": 12,
        "unit": "reps",
        "perSide": false,
-       "sets": 1,
-       "rest": 0,
+       "sets": 2,
+       "rest": 15,
        "stars": 1,
        "cue": "Ribs down, drive through heels, squeeze 1 s at the top"
-      },
-      {
-       "move": "dead-bug",
-       "name": "Dead bug",
-       "dose": 6,
-       "unit": "reps",
-       "perSide": true,
-       "sets": 1,
-       "rest": 0,
-       "stars": 1,
-       "cue": "Low back flat, exhale fully as you reach opposite arm and leg"
       }
      ]
     },
@@ -338,21 +266,10 @@
        "dose": 10,
        "unit": "reps",
        "perSide": false,
-       "sets": 1,
-       "rest": 0,
+       "sets": 2,
+       "rest": 15,
        "stars": 1,
        "cue": "Push hips back to touch the wall behind you, shins vertical"
-      },
-      {
-       "move": "good-mornings",
-       "name": "Good mornings (bodyweight)",
-       "dose": 10,
-       "unit": "reps",
-       "perSide": false,
-       "sets": 1,
-       "rest": 0,
-       "stars": 2,
-       "cue": "Hands behind head, hips back, flat back, feel the hamstrings"
       }
      ]
     }
@@ -361,8 +278,8 @@
    "minutes": 5,
    "tier": 5,
    "gear": [],
-   "estSeconds": 300,
-   "moveCount": 8
+   "estSeconds": 270,
+   "moveCount": 5
   },
   {
    "id": "squat-prep",
@@ -415,17 +332,6 @@
        "rest": 0,
        "stars": 1,
        "cue": "Seated, knees bent 90, rotate both legs side to side"
-      },
-      {
-       "move": "lateral-lunges",
-       "name": "Lateral lunges",
-       "dose": 6,
-       "unit": "reps",
-       "perSide": true,
-       "sets": 1,
-       "rest": 0,
-       "stars": 2,
-       "cue": "Sit into one hip, other leg straight, feet flat"
       }
      ]
     },
@@ -442,17 +348,6 @@
        "rest": 0,
        "stars": 1,
        "cue": "Ribs down, drive through heels, squeeze 1 s at the top"
-      },
-      {
-       "move": "bird-dog",
-       "name": "Bird dog",
-       "dose": 6,
-       "unit": "reps",
-       "perSide": true,
-       "sets": 1,
-       "rest": 0,
-       "stars": 1,
-       "cue": "Reach long, don't let the hips rotate, pause 2 s"
       }
      ]
     },
@@ -460,24 +355,13 @@
      "name": "Rehearse",
      "moves": [
       {
-       "move": "squat-to-stand",
-       "name": "Squat to stand",
-       "dose": 6,
-       "unit": "reps",
-       "perSide": false,
-       "sets": 1,
-       "rest": 0,
-       "stars": 2,
-       "cue": "Fold, grab toes, drop hips, lift chest, then straighten legs"
-      },
-      {
        "move": "prisoner-squats",
        "name": "Prisoner squats",
        "dose": 10,
        "unit": "reps",
        "perSide": false,
-       "sets": 1,
-       "rest": 0,
+       "sets": 2,
+       "rest": 15,
        "stars": 2,
        "cue": "Hands behind head, elbows wide, chest proud"
       }
@@ -485,11 +369,11 @@
     }
    ],
    "stars": 2,
-   "minutes": 6,
-   "tier": 10,
+   "minutes": 5,
+   "tier": 5,
    "gear": [],
-   "estSeconds": 310,
-   "moveCount": 8
+   "estSeconds": 245,
+   "moveCount": 5
   },
   {
    "id": "stride-primer",
@@ -506,20 +390,9 @@
      "name": "Raise",
      "moves": [
       {
-       "move": "march-in-place",
-       "name": "March in place",
-       "dose": 45,
-       "unit": "sec",
-       "perSide": false,
-       "sets": 1,
-       "rest": 0,
-       "stars": 1,
-       "cue": "Knees up, arms swinging, tall posture"
-      },
-      {
        "move": "jog-in-place",
        "name": "Jog in place",
-       "dose": 60,
+       "dose": 90,
        "unit": "sec",
        "perSide": false,
        "sets": 1,
@@ -544,17 +417,6 @@
        "cue": "Hold a wall, swing from the hip, keep torso still"
       },
       {
-       "move": "leg-swings-side-to-side",
-       "name": "Leg swings (side to side)",
-       "dose": 10,
-       "unit": "reps",
-       "perSide": true,
-       "sets": 1,
-       "rest": 0,
-       "stars": 1,
-       "cue": "Face the wall, swing across the body, hips square"
-      },
-      {
        "move": "walking-knee-hugs",
        "name": "Walking knee hugs",
        "dose": 6,
@@ -564,17 +426,6 @@
        "rest": 0,
        "stars": 1,
        "cue": "Pull knee to chest, rise onto the standing toes"
-      },
-      {
-       "move": "walking-quad-pulls",
-       "name": "Walking quad pulls",
-       "dose": 6,
-       "unit": "reps",
-       "perSide": true,
-       "sets": 1,
-       "rest": 0,
-       "stars": 1,
-       "cue": "Heel to glute, knee points down, squeeze the standing glute"
       }
      ]
     },
@@ -587,21 +438,10 @@
        "dose": 15,
        "unit": "reps",
        "perSide": false,
-       "sets": 1,
-       "rest": 0,
+       "sets": 2,
+       "rest": 15,
        "stars": 1,
        "cue": "Full rise, 1 s pause, slow lower"
-      },
-      {
-       "move": "glute-bridges",
-       "name": "Glute bridges",
-       "dose": 10,
-       "unit": "reps",
-       "perSide": false,
-       "sets": 1,
-       "rest": 0,
-       "stars": 1,
-       "cue": "Ribs down, drive through heels, squeeze 1 s at the top"
       }
      ]
     },
@@ -623,11 +463,11 @@
     }
    ],
    "stars": 1,
-   "minutes": 7,
+   "minutes": 6,
    "tier": 10,
    "gear": [],
-   "estSeconds": 408,
-   "moveCount": 9
+   "estSeconds": 320,
+   "moveCount": 5
   },
   {
    "id": "speed-primer",
@@ -653,34 +493,12 @@
        "rest": 0,
        "stars": 1,
        "cue": "Easy relaxed jog, breathe through the nose"
-      },
-      {
-       "move": "high-knees",
-       "name": "High knees",
-       "dose": 20,
-       "unit": "sec",
-       "perSide": false,
-       "sets": 1,
-       "rest": 0,
-       "stars": 2,
-       "cue": "Drive knees to hip height, quick light feet"
       }
      ]
     },
     {
      "name": "Open",
      "moves": [
-      {
-       "move": "leg-swings-front-to-back",
-       "name": "Leg swings (front to back)",
-       "dose": 10,
-       "unit": "reps",
-       "perSide": true,
-       "sets": 1,
-       "rest": 0,
-       "stars": 1,
-       "cue": "Hold a wall, swing from the hip, keep torso still"
-      },
       {
        "move": "leg-swings-side-to-side",
        "name": "Leg swings (side to side)",
@@ -691,17 +509,6 @@
        "rest": 0,
        "stars": 1,
        "cue": "Face the wall, swing across the body, hips square"
-      },
-      {
-       "move": "walking-lunges",
-       "name": "Walking lunges",
-       "dose": 6,
-       "unit": "reps",
-       "perSide": true,
-       "sets": 1,
-       "rest": 0,
-       "stars": 2,
-       "cue": "Long step, back knee kisses the floor, front shin vertical"
       }
      ]
     },
@@ -714,8 +521,8 @@
        "dose": 20,
        "unit": "reps",
        "perSide": false,
-       "sets": 1,
-       "rest": 0,
+       "sets": 2,
+       "rest": 15,
        "stars": 2,
        "cue": "Stiff ankles, quick small bounces"
       },
@@ -725,8 +532,8 @@
        "dose": 20,
        "unit": "sec",
        "perSide": false,
-       "sets": 1,
-       "rest": 0,
+       "sets": 2,
+       "rest": 15,
        "stars": 2,
        "cue": "Skip with knee drive, strike the ground under the hip"
       }
@@ -735,17 +542,6 @@
     {
      "name": "Rehearse",
      "moves": [
-      {
-       "move": "b-skips",
-       "name": "B-skips",
-       "dose": 20,
-       "unit": "sec",
-       "perSide": false,
-       "sets": 1,
-       "rest": 0,
-       "stars": 3,
-       "cue": "A-skip plus a leg extension and paw back"
-      },
       {
        "move": "run-throughs-strides-in-place",
        "name": "Run-throughs (strides in place)",
@@ -761,11 +557,11 @@
     }
    ],
    "stars": 3,
-   "minutes": 7,
+   "minutes": 6,
    "tier": 10,
    "gear": [],
-   "estSeconds": 390,
-   "moveCount": 9
+   "estSeconds": 330,
+   "moveCount": 5
   },
   {
    "id": "stand-down",
@@ -5407,17 +5203,6 @@
        "rest": 0,
        "stars": 1,
        "cue": "Wide grip, straight arms over and behind, narrow the grip over time"
-      },
-      {
-       "move": "thoracic-rotations-quadruped",
-       "name": "Thoracic rotations (quadruped)",
-       "dose": 6,
-       "unit": "reps",
-       "perSide": true,
-       "sets": 1,
-       "rest": 0,
-       "stars": 1,
-       "cue": "Hand behind head, rotate elbow to the ceiling, hips still"
       }
      ]
     },
@@ -5430,21 +5215,10 @@
        "dose": 15,
        "unit": "reps",
        "perSide": false,
-       "sets": 1,
-       "rest": 0,
+       "sets": 2,
+       "rest": 15,
        "stars": 1,
        "cue": "Straight arms at chest height, pull to the chest, no shrug"
-      },
-      {
-       "move": "band-face-pulls",
-       "name": "Band face pulls",
-       "dose": 12,
-       "unit": "reps",
-       "perSide": false,
-       "sets": 1,
-       "rest": 0,
-       "stars": 1,
-       "cue": "Anchor at eye level, pull to the forehead, elbows high, thumbs back"
       },
       {
        "move": "band-external-rotation",
@@ -5452,8 +5226,8 @@
        "dose": 12,
        "unit": "reps",
        "perSide": true,
-       "sets": 1,
-       "rest": 0,
+       "sets": 2,
+       "rest": 15,
        "stars": 1,
        "cue": "Elbow pinned to the side with a towel, rotate out slowly"
       }
@@ -5477,13 +5251,13 @@
     }
    ],
    "stars": 2,
-   "minutes": 6,
+   "minutes": 7,
    "tier": 10,
    "gear": [
     "resistance band"
    ],
-   "estSeconds": 308,
-   "moveCount": 7
+   "estSeconds": 370,
+   "moveCount": 5
   },
   {
    "id": "hinge-prep-band",
@@ -5525,17 +5299,6 @@
        "rest": 0,
        "stars": 1,
        "cue": "Move one vertebra at a time, breathe in to arch, out to round"
-      },
-      {
-       "move": "leg-swings-front-to-back",
-       "name": "Leg swings (front to back)",
-       "dose": 10,
-       "unit": "reps",
-       "perSide": true,
-       "sets": 1,
-       "rest": 0,
-       "stars": 1,
-       "cue": "Hold a wall, swing from the hip, keep torso still"
       }
      ]
     },
@@ -5548,8 +5311,8 @@
        "dose": 15,
        "unit": "reps",
        "perSide": false,
-       "sets": 1,
-       "rest": 0,
+       "sets": 2,
+       "rest": 15,
        "stars": 1,
        "cue": "Mini band above the knees, push the knees out at the top"
       },
@@ -5559,21 +5322,10 @@
        "dose": 10,
        "unit": "reps",
        "perSide": true,
-       "sets": 1,
-       "rest": 0,
+       "sets": 2,
+       "rest": 15,
        "stars": 2,
        "cue": "Mini band above the knees, half squat, toes forward"
-      },
-      {
-       "move": "banded-monster-walks",
-       "name": "Banded monster walks",
-       "dose": 10,
-       "unit": "reps",
-       "perSide": false,
-       "sets": 1,
-       "rest": 0,
-       "stars": 2,
-       "cue": "Mini band above the knees, step forward on the diagonal"
       }
      ]
     },
@@ -5586,8 +5338,8 @@
        "dose": 12,
        "unit": "reps",
        "perSide": false,
-       "sets": 1,
-       "rest": 0,
+       "sets": 2,
+       "rest": 15,
        "stars": 2,
        "cue": "Anchor low behind you, hinge and snap the hips forward"
       }
@@ -5595,13 +5347,13 @@
     }
    ],
    "stars": 2,
-   "minutes": 6,
+   "minutes": 7,
    "tier": 10,
    "gear": [
     "resistance band"
    ],
-   "estSeconds": 308,
-   "moveCount": 7
+   "estSeconds": 410,
+   "moveCount": 5
   },
   {
    "id": "runners-release-roller",

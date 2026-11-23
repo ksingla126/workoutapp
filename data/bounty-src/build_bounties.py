@@ -37,6 +37,7 @@ for b in bounties:
     b.update(stars=max(e['stars'] for e in mv),minutes=mins,tier=tier,gear=gear,estSeconds=round(tot),moveCount=len(mv))
     if tier is None: errs.append(f"{b['id']}: {mins} min is over 30")
     if b['type']=='warmup' and mins>10: errs.append(f"{b['id']}: warm-up is {mins} min (cap 10)")
+    if b['type']=='warmup' and not 3<=len(mv)<=5: errs.append(f"{b['id']}: warm-up has {len(mv)} moves (3-5)")
     if b['type']=='flexibility':
         if not (mv[0]['name'].endswith('test') and mv[-1]['move']==mv[0]['move']): errs.append(f"{b['id']}: flexibility must start and end with the same test")
     seen=[e['move'] for e in mv]; d=[x for x,c in collections.Counter(seen).items() if c>1 and not x.endswith('test')]
