@@ -100,6 +100,7 @@
 .lvp-trb.on{background:color-mix(in srgb,var(--mt-l) 7%,transparent);box-shadow:inset 2px 0 0 var(--mt-l)}
 .lvp-tr .ok{white-space:nowrap}.lvp-tr .ok.pe{color:var(--mt-l)}.lvp-tr .ok.ed{color:#E8C27A}
 .lvp-pe{padding:10px 4px 12px;border-top:1px solid rgba(245,241,230,.06);background:color-mix(in srgb,var(--mt-l) 4%,transparent);animation:lvAskIn .16s ease-out}
+.lvp-cx{all:unset;cursor:pointer;align-self:center;margin-top:2px;padding:8px 10px;font:700 11px/1 var(--display);letter-spacing:.16em;text-transform:uppercase;color:#C8877E}.lvp-cx:focus-visible{outline:2px solid #C8877E;border-radius:6px}
 .lvp-pfs{display:flex;gap:10px}.lvp-pf{flex:1;min-width:0}
 .lvp-pf>span{display:block;font:800 8.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--mt-t);margin-bottom:6px}
 .lvp-ps{display:flex;align-items:stretch;border:1px solid color-mix(in srgb,var(--mt-m) 55%,transparent);border-radius:9px;overflow:hidden}
@@ -159,7 +160,7 @@
 @media (max-height:700px){.lvp-tiles{display:none}.lvp-t{font-size:22px}}
 @media (prefers-reduced-motion:reduce){.lvp,.lvp-tb{animation:none}.lvp-car{transition:none}}
 .lv-ask button:focus-visible{outline:2px solid var(--mt-l);outline-offset:2px}
-.lv-ask{position:fixed;inset:0;z-index:10;display:flex !important;align-items:center;justify-content:center;margin:0 !important;padding:24px 0 !important;max-width:none !important;background:rgba(2,4,8,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:lvAskIn .18s ease-out}
+.lv-ask{position:fixed;inset:0;z-index:14;display:flex !important;align-items:center;justify-content:center;margin:0 !important;padding:24px 0 !important;max-width:none !important;background:rgba(2,4,8,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:lvAskIn .18s ease-out}
 @keyframes lvAskIn{from{opacity:0}to{opacity:1}}
 .lv-ask-in{box-sizing:border-box;width:calc(100% - 32px);max-width:360px;margin:0 !important;border-radius:20px;padding:20px;color:#F5F1E6;border:2px solid var(--mt-m);background:radial-gradient(70% 60% at 90% 0%,rgba(224,103,90,.14),transparent 65%),repeating-linear-gradient(135deg,color-mix(in srgb,var(--rk) 3%,transparent) 0 1px,transparent 1px 7px),#0A0A0D;box-shadow:0 30px 60px #000}
 .lv-ask-in b{display:block;font:900 24px/1.1 "Barlow Semi Condensed",sans-serif;letter-spacing:.02em}
@@ -2198,13 +2199,14 @@ function lvPauseHtml(k,p){
   const tiles=[[fmtClock(tmEl()),"Time"],[`${done.length}/${steps.length}`,"Sets"],[vol?Math.round(toU(vol)).toLocaleString():"–",`${uL()} moved`],[reps||"–","Reps"]].map(([a,b])=>`<div><b>${esc(String(a))}</b><span>${esc(b)}</span></div>`).join("");
   const note= !done.length? `<b>No sets logged yet.</b> Return to Live to log one first.` : left? `<b>${left} set${left===1?"":"s"} not logged</b> won't be saved. Return to finish them, or log what you have.` : `Every set is logged.`;
   return `<div class="lvp" role="dialog" aria-modal="true" aria-labelledby="lvpT"><div class="lvp-in"><div class="lvp-card">
-    <div class="lvp-top"><span class="lvp-eb">[System] Paused · Review</span><button type="button" class="lvp-x" id="lvResumeX" aria-label="Return to Live">✕</button></div>
+    <div class="lvp-top"><span class="lvp-eb">${left?"[System] Paused · Review":"[System] Every floor cleared · Review"}</span><button type="button" class="lvp-x" id="lvResumeX" aria-label="Return to Live">✕</button></div>
     <b class="lvp-t" id="lvpT">${esc(String(p.name||"Today").toUpperCase())} GATE</b>
     <p class="lvp-sub">Timer stopped at <b>${fmtClock(tmEl())}</b>. ${done.length} set${done.length===1?"":"s"} logged, ${left} still open.</p>
     <div class="lvp-tiles">${tiles}</div>
     <div class="lvp-list" id="lvpList">${rows}</div>
     <p class="lvp-note">${note}</p>
     <div class="lvp-b"><button type="button" class="lvp-back" id="lvResume">▶ Return to Live</button><button type="button" class="lvp-go" id="lvLogNow" ${done.length?"":"disabled"}>Log workout</button></div>
+    <button type="button" class="lvp-cx" id="lvCancel">Cancel workout · nothing is saved</button>
   </div></div></div>` }
 // save straight from the pause sheet: only the sets marked done are kept
 function lvLogNow(k,p){ const steps=gymSteps(k,p), log=S.logs[k], ex={}, db={}, fmt={};
@@ -2285,7 +2287,8 @@ function renderLive(){
     box.querySelectorAll("[data-htmode]").forEach(b=>b.onclick=()=>{ const steps=gymSteps(k,p), cur=steps[liveIdx(steps)]; if(cur){ htCfgSet(cur.ex.id,{mode:b.dataset.htmode}); renderLive() } });
     box.querySelectorAll("[data-htsetup]").forEach(b=>b.onclick=()=>{ const steps=gymSteps(k,p), cur=steps[liveIdx(steps)]; if(!cur) return; const c=htCfg(cur.ex.id), j=HT_SETUPS.indexOf(c.setup); htCfgSet(cur.ex.id,{setup:HT_SETUPS[(j+1)%HT_SETUPS.length]}); renderLive() });
     box.querySelectorAll("[data-htsound]").forEach(b=>b.onclick=()=>{ suMut(su=>{ su.timerSound=!htSoundOn() }); renderLive() });
-    if(q("lvPause")) q("lvPause").onclick=()=>{ pauseWorkout(); renderLive(); setTimeout(()=>q("lvResume")&&q("lvResume").focus({preventScroll:true}),0) };
+    const hideToast=()=>{ const t=document.getElementById("toast"); if(t){ t.hidden=true; t.classList.remove("act") } };
+    if(q("lvPause")) q("lvPause").onclick=()=>{ hideToast(); pauseWorkout(); renderLive(); setTimeout(()=>q("lvResume")&&q("lvResume").focus({preventScroll:true}),0) };
     const resume=()=>{ lvPeSave(); resumeWorkout(); renderLive(); tick() };
     if(q("lvResume")) q("lvResume").onclick=resume; if(q("lvResumeX")) q("lvResumeX").onclick=resume;
     if(q("lvLogNow")) q("lvLogNow").onclick=()=>{ lvPeSave(); lvLogNow(k,p) };
@@ -2329,10 +2332,12 @@ function bindLive(k,p){
     if(TM.focus&&TM.focus.pick){ TM.focus={...TM.focus,pick:false}; saveTM() }
     if(liveNext(steps,idx)>=0&&!(cur.inSS&&!cur.ssLast)) startRest(restFor(cur.ex.id));
     renderLive(); if(tab==="home"&&ymd(sel)===k){ lastRenderKey=""; render() }
+    if(typeof lvUndoOffer==="function"&&$$("liveIn")&&$$("liveIn").classList.contains("lvt")) lvUndoOffer(k,cur.ex.id,cur.i);
   };
   const finish=()=>{ liveOpen=false; renderLive(); tab="home"; sel=parseYmd(k); drafts[dkey(k,"open-trainLog")]=true; persistDrafts(); lastRenderKey=""; render();
     setTimeout(()=>{ const b=document.getElementById(p.type==="gym"?"saveGym":"saveRun"); if(p.type!=="gym"){ const f=document.getElementById("fillTime"); if(f) f.click() } if(b) b.scrollIntoView({block:"center",behavior:"smooth"}) },80); toast(p.type==="gym"?"Check your sets, then tap Save":"Add your distance, then tap Save") };
-  if($$("lvFinish")) $$("lvFinish").onclick=finish;
+  // the tower's "Review & save" opens the review sheet (fix sets, then Log workout) instead of leaving Live
+  if($$("lvFinish")) $$("lvFinish").onclick= p.type==="gym"&&$$("liveIn")&&$$("liveIn").classList.contains("lvt") ? ()=>{ const t=$$("toast"); if(t){ t.hidden=true; t.classList.remove("act") } pauseWorkout(); renderLive(); setTimeout(()=>$$("lvLogNow")&&$$("lvLogNow").focus({preventScroll:true}),0) } : finish;
   if($$("lvRunDone")) $$("lvRunDone").onclick=finish;
 }
 document.getElementById("timerBar").addEventListener("click",e=>{ if(e.target.closest("[data-rest],#tmSkip")) return;

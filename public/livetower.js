@@ -54,8 +54,9 @@ function lvtHtml(k, p, now, resting, justDone) {
   const prevEx = cur && cur.i === 0 && fi > 0 ? p.ex[fi - 1] : null, prevSteps = prevEx ? steps.filter(x => x.ex.id === prevEx.id) : [];
   const floorCleared = (resting || justDone) && prevEx && prevSteps.length && prevSteps.every(x => x.done) && !steps.filter(x => x.ex.id === cur.ex.id).some(x => x.done);
 
-  const top = `<div class="lvt-top"><button type="button" class="lvt-icon" id="lvBack" aria-label="Back to the app">✕</button>
-    <div class="lvt-title"><b>${esc(gateName)}</b><button type="button" class="lvt-pz" id="lvPause" aria-label="Pause the workout"><i aria-hidden="true"><em></em><em></em></i><span>${cur ? `Floor ${fi + 1} of ${p.ex.length}` : "Every floor cleared"} · <span id="lvEl">${fmtClock(tmEl())}</span></span></button></div><button type="button" class="lvt-cancel" id="lvCancel" aria-label="Cancel this workout">Cancel</button></div>`;
+  const top = `<div class="lvt-top"><button type="button" class="lvt-icon lvt-min" id="lvBack" aria-label="Minimise: the workout keeps running"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6l4.5 4.5L12.5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="lvt-title"><b>${esc(gateName)}</b><button type="button" class="lvt-pz" id="lvPause" aria-label="Pause the workout"><i aria-hidden="true"><em></em><em></em></i><span>${cur ? `Floor ${fi + 1} of ${p.ex.length}` : "Every floor cleared"} · <span id="lvEl">${fmtClock(tmEl())}</span></span></button></div>${cur ? `<button type="button" class="lvt-icon lvt-more${LVM ? " on" : ""}" id="lvtMore" aria-label="Floor options: swap, add or skip a set" aria-expanded="${LVM}"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3" cy="8" r="1.6"/><circle cx="8" cy="8" r="1.6"/><circle cx="13" cy="8" r="1.6"/></svg></button>` : `<span class="lvt-icon lvt-ghost" aria-hidden="true"></span>`}</div>`;
+  const menu = cur && LVM ? lvtMenuHtml(k, p, cur, steps) : "";
   const sys = (t, blue) => `<div class="lvt-sys ${blue ? "blue" : ""}" role="status"><b>SYSTEM</b>${esc(t)}</div>`;
 
   // the tower: one floor per exercise, top floor last; tap a floor to go there
@@ -64,7 +65,7 @@ function lvtHtml(k, p, now, resting, justDone) {
       return `<button type="button" class="lvt-floor ${done ? "done" : ""} ${on && !nxt ? "on" : ""} ${nxt ? "next" : ""}" data-lvjump="${esc(ex.id)}" ${done ? "disabled" : ""} ${on ? 'aria-current="step"' : ""} aria-label="Floor ${i + 1}: ${esc(ex.name)}, ${n} of ${tot} sets${done ? ", cleared" : on ? ", current" : ". Tap to go there"}">${on && !nxt ? `<i class="lvt-em"></i><i class="lvt-em b"></i>` : ""}${lvtRune(i, done || on ? rank.core : "#3A3631")}<span>${i + 1}</span></button>`;
     }).reverse().join("")}</div><i class="lvt-base"></i></nav>`;
   const page = (sysT, blue, body, foot) => ({ state, style: `--lvt:${P.c};--lvt-mid:${P.mid};--lvt-core:${P.core};--lvt-dim:${P.dim};--lvt-r:${rank.c};--lvt-rmid:${rank.mid};--lvt-rcore:${rank.core}`,
-    html: `${top}${sys(sysT, blue)}<div class="lvt-row">${tower}<div class="lvt-col">${body}</div></div><div class="lvt-foot">${foot}</div>` });
+    html: `${top}${menu}${sys(sysT, blue)}<div class="lvt-row">${tower}<div class="lvt-col">${body}</div></div><div class="lvt-foot">${foot}</div>` });
   const big = (txt, id, col) => `<button type="button" class="lvt-big ${col || ""}" id="${id}"${id === "lvFinish" || id === "lvStart" ? ' data-go="1"' : ""}>${txt}</button>`;
 
   /* ---------- every floor cleared ---------- */
@@ -143,7 +144,50 @@ function lvtHtml(k, p, now, resting, justDone) {
     else foot = `<button type="button" class="htgold" data-htstop id="htEnd">${vw.end}</button><span class="htlink" style="text-decoration:none">${HOLD.phase === "grace" ? "No tap in 3 s means you're still holding" : "Overkill counts from 0:00"}</span>`;
     return page(sysT + (cur.inSS && !cur.ssLast ? " Superset: no rest before the next one." : ""), boss, `${tag}${cardT}${queue}`, foot);
   }
-  return page(sysT + (cur.inSS && !cur.ssLast ? " Superset: no rest before the next one." : ""), boss, body, `<div class="lvt-ins">${ins}${ntBtn}</div>${big(boss ? "Challenge the boss" : "Strike · log set", "lvDone", boss ? "blue" : "")}`);
+  // first time on a lift there's no weight to suggest: say so on the button instead of bouncing the tap
+  const needW = F.w === "req" && String(v.w ?? "").trim() === "";
+  const strike = big(boss ? "Challenge the boss" : "Strike · log set", "lvDone", boss ? "blue" : "").replace('class="lvt-big', `${needW ? 'data-need="w" ' : ""}class="lvt-big${needW ? " need" : ""}`)
+    .replace(/>(Challenge the boss|Strike · log set)</, needW ? ">Enter a weight to strike<" : ">$1<");
+  return page(sysT + (cur.inSS && !cur.ssLast ? " Superset: no rest before the next one." : ""), boss, body, `<div class="lvt-ins${needW ? " need" : ""}">${ins}${ntBtn}</div>${strike}`);
+}
+
+/* ---------- Floor options (⋯): swap the exercise, add a set, skip the set you're on ---------- */
+let LVM = false;
+function lvtMenuHtml(k, p, cur, steps) {
+  const own = steps.filter(s => s.ex.id === cur.ex.id), left = own.filter(s => !s.done).length, fixed = !!cur.ex.fixed;
+  const it = (act, ico, t, s, dis) => `<button type="button" class="lvt-mi" data-lvm="${act}"${dis ? " disabled" : ""}><i aria-hidden="true">${ico}</i><span><b>${t}</b><small>${s}</small></span></button>`;
+  return `<div class="lvt-menu" role="menu" aria-label="Floor ${esc(cur.ex.name)} options"><button type="button" class="lvt-mbg" data-lvm="close" aria-label="Close options"></button><div class="lvt-mp">
+    <span class="lvt-meb">FLOOR · ${esc(cur.ex.name.toUpperCase())}</span>
+    ${it("swap", "⇄", "Swap exercise", "Machine taken? Pick another for this floor", fixed)}
+    ${it("add", "+", "Add a set", `One more mob on this floor (${own.length} → ${own.length + 1})`, fixed)}
+    ${it("skip", "»", "Skip this set", left > 1 ? `Drop mob ${cur.i + 1}; ${left - 1} left on this floor` : own.length > 1 ? "Drop it and clear the floor" : "A floor needs at least one set", own.length <= 1 || fixed)}
+    ${it("notes", "✎", "Notes", "Cues and how it felt last time")}
+  </div></div>`;
+}
+document.addEventListener("click", e => {
+  const t = e.target.closest && e.target.closest("#lvtMore,[data-lvm]"); if (!t || !liveOpen) return;
+  if (t.id === "lvtMore") { LVM = !LVM; renderLive(); return }
+  const act = t.dataset.lvm, c = liveCtx(); LVM = false;
+  if (act === "close" || !c) { renderLive(); return }
+  const steps = gymSteps(c.k, c.p), cur = steps[liveIdx(steps)]; if (!cur) { renderLive(); return }
+  sel = parseYmd(c.k);   // the swap and set tools work on the selected day
+  if (act === "swap") { renderLive(); const b = document.createElement("button"); b.dataset.swap = cur.ex.id; b.hidden = true; document.body.appendChild(b); b.click(); b.remove(); return }
+  if (act === "add") { const key = dkey(c.k, `xs-${cur.ex.id}`); drafts[key] = (Number(drafts[key]) || 0) + 1; persistDrafts(); renderLive(); toast(`Set added to ${cur.ex.name}`); return }
+  if (act === "skip") { if (typeof deleteSet === "function") deleteSet(cur.ex.id, cur.i, true); if (TM.focus && TM.focus.id === cur.ex.id) { TM.focus = null; saveTM() } renderLive(); toast(`Set ${cur.i + 1} skipped`); return }
+  if (act === "notes") { renderLive(); if (typeof ntOpen === "function") ntOpen(cur.ex.id); return }
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && LVM && liveOpen) { LVM = false; renderLive() } });
+// a weight is needed: the button points at the box instead of failing silently
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("#lvDone[data-need]"); if (!b) return; const w = document.getElementById("lvW"); if (w && !w.value.trim()) { e.preventDefault(); e.stopImmediatePropagation(); w.focus(); const box = w.closest(".lvt-sbox"); if (box) { box.classList.remove("shake"); void box.offsetWidth; box.classList.add("shake") } } }, true);
+document.addEventListener("input", e => { if (!e.target || e.target.id !== "lvW") return; const b = document.querySelector("#lvDone[data-need]"); if (!b) return; const has = !!e.target.value.trim();
+  b.classList.toggle("need", !has); b.textContent = has ? (b.classList.contains("blue") ? "Challenge the boss" : "Strike · log set") : "Enter a weight to strike"; const ins = b.parentElement && b.parentElement.querySelector(".lvt-ins"); if (ins) ins.classList.toggle("need", !has) });
+// Undo the set you just struck (fat-fingered it): for a few seconds a toast offers to take it back
+function lvUndoOffer(k, id, i) {
+  const el = document.getElementById("toast"); if (!el) return;
+  el.innerHTML = `<span>Set ${i + 1} logged</span><button type="button" id="lvUndo">Undo</button>`; el.hidden = false; el.classList.add("act");
+  clearTimeout(toast.t); toast.t = setTimeout(() => { el.hidden = true; el.classList.remove("act") }, 4000);
+  document.getElementById("lvUndo").onclick = () => { delete drafts[dkey(k, `c-${id}-${i}`)]; persistDrafts(); TM.restEnd = 0; TM.focus = { id, pick: true }; saveTM();
+    el.hidden = true; el.classList.remove("act"); renderLive(); tick() };
 }
 
 // rest ring: runes go dark as the rest runs out
@@ -252,6 +296,24 @@ html .live.lvt-on{background:radial-gradient(90% 50% at 50% 0%,color-mix(in srgb
 .lvt-queue{display:flex;justify-content:center;gap:12px;align-items:flex-end}
 .lvt-foot{flex-shrink:0;padding:4px 0 2px;display:flex;flex-direction:column;gap:12px}@media (max-height:780px){.lvt-rw{transform:scale(.84);margin:-12px 0}.lvt-name{font-size:22px}.lvt-floor{height:46px}#liveIn.lvt{gap:9px}}@media (max-height:680px){.lvt-rw{transform:scale(.72);margin:-24px 0}.lvt-sys{display:none}}
 .lvt-ins{display:flex;gap:10px;position:relative}
+#liveIn.lvt .lvt-min svg{width:16px;height:16px}#liveIn.lvt .lvt-more svg{width:16px;height:16px;fill:currentColor}#liveIn.lvt .lvt-more.on{border-color:var(--lvt-rmid);color:var(--lvt-rcore)}
+#liveIn.lvt .lvt-ghost{visibility:hidden}
+.lvt-menu{position:fixed;inset:0;z-index:11}
+.lvt-mbg{all:unset;position:absolute;inset:0;background:rgba(2,4,8,.55)}
+.lvt-mp{position:absolute;right:max(14px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 62px);width:min(300px,calc(100vw - 28px));padding:10px;border-radius:16px;border:1px solid color-mix(in srgb,var(--lvt-r) 45%,transparent);background:linear-gradient(180deg,#121014,#0A0A0D);box-shadow:0 18px 40px rgba(0,0,0,.6);display:flex;flex-direction:column;gap:2px;animation:ntUp .16s ease-out}
+.lvt-meb{font:800 9.5px/1 var(--display);letter-spacing:.22em;color:var(--lvt-rmid);padding:6px 8px 8px}
+.lvt-mi{all:unset;cursor:pointer;display:flex;gap:12px;align-items:center;padding:10px 8px;border-radius:10px;color:#F5F1E6}
+.lvt-mi:hover,.lvt-mi:focus-visible{background:rgba(245,241,230,.06)}.lvt-mi:focus-visible{outline:2px solid var(--lvt-rmid)}
+.lvt-mi[disabled]{opacity:.38;cursor:default}
+.lvt-mi i{width:32px;height:32px;flex-shrink:0;border-radius:9px;display:grid;place-items:center;font-style:normal;font:800 15px/1 var(--display);background:rgba(245,241,230,.07);color:var(--lvt-rcore)}
+.lvt-mi span{display:flex;flex-direction:column;gap:3px;min-width:0}.lvt-mi b{font:800 14px/1.1 var(--display);letter-spacing:.04em}.lvt-mi small{font:500 12px/1.3 var(--body);color:#A8A396}
+#liveIn.lvt .lvt-big.need{background:transparent;border:1.5px dashed var(--lvt-rmid);color:var(--lvt-rcore);box-shadow:none}
+#liveIn.lvt .lvt-ins.need .lvt-step:first-child .lvt-sbox{border-color:var(--lvt-rmid);box-shadow:0 0 0 3px color-mix(in srgb,var(--lvt-r) 22%,transparent)}
+#liveIn.lvt .lvt-sbox.shake{animation:lvtShake .35s}@keyframes lvtShake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+body.live-on .toast{z-index:30;top:calc(env(safe-area-inset-top,0px) + 64px);bottom:auto;background:#121014;color:#F5F1E6;border:1px solid color-mix(in srgb,var(--mt-m,#B8834A) 45%,transparent);box-shadow:0 10px 30px rgba(0,0,0,.55)}
+body.live-on .toast.act button{background:var(--rk,#22A06B);color:var(--rk-ink,#04140C)}
+.toast.act{display:flex;align-items:center;gap:14px;padding:8px 8px 8px 16px}.toast.act[hidden]{display:none}
+.toast.act button{all:unset;cursor:pointer;padding:6px 12px;border-radius:999px;background:var(--bg);color:var(--ink);font:800 12px/1 var(--display,inherit);letter-spacing:.14em;text-transform:uppercase}
 #liveIn.lvt .lvt-ins:has(.lvt-nt) .lvt-step>span:first-child{height:34px;display:flex;align-items:center}
 #liveIn.lvt .lvt-ins:has(.lvt-nt) .lvt-step{gap:8px}
 #liveIn.lvt .lvt-nt{all:unset;box-sizing:border-box;cursor:pointer;position:absolute;right:0;top:0;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(245,241,230,.07);color:var(--mut)}
