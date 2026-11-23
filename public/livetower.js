@@ -276,7 +276,7 @@ document.addEventListener("click", e => { const t = e.target.closest && e.target
   const w = document.getElementById("lvW"); openSheet({ kind: "plates", ex: cur.ex, w: w ? w.value.trim() : "", live: { k: c.k, id: cur.ex.id, i: cur.i } }) });
 
 /* hold a floor to see what it is; let go and it's gone. A hold never jumps. */
-const FPK = { t: 0, on: false, el: null, eat: false };
+const FPK = { t: 0, on: false, el: null, eat: false, down: false, x: 0, y: 0 };
 function fpkShow(b) {
   const [n, name, d, tot, st] = (b.dataset.fpk || "").split("|"); if (!name) return;
   let el = FPK.el; if (!el) { el = FPK.el = document.createElement("div"); el.className = "lvt-fpk"; el.setAttribute("role", "status"); document.body.appendChild(el) }
@@ -288,10 +288,18 @@ function fpkShow(b) {
 }
 function fpkHide() { clearTimeout(FPK.t); FPK.t = 0; if (FPK.el) FPK.el.hidden = true; document.querySelectorAll(".lvt-floor.peek").forEach(x => x.classList.remove("peek"));
   if (FPK.on) { FPK.eat = true; setTimeout(() => FPK.eat = false, 400) } FPK.on = false }
-document.addEventListener("pointerdown", e => { const b = e.target.closest && e.target.closest(".lvt-floor[data-fpk]"); if (!b) return; fpkHide(); FPK.eat = false;
-  FPK.t = setTimeout(() => { FPK.t = 0; fpkShow(b); if (navigator.vibrate) try { navigator.vibrate(8) } catch (x) {} }, 380) });
-document.addEventListener("pointermove", e => { if (!FPK.on) return; const u = document.elementFromPoint(e.clientX, e.clientY), b = u && u.closest && u.closest(".lvt-floor[data-fpk]"); if (b && !b.classList.contains("peek")) fpkShow(b) });
-["pointerup", "pointercancel"].forEach(ev => document.addEventListener(ev, () => { if (FPK.t || FPK.on) fpkHide() }));
+document.addEventListener("pointerdown", e => { const b = e.target.closest && e.target.closest(".lvt-floor[data-fpk]"); if (FPK.on || FPK.t) fpkHide(); if (!b) return; FPK.eat = false;
+  FPK.x = e.clientX; FPK.y = e.clientY; FPK.down = true;
+  FPK.t = setTimeout(() => { FPK.t = 0; if (!FPK.down) return; fpkShow(b); if (navigator.vibrate) try { navigator.vibrate(8) } catch (x) {} }, 380) });
+document.addEventListener("pointermove", e => { if (FPK.t && Math.hypot(e.clientX - FPK.x, e.clientY - FPK.y) > 10) { clearTimeout(FPK.t); FPK.t = 0 } // moving first = scrolling the tower, not a hold
+  if (!FPK.on) return; if (e.pointerType === "mouse" && !e.buttons) return fpkHide(); const u = document.elementFromPoint(e.clientX, e.clientY), b = u && u.closest && u.closest(".lvt-floor[data-fpk]"); if (b && !b.classList.contains("peek")) fpkShow(b) });
+// Letting go always hides the label. iOS can swallow pointerup after a long press, so touch, mouse, blur and
+// backgrounding the app end the peek too; once it's showing, the tower doesn't scroll so the finger can scrub.
+const fpkEnd = e => { if (e && e.touches && e.touches.length) return; FPK.down = false; if (FPK.t || FPK.on) fpkHide() };
+["pointerup", "pointercancel", "touchend", "touchcancel", "mouseup", "dragstart"].forEach(ev => document.addEventListener(ev, fpkEnd, true));
+addEventListener("blur", fpkEnd); document.addEventListener("visibilitychange", () => { if (document.hidden) fpkEnd() });
+document.addEventListener("touchmove", e => { if (FPK.on && e.cancelable) e.preventDefault() }, { passive: false });
+document.addEventListener("touchstart", e => { if (!FPK.on) return; if (e.touches.length > 1) fpkHide() }, true);
 document.addEventListener("contextmenu", e => { if (e.target.closest && e.target.closest(".lvt-floor")) e.preventDefault() });
 // the release after a hold isn't a tap; cleared floors don't jump either
 document.addEventListener("click", e => { const b = e.target.closest && e.target.closest(".lvt-floor"); if (!b) return; if (FPK.eat || b.hasAttribute("data-done")) { e.preventDefault(); e.stopImmediatePropagation(); FPK.eat = false } }, true);
