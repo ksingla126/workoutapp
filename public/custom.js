@@ -324,7 +324,7 @@ function vvSync(){ const v=window.visualViewport, h=v?v.height:innerHeight, kb=v
 if(window.visualViewport){ visualViewport.addEventListener("resize",vvSync); visualViewport.addEventListener("scroll",vvSync) } addEventListener("resize",vvSync); addEventListener("orientationchange",()=>setTimeout(vvSync,300)); vvSync();
 function sheetEl(){ let el=document.getElementById("xsheet"); if(!el){ el=document.createElement("div"); el.id="xsheet"; el.hidden=true; el.innerHTML=`<div class="xs-back" data-xs="close"></div><div class="xs-panel" role="dialog" aria-modal="true"><div class="xs-in"></div></div>`; document.body.appendChild(el) } return el }
 function openSheet(state){ SH=state; const el=sheetEl(); el.hidden=false; document.body.classList.add("xs-open"); paintSheet(true) }
-function xsClose(){ stopScan(); if(SH&&SH.kind==="form"&&SH.track) URL.revokeObjectURL(SH.track.url); SH=null; const el=document.getElementById("xsheet"); if(el) el.hidden=true; document.body.classList.remove("xs-open") }
+function xsClose(){ const wasLive=SH&&SH.live; stopScan(); if(SH&&SH.kind==="form"&&SH.track) URL.revokeObjectURL(SH.track.url); SH=null; const el=document.getElementById("xsheet"); if(el) el.hidden=true; document.body.classList.remove("xs-open"); if(wasLive&&typeof renderLive==="function"&&typeof liveOpen!=="undefined"&&liveOpen) renderLive() }
 function paintSheet(scrollTop){ if(!SH) return; const el=sheetEl(), inn=el.querySelector(".xs-in"); const focusSel=document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.xsFocus;
   inn.innerHTML=sheetHtml(); el.classList.toggle("xs-ws",!!SH.ws);
   // search sheets keep one height, so the search box stays put while results narrow
@@ -1455,7 +1455,7 @@ document.addEventListener("input",e=>{ const t=e.target, d=t.dataset||{};
   if(!SH) return;
   if(d.xsQ){ SH.q=t.value; SH.allLocal=false; paintPart(".xs-results"); const pn=document.querySelector("#xsheet .xs-panel"); if(pn) pn.scrollTop=0; return }
   if(d.xsCode){ SH.code=t.value; return }
-  if(d.xsPw){ SH.w=t.value; paintPart(".plate-out"); return }
+  if(d.xsPw){ SH.w=t.value; paintPart(".plate-out"); if(SH.live){ const L=SH.live; drafts[dkey(L.k,`w-${L.id}-${L.i}`)]=t.value.trim(); persistDrafts(); const w=document.getElementById("lvW"); if(w){ w.value=t.value; w.dispatchEvent(new Event("input",{bubbles:true})) } } return }
   if(d.xsQty){ SH.pick.qty=t.value; paintPart(".macroline"); return }
   if(d.xsAmt){ SH.pick.amt=t.value; paintPart(".macroline"); return }
   if(d.xsNf){ SH.d[d.xsNf]=t.value; return }
