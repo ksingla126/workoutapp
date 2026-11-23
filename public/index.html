@@ -1242,9 +1242,9 @@ const today=midnight(appNow());
 WEEKS=Math.max(1,weekOf(today))+12;
 let sel = inProgram(today)? today : START;
 let tab="home";
-let progView="lifts"; try{const v=localStorage.getItem("rd25-pview"); if(v==="runs"||v==="lifts"||v==="body") progView=v}catch(e){}
+let progView="lifts"; try{const v=localStorage.getItem("rd25-pview"); if(v==="runs"||v==="lifts") progView=v; else if(v==="body"||v==="weeks") progView="weeks"}catch(e){}
 let planView="training"; try{const v=localStorage.getItem("rd25-planview"); if(v==="training"||v==="food") planView=v}catch(e){}
-try{const t=localStorage.getItem("rd25-tab"); if(t==="runs"){tab="progress"; progView="runs"} else if(t==="food"){tab="plan"; planView="food"} else if(t==="standings") tab="ranks"; else if(t&&["home","plan","progress","ranks","advice"].includes(t)) tab=t}catch(e){}
+try{const t=localStorage.getItem("rd25-tab"); if(t==="runs"){tab="progress"; progView="runs"} else if(t==="food"){tab="plan"; planView="food"} else if(t==="standings") tab="ranks"; else if(t&&["home","plan","body","progress","ranks","advice"].includes(t)) tab=t}catch(e){}
 tab="hub"; // the app always opens on the game Home
 
 function loadLocal(){ setTimeout(onProfile,0); if(window.__platform) return; try{S.photos=JSON.parse(localStorage.getItem("rd25-photos")||"{}")||{}}catch(e){} try{const j=JSON.parse(localStorage.getItem("rd25-data")||"null"); if(j){S.logs=j.logs||{};S.meals=j.meals||{};Object.assign(S.profile,j.profile||{});S.chat=j.chat||[];S.over=j.over||{};Object.assign(S.advice,j.advice||{})}}catch(e){}}
@@ -1282,7 +1282,7 @@ async function boot(){
       refs={profile:db.doc(base+"/profile"),chat:db.doc(base+"/chat"),advice:db.doc(base+"/advice"),plan:db.doc(base+"/plan"),kitchen:db.doc(base+"/kitchen"),prefs:db.doc(base+"/prefs"),inbox:db.doc(base+"/inbox"),ranks:db.doc(base+"/ranks")};
       refs.logs=refs.profile.collection("logs"); refs.meals=refs.profile.collection("meals"); refs.over=refs.profile.collection("overload");
       refs.photos=refs.profile.collection("photos");
-      refs.photos.onSnapshot(snap=>{const P={}; snap.docs.forEach(d=>{if(d.exists) P[d.id]=d.data()}); S.photos=P; if(tab==="progress"&&progView==="body") render(true)},()=>{});
+      refs.photos.onSnapshot(snap=>{const P={}; snap.docs.forEach(d=>{if(d.exists) P[d.id]=d.data()}); S.photos=P; if(tab==="body") render(true)},()=>{});
       refs.over.onSnapshot(snap=>{const O={}; snap.docs.forEach(d=>{if(d.exists) O[d.id]=d.data()}); S.over=O; S.__overLoaded=true; render(true); maybeOverload()},()=>{S.__overLoaded=true});
       mode="db"; S.logs={}; S.meals={}; S.chat=[];
       refs.logs.onSnapshot(snap=>{const L={}; snap.docs.forEach(d=>{if(d.exists) L[d.id]=d.data()}); S.logs=L; loaded.logs=true; migrateTiltCalf(); maybeStravaInit(); render(true); maybeAutoAdvice()},()=>{});
@@ -1431,7 +1431,7 @@ function render(fromStore){
   if(!FOOD_ON&&(tab==="food"||(tab==="plan"&&planView==="food"))){ tab="hub"; if(typeof planView!=="undefined") planView="training" }
   const v=$("#view"), sameTab=v.dataset.vtab===tab&&v.firstChild;
   if(!sameTab&&v.dataset.vtab){ try{ (window.__tabY=window.__tabY||{})[v.dataset.vtab]=window.scrollY }catch(e){} }
-  const html = tab==="hub"&&typeof viewHub==="function"?viewHub(): tab==="home"?(WS_ON&&typeof viewWorld==="function"?(wsLog?trainSwitch():"")+viewWorld(openLogger):trainSwitch()+viewHome(openLogger)): tab==="food"||(tab==="plan"&&planView==="food")?(typeof setTabs==="function"?setTabs("food"):"")+viewFoodTab(): tab==="plan"?(typeof setTabs==="function"?setTabs("plan"):trainSwitch())+viewPlan(): tab==="progress"?trainSwitch()+viewProgress(): tab==="ranks"?viewRanks(): viewAdvice();
+  const html = tab==="hub"&&typeof viewHub==="function"?viewHub(): tab==="home"?(WS_ON&&typeof viewWorld==="function"?(wsLog?trainSwitch():"")+viewWorld(openLogger):trainSwitch()+viewHome(openLogger)): tab==="food"||(tab==="plan"&&planView==="food")?(typeof setTabs==="function"?setTabs("food"):"")+viewFoodTab(): tab==="plan"?(typeof setTabs==="function"?setTabs("plan"):trainSwitch())+viewPlan(): tab==="body"?(typeof setTabs==="function"?setTabs("body"):"")+viewBody(): tab==="progress"?trainSwitch()+viewProgress(): tab==="ranks"?viewRanks(): viewAdvice();
   if(sameTab) morph(v,html); else { v.innerHTML=html; v.dataset.vtab=tab; window.scrollTo(0,(window.__tabY||{})[tab]||0) }
   applyDrafts();
   viewBind(v,()=>{ bind(); if(tab==="ranks") bindRanks(); if(typeof wsAfter==="function"&&tab==="home") wsAfter() }); document.body.classList.toggle("ws-page",tab==="home"&&typeof WS_ON!=="undefined"&&WS_ON&&!wsLog); if(tab==="hub"&&typeof hubMaybeTour==="function") hubMaybeTour(); if(tab==="hub"&&typeof maybeRecap==="function") setTimeout(()=>{ maybeRecap(); if(typeof maybeInvite==="function") maybeInvite() },400); else if(typeof HT!=="undefined"&&HT.i>=0) hubTourEnd(); if(typeof gameAfterRender==="function") gameAfterRender();
@@ -1440,8 +1440,8 @@ function render(fromStore){
 function renderTop(){
   if(tab==="hub"){ if(document.title!==APP_NAME) document.title=APP_NAME; $("#top").innerHTML=""; $("#top").classList.add("hub-top"); return } $("#top").classList.remove("hub-top");
   if(tab==="home"&&typeof wsTop==="function"&&WS_ON&&!wsLog){ if(document.title!==APP_NAME) document.title=APP_NAME; morph($("#top"),wsTop()); return }
-  if(tab==="food"||tab==="ranks"||tab==="advice"||tab==="plan"){ if(document.title!==APP_NAME) document.title=APP_NAME;
-    const T={food:"Settings",plan:"Settings",ranks:"Ranks",advice:"System"}[tab];
+  if(tab==="food"||tab==="ranks"||tab==="advice"||tab==="plan"||tab==="body"){ if(document.title!==APP_NAME) document.title=APP_NAME;
+    const T={food:"Settings",plan:"Settings",body:"Settings",ranks:"Ranks",advice:"System"}[tab];
     morph($("#top"),`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}</span></div><h1 class="top-week">${T}</h1>`); return }
   const w=Math.max(1,weekOf(today)), mon=monOf(w);
   let wkPlan=0, wkDone=0; for(let i=0;i<7;i++){ const d=addDays(mon,i), p=planFor(d); if(p&&p.type!=="rest"&&!preStart(d)){ wkPlan++; if(S.logs[ymd(d)]) wkDone++ } }
@@ -1469,8 +1469,8 @@ const TAB_ICON=(()=>{ const sv=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="
 function renderTabs(){
   const T=[["hub","Home"],["home","Train"],["ranks","Ranks"],["advice","System"]];
   const n=unseenAdvice(); let rk=0;
-  const cur= tab==="food"||tab==="plan"? "me" : tab==="progress"? "home" : tab;
-  morph($("#tabs"),T.map(([id,l])=>`<button data-tab="${id}" class="${cur===id?"on":""}" aria-current="${cur===id}">${TAB_ICON[id]}${l}${id==="advice"&&n&&tab!=="advice"?`<span class="badge">${n}</span>`:""}${id==="ranks"&&tab!=="ranks"&&(rk=rkAlertCount())?`<span class="badge">${rk}</span>`:""}</button>`).join("")+(window.__platform?`<button type="button" data-acct="1" class="${tab==="plan"||tab==="food"?"on":""}" aria-current="${tab==="plan"||tab==="food"}">${TAB_ICON.me}Profile</button>`:""));
+  const cur= tab==="food"||tab==="plan"||tab==="body"? "me" : tab==="progress"? "home" : tab;
+  morph($("#tabs"),T.map(([id,l])=>`<button data-tab="${id}" class="${cur===id?"on":""}" aria-current="${cur===id}">${TAB_ICON[id]}${l}${id==="advice"&&n&&tab!=="advice"?`<span class="badge">${n}</span>`:""}${id==="ranks"&&tab!=="ranks"&&(rk=rkAlertCount())?`<span class="badge">${rk}</span>`:""}</button>`).join("")+(window.__platform?`<button type="button" data-acct="1" class="${tab==="plan"||tab==="food"||tab==="body"?"on":""}" aria-current="${tab==="plan"||tab==="food"||tab==="body"}">${TAB_ICON.me}Profile</button>`:""));
   document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{if(b.dataset.tab==="progress"&&tab==="progress") runSel=null; tab=b.dataset.tab; try{localStorage.setItem("rd25-tab",tab)}catch(e){} if(tab==="advice"&&S.advice.at>(S.advice.seenAt||0)){S.advice.seenAt=S.advice.at;saveAdvice()} render(); window.scrollTo(0,0)});
 }
 
@@ -1755,18 +1755,12 @@ function viewProgress(){
   rows=rows.slice(-12); // charts and the weekly table show the last 12 weeks
   const wts=(S.profile.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1);
   const wchg=wts.length>1? (wts[wts.length-1].lb-wts[0].lb):null;
-  let h=`<div class="seg" role="tablist" aria-label="Progress view"><button role="tab" data-pv="lifts" aria-selected="${progView==="lifts"}" class="${progView==="lifts"?"on":""}"><span class="plate p-gym"></span>Lifts</button><button role="tab" data-pv="runs" aria-selected="${progView==="runs"}" class="${progView==="runs"?"on":""}"><span class="plate p-run"></span>Runs</button><button role="tab" data-pv="body" aria-selected="${progView==="body"}" class="${progView==="body"?"on":""}"><span class="plate p-food"></span>${FOOD_ON?"Body &amp; Food":"Body"}</button></div>`;
+  let h=`<div class="seg" role="tablist" aria-label="Progress view"><button role="tab" data-pv="lifts" aria-selected="${progView==="lifts"}" class="${progView==="lifts"?"on":""}"><span class="plate p-gym"></span>Lifts</button><button role="tab" data-pv="runs" aria-selected="${progView==="runs"}" class="${progView==="runs"?"on":""}"><span class="plate p-run"></span>Runs</button><button role="tab" data-pv="weeks" aria-selected="${progView==="weeks"}" class="${progView==="weeks"?"on":""}"><span class="plate p-food"></span>Weeks</button></div>`;
   if(progView==="runs" && runSel && S.logs[runSel] && S.logs[runSel].type==="run") return h+runDetail(runSel);
   if(progView==="lifts") h+=`<div class="kpis"><div class="kpi"><div class="v num">${tot.gym}</div><div class="l">gym sessions</div></div>
    <div class="kpi"><div class="v num">${dU(tot.mi)}</div><div class="l">${RU()==="km"?"km":"miles"} run</div></div>
    <div class="kpi"><div class="v num">${wchg==null?"–":(wchg>0?"+":"")+toUd(wchg).toFixed(1)}</div><div class="l">${uL()} since first weigh-in</div></div></div>`;
   let shared="";
-  // body weight
-  shared+=`<div class="card"><div class="row between"><h2>Body weight</h2>${wts.length?`<span class="chip food num">Now ${toU(wts[wts.length-1].lb)} ${uL()}</span>`:""}</div>`;
-  if(wts.length>1){const days=Math.max(1,Math.round((parseYmd(wts[wts.length-1].d)-parseYmd(wts[0].d))/DAYMS)); const rate=wchg/(days/7);
-    shared+=`<p class="small">Average change: <b class="num">${rate>0?"+":""}${toUd(rate).toFixed(1)} ${uL()}/week</b> <span class="muted">· a steady ${UNIT()==="kg"?"0.5–1 kg":"1–2 lb"}/week keeps strength while you lean out</span></p>`}
-  shared+= wts.length? lineChart(wts.map(w=>({x:fmtShort(parseYmd(w.d)),y:toUd(w.lb)})),"var(--food)",v=>v.toFixed(0),false) : `<p class="small muted">Weigh in every Monday morning, before eating. The Home tab prompts you.</p>`;
-  shared+=`<div class="row" style="align-items:flex-end"><div class="field"><label for="bwIn2">Log today's weight (${uL()})</label><input id="bwIn2" inputmode="decimal" placeholder="${wtHint()}"></div><button class="btn" id="bwSave2">Log</button></div></div>`;
   let lifts="";
   // strength
   lifts+=`<div class="card"><h2>Strength</h2><div class="eyebrow">Estimated 1-rep max</div><div class="multiples">`;
@@ -1777,7 +1771,6 @@ function viewProgress(){
   lifts+= os.length? `${lineChart(os.map(x=>({...x,y:toUd(x.y)})),"var(--gym)",v=>Math.round(v),false)}<p class="small num">Top set ${toU(os[os.length-1].top)} ${uL()} · est. 1RM ${Math.round(toUd(os[os.length-1].y))} ${uL()}</p>` : `<p class="small muted">No sessions logged for this lift yet.</p>`;
   lifts+=`</div>`;
   lifts+=`<div class="card"><h2>Lifting volume</h2><div class="eyebrow">Total weight × reps per week</div>${barChart(rows.map(r=>toUd(r.vol)),rows.map(r=>fmtShort(monOf(r.w))),"var(--gym)",v=>v>=1000?(v/1000).toFixed(0)+"k":String(Math.round(v)))}</div>`;
-  shared+=photosCard();
   // weekly table
   shared+=`<div class="card"><div class="row between"><h2>Week by week</h2></div><div class="tablewrap"><table>
    <thead><tr><th>Week of</th><th>Gym</th><th>Runs</th><th>${RU()==="km"?"Km":"Miles"}</th><th>Long</th><th>Easy pace</th><th>Volume</th>${FOOD_ON?"<th>Calories</th>":""}</tr></thead><tbody>
@@ -1793,7 +1786,21 @@ function viewProgress(){
   // calories
   const avgTarget=rows.length?rows[rows.length-1].ktarget:0;
   if(FOOD_ON) shared+=`<div class="card"><h2>Calories</h2><div class="eyebrow">Logged per week vs plan</div>${barChart(rows.map(r=>r.kcal),rows.map(r=>fmtShort(monOf(r.w))),"var(--food)",v=>v>=1000?(v/1000).toFixed(0)+"k":String(Math.round(v)),avgTarget)}</div>`;
-  return h + (progView==="runs"? runsH : progView==="body"? shared : lifts);
+  return h + (progView==="runs"? runsH : progView==="weeks"? shared : lifts);
+}
+
+/* ----- Body (Profile → Body): weight and progress photos ----- */
+function viewBody(){
+  const wts=(S.profile.weights||[]).slice().sort((a,b)=>a.d<b.d?-1:1), wchg=wts.length>1? (wts[wts.length-1].lb-wts[0].lb):null;
+  let bh="";
+  // body weight
+  bh+=`<div class="card"><div class="row between"><h2>Body weight</h2>${wts.length?`<span class="chip food num">Now ${toU(wts[wts.length-1].lb)} ${uL()}</span>`:""}</div>`;
+  if(wts.length>1){const days=Math.max(1,Math.round((parseYmd(wts[wts.length-1].d)-parseYmd(wts[0].d))/DAYMS)); const rate=wchg/(days/7);
+    bh+=`<p class="small">Average change: <b class="num">${rate>0?"+":""}${toUd(rate).toFixed(1)} ${uL()}/week</b> <span class="muted">· a steady ${UNIT()==="kg"?"0.5–1 kg":"1–2 lb"}/week keeps strength while you lean out</span></p>`}
+  bh+= wts.length? lineChart(wts.map(w=>({x:fmtShort(parseYmd(w.d)),y:toUd(w.lb)})),"var(--food)",v=>v.toFixed(0),false) : `<p class="small muted">Weigh in every Monday morning, before eating. Train asks you on Mondays, or log it here any day.</p>`;
+  bh+=`<div class="row" style="align-items:flex-end"><div class="field"><label for="bwIn2">Log today's weight (${uL()})</label><input id="bwIn2" inputmode="decimal" placeholder="${wtHint()}"></div><button class="btn" id="bwSave2">Log</button></div></div>`;
+  bh+=photosCard();
+  return bh;
 }
 
 /* ----- Food ----- */

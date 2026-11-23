@@ -1221,7 +1221,7 @@ function setPref(patch){ const cur={...userPrefs(),...patch}; if(window.LOOK) LO
 function syncPrefs(){ const p=S.profile&&S.profile.prefs; if(p&&window.LOOK) LOOK.save(p) }
 function accountName(){ const su=S.profile&&S.profile.setup; return (su&&su.name)||(window.appUserEmail&&appUserEmail().split("@")[0])||"You" }
 // Settings, Plan and Food share one set of tabs (Profile in the bottom bar)
-function setTabs(cur){ const T=[["acct","Settings"],["plan","Plan"],...(typeof FOOD_ON!=="undefined"&&FOOD_ON?[["food","Food"]]:[])]; return `<div class="seg set-tabs" style="grid-template-columns:repeat(${T.length},1fr);margin-bottom:12px" role="tablist" aria-label="Settings">${T.map(([k,l])=>`<button type="button" role="tab" data-settab="${k}" aria-selected="${cur===k}" class="${cur===k?"on":""}">${l}</button>`).join("")}</div>` }
+function setTabs(cur){ const T=[["acct","Settings"],["plan","Plan"],["body","Body"],...(typeof FOOD_ON!=="undefined"&&FOOD_ON?[["food","Food"]]:[])]; return `<div class="seg set-tabs" style="grid-template-columns:repeat(${T.length},1fr);margin-bottom:12px" role="tablist" aria-label="Settings">${T.map(([k,l])=>`<button type="button" role="tab" data-settab="${k}" aria-selected="${cur===k}" class="${cur===k?"on":""}">${l}</button>`).join("")}</div>` }
 function accountBtn(){ if(!window.__platform) return ""; const n=accountName(); return `<button type="button" class="acct" data-acct="1" aria-label="Account and settings">${esc((n[0]||"?").toUpperCase())}</button>` }
 function accountHtml(){
   const pr=userPrefs(), P=window.LOOK?LOOK.presets:{}, email=window.appUserEmail?appUserEmail():"";
