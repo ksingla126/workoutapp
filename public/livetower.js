@@ -62,7 +62,7 @@ function lvtHtml(k, p, now, resting, justDone) {
   // the tower: one floor per exercise, top floor last; tap a floor to go there
   const tower = `<nav class="lvt-tower" aria-label="Tower: one floor per exercise"><svg class="lvt-spire" viewBox="0 0 56 30" aria-hidden="true"><path d="M28 2 L50 28 H6 Z" fill="#0E0F12" stroke="#2E2A26" stroke-width="1.5"/><path d="M28 10 V22" stroke="#77736A" stroke-width="2" stroke-linecap="round"/></svg><div class="lvt-floors">${p.ex.map((ex, i) => {
       const n = steps.filter(x => x.ex.id === ex.id && x.done).length, tot = steps.filter(x => x.ex.id === ex.id).length, done = tot && n === tot, on = cur && cur.ex.id === ex.id, nxt = floorCleared && on;
-      return `<button type="button" class="lvt-floor ${done ? "done" : ""} ${on && !nxt ? "on" : ""} ${nxt ? "next" : ""}" data-lvjump="${esc(ex.id)}" ${done ? "disabled" : ""} ${on ? 'aria-current="step"' : ""} aria-label="Floor ${i + 1}: ${esc(ex.name)}, ${n} of ${tot} sets${done ? ", cleared" : on ? ", current" : ". Tap to go there"}">${on && !nxt ? `<i class="lvt-em"></i><i class="lvt-em b"></i>` : ""}${lvtRune(i, done || on ? rank.core : "#3A3631")}<span>${i + 1}</span></button>`;
+      return `<button type="button" class="lvt-floor ${done ? "done" : ""} ${on && !nxt ? "on" : ""} ${nxt ? "next" : ""}" data-lvjump="${esc(ex.id)}" data-fpk="${i + 1}|${esc(ex.name)}|${n}|${tot}|${done ? "c" : on && !nxt ? "o" : nxt ? "n" : ""}" ${done ? "aria-disabled=\"true\" data-done" : ""} ${on ? 'aria-current="step"' : ""} aria-label="Floor ${i + 1}: ${esc(ex.name)}, ${n} of ${tot} sets${done ? ", cleared" : on ? ", current" : ". Tap to go there"}">${on && !nxt ? `<i class="lvt-em"></i><i class="lvt-em b"></i>` : ""}${lvtRune(i, done || on ? rank.core : "#3A3631")}<span>${i + 1}</span></button>`;
     }).reverse().join("")}</div><i class="lvt-base"></i></nav>`;
   const page = (sysT, blue, body, foot) => ({ state, style: `--lvt:${P.c};--lvt-mid:${P.mid};--lvt-core:${P.core};--lvt-dim:${P.dim};--lvt-r:${rank.c};--lvt-rmid:${rank.mid};--lvt-rcore:${rank.core}`,
     html: `${top}${menu}${sys(sysT, blue)}<div class="lvt-row">${tower}<div class="lvt-col">${body}</div></div><div class="lvt-foot">${foot}</div>` });
@@ -148,7 +148,7 @@ function lvtHtml(k, p, now, resting, justDone) {
   const needW = F.w === "req" && String(v.w ?? "").trim() === "";
   const strike = big(boss ? "Challenge the boss" : "Strike · log set", "lvDone", boss ? "blue" : "").replace('class="lvt-big', `${needW ? 'data-need="w" ' : ""}class="lvt-big${needW ? " need" : ""}`)
     .replace(/>(Challenge the boss|Strike · log set)</, needW ? ">Enter a weight to strike<" : ">$1<");
-  return page(sysT + (cur.inSS && !cur.ssLast ? " Superset: no rest before the next one." : ""), boss, body, `<div class="lvt-ins${needW ? " need" : ""}">${ins}${ntBtn}</div>${strike}`);
+  return page(sysT + (cur.inSS && !cur.ssLast ? " Superset: no rest before the next one." : ""), boss, body, `<div class="lvt-ins${needW ? " need" : ""}">${ins}${ntBtn}</div>${plateable(cur.ex, db) ? `<button type="button" class="lvt-pl" id="lvtPl" aria-label="Plate calculator">${lvtPlates(v.w, cur.ex)}</button>` : ""}${strike}`);
 }
 
 /* ---------- Floor options (⋯): swap the exercise, add a set, skip the set you're on ---------- */
@@ -258,6 +258,44 @@ document.addEventListener("input", e => {
   if (hp && r > 0) { hp.innerHTML = Array.from({ length: Math.min(r, 20) }, () => "<i></i>").join(""); if (n) n.textContent = `${r} / ${r}` }
 });
 
+/* plates for the weight in the box, per side; tap for the full calculator */
+function lvtPlates(w, ex) {
+  const b = barFor(ex), u = uL(), n = Number(w);
+  if (!(n > 0)) return `<span class="lvt-plx">PLATES</span><span class="lvt-plt">Enter a weight to see the plates</span>`;
+  if (n <= b.w) return `<span class="lvt-plx">PLATES</span><span class="lvt-plt">${n < b.w ? "Less than" : "Just"} the ${esc(b.kind.toLowerCase())} · ${b.w} ${u}</span>`;
+  const r = platesFor(n, b.w), H = { 45: 22, 35: 20, 25: 18, 20: 20, 15: 17, 10: 15, 5: 12, 2.5: 10, 1.25: 9 };
+  const viz = `<span class="lvt-plv" aria-hidden="true"><i class="br"></i>${r.list.map(p => `<i style="height:${H[p] || 10}px"></i>`).join("")}</span>`;
+  const grp = {}; r.list.forEach(p => grp[p] = (grp[p] || 0) + 1);
+  const txt = Object.entries(grp).sort((a, c) => c[0] - a[0]).map(([p, c]) => c > 1 ? `${c}×${p}` : p).join(" + ");
+  return `${viz}<span class="lvt-plt"><b>${txt}</b> per side${r.left > 0 ? ` <em>+${r.left} won't load</em>` : ""}</span><span class="lvt-plb">${esc(b.kind.replace(" bar", ""))} ${b.w}</span>`;
+}
+document.addEventListener("input", e => { if (!e.target || e.target.id !== "lvW") return; const pl = document.getElementById("lvtPl"), c = pl && liveCtx(); if (!c) return;
+  const steps = gymSteps(c.k, c.p), cur = steps[liveIdx(steps)]; if (cur) pl.innerHTML = lvtPlates(e.target.value, cur.ex) });
+document.addEventListener("click", e => { const t = e.target.closest && e.target.closest("#lvtPl"); if (!t || !liveOpen) return; const c = liveCtx(); if (!c) return;
+  const steps = gymSteps(c.k, c.p), cur = steps[liveIdx(steps)]; if (!cur) return; sel = parseYmd(c.k);
+  const w = document.getElementById("lvW"); openSheet({ kind: "plates", ex: cur.ex, w: w ? w.value.trim() : "", live: { k: c.k, id: cur.ex.id, i: cur.i } }) });
+
+/* hold a floor to see what it is; let go and it's gone. A hold never jumps. */
+const FPK = { t: 0, on: false, el: null, eat: false };
+function fpkShow(b) {
+  const [n, name, d, tot, st] = (b.dataset.fpk || "").split("|"); if (!name) return;
+  let el = FPK.el; if (!el) { el = FPK.el = document.createElement("div"); el.className = "lvt-fpk"; el.setAttribute("role", "status"); document.body.appendChild(el) }
+  const tag = st === "c" ? "Cleared" : st === "o" ? "You're here" : st === "n" ? "Up next" : `${d} of ${tot} sets`;
+  el.innerHTML = `<small>FLOOR ${n}</small><b>${esc(name)}</b><span>${st === "c" || st === "o" || st === "n" ? `${d} of ${tot} sets · ${tag}` : tag}</span>`;
+  const r = b.getBoundingClientRect(); el.style.left = `${r.right + 10}px`; el.style.maxWidth = `${Math.max(140, innerWidth - r.right - 26)}px`;
+  el.hidden = false; el.style.top = `${Math.max(8, Math.min(innerHeight - el.offsetHeight - 8, r.top + r.height / 2 - el.offsetHeight / 2))}px`;
+  document.querySelectorAll(".lvt-floor.peek").forEach(x => x.classList.remove("peek")); b.classList.add("peek"); FPK.on = true;
+}
+function fpkHide() { clearTimeout(FPK.t); FPK.t = 0; if (FPK.el) FPK.el.hidden = true; document.querySelectorAll(".lvt-floor.peek").forEach(x => x.classList.remove("peek"));
+  if (FPK.on) { FPK.eat = true; setTimeout(() => FPK.eat = false, 400) } FPK.on = false }
+document.addEventListener("pointerdown", e => { const b = e.target.closest && e.target.closest(".lvt-floor[data-fpk]"); if (!b) return; fpkHide(); FPK.eat = false;
+  FPK.t = setTimeout(() => { FPK.t = 0; fpkShow(b); if (navigator.vibrate) try { navigator.vibrate(8) } catch (x) {} }, 380) });
+document.addEventListener("pointermove", e => { if (!FPK.on) return; const u = document.elementFromPoint(e.clientX, e.clientY), b = u && u.closest && u.closest(".lvt-floor[data-fpk]"); if (b && !b.classList.contains("peek")) fpkShow(b) });
+["pointerup", "pointercancel"].forEach(ev => document.addEventListener(ev, () => { if (FPK.t || FPK.on) fpkHide() }));
+document.addEventListener("contextmenu", e => { if (e.target.closest && e.target.closest(".lvt-floor")) e.preventDefault() });
+// the release after a hold isn't a tap; cleared floors don't jump either
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest(".lvt-floor"); if (!b) return; if (FPK.eat || b.hasAttribute("data-done")) { e.preventDefault(); e.stopImmediatePropagation(); FPK.eat = false } }, true);
+
 (() => { const st = document.createElement("style"); st.textContent = `
 html .live.lvt-on{background:radial-gradient(90% 50% at 50% 0%,color-mix(in srgb,var(--lvt-r,var(--rk)) 16%,transparent),transparent 70%),repeating-linear-gradient(135deg,color-mix(in srgb,var(--lvt-r,var(--rk)) 3%,transparent) 0 1px,transparent 1px 8px),#0B0C10!important;color:#F5F1E6;padding-left:14px;padding-right:14px}
 #liveIn.lvt{--ink:#F5F1E6;--mut:#A8A396;--fnt:var(--display);gap:12px;color:#F5F1E6;font-family:var(--body);height:100%;min-height:0;overflow:hidden}.live:has(#liveIn.lvt){overflow:hidden;overscroll-behavior:none}.lvt-cancel{justify-self:end;height:32px;padding:0 12px;border-radius:999px;border:1px solid rgba(224,103,90,.45);background:none;color:#F0B4AC;font:800 10.5px/1 var(--fnt);letter-spacing:.16em;text-transform:uppercase;cursor:pointer}.lvt-cancel:focus-visible{outline:2px solid var(--mt-l);outline-offset:2px}#liveIn.lvt>.lvt-sys{flex-shrink:0}
@@ -276,6 +314,15 @@ html .live.lvt-on{background:radial-gradient(90% 50% at 50% 0%,color-mix(in srgb
 .lvt-floor .lvt-rune{width:11px;height:17px}
 .lvt-floor.done{border-color:var(--lvt-r);background:linear-gradient(180deg,color-mix(in srgb,var(--lvt-r) 30%,transparent),color-mix(in srgb,var(--lvt-r) 12%,transparent));color:var(--lvt-rmid);cursor:default}
 .lvt-floor.on{border-color:var(--lvt-rmid);background:linear-gradient(180deg,color-mix(in srgb,var(--lvt-r) 45%,transparent),color-mix(in srgb,var(--lvt-r) 18%,transparent));box-shadow:0 0 16px -2px var(--lvt-r);color:var(--lvt-rcore)}
+.lvt-floor{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}.lvt-floor.peek{transform:scale(1.06);border-color:var(--lvt-rmid);transition:transform .12s}
+.lvt-fpk{position:fixed;z-index:13;display:flex;flex-direction:column;gap:3px;padding:9px 12px 10px;border-radius:8px;border:1px solid color-mix(in srgb,var(--lvt-r,var(--rk)) 55%,transparent);background:#14151A;box-shadow:0 10px 28px -8px rgba(0,0,0,.7),0 0 18px -6px var(--lvt-r,var(--rk));color:#F5F1E6;pointer-events:none;animation:lvtFpk .14s ease-out}
+.lvt-fpk::before{content:"";position:absolute;left:-6px;top:50%;width:10px;height:10px;margin-top:-5px;background:#14151A;border-left:1px solid color-mix(in srgb,var(--lvt-r,var(--rk)) 55%,transparent);border-bottom:1px solid color-mix(in srgb,var(--lvt-r,var(--rk)) 55%,transparent);transform:rotate(45deg)}
+.lvt-fpk small{font:800 9.5px/1 var(--fnt);letter-spacing:.24em;color:var(--lvt-rmid,var(--rk))}.lvt-fpk b{font:800 16px/1.15 var(--fnt)}.lvt-fpk span{font:600 12px/1.2 var(--fnt);color:#A8A397}
+@keyframes lvtFpk{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}
+.lvt-pl{display:flex;align-items:center;gap:10px;min-height:34px;margin-top:-4px;padding:6px 12px;border-radius:8px;border:1px solid rgba(245,241,230,.09);background:rgba(245,241,230,.04);color:#C9C4B8;font:600 12.5px/1.2 var(--fnt);text-align:left;cursor:pointer}
+.lvt-pl:focus-visible{outline:2px solid var(--lvt-rmid);outline-offset:2px}.lvt-plx{font:800 9.5px/1 var(--fnt);letter-spacing:.24em;color:var(--mut)}
+.lvt-plt{flex:1;min-width:0}.lvt-plt b{color:#F5F1E6;font-weight:800}.lvt-plt em{font-style:normal;color:#E0A05A}.lvt-plb{font:700 11px/1 var(--fnt);color:var(--mut);white-space:nowrap}
+.lvt-plv{display:flex;align-items:center;gap:2px;height:24px}.lvt-plv .br{width:10px;height:4px;border-radius:2px;background:#77736A}.lvt-plv i:not(.br){width:5px;border-radius:1.5px;background:var(--lvt-rmid,var(--rk))}
 .lvt-floor.next{border-style:dashed;border-color:color-mix(in srgb,var(--lvt-r) 50%,transparent);color:var(--lvt-rmid);animation:lvtPulse 1.8s infinite ease-in-out}
 .lvt-floor:focus-visible,.lvt-big:focus-visible,.lvt-sbox button:focus-visible{outline:2px solid var(--lvt-rmid);outline-offset:2px}
 .lvt-em{position:absolute;left:50%;top:-4px;width:3px;height:3px;border-radius:50%;background:var(--lvt-rcore);box-shadow:0 0 6px var(--lvt-rmid);animation:lvtRise 2.2s infinite ease-out}.lvt-em.b{left:34%;width:2px;height:2px;animation-delay:-.9s}
