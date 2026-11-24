@@ -35,16 +35,16 @@ function rowThisWeek(r, w) { const x = { ...r };
 function rowDesc(r) {
   const sp = r.split ? `about ${rowSplitTxt(r.split)} /500 m` : "";
   if (r.kind === "steady") return `${r.min} min · easy${sp ? ", " + sp : ""}. You can talk the whole way.`;
-  if (r.kind === "int") return `${r.reps} × ${rowM(r.m)}, ${rowClock(r.rest)} rest · hard${sp ? ", " + sp : ""}`;
+  if (r.kind === "int") return `${r.reps} × ${r.by === "time" ? rowClock(r.sec) : rowM(r.m)}, ${rowClock(r.rest)} rest · hard${sp ? ", " + sp : ""}`;
   if (r.kind === "long") return `${rowM(r.m)} · steady${sp ? ", " + sp : ""}`;
   const b = rowBest("test", r.m); return `${rowM(r.m)} all-out${b ? ` · your best ${rowClock(b.sec)}` : " · sets your Rowing speed"}`;
 }
-function rowPlanFor(r, d, w) { const x = rowThisWeek(r, w); return { type: "row", rowId: r.id, kind: r.kind, name: r.name, t: r.name, d: rowDesc(x), min: x.min, m: x.m, reps: x.reps, rest: x.rest, split: x.split } }
+function rowPlanFor(r, d, w) { const x = rowThisWeek(r, w); return { type: "row", rowId: r.id, kind: r.kind, name: r.name, t: r.name, d: rowDesc(x), min: x.min, m: x.m, reps: x.reps, rest: x.rest, split: x.split, by: x.by || "m", sec: x.sec } }
 function scheduledRow(i, d, w) { const id = ROWSCHED[i] || (CUSTOM && (CUSTOM.su.rowWeek || [])[i]); const r = id && rowById(id); return r ? rowPlanFor(r, d, w) : rowPlanFor(ROW_DEFAULTS()[0], d, w) }
 // the plan's total distance (or minutes) for the island card
 function rowStats(p) {
   if (p.kind === "steady") return [`${p.min} MIN`, ROW_KINDS.steady.tag, p.split ? `~${rowSplitTxt(p.split)} /500M` : ""];
-  if (p.kind === "int") return [`${p.reps} × ${p.m} M`, "INTERVALS", p.split ? `~${rowSplitTxt(p.split)} /500M` : ""];
+  if (p.kind === "int") return [`${p.reps} × ${p.by === "time" ? rowClock(p.sec) : p.m + " M"}`, "INTERVALS", p.split ? `~${rowSplitTxt(p.split)} /500M` : ""];
   if (p.kind === "long") return [`${(p.m || 0).toLocaleString("en-US")} M`, ROW_KINDS.long.tag, p.split ? `~${rowSplitTxt(p.split)} /500M` : ""];
   const b = rowBest("test", p.m); return [`${(p.m || 0).toLocaleString("en-US")} M`, ROW_KINDS.test.tag, b ? `BEST ${rowClock(b.sec)}` : "FIRST TEST"];
 }
@@ -72,7 +72,8 @@ function rowEditHtml() {
   const splitF = `<div class="field"><label>Target split (/500 m)</label><input class="setnum" data-row-f="splitT" value="${esc(d.split ? rowSplitTxt(d.split) : "")}" placeholder="2:20" style="max-width:110px"></div>`;
   let f = "";
   if (d.kind === "steady") f = num("min", "Minutes", 1, "min") + splitF + `<label class="row" style="gap:8px;align-items:center;margin-top:6px"><input type="checkbox" data-row-f="grow" ${d.grow ? "checked" : ""}> <span class="small">Grow 2 min a week (up to 60)</span></label>`;
-  else if (d.kind === "int") f = num("reps", "Pieces", 1) + num("m", "Each piece", 50, "m") + num("rest", "Rest", 15, "sec") + splitF;
+  else if (d.kind === "int") f = `<div class="field"><label>Pieces by</label><div class="xs-chips">${[["m", "Distance"], ["time", "Time"]].map(([v, n]) => `<button type="button" class="${(d.by || "m") === v ? "on" : ""}" data-row-by="${v}">${n}</button>`).join("")}</div></div>`
+    + num("reps", "Pieces", 1) + (d.by === "time" ? num("secT", "Each piece", 15, "min:sec") : num("m", "Each piece", 50, "m")) + num("rest", "Rest", 15, "sec") + splitF;
   else if (d.kind === "long") f = num("m", "Distance", 500, "m") + splitF;
   else f = `<div class="field"><label>Test distance</label><div class="xs-chips">${[500, 2000, 5000].map(m => `<button type="button" class="${d.m === m ? "on" : ""}" data-row-tm="${m}">${m.toLocaleString("en-US")} m</button>`).join("")}</div></div>`;
   return `<div class="xs-head"><h2>${SH.isNew ? "New row" : "Edit row"}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>
@@ -108,7 +109,8 @@ let RW = null, rwTimer = 0;
 function rwSave() { try { localStorage.setItem("rowlive", RW ? JSON.stringify(RW) : "") } catch (_) { } }
 function rwLoad() { if (RW) return RW; try { const x = JSON.parse(localStorage.getItem("rowlive") || "null"); if (x && x.k === ymd(today)) RW = x } catch (_) { } return RW }
 function rwPieces(p) { return p.kind === "int" ? p.reps : 1 }
-function rwTimed(p) { return p.kind === "steady" }        // the piece is a time, not a distance
+function rwSec(p) { return p.kind === "steady" ? p.min * 60 : p.kind === "int" && p.by === "time" ? p.sec : null }  // a timed piece: its length in seconds
+function rwTimed(p) { return rwSec(p) != null }        // the piece is a time, not a distance
 function rwPieceM(p) { return p.kind === "int" ? p.m : p.m }
 function rowStart(k) { const p = planFor(parseYmd(k)); if (!p || p.type !== "row") return;
   if (typeof unlockAudio === "function") unlockAudio(); if (typeof keepAwake === "function") keepAwake(true);
@@ -119,17 +121,17 @@ function rowLiveOpen() { let el = document.getElementById("rowlive"); if (!el) {
 function rowLiveClose() { const el = document.getElementById("rowlive"); if (el) el.hidden = true; document.body.classList.remove("rl-open"); clearInterval(rwTimer); lastRenderKey = ""; render() }
 function rwElapsed() { return RW.paused ? (RW.paused - RW.t0) / 1000 : (Date.now() - RW.t0) / 1000 }
 function rwTick() { if (!RW) return; const p = RW.plan, e = rwElapsed();
-  if (RW.ph === "row" && rwTimed(p) && e >= p.min * 60) { RW.ph = "enter"; RW.draft = { m: Math.round(p.min * 60 / (p.split || 140) * 500 / 10) * 10, spm: RW.draft.spm || 22 }; if (typeof beep === "function") beep(); rwSave(); rwPaint(); return }
+  if (RW.ph === "row" && rwTimed(p) && e >= rwSec(p)) { rwEndTimed(); return }
   if (RW.ph === "rest" && e >= (p.rest || 60) && !RW.beeped) { RW.beeped = 1; if (typeof beep === "function") beep() }
   const t = document.getElementById("rlT"); if (t) t.textContent = rwClockTxt(); const ring = document.getElementById("rlRing"); if (ring) ring.setAttribute("stroke-dashoffset", rwRingOff());
   const c = document.getElementById("rlChip"); if (c) c.textContent = rwChipTxt() }
 function rwClockTxt() { const p = RW.plan, e = rwElapsed();
   if (RW.ph === "rest") return rowClock(Math.max(0, (p.rest || 60) - e));
-  if (RW.ph === "row" && rwTimed(p)) return rowClock(Math.max(0, p.min * 60 - e));
+  if (RW.ph === "row" && rwTimed(p)) return rowClock(Math.max(0, rwSec(p) - e));
   return rowClock(e) }
 function rwFrac() { const p = RW.plan, e = rwElapsed();
   if (RW.ph === "rest") return Math.min(1, e / (p.rest || 60));
-  if (RW.ph === "row" && rwTimed(p)) return Math.min(1, e / (p.min * 60));
+  if (RW.ph === "row" && rwTimed(p)) return Math.min(1, e / rwSec(p));
   if (RW.ph === "row" && p.split) return Math.min(1, e / (p.split * rwPieceM(p) / 500));
   return 0 }
 const RW_C = 2 * Math.PI * 86;
@@ -140,10 +142,10 @@ function rwChipTxt() { const p = RW.plan, n = rwPieces(p), tot = RW.pieces.reduc
 function rwPaint() { const el = document.getElementById("rowlive"); if (!el || !RW) return;
   const p = RW.plan, img = ROW_KINDS[p.kind].img, M = ROW_META[img], n = rwPieces(p), pm = rwPieceM(p), last = RW.pieces[RW.pieces.length - 1];
   const sys = RW.ph === "done" ? `${M.done[0] + M.done.slice(1).toLowerCase()} cleared. Save it to your log.` : RW.ph === "rest" ? `Piece ${RW.i} cleared. Rest, then piece ${RW.i + 1}.` : RW.ph === "enter" ? (rwTimed(p) ? "Time. Enter the distance from your monitor." : `Piece ${RW.i + 1} done. Enter your split from the monitor.`)
-    : rwTimed(p) ? `${p.min} min steady${p.split ? `. Hold about ${rowSplitTxt(p.split)} /500 m` : ""}.` : `${n > 1 ? `Piece ${RW.i + 1}: ` : ""}${rowM(pm)}${p.kind === "test" ? " all-out" : p.kind === "int" ? " hard" : ""}${p.split ? `. Hold ${rowSplitTxt(p.split)} /500 m` : ""}.`;
+    : rwTimed(p) && n === 1 ? `${p.min} min steady${p.split ? `. Hold about ${rowSplitTxt(p.split)} /500 m` : ""}.` : rwTimed(p) ? `Piece ${RW.i + 1}: ${rowClock(rwSec(p))} hard${p.split ? `. Hold ${rowSplitTxt(p.split)} /500 m` : ""}.` : `${n > 1 ? `Piece ${RW.i + 1}: ` : ""}${rowM(pm)}${p.kind === "test" ? " all-out" : p.kind === "int" ? " hard" : ""}${p.split ? `. Hold ${rowSplitTxt(p.split)} /500 m` : ""}.`;
   const col = n > 1 ? `<div class="rl-col">${Array.from({ length: n }, (_, i) => { const d = RW.pieces[i]; return `<div class="rl-pc${d ? " done" : ""}${i === RW.i && RW.ph !== "done" ? " on" : ""}">${i + 1}${d ? `<small>${rowSplitTxt(d.sec / (d.m / 500))}</small>` : ""}</div>` }).join("")}</div>` : "";
   const ph = RW.ph === "rest" ? "REST" : RW.ph === "row" ? "ROW" : RW.ph === "enter" ? "ENTER" : "CLEARED";
-  const sub = RW.ph === "rest" ? `until piece ${RW.i + 1}` : RW.ph === "row" ? (rwTimed(p) ? "left" : p.split ? `target ${rowClock(p.split * pm / 500)}` : "rowing") : "";
+  const sub = RW.ph === "rest" ? `until piece ${RW.i + 1}` : RW.ph === "row" ? (rwTimed(p) ? (n > 1 ? "left in this piece" : "left") : p.split ? `target ${rowClock(p.split * pm / 500)}` : "rowing") : "";
   const ringCol = RW.ph === "rest" ? "#CFE9F7" : "#4FB3E8";
   const tags = [p.split ? `TARGET <b>${rowSplitTxt(p.split)} /500M</b>` : "", last ? `LAST <b>${rowSplitTxt(last.sec / (last.m / 500))}</b>` : (p.kind === "test" && rowBest("test", p.m) ? `BEST <b>${rowClock(rowBest("test", p.m).sec)}</b>` : "")].filter(Boolean);
   const card = RW.ph === "done" ? rwDoneCard() : `<div class="rl-ph">${ph}</div><div class="rl-ring"><svg viewBox="0 0 190 190" aria-hidden="true"><circle cx="95" cy="95" r="86" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="9"/><circle id="rlRing" cx="95" cy="95" r="86" fill="none" stroke="${ringCol}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${RW_C.toFixed(1)}" stroke-dashoffset="${rwRingOff()}" transform="rotate(-90 95 95)"/></svg><div class="c"><div class="big" id="rlT" aria-live="off">${rwClockTxt()}</div><div class="sub">${sub}</div></div></div>
@@ -153,27 +155,33 @@ function rwPaint() { const el = document.getElementById("rowlive"); if (!el || !
   // bottom: buttons and the split / distance entry
   let foot = "";
   const ent = RW.ph === "enter" || (RW.ph === "rest" && RW.draft && RW.draft.pending);
-  if (ent) { const tm = rwTimed(p), d = RW.draft, lab = tm ? "DISTANCE" : `PIECE ${RW.ph === "rest" ? RW.i : RW.i + 1} · SPLIT /500 M`;
-    const cmp = !tm && p.split && d.split ? (d.split <= p.split ? `<div class="rl-cmp"><b>BEAT</b><span>${(p.split - d.split).toFixed(1)} s faster than target.</span></div>` : `<div class="rl-cmp slow"><b>MISS</b><span>${(d.split - p.split).toFixed(1)} s slower than target.</span></div>`) : "";
+  if (ent) { const tm = rwTimed(p), d = RW.draft, pn = RW.ph === "rest" ? RW.i : RW.i + 1, lab = tm ? (n > 1 ? `PIECE ${pn} · METRES` : "DISTANCE") : `PIECE ${pn} · SPLIT /500 M`;
+    if (tm && n > 1 && p.split && d.m > 0) d.split = +((d.sec || rwSec(p)) / (d.m / 500)).toFixed(1);
+    const cmp = (!tm || n > 1) && p.split && d.split ? (d.split <= p.split ? `<div class="rl-cmp"><b>BEAT</b><span>${(p.split - d.split).toFixed(1)} s faster than target.</span></div>` : `<div class="rl-cmp slow"><b>MISS</b><span>${(d.split - p.split).toFixed(1)} s slower than target.</span></div>`) : "";
     foot += `<div class="rl-in"><div class="fl"><label>${lab}</label><div class="rl-step on"><button type="button" data-rl-adj="${tm ? "m|-10" : "split|-0.5"}" aria-label="Less">−</button><input id="rlVal" inputmode="decimal" value="${tm ? d.m : rowSplitTxt(d.split)}" aria-label="${lab}"><button type="button" data-rl-adj="${tm ? "m|10" : "split|0.5"}" aria-label="More">+</button></div></div>
       <div class="fl sm"><label>SPM</label><div class="rl-step"><button type="button" data-rl-adj="spm|-1" aria-label="Lower stroke rate">−</button><b id="rlSpm">${d.spm || 24}</b><button type="button" data-rl-adj="spm|1" aria-label="Higher stroke rate">+</button></div></div></div>${cmp}`;
   }
-  if (RW.ph === "row") foot += `<button type="button" class="rl-go" data-rl="done">${rwTimed(p) ? "END EARLY" : n > 1 ? "PIECE DONE" : "FINISHED"}</button>${rwTimed(p) ? `<p class="rl-mini">The timer ends the row on its own.</p>` : ""}`;
+  if (RW.ph === "row") foot += `<button type="button" class="rl-go${rwTimed(p) ? " ghost" : ""}" data-rl="done">${rwTimed(p) ? (n > 1 ? "END PIECE EARLY" : "END EARLY") : n > 1 ? "PIECE DONE" : "FINISHED"}</button>${rwTimed(p) ? `<p class="rl-mini">The timer ends ${n > 1 ? "each piece" : "the row"} on its own${n > 1 ? " and starts the rest" : ""}.</p>` : ""}`;
   else if (RW.ph === "enter") foot += `<button type="button" class="rl-go" data-rl="confirm">${RW.i + 1 >= n ? "SAVE PIECE" : "SAVE · START REST"}</button>`;
   else if (RW.ph === "rest") foot += `<div class="rl-row2"><button type="button" class="rl-go ghost" data-rl="next">SKIP REST</button><button type="button" class="rl-go" data-rl="next">START PIECE ${RW.i + 1}</button></div>`;
   else foot += `<button type="button" class="rl-go" data-rl="save">SAVE TO LOG</button>`;
   el.innerHTML = `<div class="rl-top"><button type="button" class="rl-c" data-rl="min" aria-label="Minimise">⌄</button><div class="rl-mid"><div class="t">${M.title}</div><div class="rl-chip"><button type="button" data-rl="pause" aria-label="${RW.paused ? "Resume" : "Pause"}">${RW.paused ? "▶" : "❚❚"}</button><span id="rlChip">${rwChipTxt()}</span></div></div><button type="button" class="rl-c" data-rl="menu" aria-label="More">•••</button></div>
     ${RW.menu ? `<div class="rl-menu"><button type="button" data-rl="handlog">Log it by hand instead</button><button type="button" data-rl="quit">End without saving</button><button type="button" data-rl="menu">Close</button></div>` : ""}
     <div class="rl-sys"><b>SYSTEM</b><span>${esc(sys)}</span></div>
-    <div class="rl-wrap">${col}<div class="rl-main"><div class="rl-lab"><b>${n > 1 && RW.ph !== "done" ? `PIECE ${Math.min(RW.i + 1, n)} · ${rowM(pm).toUpperCase()}` : esc(p.name.toUpperCase())}</b><span>${RW.ph === "rest" ? "Resting" : RW.ph === "row" ? "Rowing" : ""}</span></div><div class="rl-card">${card}</div></div></div>
+    <div class="rl-wrap">${col}<div class="rl-main"><div class="rl-lab"><b>${n > 1 && RW.ph !== "done" ? `PIECE ${Math.min(RW.i + 1, n)} · ${rwTimed(p) ? rowClock(rwSec(p)) : rowM(pm).toUpperCase()}` : esc(p.name.toUpperCase())}</b><span>${RW.ph === "rest" ? "Resting" : RW.ph === "row" ? "Rowing" : ""}</span></div><div class="rl-card">${card}</div></div></div>
     <div class="rl-foot">${foot}</div>`;
 }
 function rwDoneCard() { const m = RW.pieces.reduce((t, x) => t + x.m, 0), s = RW.pieces.reduce((t, x) => t + x.sec, 0);
   return `<div class="rl-ph">CLEARED</div><div class="rl-sum"><div><span>DISTANCE</span><b>${rowM(m)}</b></div><div><span>TIME</span><b>${rowClock(s)}</b></div><div><span>SPLIT</span><b>${rowSplitTxt(s / (m / 500))}</b></div></div>
     ${RW.pieces.length > 1 ? `<div class="rl-tg">${RW.pieces.map((x, i) => `<span>${i + 1} <b>${rowSplitTxt(x.sec / (x.m / 500))}</b></span>`).join("")}</div>` : ""}` }
+function rwEndTimed() { const p = RW.plan, e = Math.min(rwElapsed(), rwSec(p)), n = rwPieces(p), guess = Math.round(e / (p.split || 140) * 500 / 10) * 10;
+  RW.draft = { m: guess, sec: Math.round(e), spm: RW.draft.spm || (n > 1 ? 28 : 22) };
+  if (n > 1 && RW.i + 1 < n) { RW.pieces[RW.i] = { m: guess, sec: Math.round(e), spm: RW.draft.spm }; RW.i++; RW.ph = "rest"; RW.t0 = Date.now(); RW.draft.pending = true }
+  else RW.ph = "enter";
+  if (typeof beep === "function") beep(); rwSave(); rwPaint() }
 function rwConfirm() { const p = RW.plan, d = RW.draft, tm = rwTimed(p), n = rwPieces(p);
   const v = document.getElementById("rlVal"); if (v) { if (tm) d.m = Math.max(0, Math.round(Number(v.value) || 0)); else { const s = rowParseSplit(v.value); if (s) d.split = s } }
-  const pm = rwPieceM(p), piece = tm ? { m: d.m, sec: Math.round(Math.min(rwElapsed(), p.min * 60)), spm: d.spm } : { m: pm, sec: +(d.split * pm / 500).toFixed(1), spm: d.spm };
+  const pm = rwPieceM(p), piece = tm ? { m: d.m, sec: d.sec || Math.round(Math.min(rwElapsed(), rwSec(p))), spm: d.spm } : { m: pm, sec: +(d.split * pm / 500).toFixed(1), spm: d.spm };
   if (!(piece.m > 0 && piece.sec > 0)) { toast(tm ? "Enter the distance from your monitor" : "Enter your split"); return }
   RW.pieces[RW.i] = piece; RW.i++; RW.draft = { spm: d.spm };
   if (RW.i >= n) RW.ph = "done";
@@ -183,7 +191,7 @@ function rowSaveLog(k, pieces, plan) { const m = pieces.reduce((t, x) => t + x.m
   const l = { type: "row", kind: plan.kind, pieces, m, sec, ...(spms.length ? { spm: Math.round(spms.reduce((a, b) => a + b, 0) / spms.length) } : {}), plan, savedAt: Date.now() };
   saveLog(k, l); if (typeof RK_CACHE !== "undefined") RK_CACHE.sig = "" }
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-rl],[data-rl-adj],[data-row-edit],[data-row-new],[data-row-kind],[data-row-tm],[data-row-save],[data-row-del],[data-rowlog-save],[data-rowlog-edit],[data-wsrow],[data-wsrowlog],[data-wsrowrep]"); if (!t) return;
+  const t = e.target.closest("[data-rl],[data-rl-adj],[data-row-by],[data-row-edit],[data-row-new],[data-row-kind],[data-row-tm],[data-row-save],[data-row-del],[data-rowlog-save],[data-rowlog-edit],[data-wsrow],[data-wsrowlog],[data-wsrowrep]"); if (!t) return;
   const d = t.dataset;
   if (d.wsrow) { rowStart(d.wsrow); return }
   if (d.wsrowlog) { const p = planFor(parseYmd(d.wsrowlog)); openSheet({ kind: "rowlog", k: d.wsrowlog, name: p && p.name, plan: p, d: {} }); return }
@@ -193,10 +201,13 @@ document.addEventListener("click", e => {
     const old = S.logs[SH.k], keep = SH.edit && old && old.pieces && old.pieces.length > 1 && old.m === m ? old.pieces : null;
     rowSaveLog(SH.k, keep || [{ m, sec: s, ...(Number(D.spm) > 0 ? { spm: Math.round(Number(D.spm)) } : {}) }], SH.plan || (old && old.plan) || planFor(parseYmd(SH.k)));
     xsClose(); lastRenderKey = ""; render(); toast("Row saved"); return }
-  if (d.rowEdit || d.rowNew) { const r = d.rowEdit ? rowById(d.rowEdit) : null; openSheet({ kind: "rowedit", id: r ? r.id : null, isNew: !r, day: d.rowNew && d.rowNew !== "1" ? +d.rowNew : null, d: r ? { ...r } : { name: ROW_KINDS.steady.n, kind: "steady", ...ROW_KINDS.steady.make() } }); return }
+  if (d.rowEdit || d.rowNew) { const r = d.rowEdit ? rowById(d.rowEdit) : null; openSheet({ kind: "rowedit", id: r ? r.id : null, isNew: !r, day: d.rowNew && d.rowNew !== "1" ? +d.rowNew : null, d: r ? { ...r, ...(r.sec ? { secT: rowClock(r.sec) } : {}) } : { name: ROW_KINDS.steady.n, kind: "steady", ...ROW_KINDS.steady.make() } }); return }
   if (d.rowKind && SH) { const nm = SH.d.name, wasDef = Object.values(ROW_KINDS).some(K => K.n === nm); SH.d = { ...ROW_KINDS[d.rowKind].make(), name: wasDef ? ROW_KINDS[d.rowKind].n : nm, kind: d.rowKind }; paintSheet(); return }
+  if (d.rowBy && SH) { SH.d.by = d.rowBy; if (d.rowBy === "time" && !SH.d.sec) { SH.d.sec = 60; SH.d.secT = "1:00" } paintSheet(); return }
   if (d.rowTm && SH) { SH.d.m = +d.rowTm; SH.d.name = SH.d.name === ROW_KINDS.test.n || /^Row test/.test(SH.d.name) ? `Row test (${+d.rowTm >= 1000 ? +d.rowTm / 1000 + "k" : d.rowTm + " m"})` : SH.d.name; paintSheet(); return }
   if (d.rowSave && SH) { const x = SH.d; ["min", "reps", "m", "rest"].forEach(f => { if (x[f] != null) x[f] = Math.max(1, Math.round(Number(x[f]) || 0)) });
+    if (x.secT != null) { const v = rowParseTime(String(x.secT).includes(":") ? x.secT : "0:" + x.secT); if (v > 0) x.sec = Math.round(v); delete x.secT }
+    if (x.kind === "int" && x.by === "time" && !(x.sec > 0)) x.sec = 60;
     if (x.splitT != null) { const s = rowParseSplit(x.splitT); if (s) x.split = s; else if (!String(x.splitT).trim()) delete x.split; delete x.splitT }
     x.name = String(x.name || "").trim().slice(0, 40) || ROW_KINDS[x.kind].n;
     const id = SH.id || "row_" + Date.now().toString(36), day = SH.day;
@@ -207,7 +218,7 @@ document.addEventListener("click", e => {
   if (!RW) return;
   if (d.rlAdj) { const [f, s] = d.rlAdj.split("|"), D = RW.draft, v = document.getElementById("rlVal");
     if (f === "spm") { D.spm = Math.max(10, Math.min(50, (D.spm || 24) + +s)); const b = document.getElementById("rlSpm"); if (b) b.textContent = D.spm }
-    else if (f === "m") { D.m = Math.max(0, (Number(v && v.value) || D.m || 0) + +s); if (v) v.value = D.m }
+    else if (f === "m") { D.m = Math.max(0, (Number(v && v.value) || D.m || 0) + +s); if (v) v.value = D.m; if (rwPieces(RW.plan) > 1) { rwSave(); rwPaint() } }
     else { D.split = Math.max(60, +(((v && rowParseSplit(v.value)) || D.split || 120) + +s).toFixed(1)); if (v) v.value = rowSplitTxt(D.split); rwSave(); rwPaint() }
     rwSave(); return }
   const a = d.rl, p = RW.plan;
@@ -217,7 +228,7 @@ document.addEventListener("click", e => {
   if (a === "quit") { RW = null; rwSave(); if (typeof keepAwake === "function") keepAwake(false); rowLiveClose(); return }
   if (a === "handlog") { const k = RW.k, pl = RW.plan; RW = null; rwSave(); rowLiveClose(); openSheet({ kind: "rowlog", k, name: pl.name, plan: pl, d: {} }); return }
   if (a === "done") { const e = rwElapsed(), pm = rwPieceM(p);
-    if (rwTimed(p)) { RW.ph = "enter"; RW.draft = { m: Math.round(e / (p.split || 140) * 500 / 10) * 10, spm: RW.draft.spm || 22 } }
+    if (rwTimed(p)) { rwEndTimed(); return }
     else { RW.draft = { split: +(e / (pm / 500)).toFixed(1), spm: RW.draft.spm || (p.kind === "int" ? 28 : 24) };
       if (rwPieces(p) > 1 && RW.i + 1 < rwPieces(p)) { // log the split during the rest
         const piece = { m: pm, sec: +e.toFixed(1), spm: RW.draft.spm }; RW.pieces[RW.i] = piece; RW.i++; RW.ph = "rest"; RW.t0 = Date.now(); RW.draft.pending = true }
@@ -225,7 +236,7 @@ document.addEventListener("click", e => {
     if (typeof beep === "function") beep(); rwSave(); rwPaint(); return }
   if (a === "confirm") { rwConfirm(); return }
   if (a === "next") { // leaving the rest: keep any split typed for the piece just rowed
-    if (RW.draft && RW.draft.pending) { const v = document.getElementById("rlVal"), s = v && rowParseSplit(v.value), last = RW.pieces[RW.i - 1]; if (s && last) last.sec = +(s * last.m / 500).toFixed(1); if (last) last.spm = RW.draft.spm }
+    if (RW.draft && RW.draft.pending) { const v = document.getElementById("rlVal"), last = RW.pieces[RW.i - 1]; if (rwTimed(p)) { const m = Math.round(Number(v && v.value)); if (m > 0 && last) last.m = m } else { const s = v && rowParseSplit(v.value); if (s && last) last.sec = +(s * last.m / 500).toFixed(1) } if (last) last.spm = RW.draft.spm }
     RW.ph = "row"; RW.t0 = Date.now(); RW.beeped = 0; RW.draft = { spm: RW.draft.spm }; rwSave(); rwPaint(); return }
   if (a === "save") { const k = RW.k; rowSaveLog(k, RW.pieces, RW.plan); const M = ROW_META[ROW_KINDS[RW.plan.kind].img]; RW = null; rwSave(); if (typeof keepAwake === "function") keepAwake(false); rowLiveClose(); toast(`${M.title.replace(/^THE /, "The ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase())} cleared`); return }
 });
