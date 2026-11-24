@@ -17,7 +17,7 @@ function hubMuscles(p) {
   return out.slice(0, 3);
 }
 function hubRank() {
-  try { const R = rankState(), un = !R.place || R.place.pending, fresh = !Object.values(S.logs).some(l => l && (l.type === "gym" || l.type === "run"));
+  try { const R = rankState(), un = !R.place || R.place.pending, fresh = !Object.values(S.logs).some(l => l && (l.type === "gym" || l.type === "run" || l.type === "row"));
     const V = rkShown(R); return { R, V, un, fresh, ov: V.ov, ovn: V.ovn, prog: un ? 0 : rkOverallProg(V.avg, V.ov) } } catch (e) { return { R: null, un: true, fresh: true, ov: 0, ovn: 0, prog: 0 } }
 }
 function hubWeek() { const k = ymd(today), d = parseYmd(k), mon = addDays(d, -((d.getDay() + 6) % 7)); let plan = 0, done = 0;
@@ -95,6 +95,11 @@ function hubMain(H) {
     const t = p.type === "gym" ? p.name : p.t, prs = (l.prs || []).length;
     return `<section class="hub-main clear"><span class="hub-sys">[SYSTEM] MAIN QUEST CLEARED</span><h2>${esc(t)}</h2><p class="hub-sub">${l.durMin ? `${Math.round(l.durMin)} min` : "Logged"}${prs ? ` · ${prs} PR${prs > 1 ? "s" : ""}` : ""}${l.type === "run" && l.mi ? ` · ${l.mi} mi` : ""}</p>
       <button type="button" class="hub-go ghost" data-hub-train="1"><span class="hub-go-in">View workout</span></button></section>`;
+  }
+  if (p.type === "row") {
+    return `<section class="hub-main run"><span class="hub-sys">[SYSTEM] MAIN QUEST</span><h2>${esc(p.name)}</h2><p class="hub-sub">${esc(p.d)}</p>
+      <button type="button" class="hub-go" data-wsrow="${k}"><span class="hub-go-in">${HUB_PLAY}Start row</span></button>
+      <button type="button" class="link small hub-alt" data-wsrowlog="${k}">Log a row you already did</button></section>`;
   }
   if (p.type === "run") {
     return `<section class="hub-main run"><span class="hub-sys">[SYSTEM] MAIN QUEST</span><h2>${esc(p.t)}</h2><p class="hub-sub">${esc(p.d)}</p>

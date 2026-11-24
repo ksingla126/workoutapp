@@ -101,6 +101,11 @@ window.RANK_CFG = {
     mile:      { kind: "time", male: [630, 540, 465, 400, 345], female: [750, 630, 540, 465, 405] },
     m400:      { kind: "time", male: [125, 110, 95, 84, 72],    female: [145, 127, 110, 97, 83] },
     endur:     { kind: "time", male: [2040, 1740, 1500, 1350, 1185], female: [2400, 2040, 1740, 1530, 1350] },
+    // rowing machine (seconds). Editorial first pass, pitched like the run ladders against general gym-goers, not
+    // the Concept2 ranking lists (which are mostly trained rowers). Review once real data comes in.
+    row500:    { kind: "time", male: [125, 112, 102, 94, 87],     female: [145, 130, 118, 109, 101] },
+    row2k:     { kind: "time", male: [540, 495, 460, 425, 395],   female: [630, 570, 525, 490, 455] },
+    row5k:     { kind: "time", male: [1440, 1290, 1200, 1125, 1065], female: [1680, 1500, 1380, 1290, 1215] },
     // exercise-specific ladders
     plank:     { kind: "hold", male: [60, 90, 120, 180, 240],   female: [60, 90, 120, 180, 240] },
     pushup:    { kind: "reps", male: [10, 25, 40, 55, 70],      female: [3, 12, 25, 35, 45] },
@@ -121,7 +126,10 @@ window.RANK_CFG = {
     core:      { name: "Core",                ref: "Hanging leg raise",   basic: ["hangleg"] },
     mile:      { name: "Mile",                ref: "Mile time",           cap: 3, run: true },
     m400:      { name: "400 m",               ref: "400 m time",          run: true },
-    endur:     { name: "5K equivalent",       ref: "5K time",             run: true }
+    endur:     { name: "5K equivalent",       ref: "5K time",             run: true },
+    row2k:     { name: "2,000 m",             ref: "2,000 m row",         run: true, row: true },
+    row500:    { name: "500 m",               ref: "500 m row",           run: true, row: true },
+    row5k:     { name: "5,000 m",             ref: "5,000 m row",         run: true, row: true }
   },
 
   // The five main ranks. Upper and Lower are weighted averages of their parts; the others take the best part.
@@ -129,8 +137,9 @@ window.RANK_CFG = {
     { id: "upper", name: "Upper Body", parts: { chest: 0.25, pull: 0.15, row: 0.15, shoulders: 0.2, biceps: 0.125, triceps: 0.125 } },
     { id: "lower", name: "Lower Body", parts: { quads: 0.45, hams: 0.45, calves: 0.1 } },
     { id: "core",  name: "Core",       parts: { core: 1 } },
-    { id: "speed", name: "Speed",      parts: { mile: 1, m400: 1 }, best: true },
-    { id: "endur", name: "Endurance",  parts: { endur: 1 } }
+    // Speed and Endurance take your best cardio type; the card breaks them down by type (running, rowing)
+    { id: "speed", name: "Speed",      parts: { mile: 1, m400: 1, row2k: 1, row500: 1 }, best: true },
+    { id: "endur", name: "Endurance",  parts: { endur: 1, row5k: 1 }, best: true }
   ],
   // Discipline: the 6th category, from consistency rather than strength. A week is "on target" when you
   // log at least hitPct of its planned sessions; the rank comes from on-target weeks in the last \`weeks\`.
@@ -221,7 +230,7 @@ window.RANK_CFG = {
   typo: { jumpRanks: 2, jumpPct: 0.2, jumpDays: 14 },
   // above these (load ÷ bodyweight, or reps / seconds) an entry is beyond world-record level and needs a confirm
   worldRecord: { chest: 3.6, row: 3, shoulders: 2.4, biceps: 1.7, triceps: 3.3, quads: 5, hams: 5.2, calves: 9, pull: 70, core: 100, plank: 3600, pushup: 200, cablecrunch: 4 },
-  runRecord: { m400: 43, mile: 223, endur: 755 },  // seconds; anything faster is a GPS glitch or a typo
+  runRecord: { m400: 43, mile: 223, endur: 755, row500: 67, row2k: 335, row5k: 880 },  // seconds; anything faster is a GPS glitch or a typo
   // strength targets × this after 40 (ages 18–39 use the ladders as written)
   // McCulloch masters' age multiples (as used by APF/WPC), age 40–80: strength standards are divided by these
   ageMAM: [1.000,1.010,1.020,1.031,1.043,1.055,1.068,1.082,1.097,1.113,1.130,1.147,1.165,1.184,1.204,1.225,1.246,1.268,1.291,1.315,1.340,1.366,1.393,1.421,1.450,1.480,1.511,1.543,1.576,1.610,1.645,1.681,1.718,1.756,1.795,1.835,1.876,1.918,1.961,2.005,2.050],

@@ -219,6 +219,18 @@ function rkRunEntries(k, run, key, gate) {
   if (Math.abs(mi * M_PER_MI - 400) <= 12) out.push({ ...base, p: "m400", lad: "m400", m: t * 60, src: "400 m run", whole: true });
   return out;
 }
+// rowing machine logs: a 2,000 m or 500 m row counts as that test; the fastest 500 m piece in intervals counts for 500 m;
+// anything 5,000 m or longer gives a 5,000 m equivalent (Paul's law: the split slows ~5 s per doubling of distance)
+function rkRowEntries(k, l) {
+  const out = [], rec = RKC().runRecord, base = { d: k, key: k + "|row", g: !!l.gate, gateable: true, gateReps: true, run: true, row: true };
+  const pcs = (l.pieces || []).filter(x => x.m > 0 && x.sec > 0), add = (p, m, src, whole) => { if (m >= (rec[p] || 0)) out.push({ ...base, p, lad: p, m, src, whole: !!whole }) };
+  const tm = Number(l.m) || 0, ts = Number(l.sec) || 0;
+  if (pcs.length === 1 && Math.abs(tm - 2000) <= 20) add("row2k", ts * 2000 / tm, "2,000 m row", 1);
+  if (pcs.length === 1 && Math.abs(tm - 500) <= 5) add("row500", ts * 500 / tm, "500 m row", 1);
+  if (pcs.length > 1) { const b = pcs.filter(x => Math.abs(x.m - 500) <= 5).sort((a, c) => a.sec - c.sec)[0]; if (b) add("row500", b.sec * 500 / b.m, "fastest 500 m piece") }
+  if (pcs.length === 1 && tm >= 4990) { const sp = ts / (tm / 500) - 5 * Math.log2(tm / 5000); add("row5k", sp * 10, tm <= 5010 ? "5,000 m row" : `${tm.toLocaleString("en-US")} m row`, 1) }
+  return out;
+}
 function rkAllEntries() {
   const E = [], trained = {}; // trained[part] = Set of week keys
   const mark = (p, k) => { (trained[p] = trained[p] || new Set()).add(rkMon(k)) };
@@ -237,6 +249,7 @@ function rkAllEntries() {
     if (l.type === "run" && l.mi > 0 && l.min > 0 && !l.est) runs.push({ run: { mi: l.mi, min: l.min, st: l.st }, key: k + "|run", gate: l.gate || l.race });
     (l.extraRuns || []).forEach((x, i) => { if (x && x.mi > 0 && x.min > 0) runs.push({ run: { mi: x.mi, min: x.min, st: x.best ? { best: x.best, src: "strava" } : null }, key: k + "|xr" + i }) });
     runs.forEach(r => { ["mile", "m400", "endur"].forEach(p => mark(p, k)); E.push(...rkRunEntries(k, r.run, r.key, r.gate)) });
+    if (l.type === "row" && l.pieces && !l.est) { ["row2k", "row500", "row5k"].forEach(p => mark(p, k)); E.push(...rkRowEntries(k, l)) }
   });
   (rkData().trials || []).forEach(t => {
     if (!t || !(t.sec > 0) || !t.d || t.d > td) return; if (t.surface === "treadmill" && !t.incline) return;
@@ -366,7 +379,7 @@ function rkFlags(R, placeWin) {
 /* ---------- placement ---------- */
 function rkPlacementWindow() {
   const D = rkData(); if (D.placement && D.placement.at) return D.placement;
-  const td = ymd(today), keys = Object.keys(S.logs).filter(k => k <= td && S.logs[k] && (S.logs[k].type === "gym" || S.logs[k].type === "run")).sort();
+  const td = ymd(today), keys = Object.keys(S.logs).filter(k => k <= td && S.logs[k] && (S.logs[k].type === "gym" || S.logs[k].type === "run" || S.logs[k].type === "row")).sort();
   if (!keys.length) return null; const first = keys[0], since = rkDays(first, td);
   if (since < RKC().placementDays) return { pending: true, first, ready: rkAdd(first, RKC().placementDays) };
   if (since < 14) return { at: rkAdd(first, RKC().placementDays), from: first, to: rkAdd(first, RKC().placementDays - 1) };
@@ -467,7 +480,7 @@ function rkWeekSessions(mon, td) {
   for (let i = 0; i < 7; i++) {
     const k = rkAdd(mon, i), l = S.logs[k], p = typeof planFor === "function" ? planFor(parseYmd(k)) : null;
     if (p && p.type !== "rest" && !(typeof preStart === "function" && preStart(k))) plan++;
-    if (k <= td && l && (l.type === "gym" || l.type === "run")) done++;
+    if (k <= td && l && (l.type === "gym" || l.type === "run" || l.type === "row")) done++;
   }
   return { plan, done: Math.min(done, plan), need: Math.ceil(plan * RKC().discipline.hitPct) };
 }
@@ -485,7 +498,7 @@ function rkDiscAt(d, first) {
   return { n, rank, prog, num: rank + prog, weeks: weeks.reverse(), next: rank < 5 ? th[rank] : null };
 }
 function rkDiscipline(R) {
-  const keys = Object.keys(S.logs).filter(k => k <= R.td && S.logs[k] && (S.logs[k].type === "gym" || S.logs[k].type === "run")).sort();
+  const keys = Object.keys(S.logs).filter(k => k <= R.td && S.logs[k] && (S.logs[k].type === "gym" || S.logs[k].type === "run" || S.logs[k].type === "row")).sort();
   let first = keys.length ? rkMon(keys[0]) : rkMon(R.td);
   if (typeof CUSTOM !== "undefined" && CUSTOM && CUSTOM.su.firstDay && rkMon(CUSTOM.su.firstDay) < first) first = rkMon(CUSTOM.su.firstDay);
   // rank changes week by week, for the rank-up moment and alerts
@@ -529,6 +542,7 @@ function rkExTarget(p, id, c, rankTo) {
 }
 function rkGateOptions(p, rankTo) {
   const C = RKC();
+  if (C.parts[p].row) { const T = rkTargetMetric(p, rankTo); return [{ id: p, name: p === "row5k" ? "5,000 m row, or a longer one" : C.parts[p].ref, txt: p === "row5k" ? `5,000 m-equivalent under ${rkFmtSec(T)} on a rowing machine` : `under ${rkFmtSec(T)} on a rowing machine`, run: true }] }
   if (C.parts[p].run) { const T = rkTargetMetric(p, rankTo); return [{ id: p, name: p === "endur" ? "5K, or a longer run or race" : p === "mile" ? "Mile" : "400 m", txt: p === "endur" ? `5K-equivalent under ${rkFmtSec(T)} (a 5K, 10K or half marathon counts)` : `under ${rkFmtSec(T)}`, run: true }] }
   const ids = rkSplitIds(), opt = [];
   const R = rankState();
@@ -667,7 +681,7 @@ const rkBar = (prog, col) => `<div class="rk-bar"><i style="width:${Math.round(M
 function rkSrcText(P) {
   const s = P.src; if (!s) return "";
   const e = s.e, faded = s.fade < 0.999 ? ` · faded to ${Math.round(s.fade * 100)}%` : "";
-  if (e.run) return `${esc(e.src)} · ${rkFmtSec(e.m)}${e.p === "endur" ? " 5K-equivalent" : ""} (${fmtShort(parseYmd(e.d))})${faded}`;
+  if (e.run) return `${esc(e.src)} · ${rkFmtSec(e.m)}${e.p === "endur" ? " 5K-equivalent" : e.p === "row5k" && !/^5,000/.test(e.src) ? " for 5,000 m" : ""} (${fmtShort(parseYmd(e.d))})${faded}`;
   const set = e.kind === "hold" ? `${e.set.r} s` : e.kind === "bw" ? `${e.set.w > 0 ? `BW + ${toU(e.set.w)} ${uL()}` : "BW"} × ${e.set.r}` : e.kind === "assist" ? `assisted (−${toU(e.set.w)} ${uL()}) × ${e.set.r}` : `${toU(e.set.w)} ${uL()}${e.set.db ? "/DB" : ""} × ${e.set.r}`;
   const L = RKC().ladders[e.lad].kind, eq = L === "reps" ? `≈ ${Math.round(e.m)} ${e.lad === "pull" ? "pull-up" : e.lad === "core" ? "leg-raise" : ""} reps` : L === "hold" ? "" : `≈ ${toU(Math.round(e.m))} ${uL()} ${RKC().parts[e.p].ref.toLowerCase()}`;
   return `${esc(rkExName(e.eid && e.eid !== e.ex && RKC().conv[e.eid] ? e.eid : e.ex))} ${set}${eq ? " " + eq : ""} (${fmtShort(parseYmd(e.d))})${s.sec ? s.held ? " · side exercise, held to your main lifts" : ` · side exercise, ${s.solo ? "partial credit" : "counts with your main lifts"}` : e.cap != null ? ` · counts up to ${rkLetter(e.cap)}` : ""}${faded}`;
@@ -699,13 +713,23 @@ function rkPartRow(p, R) {
     ${P.lost ? `<div class="small muted">Lost ${rkLetter(P.lost.rank)} on ${fmtShort(parseYmd(P.lost.at))}. Hit your old numbers by ${fmtShort(parseYmd(rkAdd(P.lost.at, C.reclaimDays)))} to get it back.</div>` : ""}
     ${sc ? "" : rkGateText(p, P)}${exBtn}</div>`;
 }
+// cardio groups list running parts, and rowing parts once you have rowed; with both, the card breaks the rank down by type
+function rkShownParts(g, R) { const C = RKC(), ps = Object.keys(g.parts), rowed = ps.some(p => C.parts[p].row && R.part[p].has); return ps.filter(p => !C.parts[p].row || rowed) }
+function rkGroupChips(g, R, sc) {
+  const C = RKC(), val = p => sc ? Math.min(5, R.part[p].scaled.v) : R.part[p].num, col = v => RK_COL[Math.max(0, Math.min(5, Math.floor(v)))];
+  const chip = p => { const P = R.part[p], v = val(p); return `<span class="fx-chip${P.gate.open && !sc ? " gate" : ""}" style="--rc:${col(v)}"><b>${rkStep(v)}</b>${esc(C.parts[p].name)}</span>` };
+  const ps = rkShownParts(g, R), row = ps.filter(p => C.parts[p].row), run = ps.filter(p => !C.parts[p].row);
+  if (!row.length) return `<span class="fx-chips">${ps.map(chip).join("")}</span>`;
+  const types = [["Running", run], ["Rowing", row]].filter(([, l]) => l.length).map(([n, l]) => [n, l, Math.max(...l.map(val))]), top = Math.max(...types.map(t => t[2]));
+  return `<span class="rkx"><span class="rkx-cap">By type · your best counts</span>${types.map(([n, l, v]) => `<span class="rkx-row"><span class="rkx-h"><span class="rkx-n">${n}</span><span class="rkx-l" style="--rc:${col(v)}">${rkStep(v)}</span>${v === top ? `<span class="rkx-best">COUNTS</span>` : ""}</span><span class="fx-chips">${l.map(chip).join("")}</span></span>`).join("")}</span>`;
+}
 function rkGroupCard(g, R) {
   const sc = rkMode === "scaled", num = g.num == null ? null : sc ? Math.min(5, g.scaled) : g.num, open = rkOpen === g.id;
   const ti = num == null ? 0 : Math.max(0, Math.min(5, Math.floor(num)));
   let h = `<div class="card rk-group tint" style="--tc:${RK_COL[ti]}">${num == null ? "" : `<span class="fx-wm" aria-hidden="true">${rkLetter(num)}</span>`}<button type="button" class="rk-head" data-rkgroup="${g.id}" aria-expanded="${open}">${num == null ? '<span class="rk-l" style="--rc:var(--muted)">–</span>' : rkBadge(num, true)}<span style="flex:1;min-width:0;text-align:left"><span class="row between"><b class="rk-name">${esc(g.name)}${num == null ? "" : `<span class="rk-stp" style="--rc:${RK_COL[ti]}">${rkStep(num)}</span>`}</b><span class="small muted">${open ? "Hide" : "Details"} ›</span></span>
     ${num == null ? '<span class="small muted">Excluded</span>' : rkBar(num >= 5 ? 1 : num - Math.floor(num), RK_COL[Math.min(5, Math.floor(num) + 1)])}
-    <span class="fx-chips">${Object.keys(g.parts).map(p => { const P = R.part[p], v = sc ? Math.min(5, P.scaled.v) : P.num; return `<span class="fx-chip${P.gate.open && !sc ? " gate" : ""}" style="--rc:${RK_COL[Math.max(0, Math.min(5, Math.floor(v)))]}"><b>${rkStep(v)}</b>${esc(RKC().parts[p].name)}</span>` }).join("")}</span></span></button>`;
-  if (open) { h += `<div class="stack" style="gap:10px">${Object.keys(g.parts).map(p => rkPartRow(p, R)).join("")}</div>`; if (g.id === "speed" || g.id === "endur") h += rkTrialBlock() }
+    ${rkGroupChips(g, R, sc)}</span></button>`;
+  if (open) { h += `<div class="stack" style="gap:10px">${rkShownParts(g, R).map(p => rkPartRow(p, R)).join("")}</div>`; if (g.id === "speed" || g.id === "endur") h += rkTrialBlock() }
   return h + `</div>`;
 }
 function rkDiscCard(R) {
@@ -812,7 +836,7 @@ function rkRadar(R, sc) {
 }
 function rkHud(R, sc, su) {
   const ov = sc ? R.overallScaled : R.overall, avg = sc ? R.overallAvgScaled : R.overallAvg, prog = rkOverallProg(avg, ov), ovn = rkOvNum(avg, ov);
-  const fresh = !Object.values(S.logs).some(l => l && (l.type === "gym" || l.type === "run")) && !(rkData().trials || []).length, pend = !fresh && R.place && R.place.pending;
+  const fresh = !Object.values(S.logs).some(l => l && (l.type === "gym" || l.type === "run" || l.type === "row")) && !(rkData().trials || []).length, pend = !fresh && R.place && R.place.pending;
   const C = RKC(), pDay = pend ? Math.min(C.placementDays, rkDays(R.place.first, R.td) + 1) : 0;
   const ovHtml = fresh || pend
     ? `<div class="rk-ov"><span class="rk-l big rk-q" style="--rc:#5B6378" role="img" aria-label="Unranked">?</span><div style="flex:1;min-width:0"><div class="rk-ov-l">Overall rank</div><div class="rk-ov-v">Unranked</div>
@@ -1063,3 +1087,10 @@ function rkCelebrate(ev, n) {
 .setno.g{background:var(--coach);color:#fff;border-color:var(--coach)}`;
   const s = document.createElement("style"); s.id = "rankStyles"; s.textContent = css; (document.head || document.documentElement).appendChild(s);
 })();
+
+{ const st = document.createElement("style"); st.id = "rkxCss"; st.textContent = `.rkx{display:flex;flex-direction:column;gap:8px;margin-top:10px;position:relative;z-index:1}
+.rkx-cap{font:800 10px/1 var(--display,"Barlow Semi Condensed"),sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.rkx-row{display:block;border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:color-mix(in srgb,var(--card,#141a2a) 70%,transparent)}
+.rkx-h{display:flex;align-items:center;gap:8px}.rkx-n{font-weight:700;font-size:14px}.rkx-l{font:800 12px var(--display,"Barlow Semi Condensed"),sans-serif;color:var(--rc)}
+.rkx-best{margin-left:auto;font:800 9.5px var(--display,"Barlow Semi Condensed"),sans-serif;letter-spacing:.18em;color:#C9A256;border:1px solid color-mix(in srgb,#E8C27A 50%,transparent);border-radius:6px;padding:2px 6px}
+.rkx-row .fx-chips{margin-top:6px}`; document.head.appendChild(st) }

@@ -72,9 +72,9 @@ function qPlan(k) { try { return planFor(parseYmd(k)) } catch (e) { return null 
 function dailyQuest(k) {
   const p = qPlan(k); if (!p) return null;
   const l = S.logs[k], d = parseYmd(k), out = [];
-  if (p.type === "gym" || p.type === "run") {
-    const done = !!(l && (l.type === "gym" || l.type === "run"));
-    out.push({ id: "train", t: p.type === "gym" ? `Complete today's workout: ${p.name}` : `Complete today's run${p.t ? ": " + p.t : ""}`, done, go: "train" });
+  if (p.type === "gym" || p.type === "run" || p.type === "row") {
+    const done = !!(l && (l.type === "gym" || l.type === "run" || l.type === "row"));
+    out.push({ id: "train", t: p.type === "gym" ? `Complete today's workout: ${p.name}` : p.type === "row" ? `Complete today's row: ${p.name}` : `Complete today's run${p.t ? ": " + p.t : ""}`, done, go: "train" });
   } else {
     const f = MOBILITY[mobilityFocus(d)];
     out.push({ id: "mob", t: `10-minute mobility · ${f.t}`, done: qTick(k, "mob"), tick: true, go: "mob" });

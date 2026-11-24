@@ -42,6 +42,7 @@ function wsRunType(p) {
 // which island a day gets: chosen at random, but the same every time for that day
 function wsPick(p, k) {
   if (!p || p.type === "rest") return { img: "camp1", name: "The Camp", kind: "rest" };
+  if (p.type === "row" && typeof ROW_KINDS !== "undefined") { const K = ROW_KINDS[p.kind] || ROW_KINDS.steady, M = ROW_META[K.img]; return { img: K.img, name: M.title, kind: "row", type: p.kind } }
   if (p.type === "gym") { const t = WS_TOWERS[wsHash(k + "|gym|" + (p.name || "")) % WS_TOWERS.length]; return { img: t[0], name: t[1], kind: "gym" } }
   const ty = wsRunType(p), list = WS_TRAILS[ty] || WS_TRAILS.easy, t = list[wsHash(k + "|run|" + ty) % list.length];
   return { img: t[0], name: t[1], kind: "run", type: ty };
@@ -49,13 +50,13 @@ function wsPick(p, k) {
 function wsWeek() { const mon = mondayOf(sel); return [...Array(7)].map((_, i) => addDays(mon, i)) }
 // the island wheel: this week plus a week either side, so there is always a neighbour to spin in
 function wsWheel() { const mon = mondayOf(sel); return [...Array(21)].map((_, i) => addDays(mon, i - 7)).filter(d => inProgram(d) || d >= START) }
-function wsShort(p) { return !p || p.type === "rest" ? "Camp" : p.type === "gym" ? (p.name || "Gym") + " Gate" : (p.t || "Run") }
+function wsShort(p) { return !p || p.type === "rest" ? "Camp" : p.type === "gym" ? (p.name || "Gym") + " Gate" : p.type === "row" ? (p.name || "Row") : (p.t || "Run") }
 
 function wsDayTxt(d) { return `${DOW[dowOf(d)].toUpperCase()} ${d.getDate()}` }
 // the top of the page: eyebrow, title and the Today / Progress chips
 function wsTop() {
   const k = ymd(sel), p = inProgram(sel) ? planFor(sel) : null, pk = wsPick(p, k);
-  const what = pk.kind === "gym" ? "GATE SELECT" : pk.kind === "run" ? "TRAIL SELECT" : "CAMP";
+  const what = pk.kind === "gym" ? "GATE SELECT" : pk.kind === "run" ? "TRAIL SELECT" : pk.kind === "row" ? "RIVER SELECT" : "CAMP";
   return `<div class="ws-head ws-${pk.kind}"><div><div class="ws-eye">RANKUP · ${what}</div><h1 class="ws-h1">Train</h1></div>
     <div class="ws-chips">${[["today", "TODAY"], ["progress", "PROGRESS"]].map(([v, n]) => `<button type="button" data-trv="${v}" class="${v === "today" ? "on" : ""}" aria-pressed="${v === "today"}">${n}</button>`).join("")}</div></div>`;
 }
@@ -69,14 +70,14 @@ function viewWorld(openLogger) {
     return `<div class="ws-slide${kk === k ? " on" : ""}${lit === "lit" ? "" : " ws-dark"}" data-wsday="${kk}"${lit === "new" ? ` data-wsign="${pk.img}"` : ""} role="group" aria-label="${DOW[dowOf(d)]} ${d.getDate()} · ${esc(wsShort(pp))}" aria-current="${kk === k}"><div class="ws-zoom"><img src="/world/${pk.img}.webp" alt="" loading="${Math.abs(i - at) <= 2 ? "eager" : "lazy"}" decoding="async" draggable="false"></div></div>`;
   }).join("");
   const pd = addDays(sel, -1), nd = addDays(sel, 1);
-  const kind = pick.kind, title = kind === "gym" ? "[SYSTEM] GATE SELECT" : kind === "run" ? "[SYSTEM] TRAIL SELECT" : "[SYSTEM] CAMP";
+  const kind = pick.kind, title = kind === "gym" ? "[SYSTEM] GATE SELECT" : kind === "run" ? "[SYSTEM] TRAIL SELECT" : kind === "row" ? "[SYSTEM] RIVER SELECT" : "[SYSTEM] CAMP";
   let h = `<div class="ws-sky" aria-hidden="true"><i class="ws-shoot"></i></div><div class="ws ws-${kind}">`;
   h += `<div class="ws-frame" role="region" aria-label="${esc(title.replace("[SYSTEM] ", ""))} · day ${idx + 1} of 7">
     <div class="ws-stage"><div class="ws-track" id="wsTrack">${slides}</div><div class="ws-clouds" aria-hidden="true"></div></div></div>`;
-  h += `<div class="ws-daybar"><button type="button" data-wsgo="${ymd(pd)}">◀ ${wsDayTxt(pd)}</button><span>${wsDayTxt(sel)} · ${k === ymd(today) ? "TODAY" : kind === "gym" ? "GATE" : kind === "run" ? (WS_RUNTAG[pick.type] || "TRAIL") : "CAMP"}</span><button type="button" data-wsgo="${ymd(nd)}">${wsDayTxt(nd)} ▶</button></div>`;
+  h += `<div class="ws-daybar"><button type="button" data-wsgo="${ymd(pd)}">◀ ${wsDayTxt(pd)}</button><span>${wsDayTxt(sel)} · ${k === ymd(today) ? "TODAY" : kind === "gym" ? "GATE" : kind === "run" ? (WS_RUNTAG[pick.type] || "TRAIL") : kind === "row" ? ((ROW_KINDS[pick.type] || ROW_KINDS.steady).tag) : "CAMP"}</span><button type="button" data-wsgo="${ymd(nd)}">${wsDayTxt(nd)} ▶</button></div>`;
   h += wsCard(p, k, pick);
   if (wsPop && wsPop.k !== k) wsPop = null;
-  if (wsPop && p && p.type !== "rest") h += wsbHtml(p, k, pick);
+  if (wsPop && p && p.type !== "rest" && p.type !== "row") h += wsbHtml(p, k, pick);
   if (wsRun && wsRun.k !== k) wsRun = null;
   if (wsRun && p && p.type === "run" && !wsPop) h += wsrHtml(p, k, pick);
   return h + `</div>`;
@@ -84,7 +85,7 @@ function viewWorld(openLogger) {
 const WS_RUNTAG = { easy: "EASY TRAIL", long: "LONG TRAIL", hills: "HILL TRAIL", intervals: "INTERVALS", sprints: "SPRINTS", tempo: "TEMPO", tt: "TIME TRIAL", fartlek: "FARTLEK", recovery: "RECOVERY", race: "RACE DAY" };
 function wsCard(p, k, pick) {
   const log = S.logs[k], isToday = k === ymd(today), past = k < ymd(today), d = parseYmd(k), when = wsDayTxt(d);
-  const running = TM.start && TM.date === k, M = WS_META[pick.kind === "gym" ? "tw" : pick.img] || {};
+  const running = TM.start && TM.date === k, M = (pick.kind === "row" ? ROW_META[pick.img] : WS_META[pick.kind === "gym" ? "tw" : pick.img]) || {};
   let line = M.line || "", title = M.title || "", sub = M.sub || "", stats = [], btn = "", menu = [];
   const go = (txt, attr) => `<button type="button" class="ws-go" ${attr}>${txt}</button>`;
   if (!p) {
@@ -110,6 +111,19 @@ function wsCard(p, k, pick) {
       : `<button type="button" class="ws-go" disabled>OPENS ${when}</button>`;
     if (log) menu.push(`<button type="button" data-wslog="1">View log</button>`);
     if (!log) menu.push(`<button type="button" data-daymove="${k}|move">Move</button>`, ...(past ? [] : [`<button type="button" data-daymove="${k}|swap">Swap</button>`]), `<button type="button" data-dayskip="${k}">Rest day</button>`);
+  } else if (p.type === "row") {
+    const rl = typeof rwLoad === "function" && rwLoad(), live = rl && rl.k === k;
+    line = log ? `${M.done} CLEARED · ${when}` : isToday ? M.line : `${M.done} · ${when}`;
+    sub = `${M.sub} <b>${esc(p.name)}</b> · ${esc(p.d)}`;
+    stats = rowStats(p).filter(Boolean);
+    btn = log ? go("CLEARED ✓ · VIEW REPORT", `data-wsrowrep="${k}"`)
+      : live ? go(`RETURN TO THE ${M.done}`, `data-wsrow="${k}"`)
+      : isToday ? go(M.btn, `data-wsrow="${k}"`)
+      : past ? go("LOG THIS ROW", `data-wsrowlog="${k}"`)
+      : `<button type="button" class="ws-go" disabled>OPENS ${when}</button>`;
+    if (log) menu.push(`<button type="button" data-rowlog-edit="${k}">Edit log</button>`);
+    if (!log && isToday) menu.push(`<button type="button" data-wsrowlog="${k}">Log by hand</button>`);
+    if (!log) menu.push(`<button type="button" data-row-edit="${esc(p.rowId || "")}">Edit row</button>`, `<button type="button" data-daymove="${k}|move">Move</button>`, `<button type="button" data-dayskip="${k}">Rest day</button>`);
   } else {
     line = log ? `TRAIL CLEARED · ${when}` : isToday ? M.line : `TRAIL · ${when}`;
     const parts = String(p.d || "").split(" · "), ty = pick.type;
@@ -191,7 +205,7 @@ document.addEventListener("click", e => {
 // Lit islands: a workout day stays grey until it is logged. The first time a logged day is shown,
 // it lights up (Ignite): lights climb the island, the beacon flares, colour spreads out from the top.
 // Rest days and days outside the plan are always lit. Days already seen lit are kept on this device.
-const WS_LITE = {"camp1":[46.9,55.6,69.0],"fart1":[48.5,10.3,73.5],"hill1":[50.0,29.2,71.0],"hill2":[49.9,31.9,70.8],"int1":[50.5,44,69.5],"lab1":[49.9,38.8,70.9],"lab2":[49.9,34.6,74.2],"lab3":[50.1,40.1,72.4],"race1":[50.0,10.8,69.8],"rec1":[50,30,69.9],"road1":[48.8,19.5,77.2],"road3":[55.5,24.9,75.8],"tempo1":[49.7,41.5,64.5],"tw1":[49.9,11.9,71.2],"tw2":[49.9,14.2,69.3],"tw3":[50.0,8.4,66.1],"tw4":[49.9,19.7,71.5],"tw5":[49.9,17.5,68.2],"tw6":[49.9,11.3,68.6]};  // beacon x, beacon y, island rim y (% of the image)
+const WS_LITE = {"row1":[59.5,29.9,60.2],"row2":[34.3,26.6,60.2],"row3":[75.6,25.4,59],"row4":[74.9,34.1,60.2],"camp1":[46.9,55.6,69.0],"fart1":[48.5,10.3,73.5],"hill1":[50.0,29.2,71.0],"hill2":[49.9,31.9,70.8],"int1":[50.5,44,69.5],"lab1":[49.9,38.8,70.9],"lab2":[49.9,34.6,74.2],"lab3":[50.1,40.1,72.4],"race1":[50.0,10.8,69.8],"rec1":[50,30,69.9],"road1":[48.8,19.5,77.2],"road3":[55.5,24.9,75.8],"tempo1":[49.7,41.5,64.5],"tw1":[49.9,11.9,71.2],"tw2":[49.9,14.2,69.3],"tw3":[50.0,8.4,66.1],"tw4":[49.9,19.7,71.5],"tw5":[49.9,17.5,68.2],"tw6":[49.9,11.3,68.6]};  // beacon x, beacon y, island rim y (% of the image)
 let wsSeen = null, wsIgn = null;  // wsIgn: the island lighting up right now {k, t0}, so a re-render mid-animation picks it back up
 function wsSeenSet() {
   if (wsSeen) return wsSeen;
@@ -516,6 +530,7 @@ document.addEventListener("click", e => {
   if (sl && !t.closest(".ws-ign")) { const k = sl.dataset.wsday, p = inProgram(parseYmd(k)) ? planFor(parseYmd(k)) : null;
     if (!p || p.type === "rest" || (p.type === "gym" && !(p.ex || []).length)) return;
     if (k !== ymd(sel)) return;
+    if (p.type === "row") { if (S.logs[k] && S.logs[k].type === "row") openSheet({ kind: "rowrep", k, ws: true }); return }
     const lg = S.logs[k]; if (lg && (lg.type === "gym" || lg.type === "run") && lg.type === p.type) { wsnOpen(k); return }
     wsPop = { k, open: null, top: 0, anim: true }; lastRenderKey = ""; render() }
 });

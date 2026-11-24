@@ -340,7 +340,7 @@ function paintSheet(scrollTop){ if(!SH) return; const el=sheetEl(), inn=el.query
   if(focusSel){ const f=inn.querySelector(`[data-xs-focus="${focusSel}"]`); if(f){ f.focus(); try{const v=f.value; f.setSelectionRange(v.length,v.length)}catch(e){} } } }
 const commitPlan=()=>{ saveProfile(); onProfile(); render() };
 // Repaint only part of the sheet, so the input being typed in (and the iPhone keyboard) stays put.
-function sheetHtml(){ return SH.kind==="form"? formHtml() : SH.kind==="autogen"? autogenHtml() : SH.kind==="shopItem"? shopItemHtml() : SH.kind==="shopList"? shopListHtml() : SH.kind==="shopSched"? shopSchedHtml() : SH.kind==="gscan"? gscanHtml() : SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="fmt"? fmtSheetHtml() : SH.kind==="paths"? pathsHtml() : SH.kind==="fpgoals"? fpGoalsHtml() : SH.kind==="fpsched"? fpSchedHtml() : SH.kind==="fpextra"? fpExtraHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : (SH.kind==="runnew"||SH.kind==="race")&&typeof runSheetHtml==="function"? runSheetHtml() : typeof extraSheetHtml==="function"? extraSheetHtml() : "" }
+function sheetHtml(){ return SH.kind==="form"? formHtml() : SH.kind==="autogen"? autogenHtml() : SH.kind==="shopItem"? shopItemHtml() : SH.kind==="shopList"? shopListHtml() : SH.kind==="shopSched"? shopSchedHtml() : SH.kind==="gscan"? gscanHtml() : SH.kind==="plates"? platesHtml() : SH.kind==="move"? moveHtml() : SH.kind==="hist"? historyHtml() : SH.kind==="fmt"? fmtSheetHtml() : SH.kind==="paths"? pathsHtml() : SH.kind==="fpgoals"? fpGoalsHtml() : SH.kind==="fpsched"? fpSchedHtml() : SH.kind==="fpextra"? fpExtraHtml() : SH.kind==="swap"? swapHtml() : SH.kind==="account"? accountHtml() : SH.kind==="exPick"? exPickerHtml() : SH.kind==="exNew"? exNewHtml() : SH.kind==="food"? foodSheetHtml() : SH.kind==="recipe"? recipeHtml() : SH.kind==="cfood"? cfoodHtml() : (SH.kind==="runnew"||SH.kind==="race")&&typeof runSheetHtml==="function"? runSheetHtml() : /^row/.test(SH.kind)&&typeof rowSheetHtml==="function"? rowSheetHtml() : typeof extraSheetHtml==="function"? extraSheetHtml() : "" }
 function paintPart(sel){ if(!SH) return; const el=document.querySelector("#xsheet .xs-in"); const dst=el&&el.querySelector(sel); if(!dst){ paintSheet(); return }
   const tmp=document.createElement("div"); tmp.innerHTML=sheetHtml(); const src=tmp.querySelector(sel); if(src) dst.innerHTML=src.innerHTML; else paintSheet() }
 function estMin(ex){ const sec=(ex||[]).reduce((t,e)=>t+(e.sets||3)*((e.rest||90)+(isSec(e)?(e.hi||45):40)),0); return Math.max(10,Math.round(sec/60/5)*5) }
@@ -350,9 +350,9 @@ function routinesEditor(){
   const su=CUSTOM.su, rs=su.routines||[];
   const runO=typeof schedOptsRuns==="function";
   const opts=(v,i)=>[["rest","Rest"],...(runO?[]:[["run","Run"]])].map(([id,n])=>`<option value="${esc(id)}" ${v===id?"selected":""}>${esc(n)}</option>`).join("")
-    +`<optgroup label="Gym">${rs.map(r=>`<option value="${esc(r.id)}" ${v===r.id?"selected":""}>${esc(r.name)}</option>`).join("")}</optgroup>`+(runO?schedOptsRuns(v,(su.runWeek||[])[i]):"");
+    +`<optgroup label="Gym">${rs.map(r=>`<option value="${esc(r.id)}" ${v===r.id?"selected":""}>${esc(r.name)}</option>`).join("")}</optgroup>`+(runO?schedOptsRuns(v,(su.runWeek||[])[i]):"")+(typeof schedOptsRows==="function"?schedOptsRows(v,(su.rowWeek||[])[i]):"");
   let h=`<div class="card"><h2>Weekly schedule</h2><div class="sched">${DOW.map((d,i)=>`<label><span>${d}</span><select data-c-week="${i}">${opts(su.week[i],i)}</select></label>`).join("")}</div>
-    <p class="small muted">Changes apply to your plan from today on.</p></div>`+(typeof runsEditor==="function"?runsEditor():"");
+    <p class="small muted">Changes apply to your plan from today on.</p></div>`+(typeof runsEditor==="function"?runsEditor():"")+(typeof rowsEditor==="function"?rowsEditor():"");
   rs.forEach((r,ri)=>{
     if(!R_OPEN.has(r.id)){ h+=`<div class="card routine"><div class="row between" style="gap:8px"><h2>${esc(r.name)}</h2><button type="button" class="btn ghost sm" data-c-ropen="${r.id}">Edit</button></div>
       <div class="small">${r.ex.length? r.ex.map(e=>{const L=libEx(e.id); return `${e.ss?"⛓ ":""}${esc(L?L.name:e.id)} <span class="muted num">${e.sets}×${e.lo}–${e.hi}${L&&L.type==="t"?"s":""}</span>`}).join("<br>") : `<span class="muted">No exercises yet.</span> <button type="button" class="link small" data-c-ropen="${r.id}">Add some</button>`}</div></div>`; return }
@@ -1116,7 +1116,7 @@ function nearestRest(to,from){ const td=ymd(today), T=parseYmd(to);
   return weekDays(to).filter(d=>d!==to&&d!==from&&d>=td&&!S.logs[d]&&inProgram(parseYmd(d))&&!srcOf(d))
     .sort((a,b)=>Math.abs(parseYmd(a)-T)-Math.abs(parseYmd(b)-T)||(b>a?1:-1))[0]||null }
 // sessions in the last week that were planned but never logged
-function missedDays(){ const td=ymd(today), out=[]; for(let i=6;i>=1;i--){ const d=addDays(today,-i), k=ymd(d); if(d<countStart()||!inProgram(d)||S.logs[k]) continue; const p=planFor(d); if(p&&(p.type==="gym"||p.type==="run")) out.push(k) } return out }
+function missedDays(){ const td=ymd(today), out=[]; for(let i=6;i>=1;i--){ const d=addDays(today,-i), k=ymd(d); if(d<countStart()||!inProgram(d)||S.logs[k]) continue; const p=planFor(d); if(p&&(p.type==="gym"||p.type==="run"||p.type==="row")) out.push(k) } return out }
 function missedCard(){ const ms=missedDays(); if(!ms.length) return "";
   return `<div class="card missed"><div class="row between"><h2>Missed ${ms.length>1?"sessions":"a session"}</h2></div><p class="small muted">Move ${ms.length>1?"them":"it"} to a day that works, or make ${ms.length>1?"them rest days":"it a rest day"} so your week adds up.</p>
     ${ms.map(k=>`<div class="row between missrow"><span><b>${dayName(k)}</b> <span class="muted">· ${esc(sessLabel(srcOf(k)))}</span></span><span class="row" style="gap:12px"><button type="button" class="link small" data-daymove="${k}|move">Move</button><button type="button" class="link small" data-dayskip="${k}">Rest day</button></span></div>`).join("")}</div>` }
@@ -1572,8 +1572,10 @@ document.addEventListener("change",e=>{ const t=e.target, d=t.dataset||{};
   if(d.xsNf&&SH){ SH.d[d.xsNf]=t.value; return }
   if(d.cWeek!=null){ const su0=S.profile.setup, i=+d.cWeek, v=t.value;
     if(v==="runnew"){ t.value=su0.week[i]==="run"?"run:"+((su0.runWeek||[])[i]||""):su0.week[i]; openSheet({kind:"runnew",day:i}); return }
+    if(v==="rownew"){ t.value=su0.week[i]==="row"?"row:"+((su0.rowWeek||[])[i]||""):su0.week[i]==="run"?"run:"+((su0.runWeek||[])[i]||""):su0.week[i]; openSheet({kind:"rowedit",isNew:true,day:i,d:{name:ROW_KINDS.steady.n,kind:"steady",...ROW_KINDS.steady.make()}}); return }
+    if(/^row:/.test(v)){ suMut(su=>{ rowsEnsure(su); su.runWeek=su.runWeek||Array(7).fill(null); su.week[i]="row"; su.rowWeek[i]=v.slice(4)||su.rows[0].id; su.runWeek[i]=null }); return }
     if(/^run/.test(v)&&su0.week[i]!=="run"&&su0.week.filter(w=>w==="run").length>=6){ toast("Keep at least one rest day"); t.value=su0.week[i]; return }
-    suMut(su=>{ su.runWeek=su.runWeek||Array(7).fill(null); if(/^run:/.test(v)){ su.week[i]="run"; su.runWeek[i]=v.slice(4)||null } else { su.week[i]=v; su.runWeek[i]=null } }); return }
+    suMut(su=>{ su.runWeek=su.runWeek||Array(7).fill(null); if(su.rowWeek) su.rowWeek[i]=null; if(/^run:/.test(v)){ su.week[i]="run"; su.runWeek[i]=v.slice(4)||null } else { su.week[i]=v; su.runWeek[i]=null } }); return }
   if(d.cRname){ suMut(su=>{const r=su.routines.find(x=>x.id===d.cRname); r.name=t.value.trim().slice(0,40)||r.name}); return }
   if(d.cLo||d.cHi){ const [rid,i]=(d.cLo||d.cHi).split("|"); suMut(su=>{const x=su.routines.find(r=>r.id===rid).ex[+i]; const v=Math.max(1,Math.round(numIn(t.value))||1); if(d.cLo){x.lo=v; if(x.hi<v) x.hi=v} else {x.hi=v; if(x.lo>v) x.lo=v}}); return }
   if(d.cRest){ const [rid,i]=d.cRest.split("|"); suMut(su=>{su.routines.find(r=>r.id===rid).ex[+i].rest=Number(t.value)}); return }
