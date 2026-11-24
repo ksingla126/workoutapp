@@ -1023,6 +1023,7 @@ const FOOD_ON = !!window.__foodOn; // off in the app; the test harness can turn 
 <script src="/foodplan.js"></script>
 <script src="/game.js"></script>
 <script src="/runs.js"></script>
+<script src="/rows.js"></script>
 <script src="/extras.js"></script>
 <script src="/seals.js"></script>
 <script src="/livetower.js"></script>
@@ -1225,6 +1226,7 @@ function basePlan(d){
   const w=weekOf(d), i=dowOf(d), s=SCHED[i];
   if(CUSTOM&&typeof racePlan==="function"){ const rp=racePlan(d); if(rp) return rp }
   if(s==="rest") return {type:"rest",w,i};
+  if(s==="row"&&CUSTOM&&typeof scheduledRow==="function") return {...scheduledRow(i,d,w),w,i};
   if(s==="run"&&CUSTOM&&typeof scheduledRun==="function"){ const x=scheduledRun(i,d,w); if(x) return {...x,w,i} }
   if(s==="run"){const r=runWeek(w)[RUNKEY[i]]; return r?{type:"run",w,i,key:RUNKEY[i],...r}:null}
   return {type:"gym",w,i,day:s,...gymDay(s,d)};
@@ -3218,10 +3220,10 @@ function applySetup(raw){
     if(e.equip==="Dumbbell"&&!DBCFG[e.id]) DBCFG[e.id]={def:true,m:e.uni?1:2};
     if(!ALLEX.some(a=>a.id===e.id)) ALLEX.push(e);
     if(!EX_MUSCLES[e.id]&&LIB_MUSCLE_MAP[e.muscle]) EX_MUSCLES[e.id]=LIB_MUSCLE_MAP[e.muscle] }) });
-  SCHED=su.week.map(w=>w==="run"?"run":gym[w]?w:"rest"); RUNKEY={};
+  SCHED=su.week.map(w=>w==="run"?"run":w==="row"?"row":gym[w]?w:"rest"); RUNKEY={};
   const kinds=su.runDays.length===1?["sat"]:su.runDays.length===2?["tue","sat"]:["tue","thu","sat"];
   su.runDays.forEach((d,i)=>RUNKEY[d]=kinds[Math.min(i,2)]);
-  RUNSCHED=su.week.map((w,i)=>w==="run"?(su.runWeek||[])[i]||null:null);
+  RUNSCHED=su.week.map((w,i)=>w==="run"?(su.runWeek||[])[i]||null:null); if(typeof ROWSCHED!=="undefined") ROWSCHED=su.week.map((w,i)=>w==="row"?(su.rowWeek||[])[i]||null:null);
   if(su.legacyRuns) RUNWK=null; else { const cache={}; RUNWK=w=>cache[w]||(cache[w]=runWeekFor(su,w)) }
   CUSTOM={su,gym,rest};
   const ids=[...new Set(su.routines.flatMap(r=>r.ex.map(e=>e.id)))];

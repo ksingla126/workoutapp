@@ -42,9 +42,9 @@ function ckGo(g) {
 function xE1rm(w, r) { return w > 0 && r > 0 && r <= 15 ? w * (1 + r / 30) : 0 }
 function weekRecap(mon) {
   const days = [...Array(7)].map((_, i) => ymd(addDays(mon, i))), sun = days[6], w = weekOf(mon);
-  let gp = 0, gd = 0, rp = 0, rd = 0, mi = 0, vol = 0, q = 0;
+  let gp = 0, gd = 0, rp = 0, rd = 0, op = 0, od = 0, mi = 0, vol = 0, q = 0;
   days.forEach(k => { const d = parseYmd(k), p = planFor(d), l = S.logs[k];
-    if (p && !(typeof preStart === "function" && preStart(d))) { if (p.type === "gym") { gp++; if (l) gd++ } if (p.type === "run") { rp++; if (l) rd++ } }
+    if (p && !(typeof preStart === "function" && preStart(d))) { if (p.type === "gym") { gp++; if (l) gd++ } if (p.type === "run") { rp++; if (l) rd++ } if (p.type === "row") { op++; if (l) od++ } }
     if (l && l.type === "run" && !p) rd++;
     if (l && l.type === "run") mi += Number(l.mi) || 0;
     if (l && l.type === "gym" && l.ex) Object.values(l.ex).forEach(sets => (sets || []).forEach(s => { vol += (Number(s.w) || 0) * (Number(s.r) || 0) }));
@@ -56,8 +56,8 @@ function weekRecap(mon) {
       if (!b) return; if (k >= days[0]) { if (best[id] && b > best[id] * 1.005 && !prs.some(x => x.id === id)) prs.push({ id, b }) } if (!best[id] || b > best[id]) best[id] = b }) });
   const name = id => { const e = typeof libEx === "function" && libEx(id); return e ? e.name : id };
   let moves = []; try { const R = rankState(); moves = (R.events || []).filter(e => e.d >= days[0] && e.d <= sun && (e.t === "up" || e.t === "down" || e.t === "reclaim")).map(e => ({ p: e.p, t: e.t, to: e.to })) } catch (e) {}
-  const plan = gp + rp, done = gd + rd, need = Math.ceil(plan * 0.75);
-  return { w, mon: days[0], sun, gp, gd, rp, rd, mi, vol, q, prs: prs.map(x => name(x.id)), moves, plan, done, hit: plan > 0 && done >= need };
+  const plan = gp + rp + op, done = gd + rd + od, need = Math.ceil(plan * 0.75);
+  return { w, mon: days[0], sun, gp, gd, rp, rd, op, od, mi, vol, q, prs: prs.map(x => name(x.id)), moves, plan, done, hit: plan > 0 && done >= need };
 }
 function recapHtml() {
   const x = SH.rec, G = { upper: "Upper Body", lower: "Lower Body", core: "Core", speed: "Speed", endur: "Endurance", disc: "Discipline" };
@@ -67,7 +67,7 @@ function recapHtml() {
     <h2>${x.hit ? "Week cleared" : x.done ? "Week done" : "A quiet week"}</h2><p class="small muted" style="margin:0">${fmtShort(parseYmd(x.mon))} – ${fmtShort(parseYmd(x.sun))}</p>
     <div class="recap-big num"><b>${x.done}</b><span>/ ${x.plan} sessions</span></div><div class="hub-xp"><i style="width:${x.plan ? Math.min(100, Math.round(x.done / x.plan * 100)) : 0}%"></i></div>
     <p class="small" style="margin:0">${x.hit ? "On target: Discipline counts this week." : x.plan ? `Discipline needed ${Math.ceil(x.plan * 0.75)}. This week is a fresh start.` : ""}</p>
-    <div class="stv">${tile("Workouts", `${x.gd}/${x.gp}`)}${x.rp || x.rd ? tile("Runs", `${x.rd}/${x.rp}`) : ""}${x.mi ? tile("Distance", dTxt(x.mi)) : ""}${x.vol ? tile("Lifted", `${fmtN(Math.round(typeof toUd === "function" ? toUd(x.vol) : x.vol))} ${typeof uL === "function" ? uL() : "lb"}`) : ""}${tile("Daily quests", `${x.q}/7`)}</div>
+    <div class="stv">${tile("Workouts", `${x.gd}/${x.gp}`)}${x.rp || x.rd ? tile("Runs", `${x.rd}/${x.rp}`) : ""}${x.op ? tile("Rows", `${x.od}/${x.op}`) : ""}${x.mi ? tile("Distance", dTxt(x.mi)) : ""}${x.vol ? tile("Lifted", `${fmtN(Math.round(typeof toUd === "function" ? toUd(x.vol) : x.vol))} ${typeof uL === "function" ? uL() : "lb"}`) : ""}${tile("Daily quests", `${x.q}/7`)}</div>
     ${x.prs.length ? `<div><div class="eyebrow">New personal bests</div><ul class="recap-list">${x.prs.slice(0, 5).map(n => `<li>${esc(n)}</li>`).join("")}</ul></div>` : ""}
     ${x.moves.length ? `<div><div class="eyebrow">Rank changes</div><ul class="recap-list">${x.moves.map(m => `<li>${esc(G[m.p] || m.p)}: ${m.t === "down" ? "down to" : "up to"} <b>${rkLetter(m.to)}</b></li>`).join("")}</ul></div>` : ""}
     <p class="small muted" style="margin:0">This week: ${nn} session${nn === 1 ? "" : "s"} planned.</p>
