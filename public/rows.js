@@ -69,7 +69,9 @@ function rowSheetHtml() {
 }
 function rowEditHtml() {
   const d = SH.d, num = (f, lab, step, unit) => `<div class="field"><label>${lab}</label><div class="row" style="gap:6px;align-items:center"><input class="setnum" inputmode="decimal" data-row-f="${f}" value="${esc(d[f] ?? "")}" style="max-width:110px"><span class="small muted">${unit || ""}</span></div></div>`;
-  const splitF = `<div class="field"><label>Target split (/500 m)</label><input class="setnum" data-row-f="splitT" value="${esc(d.split ? rowSplitTxt(d.split) : "")}" placeholder="2:20" style="max-width:110px"></div>`;
+  const useSp = d.noSplit ? false : true;
+  const splitF = `<div class="field"><label class="row" style="gap:8px;align-items:center;cursor:pointer"><input type="checkbox" data-row-usesplit="1" ${useSp ? "checked" : ""}> <span>Target pace</span></label>
+    ${useSp ? `<div class="row" style="gap:6px;align-items:center;margin-top:6px"><input class="setnum" data-row-f="splitT" value="${esc(d.splitT != null ? d.splitT : d.split ? rowSplitTxt(d.split) : "")}" placeholder="2:20" style="max-width:110px" aria-label="Target split per 500 m"><span class="small muted">split /500 m</span></div>` : `<p class="small muted" style="margin:4px 0 0">No target. Just row ${d.kind === "steady" || d.by === "time" ? "for the time" : "the distance"} at whatever pace feels right.</p>`}</div>`;
   let f = "";
   if (d.kind === "steady") f = num("min", "Minutes", 1, "min") + splitF + `<label class="row" style="gap:8px;align-items:center;margin-top:6px"><input type="checkbox" data-row-f="grow" ${d.grow ? "checked" : ""}> <span class="small">Grow 2 min a week (up to 60)</span></label>`;
   else if (d.kind === "int") f = `<div class="field"><label>Pieces by</label><div class="xs-chips">${[["m", "Distance"], ["time", "Time"]].map(([v, n]) => `<button type="button" class="${(d.by || "m") === v ? "on" : ""}" data-row-by="${v}">${n}</button>`).join("")}</div></div>`
@@ -191,7 +193,7 @@ function rowSaveLog(k, pieces, plan) { const m = pieces.reduce((t, x) => t + x.m
   const l = { type: "row", kind: plan.kind, pieces, m, sec, ...(spms.length ? { spm: Math.round(spms.reduce((a, b) => a + b, 0) / spms.length) } : {}), plan, savedAt: Date.now() };
   saveLog(k, l); if (typeof RK_CACHE !== "undefined") RK_CACHE.sig = "" }
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-rl],[data-rl-adj],[data-row-by],[data-row-edit],[data-row-new],[data-row-kind],[data-row-tm],[data-row-save],[data-row-del],[data-rowlog-save],[data-rowlog-edit],[data-wsrow],[data-wsrowlog],[data-wsrowrep]"); if (!t) return;
+  const t = e.target.closest("[data-rl],[data-rl-adj],[data-row-usesplit],[data-row-by],[data-row-edit],[data-row-new],[data-row-kind],[data-row-tm],[data-row-save],[data-row-del],[data-rowlog-save],[data-rowlog-edit],[data-wsrow],[data-wsrowlog],[data-wsrowrep]"); if (!t) return;
   const d = t.dataset;
   if (d.wsrow) { rowStart(d.wsrow); return }
   if (d.wsrowlog) { const p = planFor(parseYmd(d.wsrowlog)); openSheet({ kind: "rowlog", k: d.wsrowlog, name: p && p.name, plan: p, d: {} }); return }
@@ -201,13 +203,15 @@ document.addEventListener("click", e => {
     const old = S.logs[SH.k], keep = SH.edit && old && old.pieces && old.pieces.length > 1 && old.m === m ? old.pieces : null;
     rowSaveLog(SH.k, keep || [{ m, sec: s, ...(Number(D.spm) > 0 ? { spm: Math.round(Number(D.spm)) } : {}) }], SH.plan || (old && old.plan) || planFor(parseYmd(SH.k)));
     xsClose(); lastRenderKey = ""; render(); toast("Row saved"); return }
-  if (d.rowEdit || d.rowNew) { const r = d.rowEdit ? rowById(d.rowEdit) : null; openSheet({ kind: "rowedit", id: r ? r.id : null, isNew: !r, day: d.rowNew && d.rowNew !== "1" ? +d.rowNew : null, d: r ? { ...r, ...(r.sec ? { secT: rowClock(r.sec) } : {}) } : { name: ROW_KINDS.steady.n, kind: "steady", ...ROW_KINDS.steady.make() } }); return }
-  if (d.rowKind && SH) { const nm = SH.d.name, wasDef = Object.values(ROW_KINDS).some(K => K.n === nm); SH.d = { ...ROW_KINDS[d.rowKind].make(), name: wasDef ? ROW_KINDS[d.rowKind].n : nm, kind: d.rowKind }; paintSheet(); return }
+  if (d.rowEdit || d.rowNew) { const r = d.rowEdit ? rowById(d.rowEdit) : null; openSheet({ kind: "rowedit", id: r ? r.id : null, isNew: !r, day: d.rowNew && d.rowNew !== "1" ? +d.rowNew : null, d: r ? { ...r, ...(r.sec ? { secT: rowClock(r.sec) } : {}), ...(r.split ? {} : { noSplit: true }) } : { name: ROW_KINDS.steady.n, kind: "steady", ...ROW_KINDS.steady.make() } }); return }
+  if (d.rowKind && SH) { const nm = SH.d.name, wasDef = Object.values(ROW_KINDS).some(K => K.n === nm); SH.d = { ...ROW_KINDS[d.rowKind].make(), name: wasDef ? ROW_KINDS[d.rowKind].n : nm, kind: d.rowKind, ...(SH.d.noSplit ? { noSplit: true } : {}) }; paintSheet(); return }
+  if (d.rowUsesplit && SH) { SH.d.noSplit = !e.target.checked; if (SH.d.noSplit) delete SH.d.splitT; paintSheet(); return }
   if (d.rowBy && SH) { SH.d.by = d.rowBy; if (d.rowBy === "time" && !SH.d.sec) { SH.d.sec = 60; SH.d.secT = "1:00" } paintSheet(); return }
   if (d.rowTm && SH) { SH.d.m = +d.rowTm; SH.d.name = SH.d.name === ROW_KINDS.test.n || /^Row test/.test(SH.d.name) ? `Row test (${+d.rowTm >= 1000 ? +d.rowTm / 1000 + "k" : d.rowTm + " m"})` : SH.d.name; paintSheet(); return }
   if (d.rowSave && SH) { const x = SH.d; ["min", "reps", "m", "rest"].forEach(f => { if (x[f] != null) x[f] = Math.max(1, Math.round(Number(x[f]) || 0)) });
     if (x.secT != null) { const v = rowParseTime(String(x.secT).includes(":") ? x.secT : "0:" + x.secT); if (v > 0) x.sec = Math.round(v); delete x.secT }
     if (x.kind === "int" && x.by === "time" && !(x.sec > 0)) x.sec = 60;
+    if (x.noSplit) { delete x.split; delete x.splitT } delete x.noSplit;
     if (x.splitT != null) { const s = rowParseSplit(x.splitT); if (s) x.split = s; else if (!String(x.splitT).trim()) delete x.split; delete x.splitT }
     x.name = String(x.name || "").trim().slice(0, 40) || ROW_KINDS[x.kind].n;
     const id = SH.id || "row_" + Date.now().toString(36), day = SH.day;
