@@ -14,21 +14,21 @@ const FPS = 10, MAX_SEC = 30;
 /* ---------- which rules each exercise gets ---------- */
 const PATTERN_OF = {};
 const P = (pat, ids) => ids.split(" ").forEach(id => PATTERN_OF[id] = pat);
-P("squat", "squat frontsquat goblet hack smithsquat pendulum beltsquat jumpsquat");
-P("hinge", "deadlift tbdl rdl dbrdl goodmorning kbswing backext sldl sumodl rackpull pullthrough");
-P("bridge", "hipthrust machthrust glutebridge smithhip");
-P("lunge", "split lunge stepup revlunge bblunge");
-P("hpress", "bench dbbench incline inclinebb declinebench smithbench cgbench pushup inclinesmith declinedb");
+P("squat", "lmsquat squat frontsquat goblet hack smithsquat pendulum beltsquat jumpsquat");
+P("hinge", "lmrdl deadlift tbdl rdl dbrdl goodmorning kbswing backext sldl sumodl rackpull pullthrough");
+P("bridge", "lmthrust hipthrust machthrust glutebridge smithhip");
+P("lunge", "lmlunge split lunge stepup revlunge bblunge");
+P("hpress", "lmsqpress bench dbbench incline inclinebb declinebench smithbench cgbench pushup inclinesmith declinedb");
 P("dip", "dips tridip");
-P("vpress", "ohp dbpress arnold smithohp landmine");
-P("row", "bbrow tbarrow onearmrow dbrow cablerow invrow pendlay meadows");
+P("vpress", "lmpress1 ohp dbpress arnold smithohp landmine");
+P("row", "lmrow bbrow tbarrow onearmrow dbrow cablerow invrow pendlay meadows");
 P("vpull", "pullup chinup pulldown assistpull closepull singlepull");
 P("curl", "curl bbcurl ezcurl hammer conc preacher cablecurl inclinecurl spider dbpreacher bayesian ropehammer revcurl");
 P("tri", "pushdown ropepush ohtri dbohtri skull kickback jmpress jmsmith singlepush ezohtri");
 P("raise", "lateral cablelat frontraise dbrevfly revfly uprow facepull bbupright platefront revcablefly");
 P("legraise", "hangleg legraise kneeraise toestobar");
 P("hold", "plank sideplank hollow wallsit");
-P("none", "wristcurl pallof pallofhold cablecrunch machcrunch rowerg jumprope deadhang");
+P("none", "lmrot wristcurl pallof pallofhold cablecrunch machcrunch rowerg jumprope deadhang");
 // everything else (machines, accessories, custom exercises) gets the basic checks
 const MUSCLE_BASIC = { Cardio: "none", Forearms: "none" };
 function patternFor(id, muscle) { return PATTERN_OF[id] || MUSCLE_BASIC[muscle] || "basic"; }

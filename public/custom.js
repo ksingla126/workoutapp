@@ -71,10 +71,15 @@ const EXLIB_RAW = [
   ["farmercarry","Farmer's Carry (Dumbbell)","Forearms","Dumbbell","wd"],["farmerhold","Farmer's Hold (Dumbbell)","Forearms","Dumbbell","tw"],
   ["jumprope","Jump Rope","Cardio","Other","t"],["burpee","Burpee","Cardio","Bodyweight","bw"],["mountain","Mountain Climber","Cardio","Bodyweight","t"],
   ["rowerg","Rowing Machine (seconds)","Cardio","Machine","t"],
+  // Landmine (bar anchored at one end; weight = plates loaded, not the bar)
+  ["lmsqpress","Landmine Squeeze Press","Chest","Landmine","w"],["lmpress1","Single-Arm Landmine Press","Shoulders","Landmine","w",1],
+  ["lmrow","Landmine Row (Two-Hand)","Back","Landmine","w"],["lmsquat","Landmine Squat","Quads","Landmine","w"],
+  ["lmlunge","Landmine Reverse Lunge","Quads","Landmine","w"],["lmrdl","Landmine Romanian Deadlift","Hamstrings","Landmine","w"],
+  ["lmthrust","Landmine Hip Thrust","Glutes","Landmine","w"],["lmrot","Landmine Rotation","Core","Landmine","w"],
   // More from the library: popular gym exercises
   ["inclinesmith","Incline Bench Press (Smith Machine)","Chest","Smith machine","w"],["inclinemach","Incline Chest Press (Machine)","Chest","Machine","w"],["declinedb","Decline Bench Press (Dumbbell)","Chest","Dumbbell","w"],["lowcablefly","Low-to-High Cable Fly","Chest","Cable","w"],["inclinedbfly","Incline Chest Fly (Dumbbell)","Chest","Dumbbell","w"],
-  ["closepull","Close-Grip Lat Pulldown (Cable)","Back","Cable","w"],["singlepull","Single-Arm Lat Pulldown (Cable)","Back","Cable","w"],["pendlay","Pendlay Row (Barbell)","Back","Barbell","w"],["meadows","Meadows Row (Landmine)","Back","Barbell","w"],["rackpull","Rack Pull (Barbell)","Back","Barbell","w"],["bbshrug","Shrug (Barbell)","Back","Barbell","w"],["isorow","Iso-Lateral Row (Machine)","Back","Machine","w"],["highrow","High Row (Machine)","Back","Machine","w"],
-  ["smithohp","Overhead Press (Smith Machine)","Shoulders","Smith machine","w"],["machlateral","Lateral Raise (Machine)","Shoulders","Machine","w"],["revcablefly","Reverse Fly (Cable)","Shoulders","Cable","w"],["bbupright","Upright Row (Barbell)","Shoulders","Barbell","w"],["landmine","Landmine Press","Shoulders","Barbell","w"],["platefront","Front Raise (Plate)","Shoulders","Other","w"],
+  ["closepull","Close-Grip Lat Pulldown (Cable)","Back","Cable","w"],["singlepull","Single-Arm Lat Pulldown (Cable)","Back","Cable","w"],["pendlay","Pendlay Row (Barbell)","Back","Barbell","w"],["meadows","Meadows Row (Landmine)","Back","Landmine","w"],["rackpull","Rack Pull (Barbell)","Back","Barbell","w"],["bbshrug","Shrug (Barbell)","Back","Barbell","w"],["isorow","Iso-Lateral Row (Machine)","Back","Machine","w"],["highrow","High Row (Machine)","Back","Machine","w"],
+  ["smithohp","Overhead Press (Smith Machine)","Shoulders","Smith machine","w"],["machlateral","Lateral Raise (Machine)","Shoulders","Machine","w"],["revcablefly","Reverse Fly (Cable)","Shoulders","Cable","w"],["bbupright","Upright Row (Barbell)","Shoulders","Barbell","w"],["landmine","Landmine Press","Shoulders","Landmine","w"],["platefront","Front Raise (Plate)","Shoulders","Other","w"],
   ["spider","Spider Curl (Dumbbell)","Biceps","Dumbbell","w"],["machpreacher","Preacher Curl (Machine)","Biceps","Machine","w"],["dbpreacher","Preacher Curl (Dumbbell)","Biceps","Dumbbell","w",1],["bayesian","Bayesian Curl (Cable)","Biceps","Cable","w"],["ropehammer","Hammer Curl (Cable Rope)","Biceps","Cable","w"],["revcurl","Reverse Curl (EZ Bar)","Biceps","EZ bar","w"],
   ["machdip","Seated Dip (Machine)","Triceps","Machine","w"],["singlepush","Single-Arm Pushdown (Cable)","Triceps","Cable","w"],["ezohtri","Overhead Triceps Extension (EZ Bar)","Triceps","EZ bar","w"],
   ["pendulum","Pendulum Squat (Machine)","Quads","Machine","w"],["beltsquat","Belt Squat (Machine)","Quads","Machine","w"],["revlunge","Reverse Lunge (Dumbbell)","Quads","Dumbbell","w"],["bblunge","Lunge (Barbell)","Quads","Barbell","w"],["jumpsquat","Jump Squat","Quads","Bodyweight","bw"],
@@ -97,7 +102,7 @@ const EXLIB_RAW = [
   ["boxjump","Box Jump","Cardio","Bodyweight","bw"],["battlerope","Battle Ropes (seconds)","Cardio","Other","t"],["sledpush","Sled Push","Cardio","Other","wd"],["airbike","Air Bike (seconds)","Cardio","Machine","t"],
 ];
 const MUSCLES=["Chest","Back","Shoulders","Biceps","Triceps","Quads","Hamstrings","Glutes","Calves","Core","Forearms","Cardio"];
-const EQUIP=["Barbell","Dumbbell","Machine","Cable","Bodyweight","EZ bar","Smith machine","Kettlebell","Other"];
+const EQUIP=["Barbell","Dumbbell","Machine","Cable","Bodyweight","EZ bar","Smith machine","Kettlebell","Landmine","Other"];
 function exLib(){ const pr=(typeof S!=="undefined"&&S.profile)||{}; const custom=[...((pr.setup&&pr.setup.customEx)||[]),...(pr.customEx||[])];
   return [...EXLIB_RAW.map(([id,name,muscle,equip,type,uni])=>({id,name,muscle,equip,type,uni:!!uni})), ...custom.map(c=>({...c,custom:true}))] }
 const exHay=e=>(e.name+" "+e.muscle+" "+e.equip+(e.type==="t"||e.type==="tw"?" isometric iso static hold":"")).toLowerCase();
@@ -108,7 +113,7 @@ function toPlanEx(r){ // routine entry -> exercise object the logger understands
   const L=libEx(r.id)||{id:r.id,name:r.name||r.id,muscle:"",equip:"Other",type:"w"};
   // "t" = timed bodyweight hold (seconds only); "tw" = timed hold with a weight (weight × seconds)
   const carry=L.type==="wd", timed=L.type==="t", heldW=L.type==="tw", reps0=L.type==="br", inc= carry? 5 : timed||reps0?0 : L.id==="legpress45"||L.id==="legpress"||L.id==="hack"? 20 : L.type==="bw"? 5 : L.equip==="Machine"? 10 : 5;
-  const note= L.type==="bw"? "Bodyweight: leave weight blank, or enter added weight." : L.equip==="Dumbbell"? (L.uni?"Weight = the one dumbbell.":"Weight = each dumbbell.") : "";
+  const note= L.type==="bw"? "Bodyweight: leave weight blank, or enter added weight." : L.equip==="Dumbbell"? (L.uni?"Weight = the one dumbbell.":"Weight = each dumbbell.") : L.equip==="Landmine"? "Weight = plates loaded on the bar (don't count the bar)." : "";
   return {id:L.id,name:L.name,sets:r.sets||3,lo:r.lo||(carry?20:timed?30:heldW?20:8),hi:r.hi||(carry?40:timed?60:heldW?30:12),inc,rest:r.rest||90,
     ...(carry?{fmt0:"wd"}:timed?{bw:true,unit:"sec"}:heldW?{unit:"sec"}:reps0?{bw:true}:{}),...(L.type==="bw"?{optW:true}:{}),...(r.ss?{ss:r.ss}:{}),...(r.note||note?{alt:[note,r.note].filter(Boolean).join(" ")}:{}),muscle:L.muscle,equip:L.equip,uni:L.uni};
 }
