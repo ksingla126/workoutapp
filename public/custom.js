@@ -979,18 +979,29 @@ function muscleOfEx(id){ const L=libEx(id); if(L) return L.muscle; const m=EX_MU
 function swapHtml(){
   const W=SH, p=planFor(parseYmd(W.k)), inDay=new Set((p&&p.ex||[]).map(e=>e.id));
   if(W.adding) return addExHtml(W,inDay);
+  if(W.to&&W.allAsk){ const L=libEx(W.to)||{name:W.to}, ks=pastOf(W.from), both=ks.filter(k=>hasEx(S.logs[k],W.to)), n=ks.length-both.length;
+    return `<div class="xs-head"><h2>Rewrite past sessions?</h2><button type="button" class="btn ghost sm" data-xs="allback">Back</button></div>
+     <div class="swapfrom"><span>${esc(W.fromName)}</span>${SWAP_ICON}<span>${esc(L.name)}</span></div>
+     <div class="xs-warn"><b>⚠ Only for an exercise you've been logging under the wrong name</b>
+       <p>All ${n} logged session${n===1?"":"s"} of ${esc(W.fromName)}${n?` (${fmtShort(parseYmd(ks[0]))}–${fmtShort(parseYmd(ks[ks.length-1]))})`:""} will be recorded as ${esc(L.name)}. This changes your past data: their history, PRs and rank credit move to ${esc(L.name)}, and ${esc(W.fromName)} is left with no history.</p>
+       <p>If some of those really were ${esc(W.fromName)}, go back and fix single workouts instead. This can't be undone in one step.</p>
+       ${baseFmtId(W.from)!==baseFmtId(W.to)?`<p>${esc(L.name)} is logged as ${esc(FMT[baseFmtId(W.to)].name)}, not ${esc(FMT[baseFmtId(W.from)].name)}, so the same numbers will be read that way.</p>`:""}
+       ${both.length?`<p>${both.length} day${both.length===1?"":"s"} already ha${both.length===1?"s":"ve"} both exercises logged and will stay as they are.</p>`:""}</div>
+     ${n?`<button type="button" class="btn danger" style="width:100%;margin-top:4px" data-xs-swapmode="allgo">Move ${n} session${n===1?"":"s"} to ${esc(L.name)}</button>`:""}
+     <button type="button" class="btn ghost" style="width:100%;margin-top:8px" data-xs="allback">Cancel</button>` }
   if(W.to&&W.fix){ const L=libEx(W.to)||{name:W.to}, can=fixRoutineOK(W);
     return `<div class="xs-head"><h2>Fix logged exercise</h2><button type="button" class="btn ghost sm" data-xs="swapback">Back</button></div>
      <div class="swapfrom"><span>${esc(W.fromName)}</span>${SWAP_ICON}<span>${esc(L.name)}</span></div>
      <p class="small muted">Your sets from ${fmtDate(parseYmd(W.k))} stay exactly as logged, recorded as ${esc(L.name)}. History, PRs and ranks update to match.</p>
      <button type="button" class="swapopt" data-xs-swapmode="fixonly"><b>Just fix this workout</b><span>Your routine stays the same.</span></button>
+     ${pastOf(W.from).length>1?allFixOpt(W,L):""}
      ${can?`<button type="button" class="swapopt" data-xs-swapmode="fixroutine"><b>Fix it and swap it in your routine too</b><span>Every ${esc(W.dayName)} from today on uses ${esc(L.name)} instead of ${esc(W.fromName)}.</span></button>`:""}` }
   if(W.to){ const L=libEx(W.to)||{name:W.to}, isToday=W.k===ymd(today);
     return `<div class="xs-head"><h2>Swap exercise</h2><button type="button" class="btn ghost sm" data-xs="swapback">Back</button></div>
      <div class="swapfrom"><span>${esc(W.fromName)}</span>${SWAP_ICON}<span>${esc(L.name)}</span></div>
      <p class="small muted">Sets, reps and rest carry over. How long should this swap last?</p>${liveSwapNote(W)}
      <button type="button" class="swapopt" data-xs-swapmode="once"><b>${isToday?"Just today":"Just this workout"}</b><span>${fmtDate(parseYmd(W.k))} only. Your routine stays the same.</span></button>
-     <button type="button" class="swapopt" data-xs-swapmode="routine"><b>Every ${esc(W.dayName)} from now on</b><span>Changes your routine for all future workouts${isToday?" starting today":" starting "+fmtShort(parseYmd(W.k))}. Logged workouts keep what you did, and Standings update to match.</span></button>` }
+     <button type="button" class="swapopt" data-xs-swapmode="routine"><b>Every ${esc(W.dayName)} from now on</b><span>Changes your routine for all future workouts${isToday?" starting today":" starting "+fmtShort(parseYmd(W.k))}. Logged workouts keep what you did, and Standings update to match.</span></button>${pastOf(W.from).length?allFixOpt(W,L):""}` }
   const q=(W.q||"").toLowerCase().trim(), mu=W.mu||"";
   const timed=id=>{ const L=libEx(id); return L? L.type==="t" : !!(typeof X!=="undefined"&&X[id]&&X[id].unit==="sec") };
   const list=exLib().filter(e=>e.id!==W.from&&(!W.fix||timed(e.id)===timed(W.from))&&(!mu||e.muscle===mu)&&(!q||exHay(e).includes(q)));
@@ -1024,7 +1035,24 @@ function fixLoggedEx(k,from,to){ const l=S.logs[k]; if(!l||!l.ex) return null; c
 function fixRoutine(W){ const rs=(S.profile.setup&&S.profile.setup.routines)||[]; return rs.find(x=>x.id===W.day)||rs.find(x=>x.id==="r"+W.day) }
 function fixRoutineOK(W){ if(CUSTOM){ const r=fixRoutine(W); return !!(r&&r.ex.some(x=>x.id===W.from)&&!r.ex.some(x=>x.id===W.to)) }
   const g=typeof gymDay==="function"&&gymDay(W.day,today); return !!(g&&g.ex&&g.ex.some(x=>x.id===W.from)) }
+// Bulk fix: every logged session of one exercise becomes another (for an exercise logged under the wrong name).
+const hasEx=(l,id)=>!!(l&&l.type==="gym"&&l.ex&&l.ex[id]&&l.ex[id].length);
+function pastOf(id){ return Object.keys(S.logs).filter(k=>hasEx(S.logs[k],id)).sort() }
+function allFixOpt(W,L){ const n=pastOf(W.from).length;
+  return `<button type="button" class="swapopt warn" data-xs="allask"><b>Fix all ${n} past session${n===1?"":"s"} too</b><span>Everything you've logged as ${esc(W.fromName)} becomes ${esc(L.name)}, and your routine uses ${esc(L.name)} from now on. Only for an exercise logged under the wrong name.</span></button>` }
+function fixAllLogged(from,to){ const ks=pastOf(from).filter(k=>!hasEx(S.logs[k],to)); if(!ks.length) return 0;
+  ks.forEach(k=>fixLoggedEx(k,from,to));
+  // PRs on later days of the new exercise depend on the moved sessions, so recheck them in date order
+  Object.keys(S.logs).filter(k=>k>ks[0]&&hasEx(S.logs[k],to)&&!ks.includes(k)).sort().forEach(k=>{ const l=S.logs[k], had=(l.prs||[]).includes(to), now=findPRs(k,l).includes(to);
+    if(had!==now){ const prs=(l.prs||[]).filter(x=>x!==to); if(now) prs.push(to); const nl={...l,savedAt:Date.now()}; if(prs.length) nl.prs=prs; else delete nl.prs; saveLog(k,nl) } });
+  const N=S.profile.exNotes; if(N&&N[from]){ const mv=N[from].filter(x=>ks.includes(x.k)); if(mv.length){ N[to]=[...(N[to]||[]),...mv]; N[from]=N[from].filter(x=>!ks.includes(x.k)); if(!N[from].length) delete N[from]; saveProfile() } }
+  if(typeof RK_CACHE!=="undefined") RK_CACHE.sig="";
+  return ks.length }
 function doSwap(mode){ const W=SH, from=W.from, to=W.to, k=W.k;
+  if(mode==="allgo"){ const toName=(libEx(to)||{name:to}).name, n=fixAllLogged(from,to); S.profile.swaps=S.profile.swaps||{}; const sw=S.profile.swaps; sw.routine=sw.routine||[];
+    if(fixRoutineOK(W)){ if(CUSTOM){ const su=S.profile.setup, r=fixRoutine(W), e=r&&r.ex.find(x=>x.id===from); if(e){ const tm=(libEx(to)||{}).type==="t", wasT=(libEx(from)||{}).type==="t"; e.id=to; if(tm&&!wasT){e.lo=30;e.hi=60} else if(!tm&&wasT){e.lo=8;e.hi=12} su.at=Date.now() } xsClose(); commitPlan() }
+      else { sw.routine.push({day:W.day,from,to,since:ymd(today)}); saveProfile(); xsClose() } } else xsClose();
+    lastRenderKey=""; render(); toast(`Moved ${n} session${n===1?"":"s"} to ${toName}`); return }
   S.profile.swaps=S.profile.swaps||{}; const sw=S.profile.swaps; sw.once=sw.once||{}; sw.routine=sw.routine||[];
   if(mode==="fixonly"||mode==="fixroutine"){ const toName=(libEx(to)||{name:to}).name;
     const done=fixLoggedEx(k,from,to); if(!done){ xsClose(); return }
@@ -1414,7 +1442,9 @@ document.addEventListener("click",e=>{
   if(d.xsPushweek){ const days=weekDays(SH.k).filter(x=>x>=SH.k&&!S.logs[x]), srcs=days.map(srcOf); days.forEach((x,i)=>setSrc(x,i===0?null:srcs[i-1])); saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Week pushed back a day"); return }
   if(d.xsResetweek){ const mv=S.profile.moves||{}; weekDays(SH.k).forEach(x=>{ if(!S.logs[x]) delete mv[x] }); saveProfile(); xsClose(); lastRenderKey=""; render(); toast("Week reset to the plan"); return }
   if(d.xsSwapto){ SH.to=d.xsSwapto; paintSheet(true); return }
-  if(d.xs==="swapback"){ SH.to=null; paintSheet(true); return }
+  if(d.xs==="swapback"){ SH.to=null; SH.allAsk=false; paintSheet(true); return }
+  if(d.xs==="allask"){ SH.allAsk=true; paintSheet(true); return }
+  if(d.xs==="allback"){ SH.allAsk=false; paintSheet(true); return }
   if(d.xsSwapmode){ doSwap(d.xsSwapmode); return }
   if(d.xs==="swapnew"){ SH.back=SH.kind; SH.kind="exNew"; SH.d=null; paintSheet(true); return }
   if(d.xsTab){ SH.tab=d.xsTab; SH.q=""; paintSheet(true); return }
