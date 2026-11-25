@@ -186,6 +186,35 @@ function plRowEd(r) {
 }
 function plRowMut(id, fn) { suMut(su => { rowsEnsure(su); const r = su.rows.find(x => x.id === id); if (r) fn(r) }) }
 
+
+/* ---------- sets and reps: this workout, or every workout with the exercise ----------
+ * When you change an exercise's sets or reps and the same exercise is in another workout, ask once whether the change
+ * is for this workout only or for all of them. The answer holds until the editor (or island popup) closes. */
+const EX_SCOPE = {};
+function exScopeReset() { Object.keys(EX_SCOPE).forEach(k => delete EX_SCOPE[k]) }
+function exElsewhere(rid, exId) { const su = plSu(); return ((su && su.routines) || []).filter(r => r.id !== rid && r.ex.some(e => e.id === exId)) }
+function exDaysTxt(r) { const on = plDaysOf("gym", r.id); return on.length ? `${r.name} (${on.map(i => DOW[i]).join(", ")})` : r.name }
+// mut(x) changes the exercise in this workout; then, for "all", the changed fields are copied to the others
+function exScopeEdit(rid, exId, fields, mut) {
+  const run = scope => suMut(su => { const r = su.routines.find(x => x.id === rid), x = r && r.ex.find(e => e.id === exId); if (!x) return; mut(x);
+    if (scope === "all") su.routines.forEach(o => { if (o.id !== rid) o.ex.forEach(e => { if (e.id === exId) fields.forEach(f => { if (x[f] != null) e[f] = x[f] }) }) }) });
+  const others = exElsewhere(rid, exId), key = rid + "|" + exId;
+  if (!others.length || EX_SCOPE[key]) return run(EX_SCOPE[key] || "one");
+  const su = plSu(), me = su.routines.find(x => x.id === rid), L = libEx(exId) || { name: exId };
+  document.querySelectorAll(".exs-pop").forEach(x => x.remove());
+  const el = document.createElement("div"); el.className = "exs-pop"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "exsT");
+  el.innerHTML = `<button type="button" class="exs-bg" data-exs="x" aria-label="Cancel"></button><div class="exs-card"><span class="exs-eb">[SYSTEM] SETS &amp; REPS</span>
+    <b class="exs-t" id="exsT">${esc(L.name)} is in ${others.length + 1} workouts</b>
+    <p class="exs-p">Also in ${others.map(r => `<b>${esc(exDaysTxt(r))}</b>`).join(", ")}. Change it just in ${esc(me ? me.name : "this workout")}, or everywhere it appears?</p>
+    <button type="button" class="exs-b one" data-exs="one">Just ${esc(me ? me.name : "this workout")}</button>
+    <button type="button" class="exs-b all" data-exs="all">All ${others.length + 1} workouts</button>
+    <button type="button" class="exs-c" data-exs="x">Cancel</button></div>`;
+  el.addEventListener("click", e => { const b = e.target.closest("[data-exs]"); if (!b) return; e.stopPropagation(); const c = b.dataset.exs; el.remove(); if (c === "x") return; EX_SCOPE[key] = c; run(c);
+    if (c === "all") toast(`Changed in all ${others.length + 1} workouts`) });
+  document.body.appendChild(el); setTimeout(() => { const b = el.querySelector(".exs-b.one"); if (b) b.focus({ preventScroll: true }) }, 0);
+}
+document.addEventListener("keydown", e => { if (e.key === "Escape") document.querySelectorAll(".exs-pop").forEach(x => x.remove()) });
+
 /* ---------- events ---------- */
 function plGo(fn) { fn(); lastRenderKey = ""; render() }
 document.addEventListener("click", e => {
@@ -207,8 +236,8 @@ document.addEventListener("click", e => {
     suMut(su => { rowsEnsure(su); const n = su.rows.filter(r => r.kind === d.plNewrow).length; su.rows.push({ id, name: K.n + (n ? " " + (n + 1) : ""), kind: d.plNewrow, ...K.make(), w0: weekOf(today) }); if (i != null) { su.week[i] = "row"; su.rowWeek[i] = id; if (su.runWeek) su.runWeek[i] = null } });
     PL.pop = null; PL.edit = { kind: "row", id }; lastRenderKey = ""; render(); window.scrollTo(0, 0); return }
   if (d.plNew) { if (d.plNew === "gym") return plGo(() => { PL.pop = { day: null, step: "forge", root: "forge", hist: [] } }); return plGo(() => { PL.pop = { day: null, step: d.plNew, root: d.plNew, hist: [] } }) }
-  if (d.plEdit) { const [k, id] = d.plEdit.split("|"); PL.edit = { kind: k, id }; PL.open = -1; PL.del = ""; lastRenderKey = ""; render(); window.scrollTo(0, 0); return }
-  if (d.plDone) return plGo(() => { PL.edit = null; PL.open = -1; PL.del = "" });
+  if (d.plEdit) { exScopeReset(); const [k, id] = d.plEdit.split("|"); PL.edit = { kind: k, id }; PL.open = -1; PL.del = ""; lastRenderKey = ""; render(); window.scrollTo(0, 0); return }
+  if (d.plDone) return plGo(() => { PL.edit = null; PL.open = -1; PL.del = ""; exScopeReset() });
   if (d.plDel) { if (PL.del !== d.plDel) return plGo(() => { PL.del = d.plDel }); const [k, id] = d.plDel.split("|");
     suMut(su => { if (k === "gym") { su.routines = su.routines.filter(r => r.id !== id); su.week = su.week.map(w => w === id ? "none" : w) }
       else if (k === "run") { su.runs = (su.runs || []).filter(r => r.id !== id); (su.runWeek || []).forEach((x, i) => { if (x === id) { su.runWeek[i] = null; su.week[i] = "none" } }) }
@@ -216,8 +245,13 @@ document.addEventListener("click", e => {
     PL.edit = null; PL.del = ""; lastRenderKey = ""; render(); toast("Deleted"); return }
   if (d.plOpen != null) return plGo(() => { PL.open = PL.open === +d.plOpen ? -1 : +d.plOpen });
   if (d.plEnd) { const [i, k] = d.plEnd.split("|"); return plGo(() => { PL.end[i] = k }) }
-  if (d.plX && PL.edit) { const [i, f, s] = d.plX.split("|"), dir = +s, id = PL.edit.id;
-    suMut(su => { const r = su.routines.find(x => x.id === id), x = r && r.ex[+i]; if (!x) return; const L = libEx(x.id) || {}, st = L.type === "t" || L.type === "tw" ? 5 : 1;
+  if (d.plX && PL.edit) { const [i, f, s] = d.plX.split("|"), dir = +s, id = PL.edit.id, r0 = plSu().routines.find(x => x.id === id), x0 = r0 && r0.ex[+i]; if (!x0) return;
+    const L = libEx(x0.id) || {}, st = L.type === "t" || L.type === "tw" ? 5 : 1;
+    if (f !== "rest") return exScopeEdit(id, x0.id, f === "sets" ? ["sets"] : ["lo", "hi"], x => {
+      if (f === "sets") x.sets = Math.max(1, Math.min(10, x.sets + dir));
+      else if (f === "lo") { x.lo = Math.max(1, x.lo + dir * st); if (x.hi < x.lo) x.hi = x.lo }
+      else if (f === "hi") { x.hi = Math.max(1, x.hi + dir * st); if (x.lo > x.hi) x.lo = x.hi } });
+    suMut(su => { const r = su.routines.find(x => x.id === id), x = r && r.ex[+i]; if (!x) return;
       if (f === "sets") x.sets = Math.max(1, Math.min(10, x.sets + dir));
       else if (f === "rest") { const R = [30, 45, 60, 75, 90, 120, 150, 180, 240, 300], c = x.rest || 90, k = R.findIndex(v => v >= c); x.rest = R[Math.max(0, Math.min(R.length - 1, (k < 0 ? R.length - 1 : k) + dir))] }
       else if (f === "lo") { x.lo = Math.max(1, x.lo + dir * st); if (x.hi < x.lo) x.hi = x.lo }
@@ -251,6 +285,16 @@ function plDrop() { if (!PLD) return; const { fl, from, to, el } = PLD; PLD = nu
 document.addEventListener("pointerup", plDrop); document.addEventListener("pointercancel", plDrop);
 
 (function () { if (document.getElementById("plCss")) return; const st = document.createElement("style"); st.id = "plCss"; st.textContent = `
+.exs-pop{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));animation:plIn .18s ease-out}
+.exs-bg{all:unset;position:absolute;inset:0;background:rgba(3,5,10,.7)}
+.exs-card{position:relative;max-width:400px;width:100%;box-sizing:border-box;border-radius:20px;padding:20px 18px 14px;display:flex;flex-direction:column;gap:10px;color:#F5F1E6;background:linear-gradient(180deg,#14151A,#0A0A0C);border:1.5px solid rgba(217,178,106,.55);box-shadow:0 30px 60px #000;font-family:Barlow,system-ui,sans-serif}
+.exs-eb{font:800 10px/1 var(--pl-cd);letter-spacing:.28em;color:var(--pl-gold)}
+.exs-t{font:900 22px/1.1 var(--pl-cd)}
+.exs-p{margin:0;font:500 13.5px/1.45 Barlow,sans-serif;color:#B8BEC8}.exs-p b{color:#F5F1E6;font-weight:600}
+.exs-b{all:unset;cursor:pointer;box-sizing:border-box;width:100%;text-align:center;padding:13px 10px;border-radius:12px;font:800 13px/1.2 var(--pl-cd);letter-spacing:.14em;text-transform:uppercase}
+.exs-b.one{border:1.5px solid rgba(245,241,230,.3);color:#F5F1E6}.exs-b.all{background:linear-gradient(180deg,#F0D398,#B88D45);color:#14100A}
+.exs-b:focus-visible,.exs-c:focus-visible{outline:2px solid var(--pl-gold);outline-offset:2px}
+.exs-c{all:unset;cursor:pointer;align-self:center;padding:6px 10px;font:600 12.5px Barlow,sans-serif;color:#8F97A6;text-decoration:underline}
 :root{--pl-gym:#8B7CFF;--pl-run:#4FD08A;--pl-row:#4FB3E8;--pl-rest:#A9B6C4;--pl-gold:#D9B26A;--pl-cd:"Barlow Semi Condensed",sans-serif}
 body.pl-page{background:radial-gradient(60% 30% at 25% 20%,rgba(60,110,140,.16),transparent 70%),radial-gradient(50% 30% at 80% 70%,rgba(80,70,150,.14),transparent 70%),linear-gradient(rgba(150,190,220,.045) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,rgba(150,190,220,.045) 1px,transparent 1px) 0 0/28px 28px,#070B13;background-attachment:fixed}
 body.pl-page #top{color:#F5F1E6}
