@@ -87,13 +87,48 @@ function rowEditHtml() {
 }
 // past days and "log it by hand": distance, time, stroke rate
 function rowLogHtml() { const d = SH.d;
+  if (d.pcs && d.mode !== "tot") return rowLogPcsHtml();
   return `<div class="xs-head"><h2>Log ${esc(SH.name || "row")}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>
     <p class="small muted">${esc(fmtDate(parseYmd(SH.k)))}. From your rowing machine's monitor.</p>
     <div class="row" style="gap:10px"><div class="field" style="flex:1"><label>Distance</label><input class="xs-search" inputmode="numeric" data-rowlog="m" value="${esc(d.m || "")}" placeholder="5000"><span class="small muted">metres</span></div>
     <div class="field" style="flex:1"><label>Time</label><input class="xs-search" data-rowlog="t" value="${esc(d.t || "")}" placeholder="22:30"><span class="small muted">min:sec</span></div></div>
     <div class="field"><label>Stroke rate (optional)</label><input class="xs-search" inputmode="numeric" data-rowlog="spm" value="${esc(d.spm || "")}" placeholder="24" style="max-width:120px"></div>
     <p class="small muted rowlog-split">${rowLogSplit(d)}</p>
-    <button type="button" class="btn" style="width:100%" data-rowlog-save="1">Save</button>` }
+    <button type="button" class="btn" style="width:100%" data-rowlog-save="1">Save</button>${d.pcs ? `<button type="button" class="btn ghost" style="width:100%;margin-top:8px" data-rowlog-mode="pcs">Enter each interval instead</button>` : ""}` }
+/* Intervals: copy the results screen the rowing machine shows at the end (on a Concept2 PM5: one line per interval
+ * with time, metres, /500m split and s/m). You type each interval's split and stroke rate; the other column
+ * (time for distance pieces, metres for time pieces) is worked out, and the summary line matches the monitor's top line. */
+function rowLogPieces0(plan, old) {
+  if (old && old.pieces && old.pieces.length > 1) { const tm = old.pieces.every(x => old.pieces[0].sec === x.sec) && !old.pieces.every(x => old.pieces[0].m === x.m);
+    return { by: tm ? "time" : "m", pcs: old.pieces.map(x => ({ w: tm ? rowClock(x.sec) : String(x.m), split: x.m > 0 ? rowSplitTxt(x.sec / (x.m / 500)) : "", spm: x.spm ? String(x.spm) : "" })) } }
+  if (!plan || plan.kind !== "int") return null;
+  const by = plan.by === "time" ? "time" : "m", n = Math.max(1, Math.min(30, plan.reps || 8));
+  return { by, pcs: Array.from({ length: n }, () => ({ w: by === "time" ? rowClock(plan.sec || 60) : String(plan.m || 500), split: "", spm: "" })) };
+}
+function rowPcCalc(by, x) { const sp = rowParseSplit(x.split);
+  if (by === "time") { const sec = rowParseTime(String(x.w).includes(":") ? x.w : "0:" + x.w); return sec > 0 && sp ? { sec, m: Math.round(sec / sp * 500) } : { sec: sec || 0, m: 0 } }
+  const m = Math.round(Number(x.w)); return m > 0 && sp ? { m, sec: +(sp * m / 500).toFixed(1) } : { m: m || 0, sec: 0 } }
+function rowPcSum(d) { const ok = d.pcs.map(x => rowPcCalc(d.by, x)).filter(x => x.m > 0 && x.sec > 0), m = ok.reduce((t, x) => t + x.m, 0), sec = ok.reduce((t, x) => t + x.sec, 0);
+  const spms = d.pcs.map(x => Number(x.spm)).filter(v => v > 0); return { n: ok.length, m, sec, split: m ? sec / (m / 500) : 0, spm: spms.length ? Math.round(spms.reduce((a, b) => a + b, 0) / spms.length) : 0 } }
+function rowPcSumHtml(d) { const t = rowPcSum(d);
+  const T = t.sec ? (d.by === "time" ? rowClock(t.sec) : rowSplitTxt(t.sec)) : "–", M = t.m ? t.m.toLocaleString("en-US") + "m" : "–", sp = t.split ? rowSplitTxt(t.split) : "–";
+  return d.by === "time" ? `<span>${T}</span><span>${sp}</span><span>${M}</span><span>${t.spm || "–"}</span>` : `<span>${M}</span><span>${sp}</span><span>${T}</span><span>${t.spm || "–"}</span>` }
+function rowPcOut(d, i) { const c = rowPcCalc(d.by, d.pcs[i]); return d.by === "time" ? (c.m ? c.m.toLocaleString("en-US") + "m" : "–") : (c.sec ? rowSplitTxt(c.sec) : "–") }
+function rowLogPcsHtml() { const d = SH.d, tm = d.by === "time";
+  return `<div class="xs-head"><h2>Log ${esc(SH.name || "row")}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>
+    <p class="small muted">${esc(fmtDate(parseYmd(SH.k)))}. Copy the results screen your rowing machine shows when the workout ends: each interval's <b>split</b> (/500m) and <b>stroke rate</b> (s/m). On a Concept2 it's also under Menu › Memory.</p>
+    <div class="rpc" role="table" aria-label="Intervals">
+      <div class="rpc-h" role="row"><span></span><span>${tm ? "TIME" : "METRES"}</span><span>/500M</span><span>${tm ? "METRES" : "TIME"}</span><span>S/M</span></div>
+      <div class="rpc-sum" role="row" aria-label="Total"><span>Σ</span><span id="rpcSum" class="rpc-sumv">${rowPcSumHtml(d)}</span></div>
+      ${d.pcs.map((x, i) => `<div class="rpc-r" role="row"><span class="rpc-n">${i + 1}</span>
+        <input data-rowpc="${i}|w" value="${esc(x.w)}" inputmode="${tm ? "text" : "numeric"}" aria-label="Interval ${i + 1} ${tm ? "time" : "metres"}">
+        <input class="rpc-sp" data-rowpc="${i}|split" value="${esc(x.split)}" placeholder="${d.hint || "1:55.0"}" inputmode="decimal" aria-label="Interval ${i + 1} split per 500 metres">
+        <span class="rpc-o" id="rpcO${i}">${rowPcOut(d, i)}</span>
+        <input data-rowpc="${i}|spm" value="${esc(x.spm)}" placeholder="28" inputmode="numeric" aria-label="Interval ${i + 1} stroke rate"></div>`).join("")}
+    </div>
+    <div class="row" style="gap:8px;margin:8px 0 12px"><button type="button" class="btn ghost sm" data-rowpc-add="1">+ Interval</button>${d.pcs.length > 1 ? `<button type="button" class="btn ghost sm" data-rowpc-rm="1">− Last interval</button>` : ""}<span class="small muted" style="margin-left:auto;align-self:center">${d.pcs.length} interval${d.pcs.length === 1 ? "" : "s"}</span></div>
+    <button type="button" class="btn" style="width:100%" data-rowlog-save="1">Save</button>
+    <button type="button" class="btn ghost" style="width:100%;margin-top:8px" data-rowlog-mode="tot">Just enter the totals</button>` }
 function rowLogSplit(d) { const m = Number(d.m), s = rowParseTime(d.t); return m > 0 && s > 0 ? `Average split ${rowSplitTxt(s / (m / 500))} /500 m` : "" }
 function rowParseTime(t) { const s = String(t || "").trim(); if (!s) return null; const p = s.split(":").map(Number); if (p.some(isNaN)) return null; return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : p.length === 2 ? p[0] * 60 + p[1] : p[0] * 60 }
 function rowRepHtml() { const l = S.logs[SH.k]; if (!l) return "";
@@ -189,16 +224,26 @@ function rwConfirm() { const p = RW.plan, d = RW.draft, tm = rwTimed(p), n = rwP
   if (RW.i >= n) RW.ph = "done";
   rwSave(); rwPaint() }
 function rowParseSplit(s) { s = String(s || "").trim(); const m = s.match(/^(\d+):(\d+(?:\.\d+)?)$/); if (m) return +m[1] * 60 + +m[2]; const n = Number(s); return n > 0 ? (n < 10 ? n * 60 : n) : null }
+function rowLogD0(plan, old) { const P = rowLogPieces0(plan, old); return P ? { by: P.by, pcs: P.pcs, hint: plan && plan.split ? rowSplitTxt(plan.split) : "" } : {} }
 function rowSaveLog(k, pieces, plan) { const m = pieces.reduce((t, x) => t + x.m, 0), sec = +pieces.reduce((t, x) => t + x.sec, 0).toFixed(1), spms = pieces.map(x => x.spm).filter(Boolean);
   const l = { type: "row", kind: plan.kind, pieces, m, sec, ...(spms.length ? { spm: Math.round(spms.reduce((a, b) => a + b, 0) / spms.length) } : {}), plan, savedAt: Date.now() };
   saveLog(k, l); if (typeof RK_CACHE !== "undefined") RK_CACHE.sig = "" }
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-rl],[data-rl-adj],[data-row-usesplit],[data-row-by],[data-row-edit],[data-row-new],[data-row-kind],[data-row-tm],[data-row-save],[data-row-del],[data-rowlog-save],[data-rowlog-edit],[data-wsrow],[data-wsrowlog],[data-wsrowrep]"); if (!t) return;
+  const t = e.target.closest("[data-rl],[data-rl-adj],[data-row-usesplit],[data-row-by],[data-row-edit],[data-row-new],[data-row-kind],[data-row-tm],[data-row-save],[data-row-del],[data-rowlog-save],[data-rowlog-edit],[data-rowlog-mode],[data-rowpc-add],[data-rowpc-rm],[data-wsrow],[data-wsrowlog],[data-wsrowrep]"); if (!t) return;
   const d = t.dataset;
   if (d.wsrow) { rowStart(d.wsrow); return }
-  if (d.wsrowlog) { const p = planFor(parseYmd(d.wsrowlog)); openSheet({ kind: "rowlog", k: d.wsrowlog, name: p && p.name, plan: p, d: {} }); return }
+  if (d.wsrowlog) { const p = planFor(parseYmd(d.wsrowlog)); openSheet({ kind: "rowlog", k: d.wsrowlog, name: p && p.name, plan: p, d: rowLogD0(p) }); return }
   if (d.wsrowrep) { openSheet({ kind: "rowrep", k: d.wsrowrep, ws: true }); return }
-  if (d.rowlogEdit) { const l = S.logs[d.rowlogEdit]; openSheet({ kind: "rowlog", k: d.rowlogEdit, name: l.plan && l.plan.name, plan: l.plan, d: { m: l.m, t: rowClock(l.sec), spm: l.spm || "" }, edit: true }); return }
+  if (d.rowlogEdit) { const l = S.logs[d.rowlogEdit]; openSheet({ kind: "rowlog", k: d.rowlogEdit, name: l.plan && l.plan.name, plan: l.plan, d: { ...rowLogD0(l.plan, l), m: l.m, t: rowClock(l.sec), spm: l.spm || "" }, edit: true }); return }
+  if (d.rowlogMode) { SH.d.mode = d.rowlogMode; paintSheet(true); return }
+  if (d.rowpcAdd) { const L = SH.d.pcs[SH.d.pcs.length - 1]; SH.d.pcs.push({ w: L.w, split: "", spm: "" }); paintSheet(); return }
+  if (d.rowpcRm) { SH.d.pcs.pop(); paintSheet(); return }
+  if (d.rowlogSave && SH.d.pcs && SH.d.mode !== "tot") { const D = SH.d, cs = D.pcs.map(x => ({ ...rowPcCalc(D.by, x), spm: Math.round(Number(x.spm)) || 0 }));
+    const miss = cs.map((c, i) => c.m > 0 && c.sec > 0 ? 0 : i + 1).filter(Boolean);
+    if (miss.length === cs.length) { toast("Enter the split for each interval"); return }
+    if (miss.length) { toast(`Interval ${miss.join(", ")} ${miss.length > 1 ? "need" : "needs"} a split`); return }
+    rowSaveLog(SH.k, cs.map(c => ({ m: c.m, sec: c.sec, ...(c.spm > 0 ? { spm: c.spm } : {}) })), SH.plan || (S.logs[SH.k] && S.logs[SH.k].plan) || planFor(parseYmd(SH.k)));
+    xsClose(); lastRenderKey = ""; render(); toast("Row saved"); return }
   if (d.rowlogSave) { const D = SH.d, m = Math.round(Number(D.m)), s = rowParseTime(D.t); if (!(m > 0 && s > 0)) { toast("Enter the distance and time"); return }
     const old = S.logs[SH.k], keep = SH.edit && old && old.pieces && old.pieces.length > 1 && old.m === m ? old.pieces : null;
     rowSaveLog(SH.k, keep || [{ m, sec: s, ...(Number(D.spm) > 0 ? { spm: Math.round(Number(D.spm)) } : {}) }], SH.plan || (old && old.plan) || planFor(parseYmd(SH.k)));
@@ -230,7 +275,7 @@ document.addEventListener("click", e => {
   if (a === "menu") { RW.menu = !RW.menu; rwPaint(); return }
   if (a === "pause") { if (RW.paused) { RW.t0 += Date.now() - RW.paused; RW.paused = 0 } else RW.paused = Date.now(); rwSave(); rwPaint(); return }
   if (a === "quit") { RW = null; rwSave(); if (typeof keepAwake === "function") keepAwake(false); rowLiveClose(); return }
-  if (a === "handlog") { const k = RW.k, pl = RW.plan; RW = null; rwSave(); rowLiveClose(); openSheet({ kind: "rowlog", k, name: pl.name, plan: pl, d: {} }); return }
+  if (a === "handlog") { const k = RW.k, pl = RW.plan; RW = null; rwSave(); rowLiveClose(); openSheet({ kind: "rowlog", k, name: pl.name, plan: pl, d: rowLogD0(pl) }); return }
   if (a === "done") { const e = rwElapsed(), pm = rwPieceM(p);
     if (rwTimed(p)) { rwEndTimed(); return }
     else { RW.draft = { split: +(e / (pm / 500)).toFixed(1), spm: RW.draft.spm || (p.kind === "int" ? 28 : 24) };
@@ -246,10 +291,23 @@ document.addEventListener("click", e => {
 });
 document.addEventListener("input", e => { const t = e.target;
   if (t.dataset && t.dataset.rowF && SH && SH.kind === "rowedit") { SH.d[t.dataset.rowF] = t.type === "checkbox" ? t.checked : t.value; return }
+  if (t.dataset && t.dataset.rowpc && SH && SH.kind === "rowlog" && SH.d.pcs) { const [i, f] = t.dataset.rowpc.split("|"); SH.d.pcs[+i][f] = t.value;
+    const o = document.getElementById("rpcO" + i); if (o) o.textContent = rowPcOut(SH.d, +i); const su = document.getElementById("rpcSum"); if (su) su.innerHTML = rowPcSumHtml(SH.d); return }
   if (t.dataset && t.dataset.rowlog && SH && SH.kind === "rowlog") { SH.d[t.dataset.rowlog] = t.value; const s = document.querySelector("#xsheet .rowlog-split"); if (s) s.textContent = rowLogSplit(SH.d); return }
   if (t.id === "rlVal" && RW) { if (rwTimed(RW.plan)) RW.draft.m = Math.round(Number(t.value) || 0); else { const s = rowParseSplit(t.value); if (s) RW.draft.split = s } rwSave() } });
 document.addEventListener("change", e => { const t = e.target; if (t.dataset && t.dataset.rowF && t.type === "checkbox" && SH) SH.d[t.dataset.rowF] = t.checked });
 (function () { if (document.getElementById("rowCss")) return; const st = document.createElement("style"); st.id = "rowCss"; st.textContent = `
+.rpc{border-radius:12px;background:#0E1A22;color:#DCEFF8;padding:6px 8px 8px;font-variant-numeric:tabular-nums;border:1px solid rgba(79,179,232,.35)}
+.rpc-h,.rpc-r,.rpc-sum{display:grid;grid-template-columns:20px 1fr 1.1fr .95fr .7fr;gap:5px;align-items:center}
+.rpc-h span{font:800 9.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;color:#7FB8D6;text-align:center;padding:4px 0}
+.rpc-sum{border-bottom:1px solid rgba(159,211,238,.3);padding:4px 0 6px;margin-bottom:3px}
+.rpc-sumv{display:contents}.rpc-sum span{text-align:center;font:800 14px "Barlow Semi Condensed",sans-serif;color:#fff}.rpc-sum>span:first-child{color:#7FB8D6}
+.rpc-r{padding:2px 0}.rpc-n{text-align:center;font:800 12px "Barlow Semi Condensed",sans-serif;color:#7FB8D6}
+.rpc input{min-width:0;width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(159,211,238,.22);border-radius:7px;padding:7px 4px;font:700 14px "Barlow Semi Condensed",sans-serif;text-align:center}
+.rpc input:focus{outline:none;border-color:#4FB3E8;background:rgba(79,179,232,.14)}
+.rpc input.rpc-sp{border-color:rgba(79,179,232,.55);color:#CFEFFF}
+.rpc input::placeholder{color:rgba(220,239,248,.28)}
+.rpc-o{text-align:center;font:700 13px "Barlow Semi Condensed",sans-serif;color:#9FC6D9}
 :root{--row:#4FB3E8}
 .ws-head.ws-row{--wc:#7CCBF2}
 .ws.ws-row{--wc:#4FB3E8;--wd:rgba(79,179,232,.75);--wg:rgba(79,179,232,.3);--wt1:#CFE9F7;--wt2:#7CCBF2;--wt3:#2C6F9A;--wb1:#7CCBF2;--wb2:#2C8FC8;--wbi:#061018}
