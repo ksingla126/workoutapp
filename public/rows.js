@@ -140,6 +140,40 @@ function rowRepHtml() { const l = S.logs[SH.k]; if (!l) return "";
     ${pcs.length > 1 ? `<div><div class="hx-cap" style="margin-bottom:2px">Pieces</div><div class="hx-ses">${pcs.map((p, i) => `<div class="hx-s"><div class="h"><b>PIECE ${i + 1}</b>${p === best ? `<span class="hx-pr">BEST</span>` : ""}</div><div class="hx-chips"><span class="${p === best ? "top" : ""}">${rowM(p.m)} · ${rowClock(p.sec)}</span><span>${rowSplitTxt(p.sec / (p.m / 500))} /500 m</span>${p.spm ? `<span>${p.spm} spm</span>` : ""}</div></div>`).join("")}</div></div>` : ""}
     <button type="button" class="btn ghost" style="width:100%" data-rowlog-edit="${SH.k}">Edit</button></div>` }
 
+/* ---------- the report popup (same frame as the trail and gate reports in world.js) ---------- */
+function rowRepPaint(A) {
+  const k = A.k, l = S.logs[k], P = l.plan || {}, kind = l.kind || P.kind || "steady", img = ROW_KINDS[kind] ? ROW_KINDS[kind].img : "row1", M = ROW_META[img], d = parseYmd(k);
+  const pcs = (l.pieces || []).filter(x => x.m > 0 && x.sec > 0), sp = x => x.sec / (x.m / 500), avg = l.m > 0 && l.sec > 0 ? l.sec / (l.m / 500) : 0, tgt = P.split || 0;
+  const best = pcs.length > 1 ? pcs.reduce((a, x) => sp(x) < sp(a) ? x : a) : null, when = `${DOW[dowOf(d)].toUpperCase()} ${fmtShort(d).toUpperCase()}`;
+  // the plain read, then checks
+  let verdict = "", items = [];
+  if (pcs.length > 1) {
+    const beat = tgt ? pcs.filter(x => sp(x) <= tgt + 0.05).length : 0, sps = pcs.map(sp), spread = Math.max(...sps) - Math.min(...sps), drift = sps.at(-1) - sps[0];
+    verdict = tgt ? (beat === pcs.length ? `Every piece at or under your ${rowSplitTxt(tgt)} target.` : `${beat} of ${pcs.length} pieces beat your ${rowSplitTxt(tgt)} target.`)
+      : `${pcs.length} pieces at ${rowSplitTxt(avg)} /500 m on average. Fastest was piece ${pcs.indexOf(best) + 1}.`;
+    if (tgt) items.push(beat === pcs.length ? ["good", "On target", `All ${pcs.length} pieces at ${rowSplitTxt(tgt)} or faster.`] : beat ? ["watch", `${beat} of ${pcs.length} on target`, `Missed on piece${pcs.length - beat > 1 ? "s" : ""} ${pcs.map((x, i) => sp(x) > tgt + 0.05 ? i + 1 : 0).filter(Boolean).join(", ")}.`] : ["fix", "Off target", `Every piece was slower than ${rowSplitTxt(tgt)}. Try a slower target next time, then build back.`]);
+    if (spread <= 2) items.push(["good", "Even pacing", `Your pieces were within ${spread.toFixed(1)} s of each other.`]);
+    else if (drift >= 3) items.push(["watch", `Faded ${drift.toFixed(1)} s`, `The last piece was ${drift.toFixed(1)} s /500 m slower than the first. Start a touch easier, or take the full rest.`]);
+    else if (drift <= -3) items.push(["good", "Got faster", `The last piece was ${(-drift).toFixed(1)} s /500 m faster than the first.`]);
+    const r = pcs.map(x => x.spm).filter(Boolean); if (r.length > 1 && Math.max(...r) - Math.min(...r) >= 5) items.push(["watch", "Stroke rate moved around", `${Math.min(...r)} to ${Math.max(...r)} s/m. A steadier rate makes the split easier to hold.`]);
+  } else {
+    verdict = tgt ? (avg <= tgt + 0.05 ? `Held ${rowSplitTxt(avg)} /500 m, on or under your ${rowSplitTxt(tgt)} target.` : `Held ${rowSplitTxt(avg)} /500 m against a ${rowSplitTxt(tgt)} target.`) : `${rowM(l.m)} in ${rowClock(l.sec)} at ${rowSplitTxt(avg)} /500 m.`;
+    if (kind === "test") { const b = rowBest("test", l.m); items.push(b && Math.abs(b.sec - l.sec) < 0.05 && b.k === k ? ["good", "Your best", `This is your fastest ${rowM(l.m)}. It sets your Rowing speed rank.`] : b ? ["watch", `Best is ${rowClock(b.sec)}`, `${(l.sec - b.sec).toFixed(1)} s off your best ${rowM(l.m)}.`] : ["good", "First test", "This sets your Rowing speed rank."]) }
+  }
+  const mn = pcs.length ? Math.min(...pcs.map(sp)) : 0, mx = pcs.length ? Math.max(...pcs.map(sp), tgt || 0) : 0, lo = mn - 4, rng = Math.max(1, mx - lo);
+  const bar = v => Math.max(6, (1 - (v - lo) / rng) * 100); // faster split = longer bar
+  const rows = pcs.length > 1 ? wsnFrame("PIECES", tgt ? "LINE = TARGET" : "LONGER = FASTER", pcs.map((x, i) => `<div class="rwr-pc${x === best ? " best" : ""}"><span class="n">${i + 1}</span><div class="m"><b>${rowSplitTxt(sp(x))}${x === best ? ` <small>BEST</small>` : ""}</b><em>${rowM(x.m)} · ${rowSplitTxt(x.sec)}${x.spm ? ` · ${x.spm} s/m` : ""}</em></div><div class="br"><i style="width:${bar(sp(x)).toFixed(0)}%"></i>${tgt ? `<u style="left:${bar(tgt).toFixed(0)}%"></u>` : ""}</div></div>`).join("")) : "";
+  const tiles = [[Math.round(l.m).toLocaleString("en-US"), "Metres"], [rowClock(l.sec), "Time"], [avg ? rowSplitTxt(avg) : "–", "Avg /500m"], [l.spm || "–", "Avg s/m"]];
+  const keep = A.el.querySelector(".wsr-scroll"), top = keep ? keep.scrollTop : 0;
+  A.el.innerHTML = `<button type="button" class="wsb-bg" data-wsnx="1" aria-label="Close"></button><div class="wsb-card wsn-card rwr"><div class="wsb-in"><div class="wsr-scroll">
+    <div class="wsb-eb"><span>${M.done} REPORT · ${when}${l.src === "live" ? " · ROWED LIVE" : l.src === "hand" ? " · LOGGED BY HAND" : ""}</span><button type="button" class="wsb-x" data-wsnx="1" aria-label="Close">✕</button></div>
+    <div class="wsn-head"><div><div class="wsb-title">${esc(M.title)}</div><div class="wsb-plain">${esc((P.name || ROW_KINDS[kind].n) + ". " + verdict)}</div></div></div>
+    ${wsnTiles(tiles)}${rows}
+    ${items.length ? `<div class="wsr-rule"><i></i><span>COACH'S READ</span><i></i></div><div class="wsn-items">${items.map(([t, a, b]) => `<div class="${t}"><span>${{ good: "✓", watch: "!", fix: "↻" }[t]}</span><div><b>${esc(a)}</b><em>${esc(b)}</em></div></div>`).join("")}</div>` : ""}
+    <div class="wsn-acts"><button type="button" data-rowlog-edit="${k}">EDIT THE LOG</button></div></div></div></div>`;
+  const sc = A.el.querySelector(".wsr-scroll"); if (sc) sc.scrollTop = top;
+}
+
 /* ---------- live rowing ---------- */
 // RW = {k, plan, i (piece index), ph: "row"|"rest"|"enter"|"done", t0 (phase start ms), pieces:[{m,sec,spm}], draft:{split|m, spm}, paused}
 let RW = null, rwTimer = 0;
@@ -225,15 +259,15 @@ function rwConfirm() { const p = RW.plan, d = RW.draft, tm = rwTimed(p), n = rwP
   rwSave(); rwPaint() }
 function rowParseSplit(s) { s = String(s || "").trim(); if (/^\d{3,4}$|^\d{3}\.\d$/.test(s)) s = tmFmt(tmRaw(s), "split"); const m = s.match(/^(\d+):(\d+(?:\.\d+)?)$/); if (m) return +m[1] * 60 + +m[2]; const n = Number(s); return n > 0 ? (n < 10 ? n * 60 : n) : null }
 function rowLogD0(plan, old) { const P = rowLogPieces0(plan, old); return P ? { by: P.by, pcs: P.pcs, hint: plan && plan.split ? rowSplitTxt(plan.split) : "" } : {} }
-function rowSaveLog(k, pieces, plan) { const m = pieces.reduce((t, x) => t + x.m, 0), sec = +pieces.reduce((t, x) => t + x.sec, 0).toFixed(1), spms = pieces.map(x => x.spm).filter(Boolean);
-  const l = { type: "row", kind: plan.kind, pieces, m, sec, ...(spms.length ? { spm: Math.round(spms.reduce((a, b) => a + b, 0) / spms.length) } : {}), plan, savedAt: Date.now() };
+function rowSaveLog(k, pieces, plan, src) { const m = pieces.reduce((t, x) => t + x.m, 0), sec = +pieces.reduce((t, x) => t + x.sec, 0).toFixed(1), spms = pieces.map(x => x.spm).filter(Boolean);
+  const l = { type: "row", kind: plan.kind, pieces, m, sec, ...(src ? { src } : {}), ...(spms.length ? { spm: Math.round(spms.reduce((a, b) => a + b, 0) / spms.length) } : {}), plan, savedAt: Date.now() };
   saveLog(k, l); if (typeof RK_CACHE !== "undefined") RK_CACHE.sig = "" }
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-rl],[data-rl-adj],[data-row-usesplit],[data-row-by],[data-row-edit],[data-row-new],[data-row-kind],[data-row-tm],[data-row-save],[data-row-del],[data-rowlog-save],[data-rowlog-edit],[data-rowlog-mode],[data-rowpc-add],[data-rowpc-rm],[data-wsrow],[data-wsrowlog],[data-wsrowrep]"); if (!t) return;
   const d = t.dataset;
   if (d.wsrow) { rowStart(d.wsrow); return }
   if (d.wsrowlog) { const p = planFor(parseYmd(d.wsrowlog)); openSheet({ kind: "rowlog", k: d.wsrowlog, name: p && p.name, plan: p, d: rowLogD0(p) }); return }
-  if (d.wsrowrep) { openSheet({ kind: "rowrep", k: d.wsrowrep, ws: true }); return }
+  if (d.wsrowrep) { if (typeof wsnOpen === "function") wsnOpen(d.wsrowrep); else openSheet({ kind: "rowrep", k: d.wsrowrep, ws: true }); return }
   if (d.rowlogEdit) { const l = S.logs[d.rowlogEdit]; openSheet({ kind: "rowlog", k: d.rowlogEdit, name: l.plan && l.plan.name, plan: l.plan, d: { ...rowLogD0(l.plan, l), m: l.m, t: rowClock(l.sec), spm: l.spm || "" }, edit: true }); return }
   if (d.rowlogMode) { SH.d.mode = d.rowlogMode; paintSheet(true); return }
   if (d.rowpcAdd) { const L = SH.d.pcs[SH.d.pcs.length - 1]; SH.d.pcs.push({ w: L.w, split: "", spm: "" }); paintSheet(); return }
@@ -242,11 +276,11 @@ document.addEventListener("click", e => {
     const miss = cs.map((c, i) => c.m > 0 && c.sec > 0 ? 0 : i + 1).filter(Boolean);
     if (miss.length === cs.length) { toast("Enter the split for each interval"); return }
     if (miss.length) { toast(`Interval ${miss.join(", ")} ${miss.length > 1 ? "need" : "needs"} a split`); return }
-    rowSaveLog(SH.k, cs.map(c => ({ m: c.m, sec: c.sec, ...(c.spm > 0 ? { spm: c.spm } : {}) })), SH.plan || (S.logs[SH.k] && S.logs[SH.k].plan) || planFor(parseYmd(SH.k)));
+    rowSaveLog(SH.k, cs.map(c => ({ m: c.m, sec: c.sec, ...(c.spm > 0 ? { spm: c.spm } : {}) })), SH.plan || (S.logs[SH.k] && S.logs[SH.k].plan) || planFor(parseYmd(SH.k)), (S.logs[SH.k] && S.logs[SH.k].src) || "hand");
     xsClose(); lastRenderKey = ""; render(); toast("Row saved"); return }
   if (d.rowlogSave) { const D = SH.d, m = Math.round(Number(D.m)), s = rowParseTime(D.t); if (!(m > 0 && s > 0)) { toast("Enter the distance and time"); return }
     const old = S.logs[SH.k], keep = SH.edit && old && old.pieces && old.pieces.length > 1 && old.m === m ? old.pieces : null;
-    rowSaveLog(SH.k, keep || [{ m, sec: s, ...(Number(D.spm) > 0 ? { spm: Math.round(Number(D.spm)) } : {}) }], SH.plan || (old && old.plan) || planFor(parseYmd(SH.k)));
+    rowSaveLog(SH.k, keep || [{ m, sec: s, ...(Number(D.spm) > 0 ? { spm: Math.round(Number(D.spm)) } : {}) }], SH.plan || (old && old.plan) || planFor(parseYmd(SH.k)), (old && old.src) || "hand");
     xsClose(); lastRenderKey = ""; render(); toast("Row saved"); return }
   if (d.rowEdit || d.rowNew) { const r = d.rowEdit ? rowById(d.rowEdit) : null; openSheet({ kind: "rowedit", id: r ? r.id : null, isNew: !r, day: d.rowNew && d.rowNew !== "1" ? +d.rowNew : null, d: r ? { ...r, ...(r.sec ? { secT: rowClock(r.sec) } : {}), ...(r.split ? {} : { noSplit: true }) } : { name: ROW_KINDS.steady.n, kind: "steady", ...ROW_KINDS.steady.make() } }); return }
   if (d.rowKind && SH) { const nm = SH.d.name, wasDef = Object.values(ROW_KINDS).some(K => K.n === nm); SH.d = { ...ROW_KINDS[d.rowKind].make(), name: wasDef ? ROW_KINDS[d.rowKind].n : nm, kind: d.rowKind, ...(SH.d.noSplit ? { noSplit: true } : {}) }; paintSheet(); return }
@@ -287,7 +321,7 @@ document.addEventListener("click", e => {
   if (a === "next") { // leaving the rest: keep any split typed for the piece just rowed
     if (RW.draft && RW.draft.pending) { const v = document.getElementById("rlVal"), last = RW.pieces[RW.i - 1]; if (rwTimed(p)) { const m = Math.round(Number(v && v.value)); if (m > 0 && last) last.m = m } else { const s = v && rowParseSplit(v.value); if (s && last) last.sec = +(s * last.m / 500).toFixed(1) } if (last) last.spm = RW.draft.spm }
     RW.ph = "row"; RW.t0 = Date.now(); RW.beeped = 0; RW.draft = { spm: RW.draft.spm }; rwSave(); rwPaint(); return }
-  if (a === "save") { const k = RW.k; rowSaveLog(k, RW.pieces, RW.plan); const M = ROW_META[ROW_KINDS[RW.plan.kind].img]; RW = null; rwSave(); if (typeof keepAwake === "function") keepAwake(false); rowLiveClose(); toast(`${M.title.replace(/^THE /, "The ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase())} cleared`); return }
+  if (a === "save") { const k = RW.k; rowSaveLog(k, RW.pieces, RW.plan, "live"); const M = ROW_META[ROW_KINDS[RW.plan.kind].img]; RW = null; rwSave(); if (typeof keepAwake === "function") keepAwake(false); rowLiveClose(); toast(`${M.title.replace(/^THE /, "The ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase())} cleared`); return }
 });
 document.addEventListener("input", e => { const t = e.target;
   if (t.dataset && t.dataset.rowF && SH && SH.kind === "rowedit") { SH.d[t.dataset.rowF] = t.type === "checkbox" ? t.checked : t.value; return }
@@ -297,6 +331,16 @@ document.addEventListener("input", e => { const t = e.target;
   if (t.id === "rlVal" && RW) { if (rwTimed(RW.plan)) RW.draft.m = Math.round(Number(t.value) || 0); else { const s = rowParseSplit(t.value); if (s) RW.draft.split = s } rwSave() } });
 document.addEventListener("change", e => { const t = e.target; if (t.dataset && t.dataset.rowF && t.type === "checkbox" && SH) SH.d[t.dataset.rowF] = t.checked });
 (function () { if (document.getElementById("rowCss")) return; const st = document.createElement("style"); st.id = "rowCss"; st.textContent = `
+.rwr-pc{display:grid;grid-template-columns:20px 118px 1fr;gap:8px;align-items:center;padding:8px 0;border-top:1px solid rgba(245,241,230,.06)}
+.rwr-pc:first-of-type{border-top:0}
+.rwr-pc .n{font:800 12px "Barlow Semi Condensed",sans-serif;color:#7FB8D6;text-align:center}
+.rwr-pc .m b{display:block;font:800 17px/1 "Barlow Semi Condensed",sans-serif;color:#F5F1E6;font-variant-numeric:tabular-nums}
+.rwr-pc .m em{display:block;font:500 10.5px/1.3 Barlow,sans-serif;color:#8F97A6;font-style:normal;margin-top:3px}
+.rwr-pc .br{position:relative;height:10px;border-radius:5px;background:rgba(255,255,255,.06)}
+.rwr-pc .br i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:linear-gradient(90deg,#1D6E9E,#4FB3E8)}
+.rwr-pc .br u{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:#E8C27A;border-radius:1px}
+.rwr-pc small{vertical-align:3px;margin-left:4px;font:800 8.5px "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;color:#14100A;background:#E8C27A;border-radius:5px;padding:3px 6px}
+.rwr-pc.best .br i{background:linear-gradient(90deg,#2C8FC8,#9FDCF8)}
 .rpc{border-radius:12px;background:#0E1A22;color:#DCEFF8;padding:6px 8px 8px;font-variant-numeric:tabular-nums;border:1px solid rgba(79,179,232,.35)}
 .rpc-h,.rpc-r,.rpc-sum{display:grid;grid-template-columns:20px 1fr 1.1fr .95fr .7fr;gap:5px;align-items:center}
 .rpc-h span{font:800 9.5px/1 "Barlow Semi Condensed",sans-serif;letter-spacing:.14em;color:#7FB8D6;text-align:center;padding:4px 0}

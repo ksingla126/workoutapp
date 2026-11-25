@@ -116,7 +116,7 @@ function wsCard(p, k, pick) {
     line = log ? `${M.done} CLEARED · ${when}` : isToday ? M.line : `${M.done} · ${when}`;
     sub = `${M.sub} <b>${esc(p.name)}</b> · ${esc(p.d)}`;
     stats = rowStats(p).filter(Boolean);
-    btn = log ? go("CLEARED ✓ · VIEW REPORT", `data-wsrowrep="${k}"`)
+    btn = log ? go("CLEARED ✓ · VIEW REPORT", `data-wsana="${k}"`)
       : live ? go(`RETURN TO THE ${M.done}`, `data-wsrow="${k}"`)
       : isToday ? go(M.btn, `data-wsrow="${k}"`)
       : past ? go("LOG THIS ROW", `data-wsrowlog="${k}"`)
@@ -530,7 +530,7 @@ document.addEventListener("click", e => {
   if (sl && !t.closest(".ws-ign")) { const k = sl.dataset.wsday, p = inProgram(parseYmd(k)) ? planFor(parseYmd(k)) : null;
     if (!p || p.type === "rest" || (p.type === "gym" && !(p.ex || []).length)) return;
     if (k !== ymd(sel)) return;
-    if (p.type === "row") { if (S.logs[k] && S.logs[k].type === "row") openSheet({ kind: "rowrep", k, ws: true }); return }
+    if (p.type === "row") { if (S.logs[k] && S.logs[k].type === "row") wsnOpen(k); return }
     const lg = S.logs[k]; if (lg && (lg.type === "gym" || lg.type === "run") && lg.type === p.type) { wsnOpen(k); return }
     wsPop = { k, open: null, top: 0, anim: true }; lastRenderKey = ""; render() }
 });
@@ -1256,7 +1256,8 @@ function wsgPaint() {
 }
 function wsnPaint() {
   const A = wsAna; if (!A || !A.el) return;
-  const k = A.k, l = S.logs[k]; if (!l || (l.type !== "run" && l.type !== "gym")) { wsnClose(); return }
+  const k = A.k, l = S.logs[k]; if (!l || (l.type !== "run" && l.type !== "gym" && l.type !== "row")) { wsnClose(); return }
+  if (l.type === "row") { try { rowRepPaint(A) } catch (err) { console.error(err); wsnClose() } return }
   if (l.type === "gym") { try { wsgPaint() } catch (err) { console.error(err); wsnClose() } return }
   const d = parseYmd(k), p = planFor(d), pick = wsPick(p && p.type === "run" ? p : { type: "run", t: "Run" }, k), st = l.st || {};
   const hasFile = !!(st.series && st.series.t && st.series.t.length > 3);
@@ -1288,7 +1289,7 @@ function wsnPaint() {
 }
 function wsnOpen(k, tab) {
   wsnClose(); wsPop = null; wsRun = null; document.querySelectorAll("body > .wsb:not(.wsn)").forEach(x => x.remove());
-  const el = document.createElement("div"); el.className = "wsb wsn anim"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", S.logs[k] && S.logs[k].type === "gym" ? "Gate report" : "Run report");
+  const el = document.createElement("div"); el.className = "wsb wsn anim"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", S.logs[k] && S.logs[k].type === "gym" ? "Gate report" : S.logs[k] && S.logs[k].type === "row" ? "Row report" : "Run report");
   wsAna = { k, tab: tab || (S.logs[k] && S.logs[k].type === "gym" ? "sets" : "effort"), el, open: null }; document.body.appendChild(el); wsnPaint(); setTimeout(() => el.classList.remove("anim"), 300);
 }
 function wsnClose() { if (wsAna && wsAna.el) wsAna.el.remove(); wsAna = null }
@@ -1300,6 +1301,7 @@ document.addEventListener("click", e => {
   const o = t.closest && t.closest("[data-wsana]"); if (o) { e.preventDefault(); wsnOpen(o.dataset.wsana); return }
   if (!wsAna || !t.closest(".wsn")) return;
   if (t.closest("[data-wsnx]")) { wsnClose(); return }
+  if (t.closest("[data-rowlog-edit]")) { wsnClose(); return } // rows.js opens the log sheet
   const an = t.closest("[data-ana]"); if (an && !an.disabled) { analyzeRun(an.dataset.ana); return }
   const gx = t.closest("[data-wsgx]"); if (gx) { wsAna.open = wsAna.open === gx.dataset.wsgx ? null : gx.dataset.wsgx; wsnPaint(); return }
   const tb = t.closest("[data-wsntab]"); if (tb) { wsAna.tab = tb.dataset.wsntab; const sc = wsAna.el.querySelector(".wsr-scroll"); wsnPaint(); const s2 = wsAna.el.querySelector(".wsr-scroll"); if (s2) s2.scrollTop = 0; return }
