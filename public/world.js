@@ -495,7 +495,7 @@ function wsbAfter() {
   wsPop.top = L.scrollTop; wsPop.anim = false; wsPop.fresh = null; wsbPaintBar();
   L.addEventListener("scroll", () => { if (wsPop) wsPop.top = L.scrollTop; wsbPaintBar() }, { passive: true });
 }
-function wsbClose() { wsPop = null; document.querySelectorAll("body > .wsb").forEach(x => x.remove()); if (typeof closeStMenu === "function") closeStMenu(); lastRenderKey = ""; render() }
+function wsbClose() { if (typeof exScopeReset === "function") exScopeReset(); wsPop = null; document.querySelectorAll("body > .wsb").forEach(x => x.remove()); if (typeof closeStMenu === "function") closeStMenu(); lastRenderKey = ""; render() }
 document.addEventListener("click", e => {
   if (!WS_ON || tab !== "home" || wsLog) return;
   const t = e.target;
@@ -516,6 +516,12 @@ document.addEventListener("click", e => {
   if (st && st.dataset.wsbstep.split("|")[1] === "setup") { const [id, , dir] = st.dataset.wsbstep.split("|"), c = htCfg(id), j = Math.max(0, HT_SETUPS.indexOf(c.setup));
     htCfgSet(id, { setup: HT_SETUPS[Math.max(0, Math.min(HT_SETUPS.length - 1, j + (+dir)))] }); return }
   if (st) { const [id, f, dir] = st.dataset.wsbstep.split("|"), s = +dir, p = planFor(sel);
+    const r0 = wsbRoutine(CUSTOM && CUSTOM.su, p); if (r0 && f !== "rest" && typeof exScopeEdit === "function") return exScopeEdit(r0.id, id, f === "sets" ? ["sets"] : ["lo", "hi"], x => {
+      const st_ = isSec(x) ? 5 : 1;
+      if (f === "sets") x.sets = Math.max(1, Math.min(10, (x.sets || 3) + s));
+      else if (f === "reps") { const w = Math.max(0, (x.hi || x.lo) - x.lo); x.lo = Math.max(1, x.lo + s * st_); x.hi = x.lo + w }
+      else if (f === "lo") { const hi = x.hi || x.lo; x.lo = Math.max(1, x.lo + s * st_); x.hi = hi < x.lo ? x.lo : hi }
+      else if (f === "hi") { x.hi = Math.max(1, (x.hi || x.lo) + s * st_); if (x.lo > x.hi) x.lo = x.hi } });
     suMut(su => { const r = wsbRoutine(su, p), x = r && r.ex.find(e => e.id === id); if (!x) return;
       if (f === "sets") x.sets = Math.max(1, Math.min(10, (x.sets || 3) + s));
       else if (f === "reps") { const w = Math.max(0, (x.hi || x.lo) - x.lo), st_ = isSec(x) ? 5 : 1; x.lo = Math.max(1, x.lo + s * st_); x.hi = x.lo + w }
