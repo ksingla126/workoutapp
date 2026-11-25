@@ -169,7 +169,7 @@ function plRowEd(r) {
   const x = rowThisWeek(r, weekOf(today)), b = [];
   if (r.kind === "int") { const wv = r.by === "time" ? r.sec : (r.m || 500) / 500 * (r.split || 120); for (let k = 0; k < Math.min(r.reps, 12); k++) { b.push({ k: "h", w: wv, lab: k === 0 ? `${r.reps} × ${r.by === "time" ? rowClock(r.sec) : rowM(r.m)}` : "" }); if (k < r.reps - 1) b.push({ k: "e", w: r.rest || 60 }) } }
   else b.push({ k: r.kind === "test" ? "h" : "s", w: 1, lab: r.kind === "steady" ? `${x.min} MIN` : rowM(r.m).toUpperCase() });
-  const f = (fld, lab, unit, v) => `<label class="pl-f"><span>${lab}</span><span class="pl-fin"><input inputmode="decimal" data-pl-rowf="${esc(r.id)}|${fld}" value="${esc(v ?? "")}"><em>${unit || ""}</em></span></label>`;
+  const f = (fld, lab, unit, v) => `<label class="pl-f"><span>${lab}</span><span class="pl-fin"><input ${fld === "secT" ? TMA("time") : fld === "splitT" ? TMA("split") : 'inputmode="decimal"'} data-pl-rowf="${esc(r.id)}|${fld}" value="${esc(v ?? "")}"><em>${unit || ""}</em></span></label>`;
   let fields = "";
   if (r.kind === "steady") fields = f("min", "Minutes", "min", r.min) + `<label class="pl-chk"><input type="checkbox" data-pl-rowck="${esc(r.id)}|grow" ${r.grow ? "checked" : ""}> Grow 2 min a week (up to 60)</label>`;
   else if (r.kind === "int") fields = `<div class="pl-seg2">${[["m", "BY DISTANCE"], ["time", "BY TIME"]].map(([v, n]) => `<button type="button" class="${(r.by || "m") === v ? "on" : ""}" data-pl-rowby="${esc(r.id)}|${v}">${n}</button>`).join("")}</div>` + f("reps", "Pieces", "", r.reps) + (r.by === "time" ? f("secT", "Each piece", "min:sec", rowClock(r.sec || 60)) : f("m", "Each piece", "m", r.m)) + f("rest", "Rest", "sec", r.rest);
