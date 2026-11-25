@@ -62,7 +62,7 @@ function lvtHtml(k, p, now, resting, justDone) {
   // the tower: one floor per exercise, top floor last; tap a floor to go there
   const tower = `<nav class="lvt-tower" aria-label="Tower: one floor per exercise"><svg class="lvt-spire" viewBox="0 0 56 30" aria-hidden="true"><path d="M28 2 L50 28 H6 Z" fill="#0E0F12" stroke="#2E2A26" stroke-width="1.5"/><path d="M28 10 V22" stroke="#77736A" stroke-width="2" stroke-linecap="round"/></svg><div class="lvt-floors">${p.ex.map((ex, i) => {
       const n = steps.filter(x => x.ex.id === ex.id && x.done).length, tot = steps.filter(x => x.ex.id === ex.id).length, done = tot && n === tot, on = cur && cur.ex.id === ex.id, nxt = floorCleared && on;
-      return `<button type="button" class="lvt-floor ${done ? "done" : ""} ${on && !nxt ? "on" : ""} ${nxt ? "next" : ""}" data-lvjump="${esc(ex.id)}" data-fpk="${i + 1}|${esc(ex.name)}|${n}|${tot}|${done ? "c" : on && !nxt ? "o" : nxt ? "n" : ""}" ${done ? "aria-disabled=\"true\" data-done" : ""} ${on ? 'aria-current="step"' : ""} aria-label="Floor ${i + 1}: ${esc(ex.name)}, ${n} of ${tot} sets${done ? ", cleared" : on ? ", current" : ". Tap to go there"}">${on && !nxt ? `<i class="lvt-em"></i><i class="lvt-em b"></i>` : ""}${lvtRune(i, done || on ? rank.core : "#3A3631")}<span>${i + 1}</span></button>`;
+      return `<button type="button" class="lvt-floor ${done ? "done" : ""} ${on && !nxt ? "on" : ""} ${nxt ? "next" : ""}" data-lvjump="${esc(ex.id)}" data-fpk="${i + 1}|${esc(ex.name)}|${n}|${tot}|${done ? "c" : on && !nxt ? "o" : nxt ? "n" : ""}" ${done ? "aria-disabled=\"true\" data-done" : ""} ${on ? 'aria-current="step"' : ""} aria-label="Floor ${i + 1}: ${esc(ex.name)}, ${n} of ${tot} sets${done ? ", cleared" : on ? ", current" : ". Tap to go there"}">${on && !nxt ? `<i class="lvt-em"></i><i class="lvt-em b"></i>` : ""}${lvtRune(i, done ? "#8FF0BE" : on ? "#FFE08A" : "#3A3631")}<span>${i + 1}</span></button>`;
     }).reverse().join("")}</div><i class="lvt-base"></i></nav>`;
   const page = (sysT, blue, body, foot) => ({ state, style: `--lvt:${P.c};--lvt-mid:${P.mid};--lvt-core:${P.core};--lvt-dim:${P.dim};--lvt-r:${rank.c};--lvt-rmid:${rank.mid};--lvt-rcore:${rank.core}`,
     html: `${top}${menu}${sys(sysT, blue)}<div class="lvt-row">${tower}<div class="lvt-col">${body}</div></div><div class="lvt-foot">${foot}</div>` });
@@ -328,8 +328,9 @@ html .live.lvt-on{background:radial-gradient(90% 50% at 50% 0%,color-mix(in srgb
 .lvt-floors{width:100%;display:flex;flex-direction:column;gap:5px}
 .lvt-floor{position:relative;height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:1.5px solid #24221F;border-radius:6px;background:#0E0F12;color:#77736A;font:800 10px/1 var(--fnt);padding:0;cursor:pointer}
 .lvt-floor .lvt-rune{width:11px;height:17px}
-.lvt-floor.done{border-color:var(--lvt-r);background:linear-gradient(180deg,color-mix(in srgb,var(--lvt-r) 30%,transparent),color-mix(in srgb,var(--lvt-r) 12%,transparent));color:var(--lvt-rmid);cursor:default}
-.lvt-floor.on{border-color:var(--lvt-rmid);background:linear-gradient(180deg,color-mix(in srgb,var(--lvt-r) 45%,transparent),color-mix(in srgb,var(--lvt-r) 18%,transparent));box-shadow:0 0 16px -2px var(--lvt-r);color:var(--lvt-rcore)}
+.lvt-floor.done{border-color:#3FBF7F;background:linear-gradient(180deg,rgba(63,191,127,.32),rgba(63,191,127,.12));color:#8FF0BE;cursor:default}
+.lvt-floor.on{border-color:#F2C94C;background:linear-gradient(180deg,rgba(242,201,76,.42),rgba(242,201,76,.16));box-shadow:0 0 16px -2px #F2C94C;color:#FFE08A}
+.lvt-floor.on .lvt-em{background:#FFE08A;box-shadow:0 0 6px #F2C94C}
 .lvt-floor{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}.lvt-floor.peek{transform:scale(1.06);border-color:var(--lvt-rmid);transition:transform .12s}
 .lvt-fpk[hidden]{display:none!important}.lvt-fpk.out{animation:lvtFpkOut .14s ease-in forwards}@keyframes lvtFpkOut{from{opacity:1;transform:none}to{opacity:0;transform:translateX(-4px)}}
 .lvt-fpk{position:fixed;z-index:13;display:flex;flex-direction:column;gap:3px;padding:9px 12px 10px;border-radius:8px;border:1px solid color-mix(in srgb,var(--lvt-r,var(--rk)) 55%,transparent);background:#14151A;box-shadow:0 10px 28px -8px rgba(0,0,0,.7),0 0 18px -6px var(--lvt-r,var(--rk));color:#F5F1E6;pointer-events:none;animation:lvtFpk .14s ease-out}
@@ -340,7 +341,7 @@ html .live.lvt-on{background:radial-gradient(90% 50% at 50% 0%,color-mix(in srgb
 .lvt-pl:focus-visible{outline:2px solid var(--lvt-rmid);outline-offset:2px}.lvt-plx{font:800 9.5px/1 var(--fnt);letter-spacing:.24em;color:var(--mut)}
 .lvt-plt{flex:1;min-width:0}.lvt-plt b{color:#F5F1E6;font-weight:800}.lvt-plt em{font-style:normal;color:#E0A05A}.lvt-plb{font:700 11px/1 var(--fnt);color:var(--mut);white-space:nowrap}
 .lvt-plv{display:flex;align-items:center;gap:2px;height:24px}.lvt-plv .br{width:10px;height:4px;border-radius:2px;background:#77736A}.lvt-plv i:not(.br){width:5px;border-radius:1.5px;background:var(--lvt-rmid,var(--rk))}
-.lvt-floor.next{border-style:dashed;border-color:color-mix(in srgb,var(--lvt-r) 50%,transparent);color:var(--lvt-rmid);animation:lvtPulse 1.8s infinite ease-in-out}
+.lvt-floor.next{border-style:dashed;border-color:rgba(242,201,76,.7);background:rgba(242,201,76,.1);color:#FFE08A;animation:lvtPulse 1.8s infinite ease-in-out}
 .lvt-floor:focus-visible,.lvt-big:focus-visible,.lvt-sbox button:focus-visible{outline:2px solid var(--lvt-rmid);outline-offset:2px}
 .lvt-em{position:absolute;left:50%;top:-4px;width:3px;height:3px;border-radius:50%;background:var(--lvt-rcore);box-shadow:0 0 6px var(--lvt-rmid);animation:lvtRise 2.2s infinite ease-out}.lvt-em.b{left:34%;width:2px;height:2px;animation-delay:-.9s}
 @keyframes lvtRise{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(-24px);opacity:0}}
