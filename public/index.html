@@ -1364,7 +1364,29 @@ function withFmt(ex,k){
 const valOf=(f,s)=> FMT[f].b==="m"? Number(s&&s.m)||0 : Number(s&&s.r)||0;
 const unitOf=f=> FMT[f].b==="m"? "m" : FMT[f].b==="sec"? "s" : "";
 // durations for Distance & time: "7:30", "7.5" (minutes) or "450s"
-function parseDur(v){ v=String(v==null?"":v).trim(); if(!v) return 0; const m=v.match(/^(\d+):(\d{1,2})(?::(\d{1,2}))?$/); if(m) return m[3]!=null? (+m[1])*3600+(+m[2])*60+(+m[3]) : (+m[1])*60+(+m[2]); if(/s$/i.test(v)) return Math.round(parseFloat(v))||0; const n=parseFloat(v); return isFinite(n)&&n>0? Math.round(n*60) : 0 }
+/* Time entry without a colon key: the iPhone number pad has no ":", so time fields (data-tm) fill in from the right
+ * as you type digits, like a stopwatch: 2,2,3,0 → 0:02 → 0:22 → 2:23 → 22:30. "." adds tenths (155.2 → 1:55.2).
+ * data-tm="split": a /500 m rowing split, so four digits read as m:ss.t (1552 → 1:55.2). data-tm="time": up to h:mm:ss. */
+function tmRaw(v){ let r=String(v||"").replace(/,/g,".").replace(/[^\d.]/g,""); const i=r.indexOf("."); if(i>=0) r=r.slice(0,i+1)+r.slice(i+1).replace(/\./g,""); return r.replace(/^0+(?=\d)/,"") }
+function tmFmt(raw,mode){ let [a,b]=String(raw).split("."); a=(a||"").replace(/^0+(?=\d)/,"");
+  if(mode==="split"&&b==null&&a.length===4){ b=a[3]; a=a.slice(0,3) }
+  if(!a&&b==null) return ""; a=a||"0";
+  const s=a.slice(-2).padStart(2,"0"), m=a.slice(0,-2)||"0";
+  return (m.length>2? `${m.slice(0,-2)}:${m.slice(-2)}:${s}` : `${m}:${s}`)+(b!=null?"."+b.slice(0,1):"") }
+function tmRoom(raw,mode){ const [a,b]=raw.split("."); return b!=null? (a.length<=(mode==="split"?3:6)&&b.length<=1) : a.length<=(mode==="split"?4:6) }
+function tmSet(t,raw){ t.value=tmFmt(raw,t.dataset.tm); try{ t.setSelectionRange(t.value.length,t.value.length) }catch(_){} t.dispatchEvent(new Event("input",{bubbles:true})) }
+document.addEventListener("beforeinput",e=>{ const t=e.target; if(!t||!t.dataset||!t.dataset.tm) return; const mode=t.dataset.tm, it=e.inputType||"";
+  const full=t.dataset.tmFresh==="1"||(t.value.length>0&&t.selectionStart===0&&t.selectionEnd===t.value.length); t.dataset.tmFresh=""; let raw=full?"":tmRaw(t.value);
+  if(it==="insertText"||it==="insertReplacementText"){ for(const ch of String(e.data||"")){ if(/\d/.test(ch)){ if(tmRoom(raw+ch,mode)) raw=(raw+ch).replace(/^0+(?=\d)/,"") } else if((ch==="."||ch===",")&&!raw.includes(".")) raw+="." } }
+  else if(it.startsWith("delete")){ if(!full) raw=raw.slice(0,-1) }
+  else return;
+  e.preventDefault(); tmSet(t,raw) },true);
+document.addEventListener("input",e=>{ const t=e.target; if(!e.isTrusted||!t||!t.dataset||!t.dataset.tm) return; // paste, autofill, browsers without beforeinput
+  const f=tmFmt(tmRaw(t.value),t.dataset.tm); if(f!==t.value){ t.value=f; try{ t.setSelectionRange(f.length,f.length) }catch(_){} } },true);
+document.addEventListener("focusin",e=>{ const t=e.target; if(!t||!t.dataset||!t.dataset.tm) return; t.dataset.tm0=t.value; t.dataset.tmFresh=t.value?"1":""; setTimeout(()=>{ try{ if(document.activeElement===t&&t.dataset.tmFresh==="1") t.setSelectionRange(0,t.value.length) }catch(_){} },0) }); // the first key replaces what was there
+document.addEventListener("focusout",e=>{ const t=e.target; if(!t||!t.dataset||!t.dataset.tm) return; if(t.value!==t.dataset.tm0) t.dispatchEvent(new Event("change",{bubbles:true})) });
+const TMA=m=>`data-tm="${m}" inputmode="decimal" autocomplete="off" enterkeyhint="done"`;
+function parseDur(v){ v=String(v==null?"":v).trim(); if(!v) return 0; const m=v.match(/^(\d+):(\d{1,2}(?:\.\d+)?)(?::(\d{1,2}(?:\.\d+)?))?$/); if(m) return Math.round(m[3]!=null? (+m[1])*3600+(+m[2])*60+(+m[3]) : (+m[1])*60+(+m[2])); if(/s$/i.test(v)) return Math.round(parseFloat(v))||0; const n=parseFloat(v); return isFinite(n)&&n>0? Math.round(n*60) : 0 }
 const fmtDur=s=>{ s=Math.round(Number(s)||0); return s>=3600? `${Math.floor(s/3600)}:${pad(Math.floor(s%3600/60))}:${pad(s%60)}` : `${Math.floor(s/60)}:${pad(s%60)}` };
 // one set as text, e.g. "135 × 8", "+25 × 6", "−40 × 8", "45 s", "40 × 30 s", "50 × 30 m", "500 m · 1:52"
 function setTxt(f,s,db){ const w=Number(s.w)||0, wt=`${toU(w)}${db?"/DB":""}`;
@@ -1581,7 +1603,7 @@ function fmtChip(ex,k,log){ if(ex.fixed) return ""; const f=fmtOf(ex);
 function setBoxes(ex,i,vals,ph,db){ const f=fmtOf(ex), F=FMT[f], nm=esc(ex.name), n=i+1, out=[];
   if(F.w) out.push(`<input id="w-${ex.id}-${i}" inputmode="decimal" aria-label="${nm} set ${n} ${F.w==="assist"?"assistance":F.w==="add"?"added weight":"weight"}" value="${esc(vals.w)}" placeholder="${F.w==="add"?"+"+uL():F.w==="assist"?"−"+uL():db?uL()+"/DB":uL()}">`,`<span>×</span>`);
   if(F.b==="m") out.push(`<input id="m-${ex.id}-${i}" inputmode="decimal" aria-label="${nm} set ${n} metres" value="${esc(vals.m)}" placeholder="${esc(ph.m)}"><span>m</span>`);
-  if(F.b!=="m"||F.time) out.push(`<input id="r-${ex.id}-${i}" inputmode="${F.time?"decimal":"numeric"}" aria-label="${nm} set ${n} ${F.time?"time":F.b==="sec"?"seconds":"reps"}" value="${esc(vals.r)}" placeholder="${esc(ph.r)}">${F.b==="sec"?"<span>sec</span>":F.time?"<span>min</span>":!F.w?"<span>reps</span>":""}`);
+  if(F.b!=="m"||F.time) out.push(`<input id="r-${ex.id}-${i}" ${F.time?TMA("time"):'inputmode="numeric"'} aria-label="${nm} set ${n} ${F.time?"time":F.b==="sec"?"seconds":"reps"}" value="${esc(vals.r)}" placeholder="${esc(ph.r)}">${F.b==="sec"?"<span>sec</span>":F.time?"<span>m:ss</span>":!F.w?"<span>reps</span>":""}`);
   return out.join("") }
 function gateState(ex,k,t,cur){
   if(ex.fixed||typeof rkSetGate!=="function"||!fmtRanks(ex.id,fmtOf(ex))||FMT[fmtOf(ex)].b!=="reps") return null;
@@ -2255,10 +2277,10 @@ function renderLive(){
       const db=dbNow(cur.ex.id,S.logs[k]), v=setValsK(k,cur), f=fmtOf(cur.ex), F=FMT[f], unit=F.b==="sec"?"sec":F.b==="m"?"m":"reps";
       const wTxt=F.w&&v.w!==""&&!(F.w!=="req"&&!Number(v.w))? `${F.w==="add"?"+":F.w==="assist"?"−":""}${v.w} ${uL()}${db?" per DB":""} × ` : "";
       const tgt= f==="dt"? `${v.m||cur.ex.lo} m${v.r?` in ${v.r}`:cur.t.time?` in ${fmtDur(cur.t.time)}`:""}` : `${wTxt}${(F.b==="m"?v.m:v.r)||cur.ex.lo} ${unit}`;
-      const lvBox=(id,val,ph,lab,mode,aria)=>`<label><input id="${id}" inputmode="${mode}" value="${esc(val)}" placeholder="${esc(ph)}" aria-label="${aria||lab}"><span>${lab}</span></label>`;
+      const lvBox=(id,val,ph,lab,mode,aria)=>`<label><input id="${id}" ${mode==="time"?TMA("time"):`inputmode="${mode}"`} value="${esc(val)}" placeholder="${esc(ph)}" aria-label="${aria||lab}"><span>${lab}</span></label>`;
       const lvIns=(F.w? lvBox("lvW",v.w,uL(),F.w==="assist"?`${uL()} assistance`:F.w==="add"?`+ ${uL()} added`:db?uL()+" per dumbbell":uL(),"decimal","Weight")+"<b>×</b>" : "")
         + (F.b==="m"? lvBox("lvM",v.m,cur.ex.lo,"metres","decimal") : "")
-        + (F.b!=="m"||F.time? lvBox("lvR",v.r,F.time?(cur.t.time?fmtDur(cur.t.time):"min"):cur.ex.lo,F.time?"min":unit,F.time?"decimal":"numeric",F.time?"Time":unit) : "");
+        + (F.b!=="m"||F.time? lvBox("lvR",v.r,F.time?(cur.t.time?fmtDur(cur.t.time):"0:00"):cur.ex.lo,F.time?"m:ss":unit,F.time?"time":"numeric",F.time?"Time":unit) : "");
       if(resting||justDone){
         main=`<div class="lv-main ${resting?"rest":"go"}"><div class="lv-label">${resting?"Rest":"Rest over"}</div><div class="lv-clock" id="lvRest">${resting?fmtClock(TM.restEnd-now):"Go"}</div><div class="lv-ring"><i id="lvRestFill"></i></div>
           <div class="row lv-btns">${resting?`<button class="btn ghost" id="lvPlus">+30 s</button><button class="btn ghost" id="lvSkip">Skip rest</button>`:`<button class="btn lv-cta" id="lvStart" data-go="1">Start set</button>`}</div></div>`;

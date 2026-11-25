@@ -116,7 +116,7 @@ function lvtHtml(k, p, now, resting, justDone) {
   const wStep = UNIT() === "kg" ? 2.5 : 5;
   const ins = (F.w ? stepper("lvW", v.w, uL(), F.w === "assist" ? "ASSIST" : F.w === "add" ? "ADDED" : db ? "PER DB" : "WEIGHT", "decimal", wStep, "Weight") : "")
     + (F.b === "m" ? stepper("lvM", v.m, cur.ex.lo, "METRES", "decimal", 50, "Metres") : "")
-    + (F.b !== "m" || F.time ? (F.time ? `<label class="lvt-step"><span>TIME</span><span class="lvt-sbox"><input id="lvR" inputmode="decimal" value="${esc(v.r)}" placeholder="${esc(cur.t.time ? fmtDur(cur.t.time) : "min")}" aria-label="Time"></span></label>`
+    + (F.b !== "m" || F.time ? (F.time ? `<label class="lvt-step"><span>TIME</span><span class="lvt-sbox"><input id="lvR" ${TMA("time")} value="${esc(v.r)}" placeholder="${esc(cur.t.time ? fmtDur(cur.t.time) : "0:00")}" aria-label="Time"></span></label>`
       : stepper("lvR", v.r, cur.ex.lo, F.b === "sec" ? "SECONDS" : "REPS", "numeric", F.b === "sec" ? 5 : 1, unit)) : "");
   const ntN = typeof ntList === "function" ? ntList(cur.ex.id).length : 0;
   const ntBtn = `<button type="button" class="lvt-nt" id="lvtNt" data-ntopen="${esc(cur.ex.id)}" aria-label="Notes for ${esc(cur.ex.name)}${ntN ? `, ${ntN} saved` : ""}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 2.5l2.5 2.5L6 12.5 3 13l.5-3z"/></svg>${ntN ? `<b>${ntN}</b>` : ""}</button>`;

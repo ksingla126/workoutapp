@@ -748,7 +748,7 @@ function rkTrialBlock() {
   const T = (rkData().trials || []).slice().sort((a, b) => a.d < b.d ? 1 : -1).slice(0, 6);
   let h = `<div class="rk-trials"><div class="row between"><b>Time trials</b>${rkTrialOpen ? "" : '<button type="button" class="btn ghost sm" data-rktrial="1">+ Log a time trial</button>'}</div>`;
   if (rkTrialOpen) h += `<div class="stack" style="gap:8px"><div class="row"><div class="field"><label for="rkTd">Distance</label><select id="rkTd"><option value="400">400 m</option><option value="mile">Mile</option><option value="5k">5K</option></select></div>
-    <div class="field"><label for="rkTt">Time (m:ss)</label><input id="rkTt" inputmode="numeric" placeholder="1:45"></div></div>
+    <div class="field"><label for="rkTt">Time (m:ss)</label><input id="rkTt" ${TMA("time")} placeholder="1:45"></div></div>
     <div class="row"><div class="field"><label for="rkTdate">Date</label><input id="rkTdate" type="date" value="${ymd(today)}" max="${ymd(today)}"></div><div class="field"><label for="rkTs">Surface</label><select id="rkTs"><option value="track">Track</option><option value="road">Road</option><option value="treadmill">Treadmill</option></select></div></div>
     <label class="rk-check"><input type="checkbox" id="rkTinc"> Treadmill set to 1% incline or more</label>
     <p class="small muted">Before an all-out 400 m: 5–10 min easy jog, leg swings and skips, then 2–3 build-up runs. All-out sprints are when hamstrings get pulled.</p>

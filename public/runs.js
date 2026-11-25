@@ -268,7 +268,7 @@ function raceHtml() {
       <div class="field"><label for="raceDate">Date</label><input id="raceDate" type="date" data-run-rf="date" value="${esc(d.date || "")}" min="${ymd(today)}"></div>
       <div class="field"><span class="lbl">Distance</span><div class="xs-chips" style="flex-wrap:wrap">${RUN_RACES.map(([n]) => `<button type="button" class="${d.label === n ? "on" : ""}" data-run-rdist="${n}">${n}</button>`).join("")}<button type="button" class="${!pre && d.label !== undefined ? "on" : ""}" data-run-rdist="">Other</button></div></div>
       ${!pre ? `<div class="field"><label for="raceMi">Distance (${u})</label><input id="raceMi" inputmode="decimal" data-run-rf="dist" value="${d.dist ? dU(d.dist, 2) : ""}" placeholder="${u === "km" ? "e.g. 15" : "e.g. 10"}"></div>` : ""}
-      <div class="field"><label for="raceT">Goal time (optional)</label><input id="raceT" inputmode="numeric" data-run-rf="target" value="${d.target ? fmtMin(d.target) : ""}" placeholder="e.g. 2:30:00 or 25:00"></div>
+      <div class="field"><label for="raceT">Goal time (optional)</label><input id="raceT" ${TMA("time")} data-run-rf="target" value="${d.target ? fmtMin(d.target) : ""}" placeholder="e.g. 2:30:00"></div>
       <p class="small muted" data-run-rpace>${racePaceLine(d)}</p>
       <button type="button" class="btn" data-run-rsave="1">Save race</button></div>`;
 }
@@ -643,12 +643,12 @@ function rxFmt(p, log) { const spec = runSpec(log, p); return { spec, fmt: (p.ra
 function rxRepN(k, p, log, spec) { const d = rxD(k, "rx-n"); if (d != null) return Math.max(0, Math.min(40, Number(d) || 0)); return (log && (log.repLog ? log.repLog.length : log.reps)) || spec.n || p.reps || 4 }
 function runLogHtml(p, k, log) {
   const { spec, fmt } = rxFmt(p, log), u = RU(), rep = fmt === "reps" || fmt === "short", tt = fmt === "tt";
-  const f = (id, lbl, val, ph, mode = "decimal", hint = "") => `<div class="field"><label for="${id}">${lbl}</label><input id="${id}" inputmode="${mode}" autocomplete="off" value="${esc(val ?? "")}" placeholder="${esc(ph)}">${hint ? `<span class="small muted">${hint}</span>` : ""}</div>`;
+  const f = (id, lbl, val, ph, mode = "decimal", hint = "") => `<div class="field"><label for="${id}">${lbl}</label><input id="${id}" ${mode === "time" ? TMA("time") : `inputmode="${mode}" autocomplete="off"`} value="${esc(val ?? "")}" placeholder="${esc(ph)}">${hint ? `<span class="small muted">${hint}</span>` : ""}</div>`;
   const plannedMi = spec.by === "dist" && spec.v ? spec.v : null, plannedMin = spec.by === "time" && spec.v ? spec.v : null;
-  let h = `<div class="rx-quick row" style="gap:8px;flex-wrap:wrap">${log ? "" : `<button type="button" class="btn ghost sm" data-rx-fill="${k}">Fill in as planned</button>`}<span class="small muted">Times: 30:00, 3000 or 30m · Distances: 3.1, 5k or 800m</span></div>`;
+  let h = `<div class="rx-quick row" style="gap:8px;flex-wrap:wrap">${log ? "" : `<button type="button" class="btn ghost sm" data-rx-fill="${k}">Fill in as planned</button>`}<span class="small muted">Times: just type the digits, 3000 is 30:00 · Distances: 3.1, 5k or 800m</span></div>`;
   h += `<div class="row rx-tot" style="align-items:flex-start">
     ${f("rmi", rep ? `Total distance (${u})` : `Distance (${u})`, log && log.mi && !log.est ? dU(log.mi, 2) : "", rep ? "optional" : tt && plannedMi ? dU(plannedMi, 2) : u === "km" ? "e.g. 5" : "e.g. 3.1")}
-    ${f("rtime", tt ? "Finish time" : rep ? "Total time" : "Time", log && log.min && log.est !== "both" ? fmtMin(log.min) : "", rep ? "optional" : plannedMin ? `${plannedMin}:00` : "30:00", "text")}
+    ${f("rtime", tt ? "Finish time" : rep ? "Total time" : "Time", log && log.min && log.est !== "both" ? fmtMin(log.min) : "", rep ? "optional" : plannedMin ? `${plannedMin}:00` : "30:00", "time")}
     ${f("rrpe", "Effort 1–10", log ? log.rpe : "", "6", "numeric")}</div>${rep ? `<span class="small muted" style="margin-top:-6px">No watch totals? Leave them blank and they're estimated from your plan.</span>` : ""}`;
   if (rep) {
     const n = rxRepN(k, p, log, spec), w = spec.work || {}, byDist = w.by === "dist", hills = spec.type === "hills";
@@ -657,7 +657,7 @@ function runLogHtml(p, k, log) {
       <span class="step"><button type="button" data-rx-n="${k}|-1" aria-label="One rep fewer">−</button><b class="num">${n}</b><button type="button" data-rx-n="${k}|1" aria-label="One rep more">+</button></span></div>
       <p class="small muted" style="margin:0">${byDist ? "Each rep's time, if you know it." : hills ? "Count the reps you did; times are optional." : "How far each rep went, if you know it."} Blanks are fine.</p>
       <div class="rx-grid">${[...Array(n)].map((_, i) => { const r = log && log.repLog && log.repLog[i]; const v = r ? (byDist || hills ? (r.t != null ? String(r.t) : "") : (r.m != null ? (r.m < 1000 ? r.m + "m" : dU(r.m / 1609.344, 2)) : "")) : "";
-        return `<label class="rx-r"><span class="num">${i + 1}</span><input id="rx-r${i}" inputmode="${byDist || hills ? "decimal" : "text"}" autocomplete="off" value="${esc(v)}" placeholder="${esc(ph)}" aria-label="Rep ${i + 1} ${lbl.toLowerCase()}"></label>` }).join("")}</div></div>`;
+        return `<label class="rx-r"><span class="num">${i + 1}</span><input id="rx-r${i}" ${byDist || hills ? TMA("time") : `inputmode="text" autocomplete="off"`} value="${esc(v)}" placeholder="${esc(ph)}" aria-label="Rep ${i + 1} ${lbl.toLowerCase()}"></label>` }).join("")}</div></div>`;
   }
   if (spec.runwalk) { const n = rxRepN(k, p, log, spec);
     h += `<div class="rx-reps"><div class="row between"><b class="small">Rounds finished <span class="muted">· planned ${spec.n}</span></b><span class="step"><button type="button" data-rx-n="${k}|-1" aria-label="One round fewer">−</button><b class="num">${n}</b><button type="button" data-rx-n="${k}|1" aria-label="One round more">+</button></span></div></div>` }

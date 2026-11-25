@@ -68,10 +68,10 @@ function rowSheetHtml() {
   return "";
 }
 function rowEditHtml() {
-  const d = SH.d, num = (f, lab, step, unit) => `<div class="field"><label>${lab}</label><div class="row" style="gap:6px;align-items:center"><input class="setnum" inputmode="decimal" data-row-f="${f}" value="${esc(d[f] ?? "")}" style="max-width:110px"><span class="small muted">${unit || ""}</span></div></div>`;
+  const d = SH.d, num = (f, lab, step, unit) => `<div class="field"><label>${lab}</label><div class="row" style="gap:6px;align-items:center"><input class="setnum" ${f === "secT" ? TMA("time") : 'inputmode="decimal"'} data-row-f="${f}" value="${esc(d[f] ?? "")}" style="max-width:110px"><span class="small muted">${unit || ""}</span></div></div>`;
   const useSp = d.noSplit ? false : true;
   const splitF = `<div class="field"><label class="row" style="gap:8px;align-items:center;cursor:pointer"><input type="checkbox" data-row-usesplit="1" ${useSp ? "checked" : ""}> <span>Target pace</span></label>
-    ${useSp ? `<div class="row" style="gap:6px;align-items:center;margin-top:6px"><input class="setnum" data-row-f="splitT" value="${esc(d.splitT != null ? d.splitT : d.split ? rowSplitTxt(d.split) : "")}" placeholder="2:20" style="max-width:110px" aria-label="Target split per 500 m"><span class="small muted">split /500 m</span></div>` : `<p class="small muted" style="margin:4px 0 0">No target. Just row ${d.kind === "steady" || d.by === "time" ? "for the time" : "the distance"} at whatever pace feels right.</p>`}</div>`;
+    ${useSp ? `<div class="row" style="gap:6px;align-items:center;margin-top:6px"><input class="setnum" ${TMA("split")} data-row-f="splitT" value="${esc(d.splitT != null ? d.splitT : d.split ? rowSplitTxt(d.split) : "")}" placeholder="2:20" style="max-width:110px" aria-label="Target split per 500 m"><span class="small muted">split /500 m</span></div>` : `<p class="small muted" style="margin:4px 0 0">No target. Just row ${d.kind === "steady" || d.by === "time" ? "for the time" : "the distance"} at whatever pace feels right.</p>`}</div>`;
   let f = "";
   if (d.kind === "steady") f = num("min", "Minutes", 1, "min") + splitF + `<label class="row" style="gap:8px;align-items:center;margin-top:6px"><input type="checkbox" data-row-f="grow" ${d.grow ? "checked" : ""}> <span class="small">Grow 2 min a week (up to 60)</span></label>`;
   else if (d.kind === "int") f = `<div class="field"><label>Pieces by</label><div class="xs-chips">${[["m", "Distance"], ["time", "Time"]].map(([v, n]) => `<button type="button" class="${(d.by || "m") === v ? "on" : ""}" data-row-by="${v}">${n}</button>`).join("")}</div></div>`
@@ -91,7 +91,7 @@ function rowLogHtml() { const d = SH.d;
   return `<div class="xs-head"><h2>Log ${esc(SH.name || "row")}</h2><button type="button" class="btn ghost sm" data-xs="close">Cancel</button></div>
     <p class="small muted">${esc(fmtDate(parseYmd(SH.k)))}. From your rowing machine's monitor.</p>
     <div class="row" style="gap:10px"><div class="field" style="flex:1"><label>Distance</label><input class="xs-search" inputmode="numeric" data-rowlog="m" value="${esc(d.m || "")}" placeholder="5000"><span class="small muted">metres</span></div>
-    <div class="field" style="flex:1"><label>Time</label><input class="xs-search" data-rowlog="t" value="${esc(d.t || "")}" placeholder="22:30"><span class="small muted">min:sec</span></div></div>
+    <div class="field" style="flex:1"><label>Time</label><input class="xs-search" ${TMA("time")} data-rowlog="t" value="${esc(d.t || "")}" placeholder="22:30"><span class="small muted">min:sec</span></div></div>
     <div class="field"><label>Stroke rate (optional)</label><input class="xs-search" inputmode="numeric" data-rowlog="spm" value="${esc(d.spm || "")}" placeholder="24" style="max-width:120px"></div>
     <p class="small muted rowlog-split">${rowLogSplit(d)}</p>
     <button type="button" class="btn" style="width:100%" data-rowlog-save="1">Save</button>${d.pcs ? `<button type="button" class="btn ghost" style="width:100%;margin-top:8px" data-rowlog-mode="pcs">Enter each interval instead</button>` : ""}` }
@@ -121,8 +121,8 @@ function rowLogPcsHtml() { const d = SH.d, tm = d.by === "time";
       <div class="rpc-h" role="row"><span></span><span>${tm ? "TIME" : "METRES"}</span><span>/500M</span><span>${tm ? "METRES" : "TIME"}</span><span>S/M</span></div>
       <div class="rpc-sum" role="row" aria-label="Total"><span>Σ</span><span id="rpcSum" class="rpc-sumv">${rowPcSumHtml(d)}</span></div>
       ${d.pcs.map((x, i) => `<div class="rpc-r" role="row"><span class="rpc-n">${i + 1}</span>
-        <input data-rowpc="${i}|w" value="${esc(x.w)}" inputmode="${tm ? "text" : "numeric"}" aria-label="Interval ${i + 1} ${tm ? "time" : "metres"}">
-        <input class="rpc-sp" data-rowpc="${i}|split" value="${esc(x.split)}" placeholder="${d.hint || "1:55.0"}" inputmode="decimal" aria-label="Interval ${i + 1} split per 500 metres">
+        <input data-rowpc="${i}|w" value="${esc(x.w)}" ${tm ? TMA("time") : 'inputmode="numeric"'} aria-label="Interval ${i + 1} ${tm ? "time" : "metres"}">
+        <input class="rpc-sp" data-rowpc="${i}|split" value="${esc(x.split)}" placeholder="${d.hint || "1:55.0"}" ${TMA("split")} aria-label="Interval ${i + 1} split per 500 metres">
         <span class="rpc-o" id="rpcO${i}">${rowPcOut(d, i)}</span>
         <input data-rowpc="${i}|spm" value="${esc(x.spm)}" placeholder="28" inputmode="numeric" aria-label="Interval ${i + 1} stroke rate"></div>`).join("")}
     </div>
@@ -130,7 +130,7 @@ function rowLogPcsHtml() { const d = SH.d, tm = d.by === "time";
     <button type="button" class="btn" style="width:100%" data-rowlog-save="1">Save</button>
     <button type="button" class="btn ghost" style="width:100%;margin-top:8px" data-rowlog-mode="tot">Just enter the totals</button>` }
 function rowLogSplit(d) { const m = Number(d.m), s = rowParseTime(d.t); return m > 0 && s > 0 ? `Average split ${rowSplitTxt(s / (m / 500))} /500 m` : "" }
-function rowParseTime(t) { const s = String(t || "").trim(); if (!s) return null; const p = s.split(":").map(Number); if (p.some(isNaN)) return null; return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : p.length === 2 ? p[0] * 60 + p[1] : p[0] * 60 }
+function rowParseTime(t) { const s = String(t || "").trim(); if (!s) return null; if (/^\d{3,6}(\.\d+)?$/.test(s)) return rowParseTime(tmFmt(tmRaw(s), "time")); const p = s.split(":").map(Number); if (p.some(isNaN)) return null; return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : p.length === 2 ? p[0] * 60 + p[1] : p[0] * 60 }
 function rowRepHtml() { const l = S.logs[SH.k]; if (!l) return "";
   const P = l.plan || {}, img = ROW_KINDS[l.kind || P.kind] ? ROW_KINDS[l.kind || P.kind].img : "row1", M = ROW_META[img], pcs = l.pieces || [];
   const avg = l.m > 0 && l.sec > 0 ? l.sec / (l.m / 500) : 0, best = pcs.length > 1 ? pcs.reduce((a, p) => p.sec / p.m < a.sec / a.m ? p : a) : null;
@@ -195,7 +195,7 @@ function rwPaint() { const el = document.getElementById("rowlive"); if (!el || !
   if (ent) { const tm = rwTimed(p), d = RW.draft, pn = RW.ph === "rest" ? RW.i : RW.i + 1, lab = tm ? (n > 1 ? `PIECE ${pn} · METRES` : "DISTANCE") : `PIECE ${pn} · SPLIT /500 M`;
     if (tm && n > 1 && p.split && d.m > 0) d.split = +((d.sec || rwSec(p)) / (d.m / 500)).toFixed(1);
     const cmp = (!tm || n > 1) && p.split && d.split ? (d.split <= p.split ? `<div class="rl-cmp"><b>BEAT</b><span>${(p.split - d.split).toFixed(1)} s faster than target.</span></div>` : `<div class="rl-cmp slow"><b>MISS</b><span>${(d.split - p.split).toFixed(1)} s slower than target.</span></div>`) : "";
-    foot += `<div class="rl-in"><div class="fl"><label>${lab}</label><div class="rl-step on"><button type="button" data-rl-adj="${tm ? "m|-10" : "split|-0.5"}" aria-label="Less">−</button><input id="rlVal" inputmode="decimal" value="${tm ? d.m : rowSplitTxt(d.split)}" aria-label="${lab}"><button type="button" data-rl-adj="${tm ? "m|10" : "split|0.5"}" aria-label="More">+</button></div></div>
+    foot += `<div class="rl-in"><div class="fl"><label>${lab}</label><div class="rl-step on"><button type="button" data-rl-adj="${tm ? "m|-10" : "split|-0.5"}" aria-label="Less">−</button><input id="rlVal" ${tm ? 'inputmode="decimal"' : TMA("split")} value="${tm ? d.m : rowSplitTxt(d.split)}" aria-label="${lab}"><button type="button" data-rl-adj="${tm ? "m|10" : "split|0.5"}" aria-label="More">+</button></div></div>
       <div class="fl sm"><label>SPM</label><div class="rl-step"><button type="button" data-rl-adj="spm|-1" aria-label="Lower stroke rate">−</button><b id="rlSpm">${d.spm || 24}</b><button type="button" data-rl-adj="spm|1" aria-label="Higher stroke rate">+</button></div></div></div>${cmp}`;
   }
   if (RW.ph === "row") foot += `<button type="button" class="rl-go${rwTimed(p) ? " ghost" : ""}" data-rl="done">${rwTimed(p) ? (n > 1 ? "END PIECE EARLY" : "END EARLY") : n > 1 ? "PIECE DONE" : "FINISHED"}</button>${rwTimed(p) ? `<p class="rl-mini">The timer ends ${n > 1 ? "each piece" : "the row"} on its own${n > 1 ? " and starts the rest" : ""}.</p>` : ""}`;
@@ -223,7 +223,7 @@ function rwConfirm() { const p = RW.plan, d = RW.draft, tm = rwTimed(p), n = rwP
   RW.pieces[RW.i] = piece; RW.i++; RW.draft = { spm: d.spm };
   if (RW.i >= n) RW.ph = "done";
   rwSave(); rwPaint() }
-function rowParseSplit(s) { s = String(s || "").trim(); const m = s.match(/^(\d+):(\d+(?:\.\d+)?)$/); if (m) return +m[1] * 60 + +m[2]; const n = Number(s); return n > 0 ? (n < 10 ? n * 60 : n) : null }
+function rowParseSplit(s) { s = String(s || "").trim(); if (/^\d{3,4}$|^\d{3}\.\d$/.test(s)) s = tmFmt(tmRaw(s), "split"); const m = s.match(/^(\d+):(\d+(?:\.\d+)?)$/); if (m) return +m[1] * 60 + +m[2]; const n = Number(s); return n > 0 ? (n < 10 ? n * 60 : n) : null }
 function rowLogD0(plan, old) { const P = rowLogPieces0(plan, old); return P ? { by: P.by, pcs: P.pcs, hint: plan && plan.split ? rowSplitTxt(plan.split) : "" } : {} }
 function rowSaveLog(k, pieces, plan) { const m = pieces.reduce((t, x) => t + x.m, 0), sec = +pieces.reduce((t, x) => t + x.sec, 0).toFixed(1), spms = pieces.map(x => x.spm).filter(Boolean);
   const l = { type: "row", kind: plan.kind, pieces, m, sec, ...(spms.length ? { spm: Math.round(spms.reduce((a, b) => a + b, 0) / spms.length) } : {}), plan, savedAt: Date.now() };
