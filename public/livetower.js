@@ -71,7 +71,7 @@ function lvtHtml(k, p, now, resting, justDone) {
   /* ---------- every floor cleared ---------- */
   if (!cur) {
     const done = steps.filter(x => x.done); let vol = 0;
-    done.forEach(s => { const v = setValsK(k, s), w = fromU(Number(v.w) || 0), r = Number(v.r) || 0; if (FMT[fmtOf(s.ex)].b === "reps" && w > 0 && r > 0) vol += w * r });
+    done.forEach(s => { if (FMT[fmtOf(s.ex)].b !== "reps") return; const v = lvSetVals(k, s); if (v.r > 0) vol += setVolW(v, w => w) });
     const bosses = p.ex.reduce((t, ex) => t + Object.keys(lvtKinds(k, ex, steps.map(s => ({ ...s, done: false }))).gate).length, 0);
     const cells = [["Sets", done.length], ["Volume", vol ? `${Math.round(toU(vol)).toLocaleString()} ${uL()}` : "–"], ["Time", fmtClock(tmEl())], ["Floors", `${p.ex.length}/${p.ex.length}`]]
       .map(([a, b]) => `<div><b>${esc(String(b))}</b><span>${a}</span></div>`).join("");
@@ -83,6 +83,7 @@ function lvtHtml(k, p, now, resting, justDone) {
 
   const v = setValsK(k, cur), unit = F.b === "sec" ? "sec" : F.b === "m" ? "m" : "reps", db = dbNow(cur.ex.id, S.logs[k]);
   const amount = st => { const x = setValsK(k, st), f = FMT[fmtOf(st.ex)], w = f.w && x.w !== "" && Number(x.w) ? `${f.w === "add" ? "+" : f.w === "assist" ? "−" : ""}${x.w} ${uL()} × ` : "";
+    if (f.b === "reps" && sideOn(st.ex, S.logs[k])) return `${w}${x.r || st.ex.lo} each side`;
     return fmtOf(st.ex) === "dt" ? `${x.m || st.ex.lo} m${x.r ? ` in ${x.r}` : ""}` : `${w}${(f.b === "m" ? x.m : x.r) || st.ex.lo}${f.b === "reps" ? "" : " " + (f.b === "sec" ? "s" : "m")}` };
   const tag = `<div class="lvt-tagrow"><span class="lvt-tag">FLOOR ${fi + 1} · ${esc(cur.ex.name.toUpperCase())}${cur.inSS ? " · SUPERSET" : ""}</span><span class="lvt-of">Mob ${cur.i + 1} of ${cur.n}</span></div>`;
   const queue = `<div class="lvt-queue" aria-hidden="true">${K.own.map(s => { const kk = K.kinds[s.i], pp = kk === "boss" && K.gate[s.i] ? lvtPal(Math.min(5, K.gate[s.i].to)) : rank; return `<span>${lvtMob(kk, s.done ? "dead" : s.i === cur.i ? "now" : "up", 28, pp)}</span>` }).join("")}</div>`;
@@ -113,8 +114,11 @@ function lvtHtml(k, p, now, resting, justDone) {
   const card = `<div class="lv-main lvt-card ${boss ? "boss" : ""}"><span class="lvt-tag ${boss ? "blue" : ""}">${boss ? `GATE BOSS · ${rkLetter(g.to)} RANK` : LVT_KIND[kind].toUpperCase()}</span>
     ${lvtMob(kind, "now", boss ? 118 : 112, P)}<b class="lvt-amt" id="lvtAmt">${esc(amount(cur))}</b>${sub ? `<span class="lvt-sub">${esc(sub)}</span>` : ""}${hp}</div>`;
   const stepper = (id, val, ph, lab, mode, step, aria) => `<label class="lvt-step"><span>${lab}</span><span class="lvt-sbox"><button type="button" data-lvt-step="${id}|-${step}" aria-label="Less ${esc(aria)}">−</button><input id="${id}" inputmode="${mode}" value="${esc(val)}" placeholder="${esc(ph)}" aria-label="${esc(aria)}"><button type="button" data-lvt-step="${id}|${step}" aria-label="More ${esc(aria)}">+</button></span></label>`;
-  const wStep = UNIT() === "kg" ? 2.5 : 5;
-  const ins = (F.w ? stepper("lvW", v.w, uL(), F.w === "assist" ? "ASSIST" : F.w === "add" ? "ADDED" : db ? "PER DB" : "WEIGHT", "decimal", wStep, "Weight") : "")
+  const wStep = UNIT() === "kg" ? 2.5 : 5, sd = sideOn(cur.ex, S.logs[k]);
+  // one side at a time: a row of boxes per side (an empty right side logs the same as the left)
+  const sideIns = sd && F.b === "reps" ? `<div class="lvt-sides">${[["", "LEFT", v.w, v.r], ["2", "RIGHT", v.w2, v.r2]].map(([s, lab, w, r]) => `<div class="lvt-srow"><b class="lvt-sk">${lab[0]}</b>${F.w ? stepper("lvW" + s, w ?? "", s ? "= L" : uL(), "WEIGHT", "decimal", wStep, lab.toLowerCase() + " weight") : ""}${stepper("lvR" + s, r ?? "", s ? "= L" : cur.ex.lo, "REPS", "numeric", 1, lab.toLowerCase() + " reps")}</div>`).join("")}</div>` : "";
+  const sideChk = SIDE_EITHER.has(cur.ex.id) && !cur.ex.fixed && F.b === "reps" ? `<label class="lvt-sidechk"><input type="checkbox" data-lvside="${esc(cur.ex.id)}" ${sd ? "checked" : ""}> One side at a time</label>` : "";
+  const ins = sideIns ? sideIns : (F.w ? stepper("lvW", v.w, uL(), F.w === "assist" ? "ASSIST" : F.w === "add" ? "ADDED" : db ? "PER DB" : "WEIGHT", "decimal", wStep, "Weight") : "")
     + (F.b === "m" ? stepper("lvM", v.m, cur.ex.lo, "METRES", "decimal", 50, "Metres") : "")
     + (F.b !== "m" || F.time ? (F.time ? `<label class="lvt-step"><span>TIME</span><span class="lvt-sbox"><input id="lvR" ${TMA("time")} value="${esc(v.r)}" placeholder="${esc(cur.t.time ? fmtDur(cur.t.time) : "0:00")}" aria-label="Time"></span></label>`
       : stepper("lvR", v.r, cur.ex.lo, F.b === "sec" ? "SECONDS" : "REPS", "numeric", F.b === "sec" ? 5 : 1, unit)) : "");
@@ -148,7 +152,7 @@ function lvtHtml(k, p, now, resting, justDone) {
   const needW = F.w === "req" && String(v.w ?? "").trim() === "";
   const strike = big(boss ? "Challenge the boss" : "Strike · log set", "lvDone", boss ? "blue" : "").replace('class="lvt-big', `${needW ? 'data-need="w" ' : ""}class="lvt-big${needW ? " need" : ""}`)
     .replace(/>(Challenge the boss|Strike · log set)</, needW ? ">Enter a weight to strike<" : ">$1<");
-  return page(sysT + (cur.inSS && !cur.ssLast ? " Superset: no rest before the next one." : ""), boss, body, `<div class="lvt-ins${needW ? " need" : ""}">${ins}${ntBtn}</div>${plateable(cur.ex, db) ? `<button type="button" class="lvt-pl" id="lvtPl" aria-label="Plate calculator">${lvtPlates(v.w, cur.ex)}</button>` : ""}${strike}`);
+  return page(sysT + (cur.inSS && !cur.ssLast ? " Superset: no rest before the next one." : ""), boss, body, `${sideChk}<div class="lvt-ins${needW ? " need" : ""}${sideIns ? " sides" : ""}">${ins}${ntBtn}</div>${plateable(cur.ex, db) ? `<button type="button" class="lvt-pl" id="lvtPl" aria-label="Plate calculator">${lvtPlates(v.w, cur.ex)}</button>` : ""}${strike}`);
 }
 
 /* ---------- Floor options (⋯): swap the exercise, add a set, skip the set you're on ---------- */
@@ -250,6 +254,8 @@ document.addEventListener("click", e => {
   if (b.id === "lvtMinus" || b.id === "lvtPlus") { if (!TM.restEnd) return; const d = b.id === "lvtPlus" ? 15 : -15;
     TM.restEnd = Math.max(Date.now() + 1000, TM.restEnd + d * 1000); TM.restDur = Math.max(1, TM.restDur + d); saveTM(); liveTick(); return }
 });
+document.addEventListener("change", e => { const t = e.target; if (!t || !t.dataset || !t.dataset.lvside) return; const id = t.dataset.lvside;
+  sideOverride[id] = t.checked; S.profile.sidePref = { ...(S.profile.sidePref || {}), [id]: t.checked }; saveProfile(); renderLive() });
 document.addEventListener("input", e => {
   const t = e.target; if (!t || !t.closest || !t.closest("#liveIn.lvt") || !/^lv[WRM]$/.test(t.id)) return;
   const W = document.getElementById("lvW"), R = document.getElementById("lvR"), a = document.getElementById("lvtAmt");
@@ -354,6 +360,9 @@ html .live.lvt-on{background:radial-gradient(90% 50% at 50% 0%,color-mix(in srgb
 .lvt-queue{display:flex;justify-content:center;gap:12px;align-items:flex-end}
 .lvt-foot{flex-shrink:0;padding:4px 0 2px;display:flex;flex-direction:column;gap:12px}@media (max-height:780px){.lvt-rw{transform:scale(.84);margin:-12px 0}.lvt-name{font-size:22px}.lvt-floor{height:46px}#liveIn.lvt{gap:9px}}@media (max-height:680px){.lvt-rw{transform:scale(.72);margin:-24px 0}.lvt-sys{display:none}}
 .lvt-ins{display:flex;gap:10px;position:relative}
+.lvt-ins.sides{align-items:flex-start}.lvt-sides{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.lvt-srow{display:flex;gap:8px;align-items:flex-end;min-width:0}.lvt-srow+.lvt-srow .lvt-step>span:first-child{display:none}.lvt-srow+.lvt-srow .lvt-sk{padding-bottom:16px}.lvt-sk{width:16px;flex-shrink:0;padding-bottom:14px;font:800 12px/1 var(--fnt);color:var(--lvt-rmid,var(--mut));text-align:center}
+.lvt-sidechk{display:flex;align-items:center;gap:8px;margin:0 0 8px;font:700 12px/1.2 var(--fnt);letter-spacing:.06em;color:var(--mut)}.lvt-sidechk input{width:16px;height:16px;accent-color:var(--lvt-rmid,#8B7CFF);margin:0}
 #liveIn.lvt .lvt-min svg{width:16px;height:16px}#liveIn.lvt .lvt-more svg{width:16px;height:16px;fill:currentColor}#liveIn.lvt .lvt-more.on{border-color:var(--lvt-rmid);color:var(--lvt-rcore)}
 #liveIn.lvt .lvt-ghost{visibility:hidden}
 .lvt-menu{position:fixed;inset:0;z-index:11}

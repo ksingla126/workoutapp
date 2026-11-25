@@ -1207,7 +1207,7 @@ function historyHtml(){ const id=SH.id, L=libEx(id)||(typeof X!=="undefined"&&X[
   // one entry per session: working sets, top set (best score in its format), PR flag, volume
   const S2=rows.map(([k,l])=>{ const lf=logFmt(id,l), db=logDb(id,l), ws=WS(l.ex[id]), all=l.ex[id];
     const sc=x=>setScore(lf,id,l,x), top=(ws.length?ws:all).reduce((a,x)=>sc(x)>sc(a)?x:a);
-    return {k,l,lf,db,all,top,v:sc(top),pr:(l.prs||[]).includes(id),vol:ws.reduce((t,x)=>t+loadW(id,l,x.w)*(Number(x.r)||0),0),n:ws.length} });
+    return {k,l,lf,db,all,top,v:sc(top),pr:(l.prs||[]).includes(id),vol:ws.reduce((t,x)=>t+setVolW(x,w=>loadW(id,l,w)),0),n:ws.length} });
   const same=S2.filter(r=>r.lf===f), last=S2[0], best=(same.length?same:S2).reduce((a,r)=>r.v>a.v?r:a);
   const rk=hxRank(id), C=typeof RKC==="function"?RKC():null;
   h+=`<div class="hx"><div class="hx-sys">[SYSTEM] LIFT RECORD · ${rows.length} CLEAR${rows.length===1?"":"S"}</div>`;
