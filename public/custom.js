@@ -1311,7 +1311,7 @@ function setPref(patch){ const cur={...userPrefs(),...patch}; if(window.LOOK) LO
 function syncPrefs(){ const p=S.profile&&S.profile.prefs; if(p&&window.LOOK) LOOK.save(p) }
 function accountName(){ const su=S.profile&&S.profile.setup; return (su&&su.name)||(window.appUserEmail&&appUserEmail().split("@")[0])||"You" }
 // Settings, Plan and Food share one set of tabs (Profile in the bottom bar)
-function setTabs(cur){ const T=[["acct","Settings"],["plan","Plan"],["body","Body"],...(typeof FOOD_ON!=="undefined"&&FOOD_ON?[["food","Food"]]:[])]; return `<div class="seg set-tabs" style="grid-template-columns:repeat(${T.length},1fr);margin-bottom:12px" role="tablist" aria-label="Settings">${T.map(([k,l])=>`<button type="button" role="tab" data-settab="${k}" aria-selected="${cur===k}" class="${cur===k?"on":""}">${l}</button>`).join("")}</div>` }
+function setTabs(cur){ const T=[["acct","Settings"],["body","Body"],...(typeof FOOD_ON!=="undefined"&&FOOD_ON?[["food","Food"]]:[])]; return `<div class="seg set-tabs" style="grid-template-columns:repeat(${T.length},1fr);margin-bottom:12px" role="tablist" aria-label="Settings">${T.map(([k,l])=>`<button type="button" role="tab" data-settab="${k}" aria-selected="${cur===k}" class="${cur===k?"on":""}">${l}</button>`).join("")}</div>` }
 function accountBtn(){ if(!window.__platform) return ""; const n=accountName(); return `<button type="button" class="acct" data-acct="1" aria-label="Account and settings">${esc((n[0]||"?").toUpperCase())}</button>` }
 function accountHtml(){
   const pr=userPrefs(), P=window.LOOK?LOOK.presets:{}, email=window.appUserEmail?appUserEmail():"";
@@ -1382,7 +1382,7 @@ document.addEventListener("click",e=>{
   if(d.settab){ const t=d.settab; if(t==="acct"){ if(!(SH&&SH.kind==="account")) openSheet({kind:"account"}); return } xsClose(); tab=t; if(t==="plan"&&typeof planView!=="undefined") planView="training"; try{localStorage.setItem("rd25-tab",tab)}catch(_){} lastRenderKey=""; render(); window.scrollTo(0,0); return }
   if(d.acctUnit){ setUnit(d.acctUnit); paintSheet(); return }
   if(d.acctDist){ S.profile.distU=d.acctDist; saveProfile(); paintSheet(); lastRenderKey=""; render(); return }
-  if(d.acctRuns){ xsClose(); tab="plan"; planView="training"; lastRenderKey=""; render(); setTimeout(()=>{ const el=document.querySelector(".runr")||document.querySelector("[data-run-new]"); if(el) el.scrollIntoView({block:"center"}) },60); return }
+  if(d.acctRuns){ xsClose(); tab="plan"; planView="training"; if(typeof PL!=="undefined"){ PL.seg="workouts"; PL.filter="run"; PL.edit=null } lastRenderKey=""; render(); setTimeout(()=>{ const el=document.querySelector(".runr")||document.querySelector("[data-run-new]"); if(el) el.scrollIntoView({block:"center"}) },60); return }
   if(d.acctPauseon||d.acctPauseoff){ rkPauseSet(!!d.acctPauseon); paintSheet(); return }
   if(d.acctMode){ setPref({mode:d.acctMode}); paintSheet(); return }
   if(d.acctPal){ setPref({palette:d.acctPal}); paintSheet(); return }

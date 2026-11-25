@@ -1024,6 +1024,7 @@ const FOOD_ON = !!window.__foodOn; // off in the app; the test harness can turn 
 <script src="/game.js"></script>
 <script src="/runs.js"></script>
 <script src="/rows.js"></script>
+<script src="/plan.js"></script>
 <script src="/extras.js"></script>
 <script src="/seals.js"></script>
 <script src="/livetower.js"></script>
@@ -1252,8 +1253,8 @@ WEEKS=Math.max(1,weekOf(today))+12;
 let sel = inProgram(today)? today : START;
 let tab="home";
 let progView="lifts"; try{const v=localStorage.getItem("rd25-pview"); if(v==="runs"||v==="lifts") progView=v; else if(v==="body"||v==="weeks") progView="weeks"}catch(e){}
-let planView="training"; try{const v=localStorage.getItem("rd25-planview"); if(v==="training"||v==="food") planView=v}catch(e){}
-try{const t=localStorage.getItem("rd25-tab"); if(t==="runs"){tab="progress"; progView="runs"} else if(t==="food"){tab="plan"; planView="food"} else if(t==="standings") tab="ranks"; else if(t&&["home","plan","body","progress","ranks","advice"].includes(t)) tab=t}catch(e){}
+let planView="training";
+try{const t=localStorage.getItem("rd25-tab"); if(t==="runs"){tab="progress"; progView="runs"} else if(t==="food"){tab="food"} else if(t==="standings") tab="ranks"; else if(t&&["home","plan","body","progress","ranks","advice"].includes(t)) tab=t}catch(e){}
 tab="hub"; // the app always opens on the game Home
 
 function loadLocal(){ setTimeout(onProfile,0); if(window.__platform) return; try{S.photos=JSON.parse(localStorage.getItem("rd25-photos")||"{}")||{}}catch(e){} try{const j=JSON.parse(localStorage.getItem("rd25-data")||"null"); if(j){S.logs=j.logs||{};S.meals=j.meals||{};Object.assign(S.profile,j.profile||{});S.chat=j.chat||[];S.over=j.over||{};Object.assign(S.advice,j.advice||{})}}catch(e){}}
@@ -1440,15 +1441,16 @@ function render(fromStore){
   if(!FOOD_ON&&(tab==="food"||(tab==="plan"&&planView==="food"))){ tab="hub"; if(typeof planView!=="undefined") planView="training" }
   const v=$("#view"), sameTab=v.dataset.vtab===tab&&v.firstChild;
   if(!sameTab&&v.dataset.vtab){ try{ (window.__tabY=window.__tabY||{})[v.dataset.vtab]=window.scrollY }catch(e){} }
-  const html = tab==="hub"&&typeof viewHub==="function"?viewHub(): tab==="home"?(WS_ON&&typeof viewWorld==="function"?(wsLog?trainSwitch():"")+viewWorld(openLogger):trainSwitch()+viewHome(openLogger)): tab==="food"||(tab==="plan"&&planView==="food")?(typeof setTabs==="function"?setTabs("food"):"")+viewFoodTab(): tab==="plan"?(typeof setTabs==="function"?setTabs("plan"):trainSwitch())+viewPlan(): tab==="body"?(typeof setTabs==="function"?setTabs("body"):"")+viewBody(): tab==="progress"?trainSwitch()+viewProgress(): tab==="ranks"?viewRanks(): viewAdvice();
+  const html = tab==="hub"&&typeof viewHub==="function"?viewHub(): tab==="home"?(WS_ON&&typeof viewWorld==="function"?(wsLog?trainSwitch():"")+viewWorld(openLogger):trainSwitch()+viewHome(openLogger)): tab==="food"||(tab==="plan"&&planView==="food")?(typeof setTabs==="function"?setTabs("food"):"")+viewFoodTab(): tab==="plan"?(CUSTOM&&typeof viewPlanX==="function"?viewPlanX():(typeof setTabs==="function"?setTabs("plan"):trainSwitch())+viewPlan()): tab==="body"?(typeof setTabs==="function"?setTabs("body"):"")+viewBody(): tab==="progress"?trainSwitch()+viewProgress(): tab==="ranks"?viewRanks(): viewAdvice();
   if(sameTab) morph(v,html); else { v.innerHTML=html; v.dataset.vtab=tab; window.scrollTo(0,(window.__tabY||{})[tab]||0) }
   applyDrafts();
-  viewBind(v,()=>{ bind(); if(tab==="ranks") bindRanks(); if(typeof wsAfter==="function"&&tab==="home") wsAfter() }); document.body.classList.toggle("ws-page",tab==="home"&&typeof WS_ON!=="undefined"&&WS_ON&&!wsLog); if(tab==="hub"&&typeof hubMaybeTour==="function") hubMaybeTour(); if(tab==="hub"&&typeof maybeRecap==="function") setTimeout(()=>{ maybeRecap(); if(typeof maybeInvite==="function") maybeInvite() },400); else if(typeof HT!=="undefined"&&HT.i>=0) hubTourEnd(); if(typeof gameAfterRender==="function") gameAfterRender();
+  viewBind(v,()=>{ bind(); if(tab==="ranks") bindRanks(); if(typeof wsAfter==="function"&&tab==="home") wsAfter() }); document.body.classList.toggle("ws-page",tab==="home"&&typeof WS_ON!=="undefined"&&WS_ON&&!wsLog); document.body.classList.toggle("pl-page",tab==="plan"&&!!CUSTOM&&typeof viewPlanX==="function"); if(tab==="hub"&&typeof hubMaybeTour==="function") hubMaybeTour(); if(tab==="hub"&&typeof maybeRecap==="function") setTimeout(()=>{ maybeRecap(); if(typeof maybeInvite==="function") maybeInvite() },400); else if(typeof HT!=="undefined"&&HT.i>=0) hubTourEnd(); if(typeof gameAfterRender==="function") gameAfterRender();
   setTimeout(maybeOverload,0); setTimeout(rankNotify,0); if(typeof questNotify==="function") setTimeout(questNotify,0);
 }
 function renderTop(){
   if(tab==="hub"){ if(document.title!==APP_NAME) document.title=APP_NAME; $("#top").innerHTML=""; $("#top").classList.add("hub-top"); return } $("#top").classList.remove("hub-top");
   if(tab==="home"&&typeof wsTop==="function"&&WS_ON&&!wsLog){ if(document.title!==APP_NAME) document.title=APP_NAME; morph($("#top"),wsTop()); return }
+  if(tab==="plan"&&CUSTOM&&typeof planTop==="function"){ if(document.title!==APP_NAME) document.title=APP_NAME; morph($("#top"),PL.edit?"":planTop()); return }
   if(tab==="food"||tab==="ranks"||tab==="advice"||tab==="plan"||tab==="body"){ if(document.title!==APP_NAME) document.title=APP_NAME;
     const T={food:"Settings",plan:"Settings",body:"Settings",ranks:"Ranks",advice:"System"}[tab];
     morph($("#top"),`<div class="top-row"><span class="top-name brand">${BRAND_MARK}${APP_NAME}</span><span class="top-act">${typeof rankChip==="function"?rankChip():""}</span></div><h1 class="top-week">${T}</h1>`); return }
@@ -1476,11 +1478,11 @@ const TAB_ICON=(()=>{ const sv=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="
     me:sv('<circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>'),
     advice:sv('<path d="M5 18.5V7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H8.5z"/><path d="M9 9.5h6M9 12.5h4"/>') } })();
 function renderTabs(){
-  const T=[["hub","Home"],["home","Train"],["ranks","Ranks"],["advice","System"]];
+  const T=[["hub","Home"],["home","Train"],["ranks","Ranks"],["plan","Plan"]];
   const n=unseenAdvice(); let rk=0;
-  const cur= tab==="food"||tab==="plan"||tab==="body"? "me" : tab==="progress"? "home" : tab;
-  morph($("#tabs"),T.map(([id,l])=>`<button data-tab="${id}" class="${cur===id?"on":""}" aria-current="${cur===id}">${TAB_ICON[id]}${l}${id==="advice"&&n&&tab!=="advice"?`<span class="badge">${n}</span>`:""}${id==="ranks"&&tab!=="ranks"&&(rk=rkAlertCount())?`<span class="badge">${rk}</span>`:""}</button>`).join("")+(window.__platform?`<button type="button" data-acct="1" class="${tab==="plan"||tab==="food"||tab==="body"?"on":""}" aria-current="${tab==="plan"||tab==="food"||tab==="body"}">${TAB_ICON.me}Profile</button>`:""));
-  document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{if(b.dataset.tab==="progress"&&tab==="progress") runSel=null; tab=b.dataset.tab; try{localStorage.setItem("rd25-tab",tab)}catch(e){} if(tab==="advice"&&S.advice.at>(S.advice.seenAt||0)){S.advice.seenAt=S.advice.at;saveAdvice()} render(); window.scrollTo(0,0)});
+  const cur= tab==="food"||tab==="body"? "me" : tab==="progress"? "home" : tab;
+  morph($("#tabs"),T.map(([id,l])=>`<button data-tab="${id}" class="${cur===id?"on":""}" aria-current="${cur===id}">${TAB_ICON[id]}${l}${id==="advice"&&n&&tab!=="advice"?`<span class="badge">${n}</span>`:""}${id==="ranks"&&tab!=="ranks"&&(rk=rkAlertCount())?`<span class="badge">${rk}</span>`:""}</button>`).join("")+(window.__platform?`<button type="button" data-acct="1" class="${tab==="food"||tab==="body"?"on":""}" aria-current="${tab==="food"||tab==="body"}">${TAB_ICON.me}Profile</button>`:""));
+  document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{if(b.dataset.tab==="progress"&&tab==="progress") runSel=null; tab=b.dataset.tab; if(tab==="plan"){ planView="training"; if(typeof PL!=="undefined"&&b.classList.contains("on")){ PL.edit=null; PL.pop=null } } try{localStorage.setItem("rd25-tab",tab)}catch(e){} if(tab==="advice"&&S.advice.at>(S.advice.seenAt||0)){S.advice.seenAt=S.advice.at;saveAdvice()} render(); window.scrollTo(0,0)});
 }
 
 function weekStrip(){
