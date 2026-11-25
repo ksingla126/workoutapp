@@ -45,7 +45,7 @@ const EXLIB_RAW = [
   ["goblet","Goblet Squat","Quads","Dumbbell","w",1],["hack","Hack Squat (Machine)","Quads","Machine","w"],
   ["smithsquat","Squat (Smith Machine)","Quads","Smith machine","w"],["legpress","Leg Press (Horizontal)","Quads","Machine","w"],
   ["legpress45","Leg Press (45°)","Quads","Machine","w"],["legext","Leg Extension (Machine)","Quads","Machine","w"],
-  ["legext1","Single-Leg Extension (Machine)","Quads","Machine","w"],["split","Bulgarian Split Squat (Dumbbell)","Quads","Dumbbell","w"],
+  ["legext1","Single-Leg Extension (Machine)","Quads","Machine","w"],["split","Bulgarian Split Squat (Dumbbell)","Quads","Dumbbell","w"],["bhack","Bulgarian Hack Squat (Machine)","Quads","Machine","w"],
   ["lunge","Walking Lunge (Dumbbell)","Quads","Dumbbell","w"],["stepup","Step-Up (Dumbbell)","Quads","Dumbbell","w"],
   // Hamstrings
   ["rdl","Romanian Deadlift (Barbell)","Hamstrings","Barbell","w"],["dbrdl","Romanian Deadlift (Dumbbell)","Hamstrings","Dumbbell","w"],

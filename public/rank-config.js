@@ -68,7 +68,7 @@ window.RANK_CFG = {
     hammer: "hammer ropehammer revcurl", triiso: "pushdown ropepush ohtri dbohtri skull kickback singlepush ezohtri dbskull",
     tricomp: "cgbench jmpress jmsmith", tridip: "tridip machdip benchdipb benchdip diamondpu",
     squat: "lmsquat squat smithsquat hack pendulum beltsquat legpress legpress45 goblet heelgoblet boxsquat bwsquat heelsq jumpsquat", fsquat: "frontsquat",
-    lunge: "lmlunge split lunge stepup revlunge bblunge splitsq bss pistolbox pistol", kneeext: "legext legext1 sissyassist sissy wallsit wallsitw",
+    lunge: "lmlunge split bhack lunge stepup revlunge bblunge splitsq bss pistolbox pistol", kneeext: "legext legext1 sissyassist sissy wallsit wallsitw",
     deadlift: "deadlift sumodl rackpull tbdl", hinge: "lmrdl rdl dbrdl sldl goodmorning gmbw slrdl dbslrdl",
     hamcurl: "legcurl lyingcurl nordic ghr slidecurl slidecurl1 nordicneg dblegcurl",
     glute: "lmthrust hipthrust machthrust glutebridge smithhip slbridge slthrust dbthrust pullthrough cablekick donkeykick", abduct: "abductor cableabd sidelegraise",
@@ -181,7 +181,7 @@ window.RANK_CFG = {
     dbohtri: [{ p: "triceps", r: 0.33, cap: 3 }], kickback: [{ p: "triceps", r: 0.18, cap: 3 }],
 
     squat: [{ p: "quads", r: 1 }], frontsquat: [{ p: "quads", r: 0.8 }], hack: [{ p: "quads", r: 1.15 }], smithsquat: [{ p: "quads", r: 0.85 }],
-    split: [{ p: "quads", r: 0.47 }], lunge: [{ p: "quads", r: 0.43, cap: 3 }], stepup: [{ p: "quads", r: 0.43, cap: 3 }], goblet: [{ p: "quads", r: 0.3, cap: 3 }],
+    split: [{ p: "quads", r: 0.47 }], bhack: [{ p: "quads", r: 0.55 }], lunge: [{ p: "quads", r: 0.43, cap: 3 }], stepup: [{ p: "quads", r: 0.43, cap: 3 }], goblet: [{ p: "quads", r: 0.3, cap: 3 }],
     legpress: [{ p: "quads", r: 1.27, cap: 3 }], legpress45: [{ p: "quads", r: 1.72, cap: 3 }], legext: [{ p: "quads", r: 0.75, cap: 3 }], legext1: [{ p: "quads", r: 0.38, cap: 3 }],
 
     deadlift: [{ p: "hams", r: 1 }], tbdl: [{ p: "hams", r: 1.08 }], rdl: [{ p: "hams", r: 0.79 }], dbrdl: [{ p: "hams", r: 0.53 }],

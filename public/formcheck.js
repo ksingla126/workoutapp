@@ -17,7 +17,7 @@ const P = (pat, ids) => ids.split(" ").forEach(id => PATTERN_OF[id] = pat);
 P("squat", "lmsquat squat frontsquat goblet hack smithsquat pendulum beltsquat jumpsquat");
 P("hinge", "lmrdl deadlift tbdl rdl dbrdl goodmorning kbswing backext sldl sumodl rackpull pullthrough");
 P("bridge", "lmthrust hipthrust machthrust glutebridge smithhip");
-P("lunge", "lmlunge split lunge stepup revlunge bblunge");
+P("lunge", "lmlunge split bhack lunge stepup revlunge bblunge");
 P("hpress", "lmsqpress bench dbbench incline inclinebb declinebench smithbench cgbench pushup inclinesmith declinedb");
 P("dip", "dips tridip");
 P("vpress", "lmpress1 ohp dbpress arnold smithohp landmine");

@@ -95,7 +95,7 @@ const TV_OF = {
   backext: "backext", rowerg: "cardio",
   inclinesmith: "hpush", inclinemach: "hpush", declinedb: "hpush", lowcablefly: "fly", inclinedbfly: "fly",
   closepull: "vpull", singlepull: "vpull", pendlay: "hpull", meadows: "hpull", isorow: "hpull", highrow: "hpull", bbshrug: "shrug", rackpull: "hinge",
-  smithohp: "vpush", landmine: "vpush", lmsqpress: "hpush", lmpress1: "vpush", lmrow: "hpull", lmsquat: "squat", lmlunge: "squat", lmrdl: "hinge", lmthrust: "glute", lmrot: "antirot", machlateral: "side", bbupright: "side", platefront: "side", revcablefly: "rear",
+  smithohp: "vpush", landmine: "vpush", lmsqpress: "hpush", lmpress1: "vpush", lmrow: "hpull", lmsquat: "squat", lmlunge: "squat", bhack: "squat", lmrdl: "hinge", lmthrust: "glute", lmrot: "antirot", machlateral: "side", bbupright: "side", platefront: "side", revcablefly: "rear",
   spider: "biceps", machpreacher: "biceps", dbpreacher: "biceps", bayesian: "biceps", ropehammer: "biceps", revcurl: "biceps",
   machdip: "triceps", singlepush: "triceps", ezohtri: "triceps",
   pendulum: "squat", beltsquat: "squat", revlunge: "squat", bblunge: "squat",
