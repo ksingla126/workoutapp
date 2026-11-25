@@ -1133,7 +1133,7 @@ function wsgNext(k) { return ymd(addDays(parseYmd(k), 1)) }
 function wsgPrevDay(k, l) { const dk = x => /^[ABC]$/.test(x || "") ? "r" + x : x;
   const e = Object.entries(S.logs).filter(([kk, x]) => kk < k && x.type === "gym" && x.ex && dk(x.day) === dk(l.day)).sort((a, b) => a[0] < b[0] ? 1 : -1)[0];
   return e ? { k: e[0], l: e[1] } : null }
-function wsgVol(id, l, sets) { const f = logFmt(id, l), F = FMT[f] || {}; if (!(F.b === "reps" && F.w)) return 0; return WS(sets).reduce((t, x) => t + loadW(id, l, x.w) * (Number(x.r) || 0), 0) }
+function wsgVol(id, l, sets) { const f = logFmt(id, l), F = FMT[f] || {}; if (!(F.b === "reps" && F.w)) return 0; return WS(sets).reduce((t, x) => t + setVolW(x, w => loadW(id, l, w)), 0) }
 function wsgLogVol(l) { return Object.entries(l.ex || {}).reduce((t, [id, sets]) => t + wsgVol(id, l, sets), 0) }
 function wsgData(k, l) {
   const d = parseYmd(k), p = planFor(d), plan = p && p.type === "gym" ? (p.ex || []) : [];
@@ -1172,7 +1172,7 @@ function wsgTab(k, l, tab, D) {
         tb = `<div class="wsg-tb${e.wr ? "" : " one"}"><div class="wsg-tr hd">${e.wr ? "<span>Set</span><span>Weight</span><span>Reps</span><span>Last time</span>" : "<span>Set</span><span>Result</span><span>Last time</span>"}</div>` +
           e.all.map(x => { const w = x.t === "w", lbl = w ? "W" : String(++wi), pv = w ? null : ps[wi - 1], last = pv ? esc(setTxt(e.f, pv, logDb(e.id, e.prev.l))) : "–";
             const ty = !w && x.t && typeof SET_TYPES !== "undefined" && SET_TYPES[x.t] ? `<em>${esc(SET_TYPES[x.t].l)}</em>` : "";
-            return e.wr ? `<div class="wsg-tr${w ? " wu" : ""}"><span>${lbl}${ty}</span><b>${Number(x.w) ? `${+toU(Number(x.w)).toFixed(1)}${e.db ? "/DB" : ""} ${uL()}` : "BW"}</b><b>${esc(String(x.r ?? "–"))}</b><span>${last}</span></div>`
+            return e.wr ? `<div class="wsg-tr${w ? " wu" : ""}"><span>${lbl}${ty}</span><b>${x.lr ? (x.lr[0][0] === x.lr[1][0] ? (Number(x.lr[0][0]) ? `${+toU(Number(x.lr[0][0])).toFixed(1)}${e.db ? "/DB" : ""} ${uL()}` : "BW") : `L ${+toU(Number(x.lr[0][0])).toFixed(1)} · R ${+toU(Number(x.lr[1][0])).toFixed(1)}`) : Number(x.w) ? `${+toU(Number(x.w)).toFixed(1)}${e.db ? "/DB" : ""} ${uL()}` : "BW"}</b><b>${x.lr ? `${x.lr[0][1]} L · ${x.lr[1][1]} R` : esc(String(x.r ?? "–"))}</b><span>${last}</span></div>`
               : `<div class="wsg-tr${w ? " wu" : ""}"><span>${lbl}${ty}</span><b>${esc(setTxt(e.f, x, e.db))}</b><span>${last}</span></div>` }).join("") + `</div>` }
       return `<div class="wsg-ex${open ? " open" : ""}"><button type="button" class="wsg-h" data-wsgx="${esc(e.id)}" aria-expanded="${open}"><i class="wsg-d" aria-hidden="true"></i><span class="wsg-nm"><b>${esc(e.name)}${e.cfg.ss ? `<small class="ss">SS ${esc(String(e.cfg.ss))}</small>` : ""}${e.pr ? `<small class="pr">PR</small>` : ""}</b><span>${esc(wsgSum(e))}</span></span><span class="wsg-n">${n}</span><span class="wsg-car" aria-hidden="true">▾</span></button>${tb}</div>` }).join("");
     return rows + `<div class="wsn-leg"><span>TAP AN EXERCISE FOR EVERY SET</span></div>`;

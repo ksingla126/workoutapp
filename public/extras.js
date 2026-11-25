@@ -47,7 +47,7 @@ function weekRecap(mon) {
     if (p && !(typeof preStart === "function" && preStart(d))) { if (p.type === "gym") { gp++; if (l) gd++ } if (p.type === "run") { rp++; if (l) rd++ } if (p.type === "row") { op++; if (l) od++ } }
     if (l && l.type === "run" && !p) rd++;
     if (l && l.type === "run") mi += Number(l.mi) || 0;
-    if (l && l.type === "gym" && l.ex) Object.values(l.ex).forEach(sets => (sets || []).forEach(s => { vol += (Number(s.w) || 0) * (Number(s.r) || 0) }));
+    if (l && l.type === "gym" && l.ex) Object.values(l.ex).forEach(sets => (sets || []).forEach(s => { vol += setVolW(s, w => Number(w) || 0) }));
     if (typeof dqDone === "function" && dqDone(k)) q++ });
   // lift PRs: best estimated 1RM this week vs everything before
   const best = {}, prs = [];
